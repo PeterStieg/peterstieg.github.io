@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .c { fill: none; stroke: #7A1A2C; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .u { fill: #7A1A2C; }
+    @media (prefers-color-scheme: dark) { .c { stroke: #C98593; } .u { fill: #C98593; } }
+  </style>
+  <path class="c" d="M5 8 L13 16 L5 24"/>
+  <rect class="u" x="15" y="22" width="13" height="4" rx="2"/>
+</svg>
