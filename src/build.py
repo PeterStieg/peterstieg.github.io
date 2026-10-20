@@ -249,9 +249,9 @@ SOURCE_NOTE = f"""<!--
 -->"""
 
 # Runs before the stylesheet: marks JS as available and applies a stored theme without a flash.
-THEME_BOOT = ("<script>document.documentElement.classList.add('js');"
+THEME_BOOT = ("<script>(function(){document.documentElement.classList.add('js');"
               "try{var t=localStorage.getItem('theme');"
-              "if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>")
+              "if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>")
 
 # The arrow is not part of Atkinson Hyperlegible, so it is drawn.
 ARROW_SVG = ('<svg viewBox="0 0 16 10" aria-hidden="true" focusable="false">'
@@ -318,7 +318,7 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 
 
 def lang_switch(c):
-    """EN · DE · IT – the current language is marked, the others link to the same page in that language."""
+    """EN · DE – the current language is marked, the other links to the same page in that language."""
     r = c["root"]
     items = []
     for code, label, name, path, _ in LANGS:
@@ -422,10 +422,10 @@ def page(c):
     out.append(f'<a class="to-top" href="#top" aria-label="{e(c["to_top"])}" title="{e(c["to_top"])}">{UP_SVG}</a>\n')
     out.append('<div class="minimap" aria-hidden="true"></div>\n<main id="main">\n<div class="wrap">\n')
 
-    # hero – same order as the LinkedIn banner (banner.py)
-    out.append(f"""<section class="hero" id="top" aria-label="{NAME}">
+    # hero – same order as the LinkedIn banner
+    out.append(f"""<section class="hero" id="top">
 <h1>{NAME}</h1>
-<p class="tagline">{TAGLINE.replace("Performance Marketing", "Performance&nbsp;Marketing").replace("Data Science", "Data&nbsp;Science")}</p>
+<p class="tagline" lang="en">{TAGLINE.replace("Performance Marketing", "Performance&nbsp;Marketing").replace("Data Science", "Data&nbsp;Science")}</p>
 <p class="claim" lang="en">{CLAIM}</p>
 <p class="prompt" lang="en"><span class="caret" aria-hidden="true">&gt;_</span><span class="cmd" aria-hidden="true">{MOTTO}</span><span class="sr-only">{MOTTO}</span><span class="cursor" aria-hidden="true"></span></p>
 </section>
@@ -454,7 +454,7 @@ def page(c):
     # experience – each role as a #JobAlert-style tree
     roles = []
     for ro in c["roles"]:
-        place = f' <span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
+        place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
         ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
         roles.append(f"""<li class="role">
 <p class="when">{e(ro['when'])}</p>
@@ -601,9 +601,9 @@ def build():
         target = SITE / c["path"]
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(dots(page(c) if key == "en" else nbsp(page(c))), encoding="utf-8")
-    (SITE / "impressum.html").write_text(legal("Impressum", IMPRESSUM, "impressum.html"), encoding="utf-8")
-    (SITE / "datenschutz.html").write_text(legal("Datenschutzerklärung", DATENSCHUTZ, "datenschutz.html"), encoding="utf-8")
-    (SITE / "404.html").write_text(not_found(), encoding="utf-8")
+    (SITE / "impressum.html").write_text(dots(legal("Impressum", IMPRESSUM, "impressum.html")), encoding="utf-8")
+    (SITE / "datenschutz.html").write_text(dots(legal("Datenschutzerklärung", DATENSCHUTZ, "datenschutz.html")), encoding="utf-8")
+    (SITE / "404.html").write_text(dots(not_found()), encoding="utf-8")
     (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\n", encoding="utf-8")
     (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n", encoding="utf-8")
     # The sitemap lists pages, not content: it changes when pages are added or removed. lastmod = build date.

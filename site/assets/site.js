@@ -25,7 +25,8 @@
   }));
   const s0 = stored();
   if ((s0 === "light" || s0 === "dark") && !root.hasAttribute("data-theme")) root.setAttribute("data-theme", s0);
-  mqDark.addEventListener("change", paintTheme);
+  if (mqDark.addEventListener) mqDark.addEventListener("change", paintTheme);
+  else mqDark.addListener(paintTheme);              // Safari before 14
   paintTheme();
 
   /* ---------- Prompt: types the motto once. Full text stays in the HTML for no-JS and screen readers. */
@@ -76,6 +77,7 @@
   const dockMeasure = () => {
     if (pairs.length !== 2) return;
     top.classList.add("dock");
+    hero.classList.remove("docked", "flying");       // a resize may switch modes while docked
     dockClear();
     const sy = window.scrollY;
     const headerBottom = top.getBoundingClientRect().bottom;
@@ -133,6 +135,7 @@
     const box = main.getBoundingClientRect();
     const frag = document.createDocumentFragment();
 
+    root.classList.add("mm-measure");               // sticky headings report where they are stuck
     const SEL = "h1, h2, h3, h4, p, li, dt, dd";
     main.querySelectorAll(SEL).forEach((el) => {
       if (el.querySelector(SEL)) return;              // leaf text blocks only
@@ -141,7 +144,7 @@
       range.selectNodeContents(el);
       const lines = [];                               // one bar per rendered line
       for (const r of range.getClientRects()) {
-        if (!r.width || !r.height) continue;
+        if (r.width < 2 || r.height < 2) continue;  // skips the 1px .sr-only copy
         const l = lines.find((x) => Math.abs(x.top - r.top) < r.height / 2);
         if (l) { l.left = Math.min(l.left, r.left); l.right = Math.max(l.right, r.right); l.h = Math.max(l.h, r.height); }
         else lines.push({ top: r.top, left: r.left, right: r.right, h: r.height });
@@ -160,6 +163,7 @@
       }
     });
 
+    root.classList.remove("mm-measure");
     view = document.createElement("span");
     view.className = "mm-view";
     frag.appendChild(view);
@@ -178,7 +182,7 @@
   const jump = (clientY, smooth) => {
     const r = rail.getBoundingClientRect();
     const y = (clientY - r.top) / scale - window.innerHeight / 2;
-    window.scrollTo({ top: Math.max(0, y), behavior: smooth && !reduce ? "smooth" : "auto" });
+    window.scrollTo({ top: Math.max(0, y), behavior: smooth && !reduce ? "smooth" : "instant" });
   };
 
   if (rail) {
