@@ -427,6 +427,7 @@ html:not(.js) .to-top { opacity: 1; visibility: visible; transform: none; }
 @media print {
   .top, .minimap, .skip, .to-top { display: none; }
   .hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }
+  .hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }
   .sec > h2 { position: static; }
   body { font-size: 11pt; }
 }

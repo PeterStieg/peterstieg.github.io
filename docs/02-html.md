@@ -56,27 +56,30 @@ The `<head>` holds information about the page, not content. Of all its lines, on
 ### The theme boot script
 
 ```html
-<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script>(function(){document.documentElement.classList.add('js');try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
 ```
 
 The same code, indented for reading (`build.py` writes it on one line, from the constant `THEME_BOOT`):
 
 ```js
-document.documentElement.classList.add('js');
-try {
-  var t = localStorage.getItem('theme');
-  if (t === 'light' || t === 'dark')
-    document.documentElement.setAttribute('data-theme', t);
-} catch (e) {}
+(function () {
+  document.documentElement.classList.add('js');
+  try {
+    var t = localStorage.getItem('theme');
+    if (t === 'light' || t === 'dark')
+      document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})()
 ```
 
+- `(function () { … })()` – an IIFE ("immediately invoked function expression"): a function that is defined and called in one go. The outer parentheses make the parser read `function` as an expression instead of a declaration; the final `()` calls it. Its purpose is scope: variables declared inside, such as `t`, exist only within the function. A plain `var t` at the top level of a script would land on the global object as `window.t`, where any other script could overwrite or read it.
 - `document.documentElement` – the `<html>` element.
 - `.classList.add('js')` – turns it into `<html lang="en" class="js">`. CSS uses the class to tell "JavaScript runs" from "JavaScript is off": `html:not(.js) .themes` hides the theme buttons (without JavaScript they would do nothing), `html:not(.js) .to-top` shows the back-to-top button permanently.
 - `localStorage.getItem('theme')` – reads the theme a visitor picked on an earlier visit. `site.js` stores it when someone clicks a theme button.
 - `if (t === 'light' || t === 'dark')` – accepts only the two known values. Anything else (empty, outdated, edited by hand) is ignored, and the page follows the system setting.
 - `setAttribute('data-theme', t)` – writes `data-theme="dark"` or `data-theme="light"` on `<html>`. The CSS has rules for `:root[data-theme="dark"]` and `:root:not([data-theme="light"])`, so this one attribute switches every color variable at once.
 - `try { … } catch (e) {}` – reading `localStorage` throws an error when the browser blocks storage, which some privacy settings do. The empty `catch` swallows the error; the page then simply follows the system theme.
-- `var t` – creates a global variable (`window.t`). Harmless here, because `site.js` keeps all its own variables inside a function.
+- `var t` – a local variable, thanks to the IIFE. `site.js` uses the same pattern: its whole code sits inside one arrow function that runs immediately.
 
 Why inline, and why exactly here:
 
@@ -351,18 +354,18 @@ The content of the block, indented for reading (in the file it is one line):
 ### Hero
 
 ```html
-<section class="hero" id="top" aria-label="Peter Stieg">
+<section class="hero" id="top">
 <h1>Peter Stieg</h1>
-<p class="tagline">Performance&nbsp;Marketing&nbsp;· Data&nbsp;Science</p>
+<p class="tagline" lang="en">Performance&nbsp;Marketing&nbsp;· Data&nbsp;Science</p>
 <p class="claim" lang="en">Marketing leadership with root access</p>
 <p class="prompt" lang="en"><span class="caret" aria-hidden="true">&gt;_</span><span class="cmd" aria-hidden="true">sudo dream plan ship</span><span class="sr-only">sudo dream plan ship</span><span class="cursor" aria-hidden="true"></span></p>
 </section>
 ```
 
-- `<section aria-label="Peter Stieg">` – a section with an accessible name becomes a region landmark; without a name it is only a grouping. The name repeats the heading, so a screen reader says "Peter Stieg, region" and then "heading level 1, Peter Stieg". `aria-labelledby` pointing to the `<h1>`, as in the other sections, would give the same result.
+- `<section>` without a name – a section becomes a region landmark only when it has an accessible name (`aria-label` or `aria-labelledby`). The hero has none on purpose: it opens `<main>`, which is already a landmark, and its `<h1>` is the first thing a screen reader meets there. A name would only make the screen reader say "Peter Stieg" twice – once for the region, once for the heading.
 - `id="top"` – the target of the logo and the back-to-top link.
-- `<h1>` – the one top-level heading. Search engines read it as the page's main topic; screen-reader users reach it with a single key (H or 1 in most screen readers). Once the name has docked into the header, the CSS sets this `<h1>` to `visibility: hidden`, which also removes it from the accessibility tree for as long as the page stays scrolled down.
-- `<p class="tagline">` – three `&nbsp;` keep "Performance Marketing" and "Data Science" together and glue the middle dot to "Marketing". On a narrow phone the line can only break after the dot. `build.py` inserts the first two in the hero template; `dots()` adds the one before the dot.
+- `<h1>` – the one top-level heading. Search engines read it as the page's main topic; screen-reader users reach it with a single key (H or 1 in most screen readers). Once the name has docked into the header, the CSS fades this `<h1>` out with `opacity: 0` (plus `pointer-events: none`, so it cannot be clicked or selected while invisible). Unlike `visibility: hidden` or `display: none`, opacity leaves the element in the accessibility tree: heading navigation still finds the `<h1>` while the page is scrolled down.
+- `<p class="tagline" lang="en">` – three `&nbsp;` keep "Performance Marketing" and "Data Science" together and glue the middle dot to "Marketing". On a narrow phone the line can only break after the dot. `build.py` inserts the first two in the hero template; `dots()` adds the one before the dot. `lang="en"` marks the tagline as an English brand element, which matters on the German page.
 - `<p class="claim" lang="en">` – the claim. `lang="en"` is redundant on the English page and essential on the German one (see "English inside the German page").
 - `<p class="prompt" lang="en">` – the typing line, built from four spans:
   - `.caret` – `>_`, decorative, hidden from screen readers.
@@ -389,7 +392,7 @@ Every content section comes from this template (function `section()` in `build.p
 - `aria-labelledby="h-profile"` – names the region after its heading, so the screen reader's landmark list reads "Profile, Experience, Projects …". It points to the heading's id instead of repeating the text in `aria-label`: the name always matches the visible heading, and it is translated along with it (some browser translation tools leave `aria-label` untranslated).
 - `<h2 id="h-profile">` – the heading, with the id the section points to. Heading levels form an outline: `h1` (name) → `h2` (sections) → `h3` (roles, fields, project groups) → `h4` (single projects). Screen-reader users move through this outline the way sighted users skim bold text.
 - `<div class="body">` – the content column next to the sticky heading (CSS grid). No meaning.
-- With the hero, the page has nine region landmarks. That makes the landmark list longer; in exchange, every section is one keystroke away.
+- The eight sections make eight region landmarks. That makes the landmark list longer; in exchange, every section is one keystroke away.
 
 ### Profile: a dictionary entry
 
@@ -475,7 +478,7 @@ The drawn arrow:
 <p class="when">since 11/2025</p>
 <div>
 <h3>Head of Marketing</h3>
-<p class="org">E+SERVICE+CHECK GmbH <span class="place">· Laucha</span></p>
+<p class="org">E+SERVICE+CHECK GmbH&nbsp;<span class="place">· Laucha</span></p>
 <p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Scope</span> marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
 </div>
 </li>
@@ -492,7 +495,7 @@ Nine entries; the first stands for all.
 - `<p class="when">` – the period, in the left column on wide screens.
 - `<div>` – groups everything else into the right column, so the CSS grid gets exactly two columns: date | details.
 - `<h3>` – the job title. As a heading, every role is reachable through heading navigation.
-- `<p class="org">` with `<span class="place">· Laucha</span>` – employer and location; the span mutes the location.
+- `<p class="org">` with `<span class="place">· Laucha</span>` – employer and location; the span mutes the location. The `&nbsp;` before the span glues the dot to "GmbH", so the location can wrap to the next line but the dot never starts it (see "Non-breaking spaces and middle dots").
 - `<p class="ctx">` – one line of company context. Optional: `build.py` emits it only for roles that have a `ctx`, and the `place` span only for roles that have a place (Rapidobject has none).
 - `<ul class="tree">` – the details as an unordered list, styled like the output of the Unix `tree` command – the format of the #JobAlert posts. The branches `├──` and `└──` are not characters in the HTML but CSS borders on `::before` and `::after`. They align in any font, and screen readers do not read out box-drawing characters.
 - `<span class="k">Scope</span>` – the key. CSS sets it bold and adds the colon via `content: ":"`. Screen readers generally read such generated content, so they say "Scope: marketing, design …". On the German page the keys carry `lang="en"` – Scope, Team, Result are brand vocabulary.
@@ -641,13 +644,21 @@ The footnote reference, piece by piece:
 
 `&nbsp;` is the entity for U+00A0, the no-break space. It looks like a space but forbids a line break at that point. The site uses it for two typographic rules.
 
-**Middle dots never start a line.** The copy in `build.py` uses " · " as a separator. Before writing a page, the function `dots()` replaces every " · " after `<body>` with `&nbsp;· `. The dot is now glued to the word before it, and the only break opportunity is after it:
+**Middle dots never start a line.** The copy in `build.py` uses " · " as a separator. Before writing any page – the two home pages, the legal pages and the 404 page – the function `dots()` replaces every " · " after `<body>` with `&nbsp;· `. The dot is now glued to the word before it, and the only break opportunity is after it:
 
 ```html
 <dd>monthly media budget at a RoAS of 4.0&nbsp;· Posterlounge</dd>
 ```
 
 On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
+
+`dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag:
+
+```html
+<p class="org">Posterlounge GmbH&nbsp;<span class="place">· Leipzig</span></p>
+```
+
+The no-break space works across the tag boundary: "GmbH" and "·" stay on one line, and the break opportunity is the space after the dot, inside the span.
 
 **German numbers stay with their units.** On the German page only, the function `nbsp()` glues "25 %", "240.000 €" and "1,7 Mio. €" together, as German typography (DIN 5008) asks. It inserts the character U+00A0 itself, not the entity `&nbsp;` – the same character for the browser, but invisible in view-source and in an editor. The German page contains twelve of them; a search for ` ` finds them.
 
@@ -662,6 +673,7 @@ On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never
 `build.py` follows an editorial rule: brand elements stay English in every language – claim, tagline, motto, the four Ps, the slogans and the tree labels. On the German page, these elements carry `lang="en"`:
 
 ```html
+<p class="tagline" lang="en">Performance&nbsp;Marketing&nbsp;· Data&nbsp;Science</p>
 <p class="claim" lang="en">Marketing leadership with root access</p>
 <div><h3 lang="en">Performance</h3>…
 <li><span class="k" lang="en">Scope</span> Marketing, Design und Automatisierung von Grund auf aufgebaut – …</li>
@@ -670,7 +682,7 @@ On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never
 ```
 
 - The mechanism: a screen reader switches voice at every `lang` change. Without the attribute, a German voice would read "Built, not briefed" with German pronunciation rules – recognizable at best. Spell-checkers and hyphenation use the same attribute.
-- On the English page some of these attributes are left out: `build.py` adds them to the P⁴ headings, the tree keys and the italic words only when the page language is not English (variables `en_attr` and `lang`). Others are written into the shared template and therefore appear on both pages – claim, prompt, slogans, footer motto, Online/Offline. On the English page they are redundant and harmless.
+- On the English page some of these attributes are left out: `build.py` adds them to the P⁴ headings, the tree keys and the italic words only when the page language is not English (variables `en_attr` and `lang`). Others are written into the shared template and therefore appear on both pages – tagline, claim, prompt, slogans, footer motto, Online/Offline. On the English page they are redundant and harmless.
 - The mirror case is on the 404 page: an English page with one German line, marked `lang="de"`.
 
 ---
@@ -702,7 +714,7 @@ On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never
 <p class="code">404</p>
 <h1><code class="dki">{KeyWord:Page}</code> not found.</h1>
 <p class="claim" lang="de">Diese Seite gibt es nicht.</p>
-<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/">cd ~</a> · <a href="/de/" lang="de">Deutsch</a></p>
+<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/">cd ~</a>&nbsp;· <a href="/de/" lang="de">Deutsch</a></p>
 </section>
 </div>
 </main>
@@ -718,7 +730,7 @@ On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never
 - `lang="de"` – the German line inside the English page.
 - `cd ~` – the shell command "change to the home directory", linked to `/`.
 - The page has no minimap and no back-to-top link. `site.js` checks whether elements exist before using them, so it runs here without errors.
-- `build.py` does not pass this page through `dots()`, so the " · " here keeps ordinary spaces.
+- Like every page, this one passes through `dots()`: the `&nbsp;` glues the dot to `cd ~`.
 
 ### `.htaccess`
 
@@ -789,7 +801,7 @@ Sitemap: https://peterstieg.com/sitemap.xml
 …
 Deutschland</address>
 …
-<p>peterstieg.com: <a href="index.html" hreflang="en">English</a> · <a href="de/index.html">Deutsch</a></p>
+<p>peterstieg.com: <a href="index.html" hreflang="en">English</a>&nbsp;· <a href="de/index.html">Deutsch</a></p>
 </div>
 </div>
 </main>
@@ -849,3 +861,7 @@ A static file, not generated by `build.py`.
 - **Preload** – `<link rel="preload">`: fetch a resource early, before the browser would discover it. Fonts need `as="font"` and `crossorigin`.
 - **defer** – a script attribute: download in parallel, execute after parsing, in source order.
 - **No-break space** – U+00A0, written `&nbsp;`: looks like a space, forbids a line break at that point.
+
+---
+
+[Previous: build.py](01-build.md) · [Next: CSS](03-css.md)

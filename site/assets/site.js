@@ -41,7 +41,7 @@
       const step = () => {
         cmd.textContent = full.slice(0, ++i);
         if (i < full.length) setTimeout(step, 45 + Math.random() * 70);
-        else root.classList.add("typed");
+        else { root.classList.add("typed"); layout(); }  // redraw the minimap with the full motto
       };
       setTimeout(step, 600);
     }
@@ -141,10 +141,16 @@
       if (el.querySelector(SEL)) return;              // leaf text blocks only
       if (!el.textContent.trim()) return;
       const range = document.createRange();
-      range.selectNodeContents(el);
+      const rects = [];                               // text visible on screen only, no .sr-only copies
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        if (!n.textContent.trim() || n.parentElement.closest(".sr-only")) continue;
+        range.selectNodeContents(n);
+        rects.push(...range.getClientRects());
+      }
       const lines = [];                               // one bar per rendered line
-      for (const r of range.getClientRects()) {
-        if (r.width < 2 || r.height < 2) continue;  // skips the 1px .sr-only copy
+      for (const r of rects) {
+        if (!r.width || !r.height) continue;
         const l = lines.find((x) => Math.abs(x.top - r.top) < r.height / 2);
         if (l) { l.left = Math.min(l.left, r.left); l.right = Math.max(l.right, r.right); l.h = Math.max(l.h, r.height); }
         else lines.push({ top: r.top, left: r.left, right: r.right, h: r.height });

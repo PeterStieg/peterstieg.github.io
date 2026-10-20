@@ -60,10 +60,11 @@ Specificity counts the parts of a selector in three columns, written (a,b,c): a 
 | `:root` | (0,1,0) |
 | `:root[data-theme="dark"]` | (0,2,0) |
 | `:root:not([data-theme="light"])` | (0,2,0) – `:not()` counts as its argument |
-| `.body p` | (0,1,1) |
+| `.intro` | (0,1,0) |
+| `:where(.body) p` | (0,0,1) – `:where()` counts as nothing |
 | `.js .top.dock .home` | (0,4,0) |
 
-Media queries and `@supports` add nothing to specificity; they only decide whether the rules inside take part at all. Inline styles (`style="…"`, which `site.js` writes) beat every stylesheet selector.
+Media queries and `@supports` add nothing to specificity; they only decide whether the rules inside take part at all. Inline styles (`style="…"`, which `site.js` writes) beat every stylesheet selector – unless the stylesheet declaration is marked `!important`, which the print rules use.
 
 ### Light values on :root
 
@@ -245,7 +246,7 @@ a:focus-visible, button:focus-visible {
 - `:focus-visible` – matches an element that has focus *and* for which the browser decides a focus indicator should show: yes after keyboard navigation, usually not after a mouse click on a link or button. Plain `:focus` would also draw the ring on every click.
 - `outline: 2px solid var(--accent);` – the focus ring. An outline is drawn outside the border and takes no space, so focusing never shifts the layout, which a border would. The accent reaches 9.7:1 and 6.0:1, far above the 3:1 needed for focus indicators.
 - `outline-offset: 3px;` – a gap between element and ring.
-- `border-radius: 2px;` – current browsers draw outlines along the border radius, so the ring gets soft corners. Side effect: it rounds the element itself too, and at (0,1,1) it beats any single-class rule. The round back-to-top button (`.to-top`, (0,1,0), `border-radius: 50%`) therefore turns into a square with 2px corners while it has keyboard focus (measured). The theme buttons are safe: `.themes button` is also (0,1,1), ties, and wins because it comes later.
+- `border-radius: 2px;` – current browsers draw outlines along the border radius, so the ring gets soft corners. Side effect: it rounds the element itself too, and at (0,1,1) it beats any single-class rule. A round element therefore needs a stronger rule to stay round while focused. The back-to-top button has one: `.to-top { border-radius: 50% }` is only (0,1,0), so `.to-top:focus-visible` at (0,2,0) sets 50% again (see the back-to-top section). The theme buttons need nothing extra: `.themes button` is also (0,1,1), ties, and wins because it comes later.
 
 ## Skip link and visually hidden text
 
@@ -371,9 +372,9 @@ Visually hidden, still read by screen readers. In the hero, the visible typed te
 /* docking: the hero name and its prompt become the header logo (see site.js) */
 .js .top.dock .home { visibility: hidden; }
 .js .top.dock.docked .home { visibility: visible; }
-.hero h1, .hero .prompt .caret { position: relative; z-index: 6; transform-origin: 0 0; }
-.hero.flying h1, .hero.flying .prompt .caret { will-change: transform; }
-.hero.docked h1, .hero.docked .prompt .caret { visibility: hidden; }
+.hero h1, .hero .prompt .caret { transform-origin: 0 0; }
+.hero.flying h1, .hero.flying .prompt .caret { position: relative; z-index: 6; will-change: transform; }
+.hero.docked h1, .hero.docked .prompt .caret { opacity: 0; pointer-events: none; }
 ```
 
 While you scroll, the hero's `PETER STIEG` and its `>_` travel into the header logo. `site.js` moves them with inline `transform` values tied to the scroll position; CSS provides the states. The classes involved:
@@ -387,20 +388,23 @@ Declaration by declaration:
 
 - `.js .top.dock .home { visibility: hidden; }` – while the hero name is on screen, the header logo is hidden: the name is visible exactly once. `visibility: hidden` keeps the logo's space, so the header layout doesn't shift, and takes it out of the tab order and the accessibility tree – measured: the first Tab presses go skip link, then the section links. Without JavaScript, `.js` is missing, nothing is hidden, and the header logo simply stays visible.
 - `.js .top.dock.docked .home { visibility: visible; }` – once docked, the real logo appears. (0,5,0) beats (0,4,0).
-- `.hero h1, .hero .prompt .caret` – a selector list: the comma gives both selectors the same declarations.
+- `.hero h1, .hero .prompt .caret { transform-origin: 0 0; }` – a selector list: the comma gives both selectors the same declaration. `transform-origin: 0 0` makes scaling start from the top-left corner instead of the default center, matching the coordinates the script calculates with. While flying, `site.js` sets a more precise origin inline (the offset of the text inside its box), and inline styles beat stylesheet rules; the CSS value is the baseline when no inline value is set.
+- `.hero.flying …` – three declarations that apply only while the elements are in motion:
   - `position: relative;` – without offsets, the element stays exactly where it is. It is there because `z-index` only works on positioned elements (and flex or grid items).
   - `z-index: 6;` – one more than the header's 5, so the travelling name is painted *over* the header it flies into, not under its blurred background.
-  - `transform-origin: 0 0;` – scale from the top-left corner instead of the default center, matching the coordinates the script calculates with. While flying, `site.js` sets a more precise origin inline (the offset of the text inside its box), and inline styles beat stylesheet rules; the CSS value is the baseline when no inline value is set.
-- **Stacking contexts.** `z-index` values are compared only among elements in the same stacking context. The header (sticky with a z-index) is one such context inside the page's root context. The hero name's 6 can only beat the header's 5 because none of its ancestors – `.hero`, `.wrap`, `main` – forms a context of its own. Give any of them a `transform`, a `filter`, an `opacity` below 1, `isolation: isolate` or a position with a z-index, and the h1's 6 would count only inside that ancestor. The whole hero would then be compared with the header as a single layer at the ancestor's own level – 0 for a transform, filter or opacity – and the name would slide *under* the header.
-- `.hero.flying … { will-change: transform; }` – tells the browser that `transform` is about to change, so it can prepare, typically by giving the element its own compositing layer and moving it without repainting. Only during the flight, because a permanent `will-change` keeps such layers in memory for nothing.
-- `.hero.docked … { visibility: hidden; }` – after landing, the hero copies disappear and the real header logo takes over. `visibility` rather than `display: none`: the hero keeps its layout box, so the page height and the scroll position don't jump.
-- With reduced motion, `site.js` uses a "swap" mode instead: no flight, the hero never gets `.docked`, and the header logo appears once the hero name has scrolled under the header.
+  - `will-change: transform;` – tells the browser that `transform` is about to change, so it can prepare, typically by giving the element its own compositing layer and moving it without repainting. A permanent `will-change` would keep such layers in memory for nothing.
+- **Why only while flying.** Outside the flight, the name must behave like any other content and scroll *under* the sticky header. With a permanent z-index of 6, it would be painted over the header whenever it is not being moved – before the flight starts and, above all, in the reduced-motion "swap" mode, where the name never flies and simply scrolls away beneath the header.
+- **Stacking contexts.** `z-index` values are compared only among elements in the same stacking context. The header (sticky with a z-index) is one such context inside the page's root context. The flying name's 6 can only beat the header's 5 because none of its ancestors – `.hero`, `.wrap`, `main` – forms a context of its own. Give any of them a `transform`, a `filter`, an `opacity` below 1, `isolation: isolate` or a position with a z-index, and the h1's 6 would count only inside that ancestor. The whole hero would then be compared with the header as a single layer at the ancestor's own level – 0 for a transform, filter or opacity – and the name would slide *under* the header.
+- `.hero.docked …` – after landing, the hero copies disappear and the real header logo takes over.
+  - `opacity: 0;` – invisible, but still in the layout and in the accessibility tree. The hero `<h1>` is the page's main heading; screen-reader users who jump between headings still find it after the name has docked. `visibility: hidden` would remove it from that tree, `display: none` would also collapse its box and make the page height and scroll position jump.
+  - `pointer-events: none;` – an element at opacity 0 still catches clicks and text selection. The docked copy has been moved onto the header logo's position; this lets every click pass through to what lies beneath.
+- With reduced motion, `site.js` uses the swap mode: no flight, the hero gets neither `.flying` nor `.docked`, the name keeps its normal stacking, and the header logo appears once the hero name has scrolled under the header.
 
 ## Navigation and language pill
 
 ```css
 .nav a { text-decoration: none; color: var(--muted); }
-.nav a:hover, .nav a[aria-current="true"] { color: var(--ink); }
+.nav a:hover { color: var(--ink); }
 .langs {
   display: inline-flex; align-items: center;
   border: 1px solid var(--line); border-radius: 999px;
@@ -415,7 +419,7 @@ Declaration by declaration:
 These rules continue the header after the docking block.
 
 - `.nav a { text-decoration: none; color: var(--muted); }` – navigation links without underline, in muted grey. The shorthand `text-decoration: none` resets all three longhands set on `a`. (0,1,1) beats `a`.
-- `.nav a:hover, .nav a[aria-current="true"]` – ink on hover. The second selector would mark a "current section" link, but no page has `aria-current="true"` in the navigation and `site.js` never sets it, so it matches nothing today.
+- `.nav a:hover` – ink on hover. (0,2,1) beats `.nav a` (0,1,1), because `:hover` is a pseudo-class and counts like a class.
 - `.langs` – the language pill.
   - `display: inline-flex; align-items: center;` – a flex row, centered vertically. As a child of the `.nav` flex container it is a flex item, and flex items are block-level anyway, so `inline-flex` acts like `flex` here.
   - `border: 1px solid var(--line);` – the hairline outline.
@@ -540,17 +544,17 @@ html:not(.js) .themes { display: none; }
 
 ```css
 @media (prefers-reduced-motion: no-preference) {
-  .typed .cursor { animation: blink 1.1s steps(2, start) 6; }
+  .typed .cursor { animation: blink 1.1s steps(2, start) 4; }
 }
 @keyframes blink { to { visibility: hidden; } }
 ```
 
 - `@keyframes blink { to { visibility: hidden; } }` – defines an animation named `blink`. Only the end state is written; the start is the element's normal value, `visible`.
 - `.typed .cursor` – `site.js` adds `.typed` to `<html>` when the text is fully typed. An animation starts the moment its `animation` declaration begins to apply, so the blinking starts exactly then.
-- `animation: blink 1.1s steps(2, start) 6;` – shorthand for name, length of one cycle, timing function and number of cycles.
+- `animation: blink 1.1s steps(2, start) 4;` – shorthand for name, length of one cycle, timing function and number of cycles.
   - `visibility` cannot fade. Between `visible` and `hidden` it stays `visible` at any progress strictly between 0 and 1 and becomes `hidden` only at the end. With a smooth timing function, the cursor would be visible almost all the time.
   - `steps(2, start)` cuts each cycle into two jumps and takes the first jump immediately: progress is 0.5 in the first half (visible) and 1 in the second (hidden) – 0.55s on, 0.55s off (measured). With `steps(2, end)` the values would be 0 and 0.5, both visible, and the cursor would never blink.
-  - `6` – six cycles; then the animation ends, the cursor returns to its normal style and stays solid. Endless blinking distracts from reading. Six cycles last 6.6 seconds; WCAG 2.2.2 (Pause, Stop, Hide) asks for a pause control when blinking runs longer than 5 seconds, so 4 cycles (4.4s) would stay inside that limit.
+  - `4` – four cycles; then the animation ends, the cursor returns to its normal style and stays solid. Endless blinking distracts from reading. The number is chosen for a limit: WCAG 2.2.2 (Pause, Stop, Hide) asks for a pause control when blinking content runs longer than 5 seconds. Four cycles last 4.4 seconds and need none; six would already take 6.6.
 - The rule sits inside `prefers-reduced-motion: no-preference`, so visitors who asked for less motion see a steady cursor. (`site.js` skips the typing for them as well.)
 
 **Transitions versus animations.** A transition reacts to a change: when a property gets a new value (a class is added, `:hover` begins), the browser interpolates from the old value to the new one over the given time. It needs a trigger and runs once per change. An animation runs keyframes on its own timeline as soon as it applies; it can loop or run a fixed number of times, with no change of state needed. The cursor uses an animation; the back-to-top button uses transitions.
@@ -596,25 +600,26 @@ Each content section is a `.sec`: heading left and body right on wide screens, s
 .body { max-width: 42rem; }
 .body > :first-child { margin-top: 0; }
 .body > :last-child { margin-bottom: 0; }
-.body p { margin: 0 0 1em; }
+:where(.body) p { margin: 0 0 1em; }
 ```
 
 - `.body { max-width: 42rem; }` – caps the content column for a comfortable line length; on wide screens it doesn't use the whole grid track.
 - `.body > :first-child { margin-top: 0; }` – `:first-child` without an element name means `*:first-child`: whatever comes first. Its top margin goes, so the first line of the body aligns with the heading. (0,2,0).
 - `.body > :last-child { margin-bottom: 0; }` – the same at the end; the section padding alone sets the spacing.
-- `.body p { margin: 0 0 1em; }` – paragraphs get space only below: 1em of their own font size.
+- `:where(.body) p { margin: 0 0 1em; }` – paragraphs inside `.body` get space only below: 1em of their own font size. It matches exactly the same elements as `.body p` would; only its weight differs.
 
-**Specificity check: `.body p` overrides seven later rules.** `.body p` is (0,1,1). A single class such as `.intro` is (0,1,0). Both have one class, so the element column decides: `.body p` wins, no matter where the other rule stands in the file. Every paragraph inside `.body` that sets its margin with a single class loses: `.intro`, `.hello`, `.hw`, `.def`, `.when`, `.org` and `.ctx`. Their `margin` declarations have no effect. Measured on a wide screen: `.hello` ends up with 48px below instead of 16px, `.org` with 18px instead of 8px. Rules written as `.fields p`, `.projects p` or `.principles p` tie with `.body p` at (0,1,1) and win because they come later; `.body > :first-child` and `.body > :last-child` win with (0,2,0).
+**`:where()` and why the default must be weak.** `:where()` is a pseudo-class that takes a list of selectors and matches whatever any of them matches – but it always adds zero specificity, whatever is inside. So `:where(.body) p` weighs (0,0,1), the same as a bare `p`.
+
+This rule is a default: "paragraphs in the content column get a bottom margin unless something more specific says otherwise". A default must lose against every class rule written for a particular paragraph. Written as `.body p`, it would weigh (0,1,1) – one class plus one element – and beat any single-class rule such as `.intro` (0,1,0), wherever that rule stands in the file. The margins of seven paragraph classes would then be silently ignored: `.intro`, `.hello`, `.hw`, `.def`, `.when`, `.org` and `.ctx` (`.hello` would get 48px below instead of 16px). With `:where()`, every one of them wins by specificity, and the margins they declare are the ones you see (measured). Rules such as `.fields p` (0,1,1) win by specificity as well, wherever they stand in the file, and `.body > :first-child` and `.body > :last-child` (0,2,0) still trim the ends.
+
+`:where()` works in all major browsers since early 2021. A browser that doesn't know it drops the whole rule, as with any selector it cannot parse, and paragraphs fall back to the browser's default margins.
 
 ```css
-.lead { font-size: 1.25rem; line-height: 1.5; }
-
 h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 700; }
 
 .muted { color: var(--muted); }
 ```
 
-- `.lead` – a larger intro-paragraph style. No page uses the class; the rule is unused.
 - `h3` – a type selector at (0,0,1): the base for every h3, easy to override (`.fields h3`, `.role h3` and `.group > h3` do). No top margin, a small one below, size, leading and weight.
 - `.muted` – a utility class for secondary text, used for the university names in Education and the earlier cities in Contact.
 
@@ -676,7 +681,7 @@ From 36rem, figures and explanations form two aligned columns.
 ```
 
 - `.fields` – the four P⁴ fields as a grid: one column on phones, two equal columns from 40rem. `1fr 1fr` splits the free space in half.
-- `.fields p` – (0,1,1) ties with `.body p` and wins by coming later. Spacing comes from the grid gap instead of margins.
+- `.fields p` – (0,1,1) beats the default `:where(.body) p` (0,0,1). Spacing comes from the grid gap instead of margins.
 
 ## Experience timeline
 
@@ -706,14 +711,14 @@ From 36rem, figures and explanations form two aligned columns.
 ```
 
 - `.when` – the date column:
-  - `margin: 0;` – overridden by `.body p` (see the specificity check); on phones, where the date sits above the title, it adds 1em of space below the date.
+  - `margin: 0;` – no paragraph margin; the grid gap alone separates date and title when they stack on phones.
   - `color: var(--muted); font-size: 0.95rem;` – quieter than the job title.
   - `font-variant-numeric: tabular-nums;` – 05/2025 and 11/2023 take the same width.
   - `padding-top: 0.15rem;` – lowers the smaller date text so it lines up with the larger h3 next to it.
   - `white-space: nowrap;` – a date range never wraps.
 - `.role h3 { margin-bottom: 0.1rem; }` – job title close to the company line.
-- `.org` – the company line; its `margin` is overridden by `.body p`. `.org .place` – the city, muted.
-- `.ctx` – a context line (industry, size), muted at 1rem; its `margin` is overridden by `.body p` as well.
+- `.org` – the company line, 0.5rem above the next line. `.org .place` – the city, muted.
+- `.ctx` – a context line (industry, size), muted at 1rem, 0.6rem above the tree. Both margins apply because `:where(.body) p` is weaker than any class.
 
 ## Projects
 
@@ -731,7 +736,7 @@ From 36rem, figures and explanations form two aligned columns.
 - `.group > h3` – group headings as quiet labels: muted, regular weight, 1rem. They label; the project titles carry the weight.
 - `.projects` – list reset, then `display: grid; gap: 1.4rem`. A grid gap instead of margins on list items: the space exists only between items, never before the first or after the last.
 - `.projects h4` – the project title.
-- `.projects p { margin: 0; }` – ties with `.body p`, wins by order.
+- `.projects p { margin: 0; }` – removes the paragraph default; (0,1,1) beats `:where(.body) p`.
 - `.projects .stack` – the technology line, muted and smaller. At (0,2,0) it beats `.projects p` (0,1,1), so its `margin-top: 0.2rem` applies.
 
 ## Approach
@@ -744,7 +749,7 @@ From 36rem, figures and explanations form two aligned columns.
 ```
 
 - `.principles` – the same list-as-grid pattern as `.projects`.
-- `.principles p { margin: 0; }` – wins over `.body p` by order.
+- `.principles p { margin: 0; }` – removes the paragraph default, as in `.projects`.
 - `.principles strong { font-weight: 700; }` – the browser default for `<strong>` is `bolder`, which from regular text already resolves to 700. The rule makes it explicit but changes nothing.
 
 ## Education
@@ -779,7 +784,7 @@ From 36rem, figures and explanations form two aligned columns.
 .mail { font-size: 1.25rem; font-weight: 700; }
 ```
 
-- `.hello` – "Hallo · Hi · Ciao" as a display line: fluid between 1.9rem and 3rem, tight line height 1.1, bold. Its `margin` is overridden by `.body p`: the space below becomes 1em of the greeting's own size, up to 48px instead of 16px.
+- `.hello` – "Hallo · Hi · Ciao" as a display line: fluid between 1.9rem and 3rem, tight line height 1.1, bold. `margin: 0 0 1rem` – a fixed 16px below. In rem on purpose: the paragraph default of 1em would scale with the greeting's large size and reach 48px.
 - `.mail` – the e-mail link, larger and bold: the main call to action.
 
 ## Dictionary entry
@@ -800,7 +805,7 @@ The Profile section opens like a dictionary entry: headword with syllable dots, 
 
 - `.entry` – the wrapper, 1.75rem of space below.
 - `.hw` – the headword line:
-  - `margin: 0 0 0.4rem;` – overridden by `.body p`; the line gets 1em (18px) below instead of 0.4rem.
+  - `margin: 0 0 0.4rem;` – keeps the definition close to its headword.
   - `display: flex;` – headword, part of speech and etymology become flex items. Whitespace between flex items is not rendered, so the spaces in the HTML vanish and `gap` controls the spacing instead.
   - `flex-wrap: wrap;` – on narrow screens, "noun" and the etymology move to the next line instead of squeezing the headword.
   - `align-items: baseline;` – the large headword and the small labels share a baseline, as in a printed dictionary.
@@ -809,7 +814,7 @@ The Profile section opens like a dictionary entry: headword with syllable dots, 
 - `.hw .syl` – the middle dots between syllables (mar·ke·tin·ker·er): muted, regular weight inside the bold word, with a hair of space (0.03em) on each side.
 - `.pos` – the part of speech ("noun"), italic and muted, as dictionaries set it. One of the two reasons the italic font file loads.
 - `.ety` – the etymology "[marketer × tinkerer]", muted, at 1rem.
-- `.def` – the definition at 1.25rem. Its `margin: 0` is overridden by `.body p` too, but without visible effect: the paragraph is the last child of `.entry`, and its 20px bottom margin collapses into `.entry`'s larger 1.75rem one (vertical margins of a parent and its last child merge when no padding or border separates them).
+- `.def` – the definition at 1.25rem, `margin: 0`. The space below the entry comes from `.entry` alone.
 - `.ety i { font-style: italic; }` – `<i>` is italic by default, so this repeats the default. It also sits after `.def`, apart from the other `.ety` rule.
 
 ## P⁴ and intro lines
@@ -827,7 +832,7 @@ The Profile section opens like a dictionary entry: headword with syllable dots, 
   - `line-height: 0;` – the browser's default `vertical-align: super` raises the box and can make its line taller, so lines with a superscript get uneven spacing. With a line height of zero, the raised box adds nothing to the line's height.
   - `vertical-align: 0.55em;` – raises it by 0.55em of the superscript's own, already reduced, size.
   - `margin-left: 0.04em;` – a hair of space after the P.
-- `.intro` – the short muted line that opens a section ("P as in Peter.", "Stop starting. Start finishing."). Its `margin` loses to `.body p`: 1em (18px) below instead of 24px.
+- `.intro` – the short muted line that opens a section ("P as in Peter.", "Stop starting. Start finishing."), with 1.5rem of space below – more than a normal paragraph, to set it apart from what it introduces.
 - `.intro strong { color: var(--ink); }` – bold parts in full ink.
 - `.fields h3` – the four field names, larger than other h3s.
 
@@ -986,6 +991,7 @@ The Education section has footnote numbers (`<sup class="fnref">`) that link to 
 .top.docked ~ .to-top { opacity: 1; visibility: visible; transform: none; transition: opacity 0.2s, transform 0.2s; }
 html:not(.js) .to-top { opacity: 1; visibility: visible; transform: none; }
 .to-top:hover { border-color: var(--accent); color: var(--accent); }
+.to-top:focus-visible { border-radius: 50%; }
 .to-top svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 @media (prefers-reduced-motion: reduce) { .to-top, .top.docked ~ .to-top { transition: none; } }
 @media (min-width: 74rem) and (min-height: 30rem) {
@@ -995,7 +1001,8 @@ html:not(.js) .to-top { opacity: 1; visibility: visible; transform: none; }
 
 - `.top.docked ~ .to-top` – the general sibling combinator `~`: a `.to-top` that comes *after* a `.top.docked` element with the same parent. In the HTML, `<a class="to-top">` follows `<header class="top">` inside `<body>`. When `site.js` adds `.docked` to the header, the button's state follows from CSS alone; no script touches the button. Apart from the newer `:has()`, selectors can only look at later siblings and at descendants, which is why the button comes after the header in the markup. The declarations: fully opaque, visible, back in place, and transitions without the visibility delay. (0,3,0) beats `.to-top` (0,1,0).
 - `html:not(.js) .to-top` – without JavaScript there is no docking, so the button is simply always visible. It is a plain link to `#top` and needs no script.
-- `.to-top:hover` – bordeaux border and icon. As noted under focus styles, keyboard focus also applies `border-radius: 2px` from `a:focus-visible`, which turns the circle into a rounded square while focused.
+- `.to-top:hover` – bordeaux border and icon.
+- `.to-top:focus-visible { border-radius: 50%; }` – keeps the circle round under keyboard focus. The global `a:focus-visible` sets `border-radius: 2px` at (0,1,1), which beats the base `.to-top` (0,1,0) and would turn the button into a rounded square. This rule, (0,2,0), wins it back, and the focus ring follows the circle (measured: 50% while focused).
 - `.to-top svg` – an outline arrow in `currentColor`, slightly heavier (1.8) than the theme icons.
 - `@media (prefers-reduced-motion: reduce)` – no fade and no slide for visitors who asked for less motion. Both selectors are needed: `.top.docked ~ .to-top` sets its own `transition` at (0,3,0), which `.to-top` alone could not override.
 - `@media (min-width: 74rem) and (min-height: 30rem)` – the same condition as the minimap. `right: calc(1.75rem + (4.25rem - 2.75rem) / 2)` comes to 2.5rem: the minimap starts 1.75rem from the edge and is 4.25rem wide, so adding half the difference between minimap and button width centers the button under it. `bottom: 1.75rem` puts the button's top edge at 4.5rem, 0.75rem below the minimap's lower end at 5.25rem. Same specificity as the base rule, later in the file, so it wins.
@@ -1013,7 +1020,7 @@ html:not(.js) .to-top { opacity: 1; visibility: visible; transform: none; }
 
 - `.foot` – a line above, 2rem of padding above and 2.5rem below, muted and smaller text.
 - `.foot .wrap` – a wrapping flex row: motto left, legal links right (`space-between`), two lines on narrow screens. `gap: 0.75rem 2rem` sets row and column gaps.
-- `.foot p { margin: 0; }` – the motto without paragraph margins. The footer is outside `.body`, so `.body p` doesn't reach it.
+- `.foot p { margin: 0; }` – the motto without the browser's default paragraph margins. The footer is outside `.body`, so `:where(.body) p` doesn't reach it.
 - `.foot nav` – legal links and copyright as another wrapping flex row.
 - `.foot a { color: inherit; }` – repeats the global `a { color: inherit; }`; redundant.
 
@@ -1071,6 +1078,12 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
   - `z-index: 4;` – below header and button (5).
 
 ```css
+.mm-measure .sec > h2 { position: static; }
+```
+
+- `.mm-measure .sec > h2 { position: static; }` – a rule for the script, not for the visitor. To place a heading's bar, `site.js` asks the browser for the heading's rectangles on screen. A sticky heading reports where it is *stuck* at that moment, which depends on the current scroll position, so its bar would land in the wrong place on the map. While measuring, `site.js` adds `.mm-measure` to `<html>`; this rule turns the sticky headings back into ordinary ones, and they report their place in the flow. (0,2,1) beats the sticky `.sec > h2` (0,1,1). The script removes the class again in the same run of code. The browser recalculates the layout for each measurement, but it paints no frame in between, so the headings never visibly unstick.
+
+```css
 .mm-bar {
   position: absolute; left: 0; height: 2px; border-radius: 1px;
   background: var(--bar);
@@ -1109,17 +1122,22 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 
 ```css
 @media print {
-  .top, .minimap, .skip { display: none; }
+  .top, .minimap, .skip, .to-top { display: none; }
+  .hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }
+  .hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }
   .sec > h2 { position: static; }
   body { font-size: 11pt; }
 }
 ```
 
 - `@media print` – applies when the page is printed or saved as PDF.
-- `.top, .minimap, .skip { display: none; }` – navigation and screen-only aids don't belong on paper.
+- `.top, .minimap, .skip, .to-top { display: none; }` – navigation and screen-only aids don't belong on paper. The back-to-top button matters most here: browsers typically repeat fixed elements on every printed page.
+- `.hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }` – puts the name and its caret back in the hero. Once you have scrolled down, the name has docked: `site.js` has moved and shrunk it with an inline `transform`, and `.hero.docked` has set its opacity to 0. With the header hidden on paper, the printout would otherwise carry no name at all.
+  - **Why `!important`.** An inline style beats every normal stylesheet declaration, whatever its specificity. The one way for a stylesheet to override it is `!important`: important declarations from the site outrank normal ones, inline styles included. The same flag also beats `.hero.docked`'s `opacity: 0` (0,2,1), which (0,1,1) alone could not.
+  - Measured with Chromium's print emulation after scrolling: name visible, no transform.
+- `.hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }` – the rest of the prompt line. During the flight, `site.js` fades the typed motto and the cursor block with inline `opacity`, down to 0 once the name has docked. They don't move, so only the opacity needs resetting, and again only `!important` can beat the inline value. A page printed after scrolling shows the full `>_ sudo dream plan ship` with its cursor.
 - `.sec > h2 { position: static; }` – sticky makes no sense on a printed page. Same specificity as the sticky rule, later in the file, so it wins.
 - `body { font-size: 11pt; }` – `pt` (1/72 inch) is a natural unit on paper. Only text that inherits its size from `body` changes; everything sized in rem (headings, ledger figures, the hero name) stays relative to the root.
-- What it misses: `.to-top` is not hidden, and browsers typically repeat fixed elements on every printed page. The docking state isn't reset either. After scrolling down, `.hero.docked h1` is `visibility: hidden` and the header is `display: none`, so the printout carries no name at all (measured with Chromium's print emulation).
 
 ---
 
@@ -1134,7 +1152,7 @@ Open peterstieg.com (or `site/index.html` locally) and the DevTools (F12).
 ## Key terms
 
 - **Cascade** – the algorithm that picks one value when several rules set the same property on an element: origin and importance first, then specificity, then source order.
-- **Specificity** – the weight of a selector, counted as (IDs, classes/attributes/pseudo-classes, elements/pseudo-elements) and compared from the left. Media queries add none; inline styles beat all selectors.
+- **Specificity** – the weight of a selector, counted as (IDs, classes/attributes/pseudo-classes, elements/pseudo-elements) and compared from the left. Media queries and `:where()` add none; inline styles beat all selectors unless a stylesheet declaration is `!important`.
 - **Custom property** – a variable such as `--accent`, read with `var()`. It inherits and is resolved per element, so changing it on `<html>` re-colors the whole page.
 - **rem and em** – rem is relative to the root font size (the visitor's default, 16px unless changed); em to the element's own font size. In media queries, both refer to the browser's initial font size.
 - **clamp()** – `clamp(MIN, PREFERRED, MAX)`: a fluid value with a floor and a ceiling, used for type that grows with the viewport.
@@ -1145,3 +1163,7 @@ Open peterstieg.com (or `site/index.html` locally) and the DevTools (F12).
 - **Pseudo-element** – a box CSS generates without markup: `::before`, `::after`, `::marker`, `::selection`. `::before` and `::after` need `content` to exist.
 - **Transition and animation** – a transition interpolates between two values when a value changes; an animation runs keyframes on its own timeline, can repeat and needs no trigger.
 - **User-preference media query** – `prefers-color-scheme` and `prefers-reduced-motion` read OS or browser settings, so the page can follow the visitor's choices live.
+
+---
+
+[Previous: The HTML](02-html.md) · [Next: JavaScript](04-js.md)

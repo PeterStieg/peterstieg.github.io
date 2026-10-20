@@ -358,9 +358,9 @@ SOURCE_NOTE = f"""<!--
 
 ```python
 # Runs before the stylesheet: marks JS as available and applies a stored theme without a flash.
-THEME_BOOT = ("<script>document.documentElement.classList.add('js');"
+THEME_BOOT = ("<script>(function(){document.documentElement.classList.add('js');"
               "try{var t=localStorage.getItem('theme');"
-              "if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>")
+              "if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>")
 ```
 
 The Python side:
@@ -370,9 +370,10 @@ The Python side:
 
 The JavaScript, statement by statement:
 
+- `(function(){ … })()` – an IIFE ("immediately invoked function expression"): the code is wrapped in an anonymous function that is called right away. The point is scope. A `var` at the top level of a script becomes a global (`window.t`) that any other script on the page could read or overwrite; inside the function, `t` is local and disappears when the function returns. The outer parentheses make the parser read `function(){…}` as an expression, so the trailing `()` can call it.
 - `document.documentElement.classList.add('js')` – adds the class `js` to `<html>`. The CSS uses it to show JavaScript-only controls only when JavaScript actually runs: `html:not(.js) .themes { display: none; }` hides the theme buttons otherwise.
 - `try{ … }catch(e){}` – reading `localStorage` throws in some privacy modes or when site data is blocked. The empty `catch` makes the page fall back to the system theme instead of stopping the script. (This `e` is JavaScript and has nothing to do with Python's `e`.)
-- `var t=localStorage.getItem('theme')` – the visitor's earlier choice, saved by `site.js` when a theme button is clicked.
+- `var t=localStorage.getItem('theme')` – the visitor's earlier choice, saved by `site.js` when a theme button is clicked. Local to the IIFE.
 - `if(t==='light'||t==='dark')…setAttribute('data-theme',t)` – a whitelist: only the two known values reach the attribute. The CSS switches its color variables on `:root[data-theme="dark"]` and `:root:not([data-theme="light"])`.
 
 Why it must run inline, in the head, before the stylesheet:
@@ -534,7 +535,7 @@ The returned document head, top to bottom:
 
 ```python
 def lang_switch(c):
-    """EN · DE · IT – the current language is marked, the others link to the same page in that language."""
+    """EN · DE – the current language is marked, the other links to the same page in that language."""
     r = c["root"]
     items = []
     for code, label, name, path, _ in LANGS:
@@ -545,7 +546,7 @@ def lang_switch(c):
     return f'<span class="langs" role="group" aria-label="{e(c["aria_lang"])}">{"".join(items)}</span>'
 ```
 
-- The docstring mentions IT; there is no Italian version yet. The output follows `LANGS`, so a third entry there would appear automatically.
+- The docstring names the two current languages. The output itself follows `LANGS`, so a third entry there would appear in the switch automatically.
 - `items = []` plus `append` – an explicit loop, because each language takes one of two shapes.
 - `for code, label, name, path, _ in LANGS` – full unpacking; the slug is not needed here.
 - Current language: a `<span>`, not a link – a link to the page you are on is noise. `aria-current="page"` tells screen readers "this is the current one"; the CSS rule `.langs [aria-current]` sets it in bold.
@@ -751,10 +752,10 @@ def page(c):
 ### Hero
 
 ```python
-    # hero – same order as the LinkedIn banner (banner.py)
-    out.append(f"""<section class="hero" id="top" aria-label="{NAME}">
+    # hero – same order as the LinkedIn banner
+    out.append(f"""<section class="hero" id="top">
 <h1>{NAME}</h1>
-<p class="tagline">{TAGLINE.replace("Performance Marketing", "Performance&nbsp;Marketing").replace("Data Science", "Data&nbsp;Science")}</p>
+<p class="tagline" lang="en">{TAGLINE.replace("Performance Marketing", "Performance&nbsp;Marketing").replace("Data Science", "Data&nbsp;Science")}</p>
 <p class="claim" lang="en">{CLAIM}</p>
 <p class="prompt" lang="en"><span class="caret" aria-hidden="true">&gt;_</span><span class="cmd" aria-hidden="true">{MOTTO}</span><span class="sr-only">{MOTTO}</span><span class="cursor" aria-hidden="true"></span></p>
 </section>
@@ -762,12 +763,12 @@ def page(c):
 ```
 
 - `id="top"` – target of the home link and the back-to-top link.
+- No `aria-label` on the section: the `<h1>` inside already names the block, and a label on top would make screen readers announce the name twice.
 - `<h1>{NAME}</h1>` – the only `<h1>` on the page.
 - The tagline: two chained `.replace()` calls inside the replacement field put `&nbsp;` inside each phrase, so "Performance Marketing" and "Data Science" never break in the middle; the line can only break at the middle dot. Pitfall: the replace matches the exact wording. Reword `TAGLINE` and the replace silently stops matching.
 - Double quotes inside a triple-double-quoted f-string are fine on older Pythons too: a single `"` does not end a `"""` string.
-- The claim is marked `lang="en"`, because it stays English everywhere.
+- Tagline, claim and prompt are marked `lang="en"`, because they stay English on every page (rule 5).
 - The prompt has four parts: the caret (hidden from screen readers), `.cmd` (hidden from screen readers; `site.js` empties it and types the motto letter by letter, unless the visitor's system asks for reduced motion), `.sr-only` (a visually hidden copy that screen readers read in full, instead of a half-typed string), `.cursor` (blinks via CSS). Without JavaScript the full motto simply stays in `.cmd`.
-- The comment refers to `banner.py`, which is not part of this repository.
 
 ### Profile
 
@@ -816,7 +817,7 @@ def page(c):
     # experience – each role as a #JobAlert-style tree
     roles = []
     for ro in c["roles"]:
-        place = f' <span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
+        place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
         ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
         roles.append(f"""<li class="role">
 <p class="when">{e(ro['when'])}</p>
@@ -831,6 +832,7 @@ def page(c):
 ```
 
 - `ro.get("place")` – optional field: returns `None` when the key is missing and `""` when it is empty (Rapidobject). Both are falsy, so no place span appears.
+- `&nbsp;` before the span – the same job as `dots()`: "· Laucha" must not start a new line. `dots()` cannot do it here, because it only matches the plain sequence ` · `, and here a `<span>` tag sits between the space and the dot. So the place line brings its own non-breaking space.
 - `ctx` – the optional context line, same pattern.
 - Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly.
 - `{ctx}{tree(c, ro['tree'])}` – context line and tree directly after each other.
@@ -948,8 +950,8 @@ def page(c):
 # ---------- legal pages (German) ----------
 
 ADDRESS = """Peter Stieg<br>
-[Straße und Hausnummer]<br>
-[PLZ] Leipzig<br>
+…<br>
+… Leipzig<br>
 Deutschland"""
 
 IMPRESSUM = f"""<h1>Impressum</h1>
@@ -969,7 +971,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 <p>Diese Website setzt keine Cookies, nutzt keine Analyse- oder Tracking-Werkzeuge und lädt keine Inhalte von Drittanbietern. Schriften, Skripte und Grafiken liegen auf demselben Server wie die Seite selbst. Nur wenn Sie selbst zwischen hellem und dunklem Design wechseln, merkt sich Ihr Browser diese Auswahl (siehe unten).</p>
 <h2>Hosting und Server-Logfiles</h2>
 <p>Beim Aufruf der Website verarbeitet der Hosting-Anbieter automatisch Daten, die Ihr Browser übermittelt: IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Seite, Referrer-URL sowie Browser und Betriebssystem. Das ist technisch erforderlich, um die Seite auszuliefern und ihre Sicherheit zu gewährleisten. Rechtsgrundlage ist das berechtigte Interesse nach Art. 6 Abs. 1 lit. f DSGVO.</p>
-<p>Hosting-Anbieter: [Name und Anschrift des Hosting-Anbieters]. Mit ihm besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO. Die Speicherdauer der Logfiles richtet sich nach seinen Vorgaben.</p>
+<p>Hosting-Anbieter: … Mit ihm besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO. Die Speicherdauer der Logfiles richtet sich nach seinen Vorgaben.</p>
 <h2>Helles und dunkles Design</h2>
 <p>Ohne Ihr Zutun folgt die Website der Einstellung Ihres Geräts. Wählen Sie das Design über den Schalter oben selbst, speichert Ihr Browser diese Auswahl lokal (Local Storage), damit sie beim nächsten Besuch erhalten bleibt. Der Eintrag bleibt auf Ihrem Gerät und wird nicht an den Server übertragen. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Sie können den Eintrag jederzeit über die Einstellungen Ihres Browsers löschen.</p>
 <h2>Kontakt per E-Mail</h2>
@@ -981,9 +983,10 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 """
 ```
 
-- `ADDRESS` – a plain triple-quoted string (no `f`), with `<br>` line breaks. `<address>` in the two pages marks it as contact information.
-- Why placeholders: the legal notice needs a full postal address, and the privacy notice needs the hosting provider's name and address. Neither is in the repository yet. The square brackets mark exactly what has to be filled in, they are easy to find (search for `[` in this part of the file), and they look obviously wrong on a page if forgotten. The generated `site/impressum.html` and `site/datenschutz.html` currently contain them – fill them in and rebuild before the site goes live.
-- Trade-off: whatever you write into `ADDRESS` lands in the git history for good. If the repository is public, so is the address.
+- The street address and the hosting provider's address are cut to `…` here; the real values are in `src/build.py`.
+- `ADDRESS` – a plain triple-quoted string (no `f`), with `<br>` line breaks. The legal notice requires a full postal address (§ 5 DDG), and the privacy notice names the same person as the one responsible, so the address is defined once and used by both pages. `<address>` marks it as contact information.
+- The privacy notice also names the hosting provider with its address, because the server logs are processed on its behalf (Art. 28 DSGVO). Change hosts and this line has to change too.
+- Trade-off: the address in `ADDRESS` stays in the git history for good, even if you change it later. If the repository is public, so is the address – which the Impressum publishes anyway.
 - `IMPRESSUM`, `DATENSCHUTZ` – f-strings that insert `ADDRESS` and `EMAIL`. They are HTML, inserted unescaped by `legal()`; a literal `&` in a new sentence must be written `&amp;`.
 - `Stand: Oktober 2026` is typed by hand – update it when the text changes.
 - The privacy text describes what the code does: no cookies, no tracking, fonts and scripts on the same server, `localStorage` only for the theme choice. Code and text are coupled: anything that loads third-party content (a web font service, analytics, an embedded video) requires a change to this text as well.
@@ -1075,7 +1078,7 @@ def dots(html):
 - In the body, the space before each ` · ` becomes `&nbsp;`: the line may break after the dot, never before it, so no line starts with a dot.
 - The head stays untouched: an entity in an HTML comment is not decoded, so `SOURCE_NOTE` would show a literal `&nbsp;` in view-source.
 - `nbsp()` inserts the character, `dots()` the entity. Both render the same; the entity is visible in the source, the character is not.
-- `dots()` runs on both main pages, but not on the legal pages or the 404 page. Their few ` · ` can still wrap before the dot.
+- `dots()` runs on every generated HTML page: both main pages, the two legal pages and the 404 page. `nbsp()` stays German-only.
 
 ---
 
@@ -1088,9 +1091,9 @@ def build():
         target = SITE / c["path"]
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(dots(page(c) if key == "en" else nbsp(page(c))), encoding="utf-8")
-    (SITE / "impressum.html").write_text(legal("Impressum", IMPRESSUM, "impressum.html"), encoding="utf-8")
-    (SITE / "datenschutz.html").write_text(legal("Datenschutzerklärung", DATENSCHUTZ, "datenschutz.html"), encoding="utf-8")
-    (SITE / "404.html").write_text(not_found(), encoding="utf-8")
+    (SITE / "impressum.html").write_text(dots(legal("Impressum", IMPRESSUM, "impressum.html")), encoding="utf-8")
+    (SITE / "datenschutz.html").write_text(dots(legal("Datenschutzerklärung", DATENSCHUTZ, "datenschutz.html")), encoding="utf-8")
+    (SITE / "404.html").write_text(dots(not_found()), encoding="utf-8")
     (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\n", encoding="utf-8")
     (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n", encoding="utf-8")
     # The sitemap lists pages, not content: it changes when pages are added or removed. lastmod = build date.
@@ -1115,7 +1118,7 @@ The two main pages:
 
 The other files:
 
-- `impressum.html`, `datenschutz.html`, `404.html` – one line each: build the path with `/`, generate the HTML, write it. `(SITE / "…")` needs the parentheses so `.write_text` applies to the joined path, not to the string.
+- `impressum.html`, `datenschutz.html`, `404.html` – one line each: build the path with `/`, generate the HTML, pass it through `dots()`, write it. The calls nest from the inside out: `legal(…)` runs first, `dots()` gets its result, `write_text()` gets that. `(SITE / "…")` needs the parentheses so `.write_text` applies to the joined path, not to the string.
 - `.htaccess` – configuration for Apache web servers: "for a 404, deliver `/404.html`". Other servers ignore the file. The leading dot hides it by default in `ls` and in the macOS Finder.
 - `robots.txt` – `User-agent: *` addresses all crawlers, `Allow: /` permits everything, `Sitemap:` gives the absolute URL of the sitemap.
 
@@ -1162,9 +1165,9 @@ What it writes (and overwrites):
 |---|---|
 | `site/index.html` | `page(CONTENT["en"])` → `dots()` |
 | `site/de/index.html` | `page(CONTENT["de"])` → `nbsp()` → `dots()` |
-| `site/impressum.html` | `legal("Impressum", IMPRESSUM, …)` |
-| `site/datenschutz.html` | `legal("Datenschutzerklärung", DATENSCHUTZ, …)` |
-| `site/404.html` | `not_found()` |
+| `site/impressum.html` | `legal("Impressum", IMPRESSUM, …)` → `dots()` |
+| `site/datenschutz.html` | `legal("Datenschutzerklärung", DATENSCHUTZ, …)` → `dots()` |
+| `site/404.html` | `not_found()` → `dots()` |
 | `site/.htaccess` | fixed string |
 | `site/robots.txt` | f-string with `URL` |
 | `site/sitemap.xml` | `LANGS` plus build date |
@@ -1209,3 +1212,5 @@ Make each change in `src/build.py`, run `python3 src/build.py`, look at the resu
 - **JSON-LD** – structured data in a `<script type="application/ld+json">` block, using the schema.org vocabulary.
 - **Relative vs root-absolute path** – `assets/site.css` or `../assets/site.css` resolve from the current page's folder; `/assets/site.css` resolves from the domain root.
 - **Non-breaking space** – U+00A0 or `&nbsp;`: looks like a space, but a line never breaks there.
+
+[Next: The HTML](02-html.md)
