@@ -1,0 +1,7 @@
+# GitHub Pages publishes only the forward to peterstieg.com (index.html, 404.html).
+# The site itself lives on IONOS; site/, src/ and docs/ stay source, not a second copy.
+exclude:
+  - site
+  - src
+  - docs
+  - README.md

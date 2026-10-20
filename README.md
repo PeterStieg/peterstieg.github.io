@@ -27,7 +27,9 @@ Python 3, nothing to install. The script overwrites every HTML page in `site/` p
 
 ## Deploy
 
-Manual for now: upload the **contents** of `site/` to the web root, keeping the folder structure. Afterwards, refresh the link preview with LinkedIn's Post Inspector.
+Manual for now: upload the **contents** of `site/` to the web root at IONOS, keeping the folder structure. Afterwards, refresh the link preview with LinkedIn's Post Inspector.
+
+`peterstieg.github.io` is not a second copy: GitHub Pages only serves `index.html` and `404.html` from the repo root, which forward every path to peterstieg.com (`_config.yml` keeps `site/`, `src/` and `docs/` out of Pages).
 
 ## Learn the code
 
