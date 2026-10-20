@@ -14,7 +14,8 @@ peterstieg.github.io
 │   ├── 404.html · .htaccess
 │   ├── assets/           site.css · site.js · fonts/
 │   └── favicon.svg · apple-touch-icon.png · og-image.png · robots.txt · sitemap.xml
-└── docs/                 the code explained, line by line
+├── docs/                 the code explained, line by line
+└── index.html · 404.html · _config.yml   forward peterstieg.github.io to peterstieg.com
 ```
 
 ## Build
