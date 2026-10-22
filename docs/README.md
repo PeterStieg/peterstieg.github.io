@@ -1,6 +1,6 @@
 # The code, line by line
 
-Four chapters, one per file type, in the order the site comes to life: Python writes the HTML, the browser reads it, CSS styles it, JavaScript moves it.
+Four chapters, one per file type, in the order the site comes to life: Python writes the HTML, the browser reads it, CSS styles it, JavaScript moves it. A fifth covers the small page that forwards peterstieg.github.io.
 
 | Chapter | File | What you learn |
 |---|---|---|
@@ -8,6 +8,7 @@ Four chapters, one per file type, in the order the site comes to life: Python wr
 | [2 · HTML](02-html.md) | `site/index.html` and friends | what the browser, screen readers, search engines and LinkedIn read |
 | [3 · CSS](03-css.md) | `site/assets/site.css` | tokens, light/dark, grid, sticky header, drawn tree lines |
 | [4 · JavaScript](04-js.md) | `site/assets/site.js` | theme switch, typing prompt, docking animation, minimap |
+| [5 · Forward page](05-forward.md) | `index.html`, `404.html`, `forward/` | how peterstieg.github.io types two shell lines and forwards every path |
 
 ## How to read
 

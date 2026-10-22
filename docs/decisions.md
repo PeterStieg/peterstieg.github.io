@@ -34,3 +34,4 @@ Why the site looks and reads the way it does. Newest first within each topic; ch
 - **404:** `{KeyWord:Page} not found.` – Google Ads Dynamic Keyword Insertion, for those who know. `.htaccess` activates it on Apache hosting.
 - **Deploy:** manual upload of `site/` to IONOS. Auto-deploy via GitHub Actions is an open option.
 - **peterstieg.github.io forwards to peterstieg.com** instead of mirroring the site: one address for search engines, and the privacy statement (host: IONOS) stays true.
+- **Forward page:** a two-second terminal scene instead of "Moved to …" – `mv -v peterstieg.github.io peterstieg.com`, the real `mv -v` output, `cd peterstieg.com` (with the path for deep links), then on. Click or Enter skips, Esc or Ctrl+C stops (`^C`). Reduced motion: no typing, forward after 1.2 s; no JavaScript: plain text, refresh after 3 s. Typeface: Atkinson Hyperlegible Mono, self-hosted in `forward/fonts/` – no third-party request.

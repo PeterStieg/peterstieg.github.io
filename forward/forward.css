@@ -1,0 +1,85 @@
+/* peterstieg.github.io – the forward page. Colours and cursor as on peterstieg.com (site/assets/site.css). */
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/atkinson-hyperlegible-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/atkinson-hyperlegible-mono-latin-700-normal.woff2") format("woff2");
+}
+
+:root {
+  color-scheme: light dark;
+  --paper: #F7F6F3;
+  --ink: #1A1C1E;
+  --muted: #565B60;
+  --accent: #7A1A2C;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #181A1C;
+    --ink: #F5F4F2;
+    --muted: #A3A8AD;
+    --accent: #C98593;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 clamp(0.95rem, 2.4vw, 1.375rem) / 1.6 "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  -webkit-text-size-adjust: 100%;
+}
+::selection { background: var(--accent); color: var(--paper); }
+
+/* the terminal: as wide as the longest line, never wider than the screen */
+.term { width: min(100%, 52ch); }
+
+.line { display: flex; margin: 0; min-height: 1.6em; }
+.caret { flex: none; margin-right: 1ch; color: var(--accent); font-weight: 700; }
+.cmd { min-width: 0; }
+.out { color: var(--muted); }
+
+/* block cursor, as in the hero of peterstieg.com */
+.cursor {
+  display: inline-block;
+  width: 1ch; height: 1.1em;
+  vertical-align: -0.2em;
+  background: var(--accent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cursor.blink { animation: blink 1.1s steps(2, start) 4; }
+}
+@keyframes blink { to { visibility: hidden; } }
+
+/* the plain sentence: visible without JavaScript, for screen readers always */
+.go { margin: 2.5rem 0 0; color: var(--muted); font-size: 0.85em; }
+.go a {
+  color: var(--ink);
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
+}
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+/* with JavaScript (forward.js): lines appear one by one, the sentence steps back until ^C or Tab */
+.js .line { visibility: hidden; }
+.js .line.on { visibility: visible; }
+.js .go:not(.on):not(:focus-within) {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
