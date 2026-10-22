@@ -15,6 +15,7 @@ peterstieg.github.io
 │   ├── assets/           site.css · site.js · fonts/
 │   └── favicon.svg · apple-touch-icon.png · og-image.png · robots.txt · sitemap.xml
 ├── docs/                 the code explained, line by line
+├── forward/              forward.css · forward.js · fonts/ – the terminal scene on peterstieg.github.io
 └── index.html · 404.html · _config.yml   forward peterstieg.github.io to peterstieg.com
 ```
 
@@ -30,7 +31,7 @@ Python 3, nothing to install. The script overwrites every HTML page in `site/` p
 
 Manual for now: upload the **contents** of `site/` to the web root at IONOS, keeping the folder structure. Afterwards, refresh the link preview with LinkedIn's Post Inspector.
 
-`peterstieg.github.io` is not a second copy: GitHub Pages only serves `index.html` and `404.html` from the repo root, which forward every path to peterstieg.com (`_config.yml` keeps `site/`, `src/` and `docs/` out of Pages).
+`peterstieg.github.io` is not a second copy: GitHub Pages serves only the forward page from the repo root – `index.html`, `404.html` and `forward/`. A two-second terminal scene (`mv -v peterstieg.github.io peterstieg.com`), then every path lands on peterstieg.com. `_config.yml` keeps `site/`, `src/` and `docs/` out of Pages. Changes go live on merge to `master`, no upload needed.
 
 ## Learn the code
 
@@ -40,6 +41,7 @@ Manual for now: upload the **contents** of `site/` to the web root at IONOS, kee
 2. [The HTML – what the browser receives](docs/02-html.md)
 3. [site.css – look and layout](docs/03-css.md)
 4. [site.js – behaviour](docs/04-js.md)
+5. [The forward page – peterstieg.github.io](docs/05-forward.md)
 
 Why things are the way they are: [docs/decisions.md](docs/decisions.md).
 

@@ -1,17 +1,30 @@
 <!doctype html>
-<!-- Any other path on peterstieg.github.io: forward to the same path on peterstieg.com (old /site/ links included). -->
+<!-- Every other path on peterstieg.github.io lands here (old /site/ links included).
+     Same page as index.html – keep the two identical below this comment. Explained in docs/05-forward.md. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Peter Stieg</title>
+<link rel="canonical" href="https://peterstieg.com/">
 <meta name="robots" content="noindex">
-<script>
-  location.replace("https://peterstieg.com" + location.pathname.replace(/^\/site(?=\/|$)/, "") + location.search + location.hash);
-</script>
-<meta http-equiv="refresh" content="0; url=https://peterstieg.com/">
+<meta name="theme-color" content="#F7F6F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#181A1C" media="(prefers-color-scheme: dark)">
+<script>document.documentElement.classList.add("js");setTimeout(function(){if(!window.fw)document.documentElement.classList.remove("js")},2000)</script>
+<link rel="preconnect" href="https://peterstieg.com">
+<link rel="icon" href="https://peterstieg.com/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/forward/fonts/atkinson-hyperlegible-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/forward/fonts/atkinson-hyperlegible-mono-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/forward/forward.css">
+<script src="/forward/forward.js" defer></script>
+<noscript><meta http-equiv="refresh" content="3; url=https://peterstieg.com/"></noscript>
 </head>
 <body>
-<p>Moved to <a href="https://peterstieg.com/">peterstieg.com</a>.</p>
+<main class="term">
+<p class="line" aria-hidden="true"><span class="caret">&gt;_</span><span class="cmd">mv -v peterstieg.github.io peterstieg.com</span></p>
+<p class="line out" aria-hidden="true">renamed 'peterstieg.github.io' -&gt; 'peterstieg.com'</p>
+<p class="line" aria-hidden="true"><span class="caret">&gt;_</span><span class="cmd">cd peterstieg.com</span></p>
+<p class="go">Moved to <a href="https://peterstieg.com/">peterstieg.com</a>.</p>
+</main>
 </body>
 </html>
