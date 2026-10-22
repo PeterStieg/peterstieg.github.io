@@ -405,6 +405,11 @@ Declaration by declaration:
 ```css
 .nav a { text-decoration: none; color: var(--muted); }
 .nav a:hover { color: var(--ink); }
+/* you are here (site.js): the section being read, marked like the current language – ink and bold.
+   A hidden bold copy of the label (data-label) reserves the width, so the menu never shifts. */
+.nav .sect { display: inline-grid; }
+.nav .sect::after { content: attr(data-label); font-weight: 700; height: 0; overflow: hidden; visibility: hidden; }
+.nav .sect[aria-current] { color: var(--ink); font-weight: 700; }
 .langs {
   display: inline-flex; align-items: center;
   border: 1px solid var(--line); border-radius: 999px;
@@ -420,6 +425,11 @@ These rules continue the header after the docking block.
 
 - `.nav a { text-decoration: none; color: var(--muted); }` – navigation links without underline, in muted grey. The shorthand `text-decoration: none` resets all three longhands set on `a`. (0,1,1) beats `a`.
 - `.nav a:hover` – ink on hover. (0,2,1) beats `.nav a` (0,1,1), because `:hover` is a pseudo-class and counts like a class.
+- **You are here.** `site.js` gives the link of the section being read `aria-current="location"`; `.nav .sect[aria-current]` sets it in ink and bold, the same look as the current language.
+  - **The problem:** bold letters are wider. "Experience" in bold is a few pixels wider than in regular weight, so every change of section would push the pills to its right sideways.
+  - **The fix:** `.nav .sect::after` adds a second copy of the label – `content: attr(data-label)` reads the `data-label` attribute that `build.py` writes – in bold, but with `height: 0`, `overflow: hidden` and `visibility: hidden`. It takes no height and shows nothing, yet it still has its full bold width.
+  - `display: inline-grid` makes the link a one-column grid: the label text and the hidden copy are stacked in that column, and a column is as wide as its widest item. So the link is always as wide as its bold version, whether it is bold or not. Measured: the menu stays on the same pixels in every state.
+  - A rule further down hides the `.sect` links on phones with `display: none`; it comes later in the file with the same specificity, so it wins over `inline-grid`.
 - `.langs` – the language pill.
   - `display: inline-flex; align-items: center;` – a flex row, centered vertically. As a child of the `.nav` flex container it is a flex item, and flex items are block-level anyway, so `inline-flex` acts like `flex` here.
   - `border: 1px solid var(--line);` – the hairline outline.
@@ -580,6 +590,8 @@ html:not(.js) .themes { display: none; }
   line-height: 1.3;
   font-weight: 700;
 }
+/* section number, like a slide deck's chapters: "01 Profile" – equal-width digits keep the titles aligned */
+.sec > h2 .no { color: var(--accent); font-weight: 400; font-variant-numeric: tabular-nums; }
 ```
 
 Each content section is a `.sec`: heading left and body right on wide screens, stacked on phones.
@@ -595,6 +607,8 @@ Each content section is a `.sec`: heading left and body right on wide screens, s
   - `.sec > h2 { position: sticky; top: 5rem; align-self: start; }` – the heading stays visible while you scroll through a long section; `top: 5rem` keeps it clear of the header. The child combinator `>` limits this to the section's own `h2`.
   - **Why `align-self: start` is essential:** grid items stretch to the full height of their row by default. The row is as tall as the section body, so a stretched heading would already fill its whole area and have no room to move – sticky would do nothing. With `start`, the heading is only as tall as its text and can slide down inside the tall grid area. It stops at the end of the section, because a sticky element never leaves its containing block.
 - `.sec > h2` – no margin, 1.25rem, line height 1.3, bold. This unconditional rule comes after the media query; the two set different properties, so the order doesn't matter.
+- `.sec > h2 .no` – the section number in front of the heading: accent colour, regular weight, so the title stays the strong part.
+  - `font-variant-numeric: tabular-nums` – switches the font to its equal-width digits (the OpenType feature `tnum`). By default Atkinson Hyperlegible uses proportional digits: in bold, a "1" is about 70 % as wide as a "0". With tabular digits every number from 01 to 07 has the same width, so all titles start on the same pixel (measured).
 
 ```css
 .body { max-width: 42rem; }

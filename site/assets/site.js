@@ -199,13 +199,37 @@
     rail.addEventListener("pointercancel", () => { dragging = false; });
   }
 
+  /* ---------- You are here: the menu marks the section being read, like a slide deck's header. */
+  const marks = [...document.querySelectorAll(".nav .sect")]
+    .map((a) => ({ a, sec: document.getElementById(a.hash.slice(1)) }))
+    .filter((m) => m.sec);
+  const secs = [...document.querySelectorAll("main .sec")];
+  let marked;                                                       // what the menu shows right now
+
+  const here = () => {
+    if (!marks.length) return;
+    const line = top.offsetHeight + window.innerHeight * 0.3;      // reading line: a third down the screen
+    let now = null;
+    for (const s of secs) if (s.getBoundingClientRect().top <= line) now = s;
+    let mark = marks.find((m) => m.sec === now) || null;            // none in P⁴, Approach, Education, Sources
+    if (window.scrollY + window.innerHeight >= root.scrollHeight - 2) {  // at the very bottom: the last one in view
+      mark = marks.filter((m) => m.sec.getBoundingClientRect().top < window.innerHeight).pop() || mark;
+    }
+    if (mark === marked) return;                                    // same section as in the last frame
+    marked = mark;
+    for (const m of marks) {
+      if (m === mark) m.a.setAttribute("aria-current", "location");
+      else m.a.removeAttribute("aria-current");
+    }
+  };
+
   /* ---------- Wiring */
-  const layout = () => { dockMeasure(); build(); dockApply(); };
+  const layout = () => { dockMeasure(); build(); dockApply(); here(); };
 
   let raf = 0;
   window.addEventListener("scroll", () => {
     if (raf) return;
-    raf = requestAnimationFrame(() => { raf = 0; paint(); onScrollTop(); dockApply(); });
+    raf = requestAnimationFrame(() => { raf = 0; here(); paint(); onScrollTop(); dockApply(); });
   }, { passive: true });
 
   let rt = 0;

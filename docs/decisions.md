@@ -24,6 +24,8 @@ Why the site looks and reads the way it does. Newest first within each topic; ch
 - **Docking:** while scrolling, PETER STIEG and `>_` travel into the header logo, so the name is visible once. Reduced motion: instant swap.
 - **Minimap:** on wide screens, the page drawn as code lines like the banner; click or drag to jump.
 - **Back to top:** the docked logo and a round button (under the minimap on wide screens) appear once the name has docked.
+- **Section numbers:** 01–07 in front of the section headings, in the accent colour and regular weight, on the same line as the title – like a slide deck's chapters. Sources stays unnumbered, like an appendix. Screen readers skip the numbers.
+- **You are here:** while scrolling, the menu sets the link of the section being read in bold, like the current language. Sections without a menu link (P⁴, Approach, Education, Sources) mark nothing; at the very bottom, Contact. The bold width is reserved, so the menu never shifts.
 - **Arrows and tree lines are drawn**, because the typeface has no → glyph and box-drawing characters depend on the font.
 
 ## Tech
