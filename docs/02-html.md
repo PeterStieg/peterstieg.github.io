@@ -273,12 +273,14 @@ The content of the block, indented for reading (in the file it is one line):
 `build.py` assembles the whole `<nav>` from f-string pieces, so it lands on one line without whitespace between the tags. As a flex container, the nav would ignore such whitespace anyway; the spacing comes from CSS `gap`. The three parts, quoted one by one:
 
 ```html
-<nav class="nav" aria-label="Main"><a class="sect" href="#profile">Profile</a><a class="sect" href="#experience">Experience</a><a class="sect" href="#projects">Projects</a><a class="sect" href="#contact">Contact</a>
+<nav class="nav" aria-label="Main"><a class="sect" href="#profile" data-label="Profile">Profile</a><a class="sect" href="#experience" data-label="Experience">Experience</a><a class="sect" href="#projects" data-label="Projects">Projects</a><a class="sect" href="#contact" data-label="Contact">Contact</a>
 ```
 
 - `<nav>` – a navigation landmark.
 - `aria-label="Main"` – its name. Screen readers announce "Main navigation", which distinguishes it from the second `<nav>` in the footer. On the German page the label is "Hauptnavigation".
 - `<a class="sect" href="#profile">` – four links to section ids. The fragment `#profile` scrolls to the element with `id="profile"`; `scroll-padding-top` in the CSS stops the target from sliding under the sticky header. Only four of the eight sections are linked; the rest are a scroll away.
+- `data-label="Profile"` – the label again, as a data attribute. HTML ignores `data-*` attributes; they exist for CSS and scripts. Here the CSS prints a hidden bold copy of the label to keep the link's width constant when it turns bold.
+- **You are here:** while scrolling, `site.js` gives the link of the section being read `aria-current="location"` – "the current location within this set of links". The CSS sets that link in bold, like the current language. In P⁴, Approach, Education and Sources no link is marked, because none points there.
 - On narrow screens the CSS hides the `.sect` links with `display: none`, which hides them from screen readers as well.
 - The German page uses German ids (`#profil`, `#stationen`, `#projekte`, `#kontakt`), so shared links read naturally in each language. They come from the `ids` map in `build.py`.
 
@@ -378,7 +380,7 @@ The content of the block, indented for reading (in the file it is one line):
 
 ```html
 <section class="sec" id="profile" aria-labelledby="h-profile">
-<h2 id="h-profile">Profile</h2>
+<h2 id="h-profile"><span class="no" aria-hidden="true">01</span> Profile</h2>
 <div class="body">
 …
 </div>
@@ -390,6 +392,7 @@ Every content section comes from this template (function `section()` in `build.p
 - `<section>` – a thematic group with its own heading.
 - `id="profile"` – the target for `#profile` links.
 - `aria-labelledby="h-profile"` – names the region after its heading, so the screen reader's landmark list reads "Profile, Experience, Projects …". It points to the heading's id instead of repeating the text in `aria-label`: the name always matches the visible heading, and it is translated along with it (some browser translation tools leave `aria-label` untranslated).
+- `<span class="no" aria-hidden="true">01</span>` – the section number, like the chapters of a slide deck. Profile is 01, Contact 07; Sources has none, like a deck's appendix. `aria-hidden` keeps it out of what screen readers announce, so the region is still named "Profile", not "01 Profile".
 - `<h2 id="h-profile">` – the heading, with the id the section points to. Heading levels form an outline: `h1` (name) → `h2` (sections) → `h3` (roles, fields, project groups) → `h4` (single projects). Screen-reader users move through this outline the way sighted users skim bold text.
 - `<div class="body">` – the content column next to the sticky heading (CSS grid). No meaning.
 - The eight sections make eight region landmarks. That makes the landmark list longer; in exchange, every section is one keystroke away.
@@ -451,7 +454,7 @@ The drawn arrow:
 
 ```html
 <section class="sec" id="fields" aria-labelledby="h-fields">
-<h2 id="h-fields">P<sup>4</sup></h2>
+<h2 id="h-fields"><span class="no" aria-hidden="true">02</span> P<sup>4</sup></h2>
 <div class="body">
 <p class="intro">P as in Peter.</p>
 <div class="fields">
@@ -505,7 +508,7 @@ Nine entries; the first stands for all.
 
 ```html
 <section class="sec" id="projects" aria-labelledby="h-projects">
-<h2 id="h-projects">Projects</h2>
+<h2 id="h-projects"><span class="no" aria-hidden="true">04</span> Projects</h2>
 <div class="body">
 <p class="intro"><strong lang="en">Stop starting. Start finishing.</strong></p>
 <div class="group"><h3>At E+SERVICE+CHECK</h3>
@@ -763,9 +766,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-20</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-22</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-20</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-22</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```

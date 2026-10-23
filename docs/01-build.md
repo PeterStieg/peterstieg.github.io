@@ -147,12 +147,15 @@ P4 = ["Performance", "Pipelines", "Pixels", "People"]
 P4_TAIL = {3: "Everything human:e."}
 SLOGANS = ["Facts, not fluff.", "Built, not briefed.", "Prompted, not pasted."]
 PROJECTS_LEAD = "Stop starting. Start finishing."
+# section numbers, like the chapters of a slide deck; Sources stays unnumbered, like a deck's appendix
+NUMBERED = ["profile", "fields", "experience", "projects", "approach", "education", "contact"]
 ```
 
 - `P4` – the four headings of the P⁴ section. `page()` pairs them by position with `CONTENT[lang]["fields"]`.
 - `P4_TAIL` – an extra closing line for selected fields, keyed by index (3 = People). A dict instead of a list because only some fields have a tail; `i in P4_TAIL` checks the keys.
 - `SLOGANS` – paired by position with `CONTENT[lang]["approach"]`.
 - `PROJECTS_LEAD` – the intro line of the Projects section.
+- `NUMBERED` – the sections that get a number in front of their heading, in page order. `section()` takes the number from the position in this list: `profile` is 01, `contact` 07. Sources (`notes`) is not in the list and stays unnumbered. The keys are the English ones, so both languages share the numbers.
 - Pitfall: pairing by position. Reorder `P4` without reordering both `fields` lists and every text lands under the wrong heading. And `zip()` stops at the shorter list: a missing fourth text silently drops "People" – no error.
 
 ---
@@ -583,7 +586,8 @@ def theme_switch(c):
 ```python
 def topbar(c, sections=True, langs=True):
     r = c["root"]
-    links = "".join(f'<a class="sect" href="#{i}">{e(t)}</a>' for i, t in c["nav"]) if sections else ""
+    # data-label: CSS reserves the bold width, so marking the current section does not shift the menu
+    links = "".join(f'<a class="sect" href="#{i}" data-label="{e(t)}">{e(t)}</a>' for i, t in c["nav"]) if sections else ""
     switch = lang_switch(c) if langs else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
@@ -599,6 +603,7 @@ def topbar(c, sections=True, langs=True):
 - `links = "".join(…) if sections else ""` – the conditional expression wraps the whole join, so the generator only runs when `sections` is true.
   - `for i, t in c["nav"]` – unpacks each (id, label) pair. Here `t` is a loop variable that shadows the function `t()`. It works because a generator expression has its own scope – outside it, `t()` is untouched – but it is confusing. Do not copy the pattern.
   - `href="#{i}"` – an in-page anchor.
+  - `data-label="{e(t)}"` – the label a second time, as a data attribute. `site.js` marks the section being read in bold; the CSS uses this copy to reserve the bold width in advance (chapter 3, Navigation).
 - `switch = lang_switch(c) if langs else ""` – same pattern.
 - The skip link comes first in the page so it is the first thing the Tab key reaches. CSS keeps it off-screen until it receives keyboard focus; it jumps to `<main id="main">`.
 - `<header class="top">` and `<div class="wrap">` – the page header and a width-limiting layout container.
@@ -675,8 +680,9 @@ def jsonld(c):
 ```python
 def section(c, key, title_html, body, cls="body"):
     i = sid(c, key)
+    no = f'<span class="no" aria-hidden="true">{NUMBERED.index(key) + 1:02d}</span> ' if key in NUMBERED else ""
     return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
-<h2 id="h-{i}">{title_html}</h2>
+<h2 id="h-{i}">{no}{title_html}</h2>
 <div class="{cls}">
 {body}</div>
 </section>
@@ -686,6 +692,11 @@ def section(c, key, title_html, body, cls="body"):
 - The wrapper for every content section of the main page.
 - `cls="body"` – a default parameter: used when the caller passes nothing. No caller currently passes another value.
 - `i = sid(c, key)` – the localized anchor.
+- `no` – the section number, or an empty string for sections outside `NUMBERED`.
+  - `NUMBERED.index(key) + 1` – the position in the list, counted from 1.
+  - `:02d` – a format spec: an integer (`d`), at least two digits wide, padded with zeros (`0`). 1 becomes `01`.
+  - `aria-hidden="true"` – screen readers skip the number and announce "Profile", not "zero one Profile". The number is a visual signpost; the order of headings already carries the structure.
+  - The space after `</span>` sits outside the span, so the plain text of the heading still reads "01 Profile" for search engines and copy-paste.
 - `aria-labelledby="h-{i}"` points at the `<h2 id="h-{i}">`: the heading becomes the section's name, and a named `<section>` is exposed as a landmark that screen-reader users can jump between.
 - `title_html` – the name says it: raw HTML, inserted unescaped. Callers pass `e(s["profile"])` and so on; only P⁴ passes markup (`'P<sup>4</sup>'`). Pitfall: pass plain copy here without `e()` and the first `&` breaks the markup.
 - `{body}</div>` – every caller's body ends with `\n`, so `</div>` lands on its own line.

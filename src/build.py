@@ -46,6 +46,8 @@ P4 = ["Performance", "Pipelines", "Pixels", "People"]
 P4_TAIL = {3: "Everything human:e."}
 SLOGANS = ["Facts, not fluff.", "Built, not briefed.", "Prompted, not pasted."]
 PROJECTS_LEAD = "Stop starting. Start finishing."
+# section numbers, like the chapters of a slide deck; Sources stays unnumbered, like a deck's appendix
+NUMBERED = ["profile", "fields", "experience", "projects", "approach", "education", "contact"]
 
 # Footnotes: verification links from the QR codes on both diplomas, plus the course pages.
 NOTES = {
@@ -339,7 +341,8 @@ def theme_switch(c):
 
 def topbar(c, sections=True, langs=True):
     r = c["root"]
-    links = "".join(f'<a class="sect" href="#{i}">{e(t)}</a>' for i, t in c["nav"]) if sections else ""
+    # data-label: CSS reserves the bold width, so marking the current section does not shift the menu
+    links = "".join(f'<a class="sect" href="#{i}" data-label="{e(t)}">{e(t)}</a>' for i, t in c["nav"]) if sections else ""
     switch = lang_switch(c) if langs else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
@@ -391,8 +394,9 @@ def jsonld(c):
 
 def section(c, key, title_html, body, cls="body"):
     i = sid(c, key)
+    no = f'<span class="no" aria-hidden="true">{NUMBERED.index(key) + 1:02d}</span> ' if key in NUMBERED else ""
     return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
-<h2 id="h-{i}">{title_html}</h2>
+<h2 id="h-{i}">{no}{title_html}</h2>
 <div class="{cls}">
 {body}</div>
 </section>
