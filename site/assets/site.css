@@ -229,8 +229,10 @@ html:not(.js) .themes { display: none; }
   line-height: 1.3;
   font-weight: 700;
 }
-/* section number, like a slide deck's chapters: "01 Profile" – equal-width digits keep the titles aligned */
+/* chapter number, like a slide deck's parts: "01 Profile" – equal-width digits keep the titles aligned.
+   The other sections of a chapter carry the same number invisibly (.ghost), so their titles line up with it. */
 .sec > h2 .no { color: var(--accent); font-weight: 400; font-variant-numeric: tabular-nums; }
+.sec > h2 .ghost { visibility: hidden; }
 .body { max-width: 42rem; }
 .body > :first-child { margin-top: 0; }
 .body > :last-child { margin-bottom: 0; }

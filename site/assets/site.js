@@ -144,7 +144,7 @@
       const rects = [];                               // text visible on screen only, no .sr-only copies
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-        if (!n.textContent.trim() || n.parentElement.closest(".sr-only")) continue;
+        if (!n.textContent.trim() || n.parentElement.closest(".sr-only, .ghost")) continue;
         range.selectNodeContents(n);
         rects.push(...range.getClientRects());
       }
@@ -199,23 +199,21 @@
     rail.addEventListener("pointercancel", () => { dragging = false; });
   }
 
-  /* ---------- You are here: the menu marks the section being read, like a slide deck's header. */
+  /* ---------- You are here: the menu marks the chapter being read, like a slide deck's header. */
   const marks = [...document.querySelectorAll(".nav .sect")]
     .map((a) => ({ a, sec: document.getElementById(a.hash.slice(1)) }))
     .filter((m) => m.sec);
-  const secs = [...document.querySelectorAll("main .sec")];
   let marked;                                                       // what the menu shows right now
 
   const here = () => {
     if (!marks.length) return;
     const line = top.offsetHeight + window.innerHeight * 0.3;      // reading line: a third down the screen
-    let now = null;
-    for (const s of secs) if (s.getBoundingClientRect().top <= line) now = s;
-    let mark = marks.find((m) => m.sec === now) || null;            // none in P⁴, Approach, Education, Sources
+    let mark = null;                                                // the chapter: the last menu section above the line –
+    for (const m of marks) if (m.sec.getBoundingClientRect().top <= line) mark = m;  // P⁴ counts as Profile, and so on
     if (window.scrollY + window.innerHeight >= root.scrollHeight - 2) {  // at the very bottom: the last one in view
       mark = marks.filter((m) => m.sec.getBoundingClientRect().top < window.innerHeight).pop() || mark;
     }
-    if (mark === marked) return;                                    // same section as in the last frame
+    if (mark === marked) return;                                    // same chapter as in the last frame
     marked = mark;
     for (const m of marks) {
       if (m === mark) m.a.setAttribute("aria-current", "location");

@@ -24,9 +24,9 @@ Why the site looks and reads the way it does. Newest first within each topic; ch
 - **Docking:** while scrolling, PETER STIEG and `>_` travel into the header logo, so the name is visible once. Reduced motion: instant swap.
 - **Minimap:** on wide screens, the page drawn as code lines like the banner; click or drag to jump.
 - **Back to top:** the docked logo and a round button (under the minimap on wide screens) appear once the name has docked.
-- **Section numbers:** 01–07 in front of the section headings, in the accent colour and regular weight, on the same line as the title – like a slide deck's chapters. Sources stays unnumbered, like an appendix. Screen readers skip the numbers.
-- **Menu numbers:** the menu links carry their section's number – 01 Profile, 03 Experience, 04 Projects, 07 Contact. The gaps are honest: the number on a link is the number on the heading it leads to. Below 56rem the numbers drop so the header fits.
-- **You are here:** while scrolling, the menu link of the section being read looks like its heading – number in the accent colour, label in ink and bold. Sections without a menu link (P⁴, Approach, Education, Sources) mark nothing; at the very bottom, Contact. The bold width is reserved, so the menu never shifts.
+- **Four chapters, like the parts of a slide deck:** 01 Profile (with P⁴), 02 Experience (with Education), 03 Projects (with Approach), 04 Contact (with Sources). The number stands in front of the chapter's heading, in the accent colour and regular weight; the sections inside a chapter carry the same number invisibly, so all titles line up like an outline. Education moved up behind Experience for this.
+- **Menu numbers:** the four menu links are the four chapters, numbered like their headings – no gaps. Below 56rem the numbers drop so the header fits.
+- **You are here:** while scrolling, the menu link of the chapter being read looks like its heading – number in the accent colour, label in ink and bold – also in the sections that belong to it; at the very bottom, Contact. The bold width is reserved, so the menu never shifts.
 - **Arrows and tree lines are drawn**, because the typeface has no → glyph and box-drawing characters depend on the font.
 
 ## Tech

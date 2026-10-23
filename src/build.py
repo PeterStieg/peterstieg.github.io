@@ -46,8 +46,9 @@ P4 = ["Performance", "Pipelines", "Pixels", "People"]
 P4_TAIL = {3: "Everything human:e."}
 SLOGANS = ["Facts, not fluff.", "Built, not briefed.", "Prompted, not pasted."]
 PROJECTS_LEAD = "Stop starting. Start finishing."
-# section numbers, like the chapters of a slide deck; Sources stays unnumbered, like a deck's appendix
-NUMBERED = ["profile", "fields", "experience", "projects", "approach", "education", "contact"]
+# four chapters, like the parts of a slide deck: the first section of each is numbered and linked in the menu,
+# the sections after it belong to it – P⁴ to Profile, Education to Experience, Approach to Projects, Sources to Contact
+CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": ["approach"], "contact": ["notes"]}
 
 # Footnotes: verification links from the QR codes on both diplomas, plus the course pages.
 NOTES = {
@@ -272,8 +273,11 @@ def sid(c, key):
 
 
 def num(key):
-    """Section number for headings and menu: '01'–'07', '' for sections outside NUMBERED."""
-    return f"{NUMBERED.index(key) + 1:02d}" if key in NUMBERED else ""
+    """Chapter number of a section, '01'–'04': its own if it opens a chapter, else that of the chapter it belongs to."""
+    for i, (first, rest) in enumerate(CHAPTERS.items(), 1):
+        if key == first or key in rest:
+            return f"{i:02d}"
+    return ""
 
 
 def t(c, text):
@@ -346,7 +350,7 @@ def theme_switch(c):
 
 def topbar(c, sections=True, langs=True):
     r = c["root"]
-    keys = {sid(c, k): k for k in NUMBERED}          # localized id → section key, for the number
+    keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
     links = "".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
                     f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
@@ -401,7 +405,8 @@ def jsonld(c):
 
 def section(c, key, title_html, body, cls="body"):
     i = sid(c, key)
-    no = f'<span class="no" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
+    ghost = "" if key in CHAPTERS else " ghost"      # the rest of a chapter repeats its number invisibly: titles line up
+    no = f'<span class="no{ghost}" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
     return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
 <h2 id="h-{i}">{no}{title_html}</h2>
 <div class="{cls}">
@@ -478,6 +483,14 @@ def page(c):
 """)
     out.append(section(c, "experience", e(s["experience"]), f'<ol class="roles" reversed>\n{"".join(roles)}</ol>\n'))
 
+    # education – certificates carry footnotes
+    fa = []
+    for k, v, sub in c["facts"]:
+        subtxt = f'<br><span class="muted">{e(sub)}</span>' if sub else ""
+        val = re.sub(r"\[\[(\w+)\]\]", fn, e(v))
+        fa.append(f"<div><dt>{e(k)}</dt><dd>{val}{subtxt}</dd></div>\n")
+    out.append(section(c, "education", e(s["education"]), f'<dl class="facts">\n{"".join(fa)}</dl>\n'))
+
     # projects
     groups = []
     for gt, items in c["groups"]:
@@ -492,14 +505,6 @@ def page(c):
     # approach – three of a kind: X, not Y
     pr = "".join(f'<li><p><strong lang="en">{e(a)}</strong> {e(b)}</p></li>\n' for a, b in zip(SLOGANS, c["approach"]))
     out.append(section(c, "approach", e(s["approach"]), f'<ul class="principles">\n{pr}</ul>\n'))
-
-    # education – certificates carry footnotes
-    fa = []
-    for k, v, sub in c["facts"]:
-        subtxt = f'<br><span class="muted">{e(sub)}</span>' if sub else ""
-        val = re.sub(r"\[\[(\w+)\]\]", fn, e(v))
-        fa.append(f"<div><dt>{e(k)}</dt><dd>{val}{subtxt}</dd></div>\n")
-    out.append(section(c, "education", e(s["education"]), f'<dl class="facts">\n{"".join(fa)}</dl>\n'))
 
     # contact – a nod to the 2016 claim: Work online | Live offline
     here, before = c["offline"]

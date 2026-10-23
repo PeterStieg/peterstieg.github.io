@@ -273,15 +273,15 @@ The content of the block, indented for reading (in the file it is one line):
 `build.py` assembles the whole `<nav>` from f-string pieces, so it lands on one line without whitespace between the tags. As a flex container, the nav would ignore such whitespace anyway; the spacing comes from CSS `gap`. The three parts, quoted one by one:
 
 ```html
-<nav class="nav" aria-label="Main"><a class="sect" href="#profile"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profile">Profile</span></a><a class="sect" href="#experience"><span class="no" aria-hidden="true">03</span> <span class="label" data-label="Experience">Experience</span></a>…
+<nav class="nav" aria-label="Main"><a class="sect" href="#profile"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profile">Profile</span></a><a class="sect" href="#experience"><span class="no" aria-hidden="true">02</span> <span class="label" data-label="Experience">Experience</span></a>…
 ```
 
 - `<nav>` – a navigation landmark.
 - `aria-label="Main"` – its name. Screen readers announce "Main navigation", which distinguishes it from the second `<nav>` in the footer. On the German page the label is "Hauptnavigation".
-- `<a class="sect" href="#profile">` – four links to section ids. The fragment `#profile` scrolls to the element with `id="profile"`; `scroll-padding-top` in the CSS stops the target from sliding under the sticky header. Only four of the eight sections are linked; the rest are a scroll away.
-- `<span class="no" aria-hidden="true">01</span>` – the section's number, the same as on its heading: 01 Profile, 03 Experience, 04 Projects, 07 Contact. The gaps are the sections without a menu link (P⁴, Approach, Education). `aria-hidden` keeps the link's name "Profile" for screen readers. Below 56rem the CSS hides the numbers, so the header still fits.
+- `<a class="sect" href="#profile">` – four links to section ids. The fragment `#profile` scrolls to the element with `id="profile"`; `scroll-padding-top` in the CSS stops the target from sliding under the sticky header. The four links are the four chapters; the other sections belong to one of them and are a scroll away.
+- `<span class="no" aria-hidden="true">01</span>` – the chapter number, the same as on the heading: 01 Profile, 02 Experience, 03 Projects, 04 Contact. `aria-hidden` keeps the link's name "Profile" for screen readers. Below 56rem the CSS hides the numbers, so the header still fits.
 - `<span class="label" data-label="Profile">` – the label in its own span, plus a copy as a data attribute. HTML ignores `data-*` attributes; they exist for CSS and scripts. Here the CSS prints a hidden bold copy of the label to keep the link's width constant when it turns bold.
-- **You are here:** while scrolling, `site.js` gives the link of the section being read `aria-current="location"` – "the current location within this set of links". The CSS then styles the link like the heading it points to: number in the accent colour, label in ink and bold. In P⁴, Approach, Education and Sources no link is marked, because none points there.
+- **You are here:** while scrolling, `site.js` gives the link of the chapter being read `aria-current="location"` – "the current location within this set of links". The CSS then styles the link like the heading it points to: number in the accent colour, label in ink and bold. In P⁴ the menu marks Profile, in Education Experience, and so on – like a slide deck whose header shows the current part on every slide.
 - On narrow screens the CSS hides the `.sect` links with `display: none`, which hides them from screen readers as well.
 - The German page uses German ids (`#profil`, `#stationen`, `#projekte`, `#kontakt`), so shared links read naturally in each language. They come from the `ids` map in `build.py`.
 
@@ -393,7 +393,8 @@ Every content section comes from this template (function `section()` in `build.p
 - `<section>` – a thematic group with its own heading.
 - `id="profile"` – the target for `#profile` links.
 - `aria-labelledby="h-profile"` – names the region after its heading, so the screen reader's landmark list reads "Profile, Experience, Projects …". It points to the heading's id instead of repeating the text in `aria-label`: the name always matches the visible heading, and it is translated along with it (some browser translation tools leave `aria-label` untranslated).
-- `<span class="no" aria-hidden="true">01</span>` – the section number, like the chapters of a slide deck. Profile is 01, Contact 07; Sources has none, like a deck's appendix. `aria-hidden` keeps it out of what screen readers announce, so the region is still named "Profile", not "01 Profile".
+- `<span class="no" aria-hidden="true">01</span>` – the chapter number, like the parts of a slide deck. The page has four chapters: 01 Profile, 02 Experience, 03 Projects, 04 Contact. `aria-hidden` keeps the number out of what screen readers announce, so the region is still named "Profile", not "01 Profile".
+- The sections inside a chapter repeat its number with a second class, `<span class="no ghost" aria-hidden="true">01</span>` on P⁴. The CSS makes it invisible; it only keeps the space, so the title lines up with the chapter's title.
 - `<h2 id="h-profile">` – the heading, with the id the section points to. Heading levels form an outline: `h1` (name) → `h2` (sections) → `h3` (roles, fields, project groups) → `h4` (single projects). Screen-reader users move through this outline the way sighted users skim bold text.
 - `<div class="body">` – the content column next to the sticky heading (CSS grid). No meaning.
 - The eight sections make eight region landmarks. That makes the landmark list longer; in exchange, every section is one keystroke away.
@@ -455,7 +456,7 @@ The drawn arrow:
 
 ```html
 <section class="sec" id="fields" aria-labelledby="h-fields">
-<h2 id="h-fields"><span class="no" aria-hidden="true">02</span> P<sup>4</sup></h2>
+<h2 id="h-fields"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
 <p class="intro">P as in Peter.</p>
 <div class="fields">
@@ -505,11 +506,35 @@ Nine entries; the first stands for all.
 - `<span class="k">Scope</span>` – the key. CSS sets it bold and adds the colon via `content: ":"`. Screen readers generally read such generated content, so they say "Scope: marketing, design …". On the German page the keys carry `lang="en"` – Scope, Team, Result are brand vocabulary.
 - Variants among the nine entries: some have no `ctx`, one has no place, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items.
 
+### Education and footnote references
+
+```html
+<dl class="facts">
+<div><dt>2025</dt><dd>Data Scientist<sup class="fnref"><a href="#fn-ds" id="ref-ds" aria-describedby="h-notes">1</a></sup>&nbsp;· MLOps Engineer<sup class="fnref"><a href="#fn-mlops" id="ref-mlops" aria-describedby="h-notes">2</a></sup><br><span class="muted">Liora in partnership with Université Paris 1 Panthéon-Sorbonne</span></dd></div>
+<div><dt>2023</dt><dd>Agile project management specialist (IHK)</dd></div>
+<div><dt>2010</dt><dd>Bachelor’s degree in economics<br><span class="muted">Università degli Studi di Trento</span></dd></div>
+<div><dt>Languages</dt><dd>German (native)&nbsp;· English C2&nbsp;· Italian C2&nbsp;· Spanish B1&nbsp;· French A2</dd></div>
+</dl>
+```
+
+- `<dl class="facts">` – the description-list pattern from the ledger: year (or "Languages") → what.
+- `<br>` – a line break that belongs to the content: the institution goes on its own line.
+- `<span class="muted">` – grey text, no meaning.
+- `’` in "Bachelor’s" – a typographic apostrophe, not the straight `'`.
+
+The footnote reference, piece by piece:
+
+- `<sup class="fnref">` – superscript, the typographic convention for footnote marks.
+- `<a href="#fn-ds">` – jumps to the note with `id="fn-ds"` in the Sources section.
+- `id="ref-ds"` – the reference itself has an id, so the note can link back to exactly this spot.
+- `aria-describedby="h-notes"` – adds a description to the link: the text of the element with that id, the heading "Sources". A screen reader reads "1, link" and then, typically on focus, "Sources". Without it, a lone "1" would mean nothing.
+- `1`, `2` – `build.py` numbers the notes in order of first appearance (the inner function `fn()` collects the keys in a list). Reorder the text and the numbers and the list of notes follow.
+
 ### Projects
 
 ```html
 <section class="sec" id="projects" aria-labelledby="h-projects">
-<h2 id="h-projects"><span class="no" aria-hidden="true">04</span> Projects</h2>
+<h2 id="h-projects"><span class="no" aria-hidden="true">03</span> Projects</h2>
 <div class="body">
 <p class="intro"><strong lang="en">Stop starting. Start finishing.</strong></p>
 <div class="group"><h3>At E+SERVICE+CHECK</h3>
@@ -544,30 +569,6 @@ Nine entries; the first stands for all.
 - Three principles as a list. Each opens with a slogan in `<strong lang="en">` – important text, English on both pages.
 - `<li><p>…</p></li>` – the paragraph inside the item adds no meaning but gives CSS one consistent block per principle.
 
-### Education and footnote references
-
-```html
-<dl class="facts">
-<div><dt>2025</dt><dd>Data Scientist<sup class="fnref"><a href="#fn-ds" id="ref-ds" aria-describedby="h-notes">1</a></sup>&nbsp;· MLOps Engineer<sup class="fnref"><a href="#fn-mlops" id="ref-mlops" aria-describedby="h-notes">2</a></sup><br><span class="muted">Liora in partnership with Université Paris 1 Panthéon-Sorbonne</span></dd></div>
-<div><dt>2023</dt><dd>Agile project management specialist (IHK)</dd></div>
-<div><dt>2010</dt><dd>Bachelor’s degree in economics<br><span class="muted">Università degli Studi di Trento</span></dd></div>
-<div><dt>Languages</dt><dd>German (native)&nbsp;· English C2&nbsp;· Italian C2&nbsp;· Spanish B1&nbsp;· French A2</dd></div>
-</dl>
-```
-
-- `<dl class="facts">` – the description-list pattern from the ledger: year (or "Languages") → what.
-- `<br>` – a line break that belongs to the content: the institution goes on its own line.
-- `<span class="muted">` – grey text, no meaning.
-- `’` in "Bachelor’s" – a typographic apostrophe, not the straight `'`.
-
-The footnote reference, piece by piece:
-
-- `<sup class="fnref">` – superscript, the typographic convention for footnote marks.
-- `<a href="#fn-ds">` – jumps to the note with `id="fn-ds"` in the Sources section.
-- `id="ref-ds"` – the reference itself has an id, so the note can link back to exactly this spot.
-- `aria-describedby="h-notes"` – adds a description to the link: the text of the element with that id, the heading "Sources". A screen reader reads "1, link" and then, typically on focus, "Sources". Without it, a lone "1" would mean nothing.
-- `1`, `2` – `build.py` numbers the notes in order of first appearance (the inner function `fn()` collects the keys in a list). Reorder the text and the numbers and the list of notes follow.
-
 ### Contact
 
 ```html
@@ -587,7 +588,7 @@ The footnote reference, piece by piece:
 
 ```html
 <section class="sec" id="notes" aria-labelledby="h-notes">
-<h2 id="h-notes">Sources</h2>
+<h2 id="h-notes"><span class="no ghost" aria-hidden="true">04</span> Sources</h2>
 <div class="body">
 <ol class="notes">
 <li id="fn-ds"><a class="back" href="#ref-ds" aria-label="Back to text">^</a> Data Scientist&nbsp;· issued 10 June 2025&nbsp;· <a href="https://document-factory.datascientest.com/verify/3225d69a-a3b6-4bd2-bafe-df9381eff729">Verify credential</a>&nbsp;· <a href="https://liora.io/en/courses/data-ai/data-scientist" hreflang="en">Course page</a></li>

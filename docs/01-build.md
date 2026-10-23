@@ -147,15 +147,17 @@ P4 = ["Performance", "Pipelines", "Pixels", "People"]
 P4_TAIL = {3: "Everything human:e."}
 SLOGANS = ["Facts, not fluff.", "Built, not briefed.", "Prompted, not pasted."]
 PROJECTS_LEAD = "Stop starting. Start finishing."
-# section numbers, like the chapters of a slide deck; Sources stays unnumbered, like a deck's appendix
-NUMBERED = ["profile", "fields", "experience", "projects", "approach", "education", "contact"]
+# four chapters, like the parts of a slide deck: the first section of each is numbered and linked in the menu,
+# the sections after it belong to it – P⁴ to Profile, Education to Experience, Approach to Projects, Sources to Contact
+CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": ["approach"], "contact": ["notes"]}
 ```
 
 - `P4` – the four headings of the P⁴ section. `page()` pairs them by position with `CONTENT[lang]["fields"]`.
 - `P4_TAIL` – an extra closing line for selected fields, keyed by index (3 = People). A dict instead of a list because only some fields have a tail; `i in P4_TAIL` checks the keys.
 - `SLOGANS` – paired by position with `CONTENT[lang]["approach"]`.
 - `PROJECTS_LEAD` – the intro line of the Projects section.
-- `NUMBERED` – the sections that get a number in front of their heading, in page order. `section()` takes the number from the position in this list: `profile` is 01, `contact` 07. Sources (`notes`) is not in the list and stays unnumbered. The keys are the English ones, so both languages share the numbers.
+- `CHAPTERS` – the page's four chapters, like the four parts of a slide deck. Each key opens a chapter and is linked in the menu; the list holds the sections that follow it and belong to it. The order of the keys is the order of the chapters, so `profile` is 01 and `contact` 04. The keys are the English ones, so both languages share the numbers.
+- The page order must match: every section in a list comes right after its chapter's first section. That is why Education stands behind Experience in `page()`, not at the end.
 - Pitfall: pairing by position. Reorder `P4` without reordering both `fields` lists and every text lands under the wrong heading. And `zip()` stops at the shorter list: a missing fourth text silently drops "People" – no error.
 
 ---
@@ -421,8 +423,11 @@ def sid(c, key):
 
 
 def num(key):
-    """Section number for headings and menu: '01'–'07', '' for sections outside NUMBERED."""
-    return f"{NUMBERED.index(key) + 1:02d}" if key in NUMBERED else ""
+    """Chapter number of a section, '01'–'04': its own if it opens a chapter, else that of the chapter it belongs to."""
+    for i, (first, rest) in enumerate(CHAPTERS.items(), 1):
+        if key == first or key in rest:
+            return f"{i:02d}"
+    return ""
 ```
 
 - "Section id": turns an internal section key into the anchor used in the HTML.
@@ -432,11 +437,13 @@ def num(key):
 - Result: English → `"experience"`, German → `"stationen"`. German visitors get German anchors (`/de/#stationen`).
 - Pitfall: `nav` holds its own copy of these IDs. Rename an ID in `ids` without changing `nav` and the header link points to an anchor that no longer exists. No error – the link just stops scrolling.
 
-`num` gives a section its number. Headings and menu both call it, so the two can never disagree.
+`num` gives a section its chapter number. Headings and menu both call it, so the two can never disagree.
 
-- `NUMBERED.index(key) + 1` – the position in the list, counted from 1.
+- `CHAPTERS.items()` – the (key, list) pairs in order: `("profile", ["fields"])`, `("experience", ["education"])` …
+- `enumerate(…, 1)` – counts along, starting at 1 instead of 0. Each round gets the number `i` and the pair, unpacked into `first` and `rest`.
+- `if key == first or key in rest` – the section opens this chapter or belongs to it. `num("fields")` and `num("profile")` both return `"01"`.
 - `:02d` – a format spec: an integer (`d`), at least two digits wide, padded with zeros (`0`). 1 becomes `01`.
-- `if key in NUMBERED else ""` – Sources (`notes`) is not in the list and gets an empty string. Without the check, `index` would raise a `ValueError`.
+- `return ""` – after the loop: a section in no chapter. None exists today; the empty string keeps `section()` working if one is added.
 
 ---
 
@@ -597,7 +604,7 @@ def theme_switch(c):
 ```python
 def topbar(c, sections=True, langs=True):
     r = c["root"]
-    keys = {sid(c, k): k for k in NUMBERED}          # localized id → section key, for the number
+    keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
     links = "".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
                     f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
@@ -613,12 +620,12 @@ def topbar(c, sections=True, langs=True):
 ```
 
 - `sections`, `langs` – switches. The main pages get section links and the language switch; legal and 404 pages pass `False` for both.
-- `keys` – a dict comprehension that turns the lookup around. `nav` holds the localized ids (`"stationen"`), `num()` needs the section key (`"experience"`). So `keys` maps each id back to its key: `{"profil": "profile", "stationen": "experience", …}` on the German page; in English, id and key are the same.
+- `keys` – a dict comprehension that turns the lookup around. `nav` holds the localized ids (`"stationen"`), `num()` needs the section key (`"experience"`). Looping over `CHAPTERS` loops over its keys – the four sections the menu links to. So `keys` maps each id back to its key: `{"profil": "profile", "stationen": "experience", …}` on the German page; in English, id and key are the same.
 - `links = "".join(…) if sections else ""` – the conditional expression wraps the whole join, so the generator only runs when `sections` is true.
   - Two f-strings in a row, without a `+` between them, are joined into one string by Python itself. That splits a long line without changing the result.
   - `for i, t in c["nav"]` – unpacks each (id, label) pair. Here `t` is a loop variable that shadows the function `t()`. It works because a generator expression has its own scope – outside it, `t()` is untouched – but it is confusing. Do not copy the pattern.
   - `href="#{i}"` – an in-page anchor.
-  - `<span class="no" aria-hidden="true">{num(keys[i])}</span>` – the same number as on the section heading: "01 Profile", "03 Experience". Hidden from screen readers, so the link is still called "Profile".
+  - `<span class="no" aria-hidden="true">{num(keys[i])}</span>` – the chapter number, the same as on the heading: "01 Profile", "02 Experience". Hidden from screen readers, so the link is still called "Profile".
   - `<span class="label" data-label="{e(t)}">` – the label in its own span, plus a copy as a data attribute. `site.js` marks the section being read in bold; the CSS uses the copy to reserve the bold width in advance (chapter 3, Navigation). The span is needed because the trick works on the label alone – the number stays regular.
 - `switch = lang_switch(c) if langs else ""` – same pattern.
 - The skip link comes first in the page so it is the first thing the Tab key reaches. CSS keeps it off-screen until it receives keyboard focus; it jumps to `<main id="main">`.
@@ -696,7 +703,8 @@ def jsonld(c):
 ```python
 def section(c, key, title_html, body, cls="body"):
     i = sid(c, key)
-    no = f'<span class="no" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
+    ghost = "" if key in CHAPTERS else " ghost"      # the rest of a chapter repeats its number invisibly: titles line up
+    no = f'<span class="no{ghost}" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
     return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
 <h2 id="h-{i}">{no}{title_html}</h2>
 <div class="{cls}">
@@ -708,7 +716,8 @@ def section(c, key, title_html, body, cls="body"):
 - The wrapper for every content section of the main page.
 - `cls="body"` – a default parameter: used when the caller passes nothing. No caller currently passes another value.
 - `i = sid(c, key)` – the localized anchor.
-- `no` – the number span from `num(key)` (section 12), or an empty string for Sources. An empty string counts as false, so `if num(key)` is enough.
+- `ghost` – a second class for the sections that do not open a chapter (P⁴, Education, Approach, Sources). `key in CHAPTERS` checks the dict's keys only, so it is true just for the four chapter openers.
+- `no` – the number span from `num(key)` (section 12). P⁴ gets `<span class="no ghost">01</span>`: the number of its chapter, which the CSS makes invisible. It still takes up its width, so "P⁴" starts exactly where "Profile" does – an outline, without any measuring. An empty string counts as false, so `if num(key)` is enough.
   - `aria-hidden="true"` – screen readers skip the number and announce "Profile", not "zero one Profile". The number is a visual signpost; the order of headings already carries the structure.
   - The space after `</span>` sits outside the span, so the plain text of the heading still reads "01 Profile" for search engines and copy-paste.
 - `aria-labelledby="h-{i}"` points at the `<h2 id="h-{i}">`: the heading becomes the section's name, and a named `<section>` is exposed as a landmark that screen-reader users can jump between.
@@ -863,6 +872,26 @@ def page(c):
 - `{ctx}{tree(c, ro['tree'])}` – context line and tree directly after each other.
 - `<ol class="roles" reversed>` – an ordered list, because sequence matters; `reversed` makes the numbering count down, so the newest role at the top carries the highest number. It is a boolean attribute: present means true.
 
+### Education – where the footnotes are created
+
+```python
+    # education – certificates carry footnotes
+    fa = []
+    for k, v, sub in c["facts"]:
+        subtxt = f'<br><span class="muted">{e(sub)}</span>' if sub else ""
+        val = re.sub(r"\[\[(\w+)\]\]", fn, e(v))
+        fa.append(f"<div><dt>{e(k)}</dt><dd>{val}{subtxt}</dd></div>\n")
+    out.append(section(c, "education", e(s["education"]), f'<dl class="facts">\n{"".join(fa)}</dl>\n'))
+```
+
+- The block sits right behind Experience: Education belongs to chapter 02 (`CHAPTERS`), so it follows Experience on the page – and here, because the order of the `out.append` calls is the order of the page.
+- `for k, v, sub in c["facts"]` – each fact is a 3-tuple; an empty `sub` means "no second line".
+- `re.sub(r"\[\[(\w+)\]\]", fn, e(v))`:
+  - Pattern: `\[\[` two literal brackets (escaped, because `[` normally opens a character class), `(\w+)` the key – letters, digits, underscore – as group 1, `\]\]` closing brackets.
+  - The replacement is a function, not a string. `re.sub` calls `fn(match)` for every match, left to right, and inserts whatever it returns. That is what makes the numbering follow the order of appearance: the first marker processed gets 1.
+  - Escape first again: `e()` does not touch `[` or `]`, so the markers survive, and `fn`'s HTML is inserted after escaping.
+- Pitfalls: a key with a hyphen (`[[ml-ops]]`) does not match `\w+` and stays visible as text. A key that matches but is missing from `NOTES` gets a number here and then crashes the Sources loop with `KeyError`.
+
 ### Projects
 
 ```python
@@ -894,25 +923,6 @@ def page(c):
 
 - `zip(SLOGANS, c["approach"])` – English slogan plus localized sentence, paired by position.
 - The slogan is marked `lang="en"` on both pages.
-
-### Education – where the footnotes are created
-
-```python
-    # education – certificates carry footnotes
-    fa = []
-    for k, v, sub in c["facts"]:
-        subtxt = f'<br><span class="muted">{e(sub)}</span>' if sub else ""
-        val = re.sub(r"\[\[(\w+)\]\]", fn, e(v))
-        fa.append(f"<div><dt>{e(k)}</dt><dd>{val}{subtxt}</dd></div>\n")
-    out.append(section(c, "education", e(s["education"]), f'<dl class="facts">\n{"".join(fa)}</dl>\n'))
-```
-
-- `for k, v, sub in c["facts"]` – each fact is a 3-tuple; an empty `sub` means "no second line".
-- `re.sub(r"\[\[(\w+)\]\]", fn, e(v))`:
-  - Pattern: `\[\[` two literal brackets (escaped, because `[` normally opens a character class), `(\w+)` the key – letters, digits, underscore – as group 1, `\]\]` closing brackets.
-  - The replacement is a function, not a string. `re.sub` calls `fn(match)` for every match, left to right, and inserts whatever it returns. That is what makes the numbering follow the order of appearance: the first marker processed gets 1.
-  - Escape first again: `e()` does not touch `[` or `]`, so the markers survive, and `fn`'s HTML is inserted after escaping.
-- Pitfalls: a key with a hyphen (`[[ml-ops]]`) does not match `\w+` and stays visible as text. A key that matches but is missing from `NOTES` gets a number here and then crashes the Sources loop with `KeyError`.
 
 ### Contact
 

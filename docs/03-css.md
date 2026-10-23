@@ -430,7 +430,7 @@ These rules continue the header after the docking block.
 
 - `.nav a { text-decoration: none; color: var(--muted); }` – navigation links without underline, in muted grey. The shorthand `text-decoration: none` resets all three longhands set on `a`. (0,1,1) beats `a`.
 - `.nav a:hover` – ink on hover. (0,2,1) beats `.nav a` (0,1,1), because `:hover` is a pseudo-class and counts like a class.
-- **Menu numbers.** Each link reads like its heading – "01 Profile", "03 Experience" – in the muted grey of the menu.
+- **Menu numbers.** Each link reads like its chapter heading – "01 Profile", "02 Experience" – in the muted grey of the menu.
   - `white-space: nowrap` – number and label stay on one line. Without it, a squeezed header breaks "01" and "Profile" onto two lines (measured at 768 px).
   - `font-variant-numeric: tabular-nums` – equal-width digits, as on the headings (see Sections).
 - **You are here.** `site.js` gives the link of the section being read `aria-current="location"`. The three `[aria-current]` rules then style it like the heading it points to: the link in ink, the number in the accent colour, the label in bold.
@@ -601,8 +601,10 @@ html:not(.js) .themes { display: none; }
   line-height: 1.3;
   font-weight: 700;
 }
-/* section number, like a slide deck's chapters: "01 Profile" – equal-width digits keep the titles aligned */
+/* chapter number, like a slide deck's parts: "01 Profile" – equal-width digits keep the titles aligned.
+   The other sections of a chapter carry the same number invisibly (.ghost), so their titles line up with it. */
 .sec > h2 .no { color: var(--accent); font-weight: 400; font-variant-numeric: tabular-nums; }
+.sec > h2 .ghost { visibility: hidden; }
 ```
 
 Each content section is a `.sec`: heading left and body right on wide screens, stacked on phones.
@@ -618,8 +620,11 @@ Each content section is a `.sec`: heading left and body right on wide screens, s
   - `.sec > h2 { position: sticky; top: 5rem; align-self: start; }` – the heading stays visible while you scroll through a long section; `top: 5rem` keeps it clear of the header. The child combinator `>` limits this to the section's own `h2`.
   - **Why `align-self: start` is essential:** grid items stretch to the full height of their row by default. The row is as tall as the section body, so a stretched heading would already fill its whole area and have no room to move – sticky would do nothing. With `start`, the heading is only as tall as its text and can slide down inside the tall grid area. It stops at the end of the section, because a sticky element never leaves its containing block.
 - `.sec > h2` – no margin, 1.25rem, line height 1.3, bold. This unconditional rule comes after the media query; the two set different properties, so the order doesn't matter.
-- `.sec > h2 .no` – the section number in front of the heading: accent colour, regular weight, so the title stays the strong part.
-  - `font-variant-numeric: tabular-nums` – switches the font to its equal-width digits (the OpenType feature `tnum`). By default Atkinson Hyperlegible uses proportional digits: in bold, a "1" is about 70 % as wide as a "0". With tabular digits every number from 01 to 07 has the same width, so all titles start on the same pixel (measured).
+- `.sec > h2 .no` – the chapter number in front of the heading: accent colour, regular weight, so the title stays the strong part.
+  - `font-variant-numeric: tabular-nums` – switches the font to its equal-width digits (the OpenType feature `tnum`). By default Atkinson Hyperlegible uses proportional digits: in the regular weight used here, a "1" is about 60 % as wide as a "0". With tabular digits every number from 01 to 04 has the same width, so all titles start on the same pixel (measured).
+- `.sec > h2 .ghost { visibility: hidden; }` – the sections inside a chapter (P⁴, Education, Approach, Sources) carry their chapter's number with this extra class. `visibility: hidden` hides it but keeps its box, so the title after it starts on the same pixel as the chapter's title (measured: all eight titles at the same x). The page reads like an outline.
+  - Why not `padding-left` instead: the padding would have to equal the width of "01" plus a space in this font at this size – a number to measure and to update with every font change. The invisible number is always exactly as wide as the visible one.
+  - Hidden text is not selected when you copy the heading, and the minimap skips it (`site.js` filters `.ghost`).
 
 ```css
 .body { max-width: 42rem; }
