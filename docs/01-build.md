@@ -413,11 +413,16 @@ MOON_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
 
 ---
 
-## 12 · sid
+## 12 · sid and num
 
 ```python
 def sid(c, key):
     return c.get("ids", {}).get(key, key)
+
+
+def num(key):
+    """Section number for headings and menu: '01'–'07', '' for sections outside NUMBERED."""
+    return f"{NUMBERED.index(key) + 1:02d}" if key in NUMBERED else ""
 ```
 
 - "Section id": turns an internal section key into the anchor used in the HTML.
@@ -426,6 +431,12 @@ def sid(c, key):
 - Second `.get`: the localized ID, or the key itself as fallback.
 - Result: English → `"experience"`, German → `"stationen"`. German visitors get German anchors (`/de/#stationen`).
 - Pitfall: `nav` holds its own copy of these IDs. Rename an ID in `ids` without changing `nav` and the header link points to an anchor that no longer exists. No error – the link just stops scrolling.
+
+`num` gives a section its number. Headings and menu both call it, so the two can never disagree.
+
+- `NUMBERED.index(key) + 1` – the position in the list, counted from 1.
+- `:02d` – a format spec: an integer (`d`), at least two digits wide, padded with zeros (`0`). 1 becomes `01`.
+- `if key in NUMBERED else ""` – Sources (`notes`) is not in the list and gets an empty string. Without the check, `index` would raise a `ValueError`.
 
 ---
 
@@ -586,8 +597,10 @@ def theme_switch(c):
 ```python
 def topbar(c, sections=True, langs=True):
     r = c["root"]
-    # data-label: CSS reserves the bold width, so marking the current section does not shift the menu
-    links = "".join(f'<a class="sect" href="#{i}" data-label="{e(t)}">{e(t)}</a>' for i, t in c["nav"]) if sections else ""
+    keys = {sid(c, k): k for k in NUMBERED}          # localized id → section key, for the number
+    # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
+    links = "".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
+                    f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
     switch = lang_switch(c) if langs else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
@@ -600,10 +613,13 @@ def topbar(c, sections=True, langs=True):
 ```
 
 - `sections`, `langs` – switches. The main pages get section links and the language switch; legal and 404 pages pass `False` for both.
+- `keys` – a dict comprehension that turns the lookup around. `nav` holds the localized ids (`"stationen"`), `num()` needs the section key (`"experience"`). So `keys` maps each id back to its key: `{"profil": "profile", "stationen": "experience", …}` on the German page; in English, id and key are the same.
 - `links = "".join(…) if sections else ""` – the conditional expression wraps the whole join, so the generator only runs when `sections` is true.
+  - Two f-strings in a row, without a `+` between them, are joined into one string by Python itself. That splits a long line without changing the result.
   - `for i, t in c["nav"]` – unpacks each (id, label) pair. Here `t` is a loop variable that shadows the function `t()`. It works because a generator expression has its own scope – outside it, `t()` is untouched – but it is confusing. Do not copy the pattern.
   - `href="#{i}"` – an in-page anchor.
-  - `data-label="{e(t)}"` – the label a second time, as a data attribute. `site.js` marks the section being read in bold; the CSS uses this copy to reserve the bold width in advance (chapter 3, Navigation).
+  - `<span class="no" aria-hidden="true">{num(keys[i])}</span>` – the same number as on the section heading: "01 Profile", "03 Experience". Hidden from screen readers, so the link is still called "Profile".
+  - `<span class="label" data-label="{e(t)}">` – the label in its own span, plus a copy as a data attribute. `site.js` marks the section being read in bold; the CSS uses the copy to reserve the bold width in advance (chapter 3, Navigation). The span is needed because the trick works on the label alone – the number stays regular.
 - `switch = lang_switch(c) if langs else ""` – same pattern.
 - The skip link comes first in the page so it is the first thing the Tab key reaches. CSS keeps it off-screen until it receives keyboard focus; it jumps to `<main id="main">`.
 - `<header class="top">` and `<div class="wrap">` – the page header and a width-limiting layout container.
@@ -680,7 +696,7 @@ def jsonld(c):
 ```python
 def section(c, key, title_html, body, cls="body"):
     i = sid(c, key)
-    no = f'<span class="no" aria-hidden="true">{NUMBERED.index(key) + 1:02d}</span> ' if key in NUMBERED else ""
+    no = f'<span class="no" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
     return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
 <h2 id="h-{i}">{no}{title_html}</h2>
 <div class="{cls}">
@@ -692,9 +708,7 @@ def section(c, key, title_html, body, cls="body"):
 - The wrapper for every content section of the main page.
 - `cls="body"` – a default parameter: used when the caller passes nothing. No caller currently passes another value.
 - `i = sid(c, key)` – the localized anchor.
-- `no` – the section number, or an empty string for sections outside `NUMBERED`.
-  - `NUMBERED.index(key) + 1` – the position in the list, counted from 1.
-  - `:02d` – a format spec: an integer (`d`), at least two digits wide, padded with zeros (`0`). 1 becomes `01`.
+- `no` – the number span from `num(key)` (section 12), or an empty string for Sources. An empty string counts as false, so `if num(key)` is enough.
   - `aria-hidden="true"` – screen readers skip the number and announce "Profile", not "zero one Profile". The number is a visual signpost; the order of headings already carries the structure.
   - The space after `</span>` sits outside the span, so the plain text of the heading still reads "01 Profile" for search engines and copy-paste.
 - `aria-labelledby="h-{i}"` points at the `<h2 id="h-{i}">`: the heading becomes the section's name, and a named `<section>` is exposed as a landmark that screen-reader users can jump between.

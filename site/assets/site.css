@@ -133,11 +133,16 @@ a:focus-visible, button:focus-visible {
 .hero.docked h1, .hero.docked .prompt .caret { opacity: 0; pointer-events: none; }
 .nav a { text-decoration: none; color: var(--muted); }
 .nav a:hover { color: var(--ink); }
-/* you are here (site.js): the section being read, marked like the current language – ink and bold.
-   A hidden bold copy of the label (data-label) reserves the width, so the menu never shifts. */
-.nav .sect { display: inline-grid; }
-.nav .sect::after { content: attr(data-label); font-weight: 700; height: 0; overflow: hidden; visibility: hidden; }
-.nav .sect[aria-current] { color: var(--ink); font-weight: 700; }
+/* menu numbers match the headings ("01 Profile"). You are here (site.js): the section being read looks like
+   its heading – number in accent, label in ink and bold. A hidden bold copy of the label (data-label)
+   reserves the width, so the menu never shifts. */
+.nav .sect { white-space: nowrap; }
+.nav .sect .no { font-variant-numeric: tabular-nums; }
+.nav .sect .label { display: inline-grid; }
+.nav .sect .label::after { content: attr(data-label); font-weight: 700; height: 0; overflow: hidden; visibility: hidden; }
+.nav .sect[aria-current] { color: var(--ink); }
+.nav .sect[aria-current] .no { color: var(--accent); }
+.nav .sect[aria-current] .label { font-weight: 700; }
 .langs {
   display: inline-flex; align-items: center;
   border: 1px solid var(--line); border-radius: 999px;
@@ -166,6 +171,7 @@ a:focus-visible, button:focus-visible {
 .themes button[aria-pressed="true"] svg { stroke-width: 2; }
 html:not(.js) .themes { display: none; }
 @media (max-width: 47.99rem) { .nav .sect { display: none; } }
+@media (max-width: 55.99rem) { .nav .sect .no { display: none; } }  /* narrow desktops: labels only, so the header fits */
 
 /* ---------- hero ---------- */
 

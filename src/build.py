@@ -271,6 +271,11 @@ def sid(c, key):
     return c.get("ids", {}).get(key, key)
 
 
+def num(key):
+    """Section number for headings and menu: '01'–'07', '' for sections outside NUMBERED."""
+    return f"{NUMBERED.index(key) + 1:02d}" if key in NUMBERED else ""
+
+
 def t(c, text):
     """Escape, draw arrows, set *words* in italics (words cited as words, as in a dictionary)."""
     html = e(text).replace("→", f'<span class="arr" role="img" aria-label="{e(c["arrow"])}">{ARROW_SVG}</span>')
@@ -341,8 +346,10 @@ def theme_switch(c):
 
 def topbar(c, sections=True, langs=True):
     r = c["root"]
-    # data-label: CSS reserves the bold width, so marking the current section does not shift the menu
-    links = "".join(f'<a class="sect" href="#{i}" data-label="{e(t)}">{e(t)}</a>' for i, t in c["nav"]) if sections else ""
+    keys = {sid(c, k): k for k in NUMBERED}          # localized id → section key, for the number
+    # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
+    links = "".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
+                    f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
     switch = lang_switch(c) if langs else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
@@ -394,7 +401,7 @@ def jsonld(c):
 
 def section(c, key, title_html, body, cls="body"):
     i = sid(c, key)
-    no = f'<span class="no" aria-hidden="true">{NUMBERED.index(key) + 1:02d}</span> ' if key in NUMBERED else ""
+    no = f'<span class="no" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
     return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
 <h2 id="h-{i}">{no}{title_html}</h2>
 <div class="{cls}">

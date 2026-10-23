@@ -405,11 +405,16 @@ Declaration by declaration:
 ```css
 .nav a { text-decoration: none; color: var(--muted); }
 .nav a:hover { color: var(--ink); }
-/* you are here (site.js): the section being read, marked like the current language – ink and bold.
-   A hidden bold copy of the label (data-label) reserves the width, so the menu never shifts. */
-.nav .sect { display: inline-grid; }
-.nav .sect::after { content: attr(data-label); font-weight: 700; height: 0; overflow: hidden; visibility: hidden; }
-.nav .sect[aria-current] { color: var(--ink); font-weight: 700; }
+/* menu numbers match the headings ("01 Profile"). You are here (site.js): the section being read looks like
+   its heading – number in accent, label in ink and bold. A hidden bold copy of the label (data-label)
+   reserves the width, so the menu never shifts. */
+.nav .sect { white-space: nowrap; }
+.nav .sect .no { font-variant-numeric: tabular-nums; }
+.nav .sect .label { display: inline-grid; }
+.nav .sect .label::after { content: attr(data-label); font-weight: 700; height: 0; overflow: hidden; visibility: hidden; }
+.nav .sect[aria-current] { color: var(--ink); }
+.nav .sect[aria-current] .no { color: var(--accent); }
+.nav .sect[aria-current] .label { font-weight: 700; }
 .langs {
   display: inline-flex; align-items: center;
   border: 1px solid var(--line); border-radius: 999px;
@@ -425,11 +430,15 @@ These rules continue the header after the docking block.
 
 - `.nav a { text-decoration: none; color: var(--muted); }` – navigation links without underline, in muted grey. The shorthand `text-decoration: none` resets all three longhands set on `a`. (0,1,1) beats `a`.
 - `.nav a:hover` – ink on hover. (0,2,1) beats `.nav a` (0,1,1), because `:hover` is a pseudo-class and counts like a class.
-- **You are here.** `site.js` gives the link of the section being read `aria-current="location"`; `.nav .sect[aria-current]` sets it in ink and bold, the same look as the current language.
-  - **The problem:** bold letters are wider. "Experience" in bold is a few pixels wider than in regular weight, so every change of section would push the pills to its right sideways.
-  - **The fix:** `.nav .sect::after` adds a second copy of the label – `content: attr(data-label)` reads the `data-label` attribute that `build.py` writes – in bold, but with `height: 0`, `overflow: hidden` and `visibility: hidden`. It takes no height and shows nothing, yet it still has its full bold width.
-  - `display: inline-grid` makes the link a one-column grid: the label text and the hidden copy are stacked in that column, and a column is as wide as its widest item. So the link is always as wide as its bold version, whether it is bold or not. Measured: the menu stays on the same pixels in every state.
-  - A rule further down hides the `.sect` links on phones with `display: none`; it comes later in the file with the same specificity, so it wins over `inline-grid`.
+- **Menu numbers.** Each link reads like its heading – "01 Profile", "03 Experience" – in the muted grey of the menu.
+  - `white-space: nowrap` – number and label stay on one line. Without it, a squeezed header breaks "01" and "Profile" onto two lines (measured at 768 px).
+  - `font-variant-numeric: tabular-nums` – equal-width digits, as on the headings (see Sections).
+- **You are here.** `site.js` gives the link of the section being read `aria-current="location"`. The three `[aria-current]` rules then style it like the heading it points to: the link in ink, the number in the accent colour, the label in bold.
+  - **The problem:** bold letters are wider. "Experience" is 73.9 px in regular weight and 78.9 px in bold (measured), so every change of section would push the pills to its right sideways.
+  - **The fix:** `.label::after` adds a second copy of the label – `content: attr(data-label)` reads the `data-label` attribute that `build.py` writes – in bold, but with `height: 0`, `overflow: hidden` and `visibility: hidden`. It takes no height and shows nothing, yet it still has its full bold width.
+  - `display: inline-grid` makes the label a one-column grid: the text and the hidden copy are stacked in that column, and a column is as wide as its widest item. So the label is always as wide as its bold version, whether it is bold or not. Measured: the menu stays on the same pixels in every state.
+  - The trick sits on `.label`, not on the whole link, because a grid would put the number, the space and the label into separate rows. The number never turns bold, so it needs no reserve.
+  - Two rules further down hide things on smaller screens; they come later in the file with the same or higher specificity, so they win (see Theme switch).
 - `.langs` – the language pill.
   - `display: inline-flex; align-items: center;` – a flex row, centered vertically. As a child of the `.nav` flex container it is a flex item, and flex items are block-level anyway, so `inline-flex` acts like `flex` here.
   - `border: 1px solid var(--line);` – the hairline outline.
@@ -460,6 +469,7 @@ These rules continue the header after the docking block.
 .themes button[aria-pressed="true"] svg { stroke-width: 2; }
 html:not(.js) .themes { display: none; }
 @media (max-width: 47.99rem) { .nav .sect { display: none; } }
+@media (max-width: 55.99rem) { .nav .sect .no { display: none; } }  /* narrow desktops: labels only, so the header fits */
 ```
 
 - `.themes` – the same pill as `.langs`, with less side padding because the buttons bring their own width.
@@ -479,6 +489,7 @@ html:not(.js) .themes { display: none; }
 - `.themes button[aria-pressed="true"] svg { stroke-width: 2; }` – the active theme's icon is drawn heavier. Muted versus ink alone is a subtle difference; a change in shape keeps the state recognizable without relying on color.
 - `html:not(.js) .themes { display: none; }` – without JavaScript the buttons cannot work, so they are removed. The system preference still applies through the media query.
 - `@media (max-width: 47.99rem) { .nav .sect { display: none; } }` – on narrow screens the four section links disappear; logo, language pill and theme pill stay. The rule belongs to the navigation and only sits here by placement.
+- `@media (max-width: 55.99rem) { .nav .sect .no { display: none; } }` – between 48 and 56rem the links stay, but without numbers. With numbers, the English header needs a window about 800 px wide and overflows at 768 px (measured); without them, it fits with room to spare. The space between number and label disappears with the number: at the start of a line, white space is dropped.
 
 ## Hero
 

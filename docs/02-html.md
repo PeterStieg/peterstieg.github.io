@@ -273,14 +273,15 @@ The content of the block, indented for reading (in the file it is one line):
 `build.py` assembles the whole `<nav>` from f-string pieces, so it lands on one line without whitespace between the tags. As a flex container, the nav would ignore such whitespace anyway; the spacing comes from CSS `gap`. The three parts, quoted one by one:
 
 ```html
-<nav class="nav" aria-label="Main"><a class="sect" href="#profile" data-label="Profile">Profile</a><a class="sect" href="#experience" data-label="Experience">Experience</a><a class="sect" href="#projects" data-label="Projects">Projects</a><a class="sect" href="#contact" data-label="Contact">Contact</a>
+<nav class="nav" aria-label="Main"><a class="sect" href="#profile"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profile">Profile</span></a><a class="sect" href="#experience"><span class="no" aria-hidden="true">03</span> <span class="label" data-label="Experience">Experience</span></a>…
 ```
 
 - `<nav>` – a navigation landmark.
 - `aria-label="Main"` – its name. Screen readers announce "Main navigation", which distinguishes it from the second `<nav>` in the footer. On the German page the label is "Hauptnavigation".
 - `<a class="sect" href="#profile">` – four links to section ids. The fragment `#profile` scrolls to the element with `id="profile"`; `scroll-padding-top` in the CSS stops the target from sliding under the sticky header. Only four of the eight sections are linked; the rest are a scroll away.
-- `data-label="Profile"` – the label again, as a data attribute. HTML ignores `data-*` attributes; they exist for CSS and scripts. Here the CSS prints a hidden bold copy of the label to keep the link's width constant when it turns bold.
-- **You are here:** while scrolling, `site.js` gives the link of the section being read `aria-current="location"` – "the current location within this set of links". The CSS sets that link in bold, like the current language. In P⁴, Approach, Education and Sources no link is marked, because none points there.
+- `<span class="no" aria-hidden="true">01</span>` – the section's number, the same as on its heading: 01 Profile, 03 Experience, 04 Projects, 07 Contact. The gaps are the sections without a menu link (P⁴, Approach, Education). `aria-hidden` keeps the link's name "Profile" for screen readers. Below 56rem the CSS hides the numbers, so the header still fits.
+- `<span class="label" data-label="Profile">` – the label in its own span, plus a copy as a data attribute. HTML ignores `data-*` attributes; they exist for CSS and scripts. Here the CSS prints a hidden bold copy of the label to keep the link's width constant when it turns bold.
+- **You are here:** while scrolling, `site.js` gives the link of the section being read `aria-current="location"` – "the current location within this set of links". The CSS then styles the link like the heading it points to: number in the accent colour, label in ink and bold. In P⁴, Approach, Education and Sources no link is marked, because none points there.
 - On narrow screens the CSS hides the `.sect` links with `display: none`, which hides them from screen readers as well.
 - The German page uses German ids (`#profil`, `#stationen`, `#projekte`, `#kontakt`), so shared links read naturally in each language. They come from the `ids` map in `build.py`.
 
@@ -766,9 +767,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-22</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-23</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-22</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-23</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```
