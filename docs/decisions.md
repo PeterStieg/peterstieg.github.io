@@ -13,6 +13,7 @@ Why the site looks and reads the way it does. Newest first within each topic; ch
 - **Wordplay:** only Pete's own or in his patterns. Tried and dropped: "einSTIEG" as a heading, "See also: root access", "The other four Ps".
 - **Cloud:** Google Cloud is a tool; Azure appears only as the platform of single projects. IT administration (Intune, GPO) is not on the site.
 - **Certificates:** two separate bootcamps (Data Scientist 02–05/2025, MLOps Engineer 05–07/2025), each with a footnote linking the verification page from the diploma's QR code and the course page.
+- **More proof:** the IHK certificate (2023, with distinction – as stated on the certificate page) and the edX course "Introduction to Artificial Intelligence" by Microsoft (2018) carry footnotes to their verification pages too. The capstones link their Streamlit demos next to GitHub. E+SERVICE+CHECK, Brandible and Posterlounge link their websites. Every new link target is named in the privacy statement.
 - **Offline:** Leipzig, before that Rome, Trento, Jinotega (Nicaragua), Orem (Utah).
 - **Not on the site:** recommendations as quotes, photo, logo (both pending).
 

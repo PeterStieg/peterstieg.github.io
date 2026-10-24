@@ -214,7 +214,13 @@ The content of the block, indented for reading (in the file it is one line):
      "recognizedBy": {"@type": "Organization", "name": "Université Paris 1 Panthéon-Sorbonne"}},
     {"@type": "EducationalOccupationalCredential", "name": "MLOps Engineer",
      "url": "https://document-factory.datascientest.com/verify/46b46e0c-cd3b-458a-8e9f-4ee08feb9164",
-     "recognizedBy": {"@type": "Organization", "name": "Université Paris 1 Panthéon-Sorbonne"}}
+     "recognizedBy": {"@type": "Organization", "name": "Université Paris 1 Panthéon-Sorbonne"}},
+    {"@type": "EducationalOccupationalCredential", "name": "Agile project management specialist (IHK)",
+     "url": "https://www.thekey.career/zertifikat/ac-2023-bfbe9c/",
+     "recognizedBy": {"@type": "Organization", "name": "IHK-Projektgesellschaft"}},
+    {"@type": "EducationalOccupationalCredential", "name": "Introduction to Artificial Intelligence (Microsoft)",
+     "url": "https://courses.edx.org/certificates/e801d0f98e64454e8b81e052d1947108",
+     "recognizedBy": {"@type": "Organization", "name": "Microsoft"}}
   ]
 }
 ```
@@ -230,7 +236,7 @@ The content of the block, indented for reading (in the file it is one line):
 - `knowsLanguage` – language codes in the same notation as `lang`.
 - `alumniOf` – the university, typed as `CollegeOrUniversity`.
 - `sameAs` – URLs of other pages about the same person: LinkedIn and GitHub. This is how a search engine joins "Peter Stieg on peterstieg.com", "Peter Stieg on LinkedIn" and "PeterStieg on GitHub" into one entity instead of guessing from matching names. Together with `rel="me"` on the contact links, it is the clearest identity signal a small site can give.
-- `hasCredential` – the two certificates, each an `EducationalOccupationalCredential` with a `name`, a `url` pointing to the issuer's verification page, and `recognizedBy` naming the university. It turns "Certified Data Scientist" from a sentence into a machine-readable claim with a link anyone can check – the same principle as the footnotes in the Education section.
+- `hasCredential` – the four certificates, each an `EducationalOccupationalCredential` with a `name`, a `url` pointing to the issuer's verification page, and `recognizedBy` naming the organisation behind it (the Sorbonne, the IHK-Projektgesellschaft, Microsoft). It turns "Certified Data Scientist" from a sentence into a machine-readable claim with a link anyone can check – the same principle as the footnotes in the Education section.
 - What it buys: Google offers no special search result for a standalone Person, so nothing visibly changes in the results. The value is disambiguation – which profiles, which job, which credentials belong together – for search engines and any other system that reads schema.org.
 - `build.py` produces the block with `json.dumps(…, ensure_ascii=False)`, so "Università" stays readable instead of becoming `Università`. One trap if you ever add text here: the character sequence `</script>` inside a value would end the block early, because the HTML parser knows nothing about JSON.
 - `</head>` – end of the metadata.
@@ -483,7 +489,7 @@ The drawn arrow:
 <p class="when">since 11/2025</p>
 <div>
 <h3>Head of Marketing</h3>
-<p class="org">E+SERVICE+CHECK GmbH&nbsp;<span class="place">· Laucha</span></p>
+<p class="org"><a href="https://www.e-service-check.de/">E+SERVICE+CHECK GmbH</a>&nbsp;<span class="place">· Laucha</span></p>
 <p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Scope</span> marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
 </div>
 </li>
@@ -500,6 +506,7 @@ Nine entries; the first stands for all.
 - `<p class="when">` – the period, in the left column on wide screens.
 - `<div>` – groups everything else into the right column, so the CSS grid gets exactly two columns: date | details.
 - `<h3>` – the job title. As a heading, every role is reachable through heading navigation.
+- `<a href="https://www.e-service-check.de/">` – the company name links to its website. E+SERVICE+CHECK, Brandible and Posterlounge have links; the Liora bootcamps link through their footnotes instead, and the earlier employers have none.
 - `<p class="org">` with `<span class="place">· Laucha</span>` – employer and location; the span mutes the location. The `&nbsp;` before the span glues the dot to "GmbH", so the location can wrap to the next line but the dot never starts it (see "Non-breaking spaces and middle dots").
 - `<p class="ctx">` – one line of company context. Optional: `build.py` emits it only for roles that have a `ctx`, and the `place` span only for roles that have a place (Rapidobject has none).
 - `<ul class="tree">` – the details as an unordered list, styled like the output of the Unix `tree` command – the format of the #JobAlert posts. The branches `├──` and `└──` are not characters in the HTML but CSS borders on `::before` and `::after`. They align in any font, and screen readers do not read out box-drawing characters.
@@ -511,7 +518,8 @@ Nine entries; the first stands for all.
 ```html
 <dl class="facts">
 <div><dt>2025</dt><dd>Data Scientist<sup class="fnref"><a href="#fn-ds" id="ref-ds" aria-describedby="h-notes">1</a></sup>&nbsp;· MLOps Engineer<sup class="fnref"><a href="#fn-mlops" id="ref-mlops" aria-describedby="h-notes">2</a></sup><br><span class="muted">Liora in partnership with Université Paris 1 Panthéon-Sorbonne</span></dd></div>
-<div><dt>2023</dt><dd>Agile project management specialist (IHK)</dd></div>
+<div><dt>2023</dt><dd>Agile project management specialist (IHK)<sup class="fnref"><a href="#fn-ihk" id="ref-ihk" aria-describedby="h-notes">3</a></sup><br><span class="muted">with distinction</span></dd></div>
+<div><dt>2018</dt><dd>Introduction to Artificial Intelligence<sup class="fnref"><a href="#fn-edx" id="ref-edx" aria-describedby="h-notes">4</a></sup><br><span class="muted">Microsoft on edX</span></dd></div>
 <div><dt>2010</dt><dd>Bachelor’s degree in economics<br><span class="muted">Università degli Studi di Trento</span></dd></div>
 <div><dt>Languages</dt><dd>German (native)&nbsp;· English C2&nbsp;· Italian C2&nbsp;· Spanish B1&nbsp;· French A2</dd></div>
 </dl>
@@ -544,7 +552,7 @@ The footnote reference, piece by piece:
 </ul></div>
 <div class="group"><h3>Certification capstones</h3>
 <ul class="projects">
-<li><h4>Rakuten product classification</h4><p>Around 85,000 e-commerce products classified from text and images.</p><p class="stack">Python&nbsp;· Keras&nbsp;· PyTorch&nbsp;· Google Cloud&nbsp;· <a href="https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products">GitHub</a></p></li>
+<li><h4>Rakuten product classification</h4><p>Around 85,000 e-commerce products classified from text and images.</p><p class="stack">Python&nbsp;· Keras&nbsp;· PyTorch&nbsp;· Google Cloud&nbsp;· <a href="https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products">GitHub</a>&nbsp;· <a href="https://feb25-bds-rakuten.streamlit.app/">Demo</a></p></li>
 …
 </ul></div>
 </div>
@@ -555,7 +563,7 @@ The footnote reference, piece by piece:
 - `<div class="group">` – two groups, each with an `<h3>` and a list. The outline reads: Projects (h2) → At E+SERVICE+CHECK (h3) → Call and inquiry pipeline (h4).
 - `<ul class="projects">` – unordered: the projects are not ranked.
 - `<li><h4>…</h4><p>…</p><p class="stack">…</p></li>` – name, description, tech stack. A list item may hold headings and paragraphs; it does not have to be a single line.
-- `<a href="https://github.com/…">GitHub</a>` – only the capstones link to their code. The link text "GitHub" appears three times on the page with three different targets (two repositories, one profile). A screen-reader user who lists all links out of context sees three identical names; the surrounding list item supplies the context, which WCAG accepts.
+- `<a href="https://github.com/…">GitHub</a>&nbsp;· <a href="https://…streamlit.app/">Demo</a>` – only the capstones link out: to their code and to the running app on Streamlit. The link text "GitHub" appears three times on the page with three different targets (two repositories, one profile), "Demo" twice. A screen-reader user who lists all links out of context sees identical names; the surrounding list item supplies the context, which WCAG accepts.
 
 ### Approach
 
@@ -593,6 +601,8 @@ The footnote reference, piece by piece:
 <ol class="notes">
 <li id="fn-ds"><a class="back" href="#ref-ds" aria-label="Back to text">^</a> Data Scientist&nbsp;· issued 10 June 2025&nbsp;· <a href="https://document-factory.datascientest.com/verify/3225d69a-a3b6-4bd2-bafe-df9381eff729">Verify credential</a>&nbsp;· <a href="https://liora.io/en/courses/data-ai/data-scientist" hreflang="en">Course page</a></li>
 <li id="fn-mlops">…</li>
+<li id="fn-ihk"><a class="back" href="#ref-ihk" aria-label="Back to text">^</a> Agile project management specialist (IHK)&nbsp;· completed 16 February 2023&nbsp;· <a href="https://www.thekey.career/zertifikat/ac-2023-bfbe9c/">Verify credential</a></li>
+<li id="fn-edx">…</li>
 </ol>
 </div>
 </section>
@@ -603,6 +613,7 @@ The footnote reference, piece by piece:
 - `<li id="fn-ds">` – the jump target. CSS highlights the targeted note with the `:target` selector, so after the jump you see where you landed.
 - `<a class="back" href="#ref-ds" aria-label="Back to text">^</a>` – jumps back to the reference. The visible `^` says nothing when spoken, so `aria-label` replaces it: "Back to text, link".
 - `Verify credential` – the issuer's verification page; the same URL as in the JSON-LD `hasCredential`.
+- `completed 16 February 2023` – the IHK certificate page states when the course was completed, not when a certificate was issued, so this note uses that word. It has no course page, and neither has the edX course; their lines end after "Verify credential".
 - `hreflang="en"` on "Course page" – a hint that the target is in English, which matters on the German page.
 
 ### Footer
@@ -660,7 +671,7 @@ On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never
 `dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag:
 
 ```html
-<p class="org">Posterlounge GmbH&nbsp;<span class="place">· Leipzig</span></p>
+<p class="org"><a href="https://posterlounge.com/shop">Posterlounge GmbH</a>&nbsp;<span class="place">· Leipzig</span></p>
 ```
 
 The no-break space works across the tag boundary: "GmbH" and "·" stay on one line, and the break opportunity is the space after the dot, inside the span.
