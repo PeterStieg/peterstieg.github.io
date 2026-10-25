@@ -31,6 +31,8 @@ LINKEDIN = "https://www.linkedin.com/in/peterstieg/"
 GITHUB = "https://github.com/PeterStieg"
 REPO_DS = "https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products"
 REPO_MLOPS = "https://github.com/PeterStieg/may25_bmlops_classification-of-rakuten-e-commerce-products"
+DEMO_DS = "https://feb25-bds-rakuten.streamlit.app/"       # Streamlit Community Cloud: sleeps when idle, wakes on request
+DEMO_MLOPS = "https://may25-bds-rakuten.streamlit.app/"
 
 NAME = "Peter Stieg"
 TAGLINE = "Performance Marketing · Data Science"
@@ -50,16 +52,24 @@ PROJECTS_LEAD = "Stop starting. Start finishing."
 # the sections after it belong to it – P⁴ to Profile, Education to Experience, Approach to Projects, Sources to Contact
 CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": ["approach"], "contact": ["notes"]}
 
-# Footnotes: verification links from the QR codes on both diplomas, plus the course pages.
+# Footnotes: verification links (QR codes on the Liora diplomas, thekey.career, edX), plus course pages where they exist.
+# "title": one string, or one per language; "when": which date label (issued | completed), default issued;
+# "by": the organisation behind the credential, for the structured data (hasCredential → recognizedBy).
 NOTES = {
     "ds": {"title": "Data Scientist",
            "verify": "https://document-factory.datascientest.com/verify/3225d69a-a3b6-4bd2-bafe-df9381eff729",
            "course": "https://liora.io/en/courses/data-ai/data-scientist",
-           "date": {"en": "10 June 2025", "de": "10. Juni 2025"}},
+           "date": {"en": "10 June 2025", "de": "10. Juni 2025"}, "by": "Université Paris 1 Panthéon-Sorbonne"},
     "mlops": {"title": "MLOps Engineer",
               "verify": "https://document-factory.datascientest.com/verify/46b46e0c-cd3b-458a-8e9f-4ee08feb9164",
               "course": "https://liora.io/en/courses/data-ai/mlops",
-              "date": {"en": "1 September 2025", "de": "1. September 2025"}},
+              "date": {"en": "1 September 2025", "de": "1. September 2025"}, "by": "Université Paris 1 Panthéon-Sorbonne"},
+    "ihk": {"title": {"en": "Agile project management specialist (IHK)", "de": "Fachkraft für agiles Projektmanagement (IHK)"},
+            "verify": "https://www.thekey.career/zertifikat/ac-2023-bfbe9c/",
+            "date": {"en": "16 February 2023", "de": "16. Februar 2023"}, "when": "completed", "by": "IHK-Projektgesellschaft"},
+    "edx": {"title": "Introduction to Artificial Intelligence (Microsoft)",
+            "verify": "https://courses.edx.org/certificates/e801d0f98e64454e8b81e052d1947108",
+            "date": {"en": "12 June 2018", "de": "12. Juni 2018"}, "by": "Microsoft"},
 }
 
 STACK_DS = "Python · Keras · PyTorch · Google Cloud"
@@ -94,7 +104,7 @@ CONTENT = {
             "Teams of up to six, from SEA to graphic design, trained in performance marketing and data analysis. Processes fit people, not the other way round.",
         ],
         "roles": [
-            {"when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "place": "Laucha",
+            {"when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
              "tree": [("Scope", "marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding"),
                       ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark")]},
@@ -106,14 +116,14 @@ CONTENT = {
             {"when": "02/2025 – 05/2025", "title": "Data Scientist (full-time)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Capstone", "multimodal classification of e-commerce products with NLP and computer vision")]},
-            {"when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International GmbH", "place": "Dresden",
+            {"when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B promotional products for Germany, Austria and Switzerland.",
              "tree": [("Team", "five – marketing, graphic design, project management"),
                       ("Budget", "€1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn"),
                       ("Result", "RoAS 7.6 → 7.8 while spend grew; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
             {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar GmbH", "place": "Leipzig",
              "tree": [("Scope", "e-commerce operations for discounted sporting goods, email automation, WhatsApp and Telegram")]},
-            {"when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "place": "Leipzig",
+            {"when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Art prints online in more than 15 European countries.",
              "tree": [("Path", "SEA Manager in 2017 → Head of Marketing in 2021, three promotions"),
                       ("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
@@ -125,14 +135,14 @@ CONTENT = {
         ],
         "groups": [
             ("At E+SERVICE+CHECK", [
-                ("Call and inquiry pipeline", "More than half a million calls, two phone systems, five web forms – joined with Odoo master data and Google Ads attribution.", "Python · BigQuery · Data Studio", None),
-                ("PRUEF+CHECK", "Rule-based validation of inspection checklists instead of manual Excel checks. From requirement to go-live: five days.", "Streamlit · Azure", None),
-                ("Document extraction", "Around 14,000 unstructured supplier documents turned into structured records for ERP import.", "Python · Claude API", None),
-                ("Customer portal", "Moved to a company-owned Azure tenant with separate production and staging. Running cloud costs: a fraction of before.", "Azure", None),
+                ("Call and inquiry pipeline", "More than half a million calls, two phone systems, five web forms – joined with Odoo master data and Google Ads attribution.", "Python · BigQuery · Data Studio", []),
+                ("PRUEF+CHECK", "Rule-based validation of inspection checklists instead of manual Excel checks. From requirement to go-live: five days.", "Streamlit · Azure", []),
+                ("Document extraction", "Around 14,000 unstructured supplier documents turned into structured records for ERP import.", "Python · Claude API", []),
+                ("Customer portal", "Moved to a company-owned Azure tenant with separate production and staging. Running cloud costs: a fraction of before.", "Azure", []),
             ]),
             ("Certification capstones", [
-                ("Rakuten product classification", "Around 85,000 e-commerce products classified from text and images.", STACK_DS, REPO_DS),
-                ("Rakuten classification · MLOps", "The same model as a production pipeline: training, tracking, serving and monitoring.", STACK_MLOPS, REPO_MLOPS),
+                ("Rakuten product classification", "Around 85,000 e-commerce products classified from text and images.", STACK_DS, [("GitHub", REPO_DS), ("Demo", DEMO_DS)]),
+                ("Rakuten classification · MLOps", "The same model as a production pipeline: training, tracking, serving and monitoring.", STACK_MLOPS, [("GitHub", REPO_MLOPS), ("Demo", DEMO_MLOPS)]),
             ]),
         ],
         "approach": [
@@ -142,12 +152,13 @@ CONTENT = {
         ],
         "facts": [
             ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in partnership with Université Paris 1 Panthéon-Sorbonne"),
-            ("2023", "Agile project management specialist (IHK)", ""),
+            ("2023", "Agile project management specialist (IHK)[[ihk]]", "with distinction"),
+            ("2018", "Introduction to Artificial Intelligence[[edx]]", "Microsoft on edX"),
             ("2010", "Bachelor’s degree in economics", "Università degli Studi di Trento"),
             ("Languages", "German (native) · English C2 · Italian C2 · Spanish B1 · French A2", ""),
         ],
         "offline": ("Leipzig.", "Before: Rome, Trento, Jinotega (Nicaragua), Orem (Utah)."),
-        "notes": {"issued": "issued", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
+        "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
         "imprint": "Legal notice", "privacy": "Privacy",
         "jobtitle": "Head of Marketing",
     },
@@ -181,7 +192,7 @@ CONTENT = {
             "Teams mit bis zu sechs Personen, von SEA bis Grafik, geschult in Performance Marketing und Datenanalyse. Prozesse passen zu Menschen, nicht umgekehrt.",
         ],
         "roles": [
-            {"when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK GmbH", "place": "Laucha",
+            {"when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-zertifizierte Prüfungen der elektrischen Sicherheit (DGUV V3/V4), bundesweit, 349 Mitarbeitende.",
              "tree": [("Scope", "Marketing, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, CRM, Events, Employer Branding"),
                       ("Result", "Anfragen im Jahresvergleich mehr als verdoppelt; neue Corporate Identity samt Grundlage der EUIPO-Markenanmeldung")]},
@@ -193,14 +204,14 @@ CONTENT = {
             {"when": "02/2025 – 05/2025", "title": "Data Scientist (Vollzeit)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Capstone", "multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
-            {"when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International GmbH", "place": "Dresden",
+            {"when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B-Werbeartikel für Deutschland, Österreich und die Schweiz.",
              "tree": [("Team", "fünf Personen – Marketing, Grafik, Projektmanagement"),
                       ("Budget", "1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn"),
                       ("Result", "KUR 13,2 → 12,8 % bei ausgebautem Budget; Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %")]},
             {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar GmbH", "place": "Leipzig",
              "tree": [("Scope", "E-Commerce-Betrieb für Sportartikel im Rabattsegment, E-Mail-Automatisierung, WhatsApp und Telegram")]},
-            {"when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "place": "Leipzig",
+            {"when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Kunstdrucke online in über 15 europäischen Ländern.",
              "tree": [("Path", "SEA Manager 2017 → Head of Marketing 2021, drei Beförderungen"),
                       ("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
@@ -212,14 +223,14 @@ CONTENT = {
         ],
         "groups": [
             ("Bei E+SERVICE+CHECK", [
-                ("Anruf- und Anfragen-Pipeline", "Über eine halbe Million Anrufe, zwei Telefonanlagen, fünf Webformulare – verknüpft mit Odoo-Stammdaten und Google-Ads-Attribution.", "Python · BigQuery · Data Studio", None),
-                ("PRUEF+CHECK", "Regelbasierte Validierung von Prüflisten statt manueller Excel-Kontrolle. Von der Anforderung bis zum Go-live: fünf Tage.", "Streamlit · Azure", None),
-                ("Dokumentenextraktion", "Rund 14.000 unstrukturierte Lieferantendokumente als strukturierte Datensätze für den ERP-Import.", "Python · Claude API", None),
-                ("Kundenportal", "Umzug in einen eigenen Azure-Tenant mit getrennter Produktion und Staging. Laufende Cloud-Kosten: ein Bruchteil von vorher.", "Azure", None),
+                ("Anruf- und Anfragen-Pipeline", "Über eine halbe Million Anrufe, zwei Telefonanlagen, fünf Webformulare – verknüpft mit Odoo-Stammdaten und Google-Ads-Attribution.", "Python · BigQuery · Data Studio", []),
+                ("PRUEF+CHECK", "Regelbasierte Validierung von Prüflisten statt manueller Excel-Kontrolle. Von der Anforderung bis zum Go-live: fünf Tage.", "Streamlit · Azure", []),
+                ("Dokumentenextraktion", "Rund 14.000 unstrukturierte Lieferantendokumente als strukturierte Datensätze für den ERP-Import.", "Python · Claude API", []),
+                ("Kundenportal", "Umzug in einen eigenen Azure-Tenant mit getrennter Produktion und Staging. Laufende Cloud-Kosten: ein Bruchteil von vorher.", "Azure", []),
             ]),
             ("Abschlussprojekte der Weiterbildungen", [
-                ("Rakuten-Produktklassifikation", "Rund 85.000 E-Commerce-Produkte, klassifiziert aus Text und Bild.", STACK_DS, REPO_DS),
-                ("Rakuten-Klassifikation · MLOps", "Dasselbe Modell als produktive Pipeline: Training, Tracking, Bereitstellung und Monitoring.", STACK_MLOPS, REPO_MLOPS),
+                ("Rakuten-Produktklassifikation", "Rund 85.000 E-Commerce-Produkte, klassifiziert aus Text und Bild.", STACK_DS, [("GitHub", REPO_DS), ("Demo", DEMO_DS)]),
+                ("Rakuten-Klassifikation · MLOps", "Dasselbe Modell als produktive Pipeline: Training, Tracking, Bereitstellung und Monitoring.", STACK_MLOPS, [("GitHub", REPO_MLOPS), ("Demo", DEMO_MLOPS)]),
             ]),
         ],
         "approach": [
@@ -229,12 +240,13 @@ CONTENT = {
         ],
         "facts": [
             ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in Partnerschaft mit der Université Paris 1 Panthéon-Sorbonne"),
-            ("2023", "Fachkraft für agiles Projektmanagement (IHK)", ""),
+            ("2023", "Fachkraft für agiles Projektmanagement (IHK)[[ihk]]", "mit Auszeichnung"),
+            ("2018", "Introduction to Artificial Intelligence[[edx]]", "Microsoft auf edX"),
             ("2010", "Bachelor in Wirtschaftswissenschaften", "Università degli Studi di Trento"),
             ("Sprachen", "Deutsch (Muttersprache) · Englisch C2 · Italienisch C2 · Spanisch B1 · Französisch A2", ""),
         ],
         "offline": ("Leipzig.", "Davor: Rom, Trient, Jinotega (Nicaragua), Orem (Utah)."),
-        "notes": {"issued": "ausgestellt am", "verify": "Nachweis prüfen", "course": "Kursseite", "back": "Zurück zum Text"},
+        "notes": {"issued": "ausgestellt am", "completed": "abgeschlossen am", "verify": "Nachweis prüfen", "course": "Kursseite", "back": "Zurück zum Text"},
         "imprint": "Impressum", "privacy": "Datenschutz",
         "jobtitle": "Leiter Marketing",
     },
@@ -270,6 +282,11 @@ MOON_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
 
 def sid(c, key):
     return c.get("ids", {}).get(key, key)
+
+
+def note_title(c, note):
+    """A footnote's title in the page language – NOTES titles are a string or one per language."""
+    return note["title"][c["lang"]] if isinstance(note["title"], dict) else note["title"]
 
 
 def num(key):
@@ -395,8 +412,8 @@ def jsonld(c):
         "knowsLanguage": ["de", "en", "it", "es", "fr"],
         "alumniOf": [{"@type": "CollegeOrUniversity", "name": "Università degli Studi di Trento"}],
         "hasCredential": [
-            {"@type": "EducationalOccupationalCredential", "name": n["title"], "url": n["verify"],
-             "recognizedBy": {"@type": "Organization", "name": "Université Paris 1 Panthéon-Sorbonne"}}
+            {"@type": "EducationalOccupationalCredential", "name": note_title(c, n), "url": n["verify"],
+             "recognizedBy": {"@type": "Organization", "name": n["by"]}}
             for n in NOTES.values()
         ],
     }
@@ -472,11 +489,12 @@ def page(c):
     for ro in c["roles"]:
         place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
         ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
+        org = f'<a href="{ro["url"]}">{e(ro["org"])}</a>' if ro.get("url") else e(ro["org"])
         roles.append(f"""<li class="role">
 <p class="when">{e(ro['when'])}</p>
 <div>
 <h3>{e(ro['title'])}</h3>
-<p class="org">{e(ro['org'])}{place}</p>
+<p class="org">{org}{place}</p>
 {ctx}{tree(c, ro['tree'])}
 </div>
 </li>
@@ -495,8 +513,8 @@ def page(c):
     groups = []
     for gt, items in c["groups"]:
         lis = []
-        for name, text, stack, link in items:
-            ln = f' · <a href="{link}">GitHub</a>' if link else ""
+        for name, text, stack, links in items:
+            ln = "".join(f' · <a href="{url}">{e(label)}</a>' for label, url in links)
             lis.append(f'<li><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
         groups.append(f'<div class="group"><h3>{e(gt)}</h3>\n<ul class="projects">\n{"".join(lis)}</ul></div>\n')
     out.append(section(c, "projects", e(s["projects"]),
@@ -521,9 +539,10 @@ def page(c):
     notes = []
     for key in order:
         n = NOTES[key]
+        course = f' · <a href="{n["course"]}" hreflang="en">{e(nl["course"])}</a>' if n.get("course") else ""
         notes.append(f'<li id="fn-{key}"><a class="back" href="#ref-{key}" aria-label="{e(nl["back"])}">^</a> '
-                     f'{e(n["title"])} · {e(nl["issued"])} {e(n["date"][L])} · '
-                     f'<a href="{n["verify"]}">{e(nl["verify"])}</a> · <a href="{n["course"]}" hreflang="en">{e(nl["course"])}</a></li>\n')
+                     f'{e(note_title(c, n))} · {e(nl[n.get("when", "issued")])} {e(n["date"][L])} · '
+                     f'<a href="{n["verify"]}">{e(nl["verify"])}</a>{course}</li>\n')
     out.append(section(c, "notes", e(s["notes"]), f'<ol class="notes">\n{"".join(notes)}</ol>\n'))
 
     out.append("</div>\n</main>\n")
@@ -562,7 +581,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 <h2>Kontakt per E-Mail</h2>
 <p>Wenn Sie eine E-Mail schreiben, werden Ihre Angaben verarbeitet, um die Anfrage zu beantworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Die Daten werden gelöscht, sobald sie dafür nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
 <h2>Links zu anderen Plattformen</h2>
-<p>Die Seite verlinkt auf LinkedIn, GitHub, die Kursseiten von Liora und die Nachweisseiten von DataScientest. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
+<p>Die Seite verlinkt auf LinkedIn, GitHub, die Kursseiten von Liora, die Nachweisseiten von DataScientest, thekey.career und edX, die Demos der Abschlussprojekte bei Streamlit sowie die Websites früherer und heutiger Arbeitgeber. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
 <h2>Ihre Rechte</h2>
 <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Einer Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO können Sie widersprechen (Art. 21). Außerdem können Sie sich bei einer Datenschutz-Aufsichtsbehörde beschweren, etwa bei der zuständigen Behörde Ihres Bundeslandes.</p>
 """
