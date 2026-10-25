@@ -7,6 +7,7 @@ One Python script turns the copy into static HTML. No framework, no tracking, no
 ```
 peterstieg.github.io
 ├── src/build.py          all copy (EN · DE) and the HTML templates
+├── src/lockup/           the logo >_ P/S: generator, SVG files, the design's animation
 ├── site/                 generated – exactly what goes on the server
 │   ├── index.html        English (default)
 │   ├── de/index.html     German
