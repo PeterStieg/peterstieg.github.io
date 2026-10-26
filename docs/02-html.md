@@ -214,7 +214,13 @@ The content of the block, indented for reading (in the file it is one line):
      "recognizedBy": {"@type": "Organization", "name": "Université Paris 1 Panthéon-Sorbonne"}},
     {"@type": "EducationalOccupationalCredential", "name": "MLOps Engineer",
      "url": "https://document-factory.datascientest.com/verify/46b46e0c-cd3b-458a-8e9f-4ee08feb9164",
-     "recognizedBy": {"@type": "Organization", "name": "Université Paris 1 Panthéon-Sorbonne"}}
+     "recognizedBy": {"@type": "Organization", "name": "Université Paris 1 Panthéon-Sorbonne"}},
+    {"@type": "EducationalOccupationalCredential", "name": "Agile project management specialist (IHK)",
+     "url": "https://www.thekey.career/zertifikat/ac-2023-bfbe9c/",
+     "recognizedBy": {"@type": "Organization", "name": "IHK-Projektgesellschaft"}},
+    {"@type": "EducationalOccupationalCredential", "name": "Introduction to Artificial Intelligence (Microsoft)",
+     "url": "https://courses.edx.org/certificates/e801d0f98e64454e8b81e052d1947108",
+     "recognizedBy": {"@type": "Organization", "name": "Microsoft"}}
   ]
 }
 ```
@@ -230,7 +236,7 @@ The content of the block, indented for reading (in the file it is one line):
 - `knowsLanguage` – language codes in the same notation as `lang`.
 - `alumniOf` – the university, typed as `CollegeOrUniversity`.
 - `sameAs` – URLs of other pages about the same person: LinkedIn and GitHub. This is how a search engine joins "Peter Stieg on peterstieg.com", "Peter Stieg on LinkedIn" and "PeterStieg on GitHub" into one entity instead of guessing from matching names. Together with `rel="me"` on the contact links, it is the clearest identity signal a small site can give.
-- `hasCredential` – the two certificates, each an `EducationalOccupationalCredential` with a `name`, a `url` pointing to the issuer's verification page, and `recognizedBy` naming the university. It turns "Certified Data Scientist" from a sentence into a machine-readable claim with a link anyone can check – the same principle as the footnotes in the Education section.
+- `hasCredential` – the four certificates, each an `EducationalOccupationalCredential` with a `name`, a `url` pointing to the issuer's verification page, and `recognizedBy` naming the organisation behind it (the Sorbonne, the IHK-Projektgesellschaft, Microsoft). It turns "Certified Data Scientist" from a sentence into a machine-readable claim with a link anyone can check – the same principle as the footnotes in the Education section.
 - What it buys: Google offers no special search result for a standalone Person, so nothing visibly changes in the results. The value is disambiguation – which profiles, which job, which credentials belong together – for search engines and any other system that reads schema.org.
 - `build.py` produces the block with `json.dumps(…, ensure_ascii=False)`, so "Università" stays readable instead of becoming `Università`. One trap if you ever add text here: the character sequence `</script>` inside a value would end the block early, because the HTML parser knows nothing about JSON.
 - `</head>` – end of the metadata.
@@ -273,14 +279,15 @@ The content of the block, indented for reading (in the file it is one line):
 `build.py` assembles the whole `<nav>` from f-string pieces, so it lands on one line without whitespace between the tags. As a flex container, the nav would ignore such whitespace anyway; the spacing comes from CSS `gap`. The three parts, quoted one by one:
 
 ```html
-<nav class="nav" aria-label="Main"><a class="sect" href="#profile" data-label="Profile">Profile</a><a class="sect" href="#experience" data-label="Experience">Experience</a><a class="sect" href="#projects" data-label="Projects">Projects</a><a class="sect" href="#contact" data-label="Contact">Contact</a>
+<nav class="nav" aria-label="Main"><a class="sect" href="#profile"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profile">Profile</span></a><a class="sect" href="#experience"><span class="no" aria-hidden="true">02</span> <span class="label" data-label="Experience">Experience</span></a>…
 ```
 
 - `<nav>` – a navigation landmark.
 - `aria-label="Main"` – its name. Screen readers announce "Main navigation", which distinguishes it from the second `<nav>` in the footer. On the German page the label is "Hauptnavigation".
-- `<a class="sect" href="#profile">` – four links to section ids. The fragment `#profile` scrolls to the element with `id="profile"`; `scroll-padding-top` in the CSS stops the target from sliding under the sticky header. Only four of the eight sections are linked; the rest are a scroll away.
-- `data-label="Profile"` – the label again, as a data attribute. HTML ignores `data-*` attributes; they exist for CSS and scripts. Here the CSS prints a hidden bold copy of the label to keep the link's width constant when it turns bold.
-- **You are here:** while scrolling, `site.js` gives the link of the section being read `aria-current="location"` – "the current location within this set of links". The CSS sets that link in bold, like the current language. In P⁴, Approach, Education and Sources no link is marked, because none points there.
+- `<a class="sect" href="#profile">` – four links to section ids. The fragment `#profile` scrolls to the element with `id="profile"`; `scroll-padding-top` in the CSS stops the target from sliding under the sticky header. The four links are the four chapters; the other sections belong to one of them and are a scroll away.
+- `<span class="no" aria-hidden="true">01</span>` – the chapter number, the same as on the heading: 01 Profile, 02 Experience, 03 Projects, 04 Contact. `aria-hidden` keeps the link's name "Profile" for screen readers. Below 56rem the CSS hides the numbers, so the header still fits.
+- `<span class="label" data-label="Profile">` – the label in its own span, plus a copy as a data attribute. HTML ignores `data-*` attributes; they exist for CSS and scripts. Here the CSS prints a hidden bold copy of the label to keep the link's width constant when it turns bold.
+- **You are here:** while scrolling, `site.js` gives the link of the chapter being read `aria-current="location"` – "the current location within this set of links". The CSS then styles the link like the heading it points to: number in the accent colour, label in ink and bold. In P⁴ the menu marks Profile, in Education Experience, and so on – like a slide deck whose header shows the current part on every slide.
 - On narrow screens the CSS hides the `.sect` links with `display: none`, which hides them from screen readers as well.
 - The German page uses German ids (`#profil`, `#stationen`, `#projekte`, `#kontakt`), so shared links read naturally in each language. They come from the `ids` map in `build.py`.
 
@@ -392,7 +399,8 @@ Every content section comes from this template (function `section()` in `build.p
 - `<section>` – a thematic group with its own heading.
 - `id="profile"` – the target for `#profile` links.
 - `aria-labelledby="h-profile"` – names the region after its heading, so the screen reader's landmark list reads "Profile, Experience, Projects …". It points to the heading's id instead of repeating the text in `aria-label`: the name always matches the visible heading, and it is translated along with it (some browser translation tools leave `aria-label` untranslated).
-- `<span class="no" aria-hidden="true">01</span>` – the section number, like the chapters of a slide deck. Profile is 01, Contact 07; Sources has none, like a deck's appendix. `aria-hidden` keeps it out of what screen readers announce, so the region is still named "Profile", not "01 Profile".
+- `<span class="no" aria-hidden="true">01</span>` – the chapter number, like the parts of a slide deck. The page has four chapters: 01 Profile, 02 Experience, 03 Projects, 04 Contact. `aria-hidden` keeps the number out of what screen readers announce, so the region is still named "Profile", not "01 Profile".
+- The sections inside a chapter repeat its number with a second class, `<span class="no ghost" aria-hidden="true">01</span>` on P⁴. The CSS makes it invisible; it only keeps the space, so the title lines up with the chapter's title.
 - `<h2 id="h-profile">` – the heading, with the id the section points to. Heading levels form an outline: `h1` (name) → `h2` (sections) → `h3` (roles, fields, project groups) → `h4` (single projects). Screen-reader users move through this outline the way sighted users skim bold text.
 - `<div class="body">` – the content column next to the sticky heading (CSS grid). No meaning.
 - The eight sections make eight region landmarks. That makes the landmark list longer; in exchange, every section is one keystroke away.
@@ -454,7 +462,7 @@ The drawn arrow:
 
 ```html
 <section class="sec" id="fields" aria-labelledby="h-fields">
-<h2 id="h-fields"><span class="no" aria-hidden="true">02</span> P<sup>4</sup></h2>
+<h2 id="h-fields"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
 <p class="intro">P as in Peter.</p>
 <div class="fields">
@@ -481,7 +489,7 @@ The drawn arrow:
 <p class="when">since 11/2025</p>
 <div>
 <h3>Head of Marketing</h3>
-<p class="org">E+SERVICE+CHECK GmbH&nbsp;<span class="place">· Laucha</span></p>
+<p class="org"><a href="https://www.e-service-check.de/">E+SERVICE+CHECK GmbH</a>&nbsp;<span class="place">· Laucha</span></p>
 <p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Scope</span> marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
 </div>
 </li>
@@ -498,57 +506,20 @@ Nine entries; the first stands for all.
 - `<p class="when">` – the period, in the left column on wide screens.
 - `<div>` – groups everything else into the right column, so the CSS grid gets exactly two columns: date | details.
 - `<h3>` – the job title. As a heading, every role is reachable through heading navigation.
+- `<a href="https://www.e-service-check.de/">` – the company name links to its website. E+SERVICE+CHECK, Brandible and Posterlounge have links; the Liora bootcamps link through their footnotes instead, and the earlier employers have none.
 - `<p class="org">` with `<span class="place">· Laucha</span>` – employer and location; the span mutes the location. The `&nbsp;` before the span glues the dot to "GmbH", so the location can wrap to the next line but the dot never starts it (see "Non-breaking spaces and middle dots").
 - `<p class="ctx">` – one line of company context. Optional: `build.py` emits it only for roles that have a `ctx`, and the `place` span only for roles that have a place (Rapidobject has none).
 - `<ul class="tree">` – the details as an unordered list, styled like the output of the Unix `tree` command – the format of the #JobAlert posts. The branches `├──` and `└──` are not characters in the HTML but CSS borders on `::before` and `::after`. They align in any font, and screen readers do not read out box-drawing characters.
 - `<span class="k">Scope</span>` – the key. CSS sets it bold and adds the colon via `content: ":"`. Screen readers generally read such generated content, so they say "Scope: marketing, design …". On the German page the keys carry `lang="en"` – Scope, Team, Result are brand vocabulary.
 - Variants among the nine entries: some have no `ctx`, one has no place, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items.
 
-### Projects
-
-```html
-<section class="sec" id="projects" aria-labelledby="h-projects">
-<h2 id="h-projects"><span class="no" aria-hidden="true">04</span> Projects</h2>
-<div class="body">
-<p class="intro"><strong lang="en">Stop starting. Start finishing.</strong></p>
-<div class="group"><h3>At E+SERVICE+CHECK</h3>
-<ul class="projects">
-<li><h4>Call and inquiry pipeline</h4><p>More than half a million calls, two phone systems, five web forms – joined with Odoo master data and Google Ads attribution.</p><p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p></li>
-…
-</ul></div>
-<div class="group"><h3>Certification capstones</h3>
-<ul class="projects">
-<li><h4>Rakuten product classification</h4><p>Around 85,000 e-commerce products classified from text and images.</p><p class="stack">Python&nbsp;· Keras&nbsp;· PyTorch&nbsp;· Google Cloud&nbsp;· <a href="https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products">GitHub</a></p></li>
-…
-</ul></div>
-</div>
-</section>
-```
-
-- `<p class="intro"><strong lang="en">` – the lead slogan, important and English on both pages.
-- `<div class="group">` – two groups, each with an `<h3>` and a list. The outline reads: Projects (h2) → At E+SERVICE+CHECK (h3) → Call and inquiry pipeline (h4).
-- `<ul class="projects">` – unordered: the projects are not ranked.
-- `<li><h4>…</h4><p>…</p><p class="stack">…</p></li>` – name, description, tech stack. A list item may hold headings and paragraphs; it does not have to be a single line.
-- `<a href="https://github.com/…">GitHub</a>` – only the capstones link to their code. The link text "GitHub" appears three times on the page with three different targets (two repositories, one profile). A screen-reader user who lists all links out of context sees three identical names; the surrounding list item supplies the context, which WCAG accepts.
-
-### Approach
-
-```html
-<ul class="principles">
-<li><p><strong lang="en">Facts, not fluff.</strong> Every figure on this page can be backed up on request. Growth only counts when efficiency keeps pace.</p></li>
-…
-</ul>
-```
-
-- Three principles as a list. Each opens with a slogan in `<strong lang="en">` – important text, English on both pages.
-- `<li><p>…</p></li>` – the paragraph inside the item adds no meaning but gives CSS one consistent block per principle.
-
 ### Education and footnote references
 
 ```html
 <dl class="facts">
 <div><dt>2025</dt><dd>Data Scientist<sup class="fnref"><a href="#fn-ds" id="ref-ds" aria-describedby="h-notes">1</a></sup>&nbsp;· MLOps Engineer<sup class="fnref"><a href="#fn-mlops" id="ref-mlops" aria-describedby="h-notes">2</a></sup><br><span class="muted">Liora in partnership with Université Paris 1 Panthéon-Sorbonne</span></dd></div>
-<div><dt>2023</dt><dd>Agile project management specialist (IHK)</dd></div>
+<div><dt>2023</dt><dd>Agile project management specialist (IHK)<sup class="fnref"><a href="#fn-ihk" id="ref-ihk" aria-describedby="h-notes">3</a></sup><br><span class="muted">with distinction</span></dd></div>
+<div><dt>2018</dt><dd>Introduction to Artificial Intelligence<sup class="fnref"><a href="#fn-edx" id="ref-edx" aria-describedby="h-notes">4</a></sup><br><span class="muted">Microsoft on edX</span></dd></div>
 <div><dt>2010</dt><dd>Bachelor’s degree in economics<br><span class="muted">Università degli Studi di Trento</span></dd></div>
 <div><dt>Languages</dt><dd>German (native)&nbsp;· English C2&nbsp;· Italian C2&nbsp;· Spanish B1&nbsp;· French A2</dd></div>
 </dl>
@@ -566,6 +537,45 @@ The footnote reference, piece by piece:
 - `id="ref-ds"` – the reference itself has an id, so the note can link back to exactly this spot.
 - `aria-describedby="h-notes"` – adds a description to the link: the text of the element with that id, the heading "Sources". A screen reader reads "1, link" and then, typically on focus, "Sources". Without it, a lone "1" would mean nothing.
 - `1`, `2` – `build.py` numbers the notes in order of first appearance (the inner function `fn()` collects the keys in a list). Reorder the text and the numbers and the list of notes follow.
+
+### Projects
+
+```html
+<section class="sec" id="projects" aria-labelledby="h-projects">
+<h2 id="h-projects"><span class="no" aria-hidden="true">03</span> Projects</h2>
+<div class="body">
+<p class="intro"><strong lang="en">Stop starting. Start finishing.</strong></p>
+<div class="group"><h3>At E+SERVICE+CHECK</h3>
+<ul class="projects">
+<li><h4>Call and inquiry pipeline</h4><p>More than half a million calls, two phone systems, five web forms – joined with Odoo master data and Google Ads attribution.</p><p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p></li>
+…
+</ul></div>
+<div class="group"><h3>Certification capstones</h3>
+<ul class="projects">
+<li><h4>Rakuten product classification</h4><p>Around 85,000 e-commerce products classified from text and images.</p><p class="stack">Python&nbsp;· Keras&nbsp;· PyTorch&nbsp;· Google Cloud&nbsp;· <a href="https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products">GitHub</a>&nbsp;· <a href="https://feb25-bds-rakuten.streamlit.app/">Demo</a></p></li>
+…
+</ul></div>
+</div>
+</section>
+```
+
+- `<p class="intro"><strong lang="en">` – the lead slogan, important and English on both pages.
+- `<div class="group">` – two groups, each with an `<h3>` and a list. The outline reads: Projects (h2) → At E+SERVICE+CHECK (h3) → Call and inquiry pipeline (h4).
+- `<ul class="projects">` – unordered: the projects are not ranked.
+- `<li><h4>…</h4><p>…</p><p class="stack">…</p></li>` – name, description, tech stack. A list item may hold headings and paragraphs; it does not have to be a single line.
+- `<a href="https://github.com/…">GitHub</a>&nbsp;· <a href="https://…streamlit.app/">Demo</a>` – only the capstones link out: to their code and to the running app on Streamlit. The link text "GitHub" appears three times on the page with three different targets (two repositories, one profile), "Demo" twice. A screen-reader user who lists all links out of context sees identical names; the surrounding list item supplies the context, which WCAG accepts.
+
+### Approach
+
+```html
+<ul class="principles">
+<li><p><strong lang="en">Facts, not fluff.</strong> Every figure on this page can be backed up on request. Growth only counts when efficiency keeps pace.</p></li>
+…
+</ul>
+```
+
+- Three principles as a list. Each opens with a slogan in `<strong lang="en">` – important text, English on both pages.
+- `<li><p>…</p></li>` – the paragraph inside the item adds no meaning but gives CSS one consistent block per principle.
 
 ### Contact
 
@@ -586,11 +596,13 @@ The footnote reference, piece by piece:
 
 ```html
 <section class="sec" id="notes" aria-labelledby="h-notes">
-<h2 id="h-notes">Sources</h2>
+<h2 id="h-notes"><span class="no ghost" aria-hidden="true">04</span> Sources</h2>
 <div class="body">
 <ol class="notes">
 <li id="fn-ds"><a class="back" href="#ref-ds" aria-label="Back to text">^</a> Data Scientist&nbsp;· issued 10 June 2025&nbsp;· <a href="https://document-factory.datascientest.com/verify/3225d69a-a3b6-4bd2-bafe-df9381eff729">Verify credential</a>&nbsp;· <a href="https://liora.io/en/courses/data-ai/data-scientist" hreflang="en">Course page</a></li>
 <li id="fn-mlops">…</li>
+<li id="fn-ihk"><a class="back" href="#ref-ihk" aria-label="Back to text">^</a> Agile project management specialist (IHK)&nbsp;· completed 16 February 2023&nbsp;· <a href="https://www.thekey.career/zertifikat/ac-2023-bfbe9c/">Verify credential</a></li>
+<li id="fn-edx">…</li>
 </ol>
 </div>
 </section>
@@ -601,6 +613,7 @@ The footnote reference, piece by piece:
 - `<li id="fn-ds">` – the jump target. CSS highlights the targeted note with the `:target` selector, so after the jump you see where you landed.
 - `<a class="back" href="#ref-ds" aria-label="Back to text">^</a>` – jumps back to the reference. The visible `^` says nothing when spoken, so `aria-label` replaces it: "Back to text, link".
 - `Verify credential` – the issuer's verification page; the same URL as in the JSON-LD `hasCredential`.
+- `completed 16 February 2023` – the IHK certificate page states when the course was completed, not when a certificate was issued, so this note uses that word. It has no course page, and neither has the edX course; their lines end after "Verify credential".
 - `hreflang="en"` on "Course page" – a hint that the target is in English, which matters on the German page.
 
 ### Footer
@@ -658,7 +671,7 @@ On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never
 `dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag:
 
 ```html
-<p class="org">Posterlounge GmbH&nbsp;<span class="place">· Leipzig</span></p>
+<p class="org"><a href="https://posterlounge.com/shop">Posterlounge GmbH</a>&nbsp;<span class="place">· Leipzig</span></p>
 ```
 
 The no-break space works across the tag boundary: "GmbH" and "·" stay on one line, and the break opportunity is the space after the dot, inside the span.
@@ -766,9 +779,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-22</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-23</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-22</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-23</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```

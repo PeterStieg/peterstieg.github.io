@@ -405,11 +405,16 @@ Declaration by declaration:
 ```css
 .nav a { text-decoration: none; color: var(--muted); }
 .nav a:hover { color: var(--ink); }
-/* you are here (site.js): the section being read, marked like the current language – ink and bold.
-   A hidden bold copy of the label (data-label) reserves the width, so the menu never shifts. */
-.nav .sect { display: inline-grid; }
-.nav .sect::after { content: attr(data-label); font-weight: 700; height: 0; overflow: hidden; visibility: hidden; }
-.nav .sect[aria-current] { color: var(--ink); font-weight: 700; }
+/* menu numbers match the headings ("01 Profile"). You are here (site.js): the section being read looks like
+   its heading – number in accent, label in ink and bold. A hidden bold copy of the label (data-label)
+   reserves the width, so the menu never shifts. */
+.nav .sect { white-space: nowrap; }
+.nav .sect .no { font-variant-numeric: tabular-nums; }
+.nav .sect .label { display: inline-grid; }
+.nav .sect .label::after { content: attr(data-label); font-weight: 700; height: 0; overflow: hidden; visibility: hidden; }
+.nav .sect[aria-current] { color: var(--ink); }
+.nav .sect[aria-current] .no { color: var(--accent); }
+.nav .sect[aria-current] .label { font-weight: 700; }
 .langs {
   display: inline-flex; align-items: center;
   border: 1px solid var(--line); border-radius: 999px;
@@ -425,11 +430,15 @@ These rules continue the header after the docking block.
 
 - `.nav a { text-decoration: none; color: var(--muted); }` – navigation links without underline, in muted grey. The shorthand `text-decoration: none` resets all three longhands set on `a`. (0,1,1) beats `a`.
 - `.nav a:hover` – ink on hover. (0,2,1) beats `.nav a` (0,1,1), because `:hover` is a pseudo-class and counts like a class.
-- **You are here.** `site.js` gives the link of the section being read `aria-current="location"`; `.nav .sect[aria-current]` sets it in ink and bold, the same look as the current language.
-  - **The problem:** bold letters are wider. "Experience" in bold is a few pixels wider than in regular weight, so every change of section would push the pills to its right sideways.
-  - **The fix:** `.nav .sect::after` adds a second copy of the label – `content: attr(data-label)` reads the `data-label` attribute that `build.py` writes – in bold, but with `height: 0`, `overflow: hidden` and `visibility: hidden`. It takes no height and shows nothing, yet it still has its full bold width.
-  - `display: inline-grid` makes the link a one-column grid: the label text and the hidden copy are stacked in that column, and a column is as wide as its widest item. So the link is always as wide as its bold version, whether it is bold or not. Measured: the menu stays on the same pixels in every state.
-  - A rule further down hides the `.sect` links on phones with `display: none`; it comes later in the file with the same specificity, so it wins over `inline-grid`.
+- **Menu numbers.** Each link reads like its chapter heading – "01 Profile", "02 Experience" – in the muted grey of the menu.
+  - `white-space: nowrap` – number and label stay on one line. Without it, a squeezed header breaks "01" and "Profile" onto two lines (measured at 768 px).
+  - `font-variant-numeric: tabular-nums` – equal-width digits, as on the headings (see Sections).
+- **You are here.** `site.js` gives the link of the section being read `aria-current="location"`. The three `[aria-current]` rules then style it like the heading it points to: the link in ink, the number in the accent colour, the label in bold.
+  - **The problem:** bold letters are wider. "Experience" is 73.9 px in regular weight and 78.9 px in bold (measured), so every change of section would push the pills to its right sideways.
+  - **The fix:** `.label::after` adds a second copy of the label – `content: attr(data-label)` reads the `data-label` attribute that `build.py` writes – in bold, but with `height: 0`, `overflow: hidden` and `visibility: hidden`. It takes no height and shows nothing, yet it still has its full bold width.
+  - `display: inline-grid` makes the label a one-column grid: the text and the hidden copy are stacked in that column, and a column is as wide as its widest item. So the label is always as wide as its bold version, whether it is bold or not. Measured: the menu stays on the same pixels in every state.
+  - The trick sits on `.label`, not on the whole link, because a grid would put the number, the space and the label into separate rows. The number never turns bold, so it needs no reserve.
+  - Two rules further down hide things on smaller screens; they come later in the file with the same or higher specificity, so they win (see Theme switch).
 - `.langs` – the language pill.
   - `display: inline-flex; align-items: center;` – a flex row, centered vertically. As a child of the `.nav` flex container it is a flex item, and flex items are block-level anyway, so `inline-flex` acts like `flex` here.
   - `border: 1px solid var(--line);` – the hairline outline.
@@ -460,6 +469,7 @@ These rules continue the header after the docking block.
 .themes button[aria-pressed="true"] svg { stroke-width: 2; }
 html:not(.js) .themes { display: none; }
 @media (max-width: 47.99rem) { .nav .sect { display: none; } }
+@media (max-width: 55.99rem) { .nav .sect .no { display: none; } }  /* narrow desktops: labels only, so the header fits */
 ```
 
 - `.themes` – the same pill as `.langs`, with less side padding because the buttons bring their own width.
@@ -479,6 +489,7 @@ html:not(.js) .themes { display: none; }
 - `.themes button[aria-pressed="true"] svg { stroke-width: 2; }` – the active theme's icon is drawn heavier. Muted versus ink alone is a subtle difference; a change in shape keeps the state recognizable without relying on color.
 - `html:not(.js) .themes { display: none; }` – without JavaScript the buttons cannot work, so they are removed. The system preference still applies through the media query.
 - `@media (max-width: 47.99rem) { .nav .sect { display: none; } }` – on narrow screens the four section links disappear; logo, language pill and theme pill stay. The rule belongs to the navigation and only sits here by placement.
+- `@media (max-width: 55.99rem) { .nav .sect .no { display: none; } }` – between 48 and 56rem the links stay, but without numbers. With numbers, the English header needs a window about 800 px wide and overflows at 768 px (measured); without them, it fits with room to spare. The space between number and label disappears with the number: at the start of a line, white space is dropped.
 
 ## Hero
 
@@ -590,8 +601,10 @@ html:not(.js) .themes { display: none; }
   line-height: 1.3;
   font-weight: 700;
 }
-/* section number, like a slide deck's chapters: "01 Profile" – equal-width digits keep the titles aligned */
+/* chapter number, like a slide deck's parts: "01 Profile" – equal-width digits keep the titles aligned.
+   The other sections of a chapter carry the same number invisibly (.ghost), so their titles line up with it. */
 .sec > h2 .no { color: var(--accent); font-weight: 400; font-variant-numeric: tabular-nums; }
+.sec > h2 .ghost { visibility: hidden; }
 ```
 
 Each content section is a `.sec`: heading left and body right on wide screens, stacked on phones.
@@ -607,8 +620,11 @@ Each content section is a `.sec`: heading left and body right on wide screens, s
   - `.sec > h2 { position: sticky; top: 5rem; align-self: start; }` – the heading stays visible while you scroll through a long section; `top: 5rem` keeps it clear of the header. The child combinator `>` limits this to the section's own `h2`.
   - **Why `align-self: start` is essential:** grid items stretch to the full height of their row by default. The row is as tall as the section body, so a stretched heading would already fill its whole area and have no room to move – sticky would do nothing. With `start`, the heading is only as tall as its text and can slide down inside the tall grid area. It stops at the end of the section, because a sticky element never leaves its containing block.
 - `.sec > h2` – no margin, 1.25rem, line height 1.3, bold. This unconditional rule comes after the media query; the two set different properties, so the order doesn't matter.
-- `.sec > h2 .no` – the section number in front of the heading: accent colour, regular weight, so the title stays the strong part.
-  - `font-variant-numeric: tabular-nums` – switches the font to its equal-width digits (the OpenType feature `tnum`). By default Atkinson Hyperlegible uses proportional digits: in bold, a "1" is about 70 % as wide as a "0". With tabular digits every number from 01 to 07 has the same width, so all titles start on the same pixel (measured).
+- `.sec > h2 .no` – the chapter number in front of the heading: accent colour, regular weight, so the title stays the strong part.
+  - `font-variant-numeric: tabular-nums` – switches the font to its equal-width digits (the OpenType feature `tnum`). By default Atkinson Hyperlegible uses proportional digits: in the regular weight used here, a "1" is about 60 % as wide as a "0". With tabular digits every number from 01 to 04 has the same width, so all titles start on the same pixel (measured).
+- `.sec > h2 .ghost { visibility: hidden; }` – the sections inside a chapter (P⁴, Education, Approach, Sources) carry their chapter's number with this extra class. `visibility: hidden` hides it but keeps its box, so the title after it starts on the same pixel as the chapter's title (measured: all eight titles at the same x). The page reads like an outline.
+  - Why not `padding-left` instead: the padding would have to equal the width of "01" plus a space in this font at this size – a number to measure and to update with every font change. The invisible number is always exactly as wide as the visible one.
+  - Hidden text is not selected when you copy the heading, and the minimap skips it (`site.js` filters `.ghost`).
 
 ```css
 .body { max-width: 42rem; }

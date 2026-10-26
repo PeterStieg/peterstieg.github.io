@@ -84,6 +84,8 @@ LINKEDIN = "https://www.linkedin.com/in/peterstieg/"
 GITHUB = "https://github.com/PeterStieg"
 REPO_DS = "https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products"
 REPO_MLOPS = "https://github.com/PeterStieg/may25_bmlops_classification-of-rakuten-e-commerce-products"
+DEMO_DS = "https://feb25-bds-rakuten.streamlit.app/"       # Streamlit Community Cloud: sleeps when idle, wakes on request
+DEMO_MLOPS = "https://may25-bds-rakuten.streamlit.app/"
 ```
 
 - `SITE` – the output folder, computed rather than typed:
@@ -92,7 +94,8 @@ REPO_MLOPS = "https://github.com/PeterStieg/may25_bmlops_classification-of-rakut
   - `.parent` is `src/`, `.parent.parent` the repository root.
   - `/ "site"` appends the folder name. Result: the script writes to the right place no matter which directory you start it from.
 - `URL` ends with a slash. Every use concatenates (`URL + slug`, `f"{URL}og-image.png"`), so the trailing slash must stay and the parts appended to it must not start with one.
-- `EMAIL`, `LINKEDIN`, `GITHUB`, `REPO_*` – each defined once and used in several places (contact section, JSON-LD, legal pages, project links). Change once, rebuild, done.
+- `DEMO_*` – the two capstone apps on Streamlit Community Cloud. An app that nobody has opened for a while goes to sleep; the first visitor sees a wake-up button and waits about a minute.
+- `EMAIL`, `LINKEDIN`, `GITHUB`, `REPO_*`, `DEMO_*` – each defined once and used in several places (contact section, JSON-LD, legal pages, project links). Change once, rebuild, done.
 - UPPER_CASE names mark constants. Python does not enforce this – it is a convention that says "set once, never reassigned".
 
 ---
@@ -147,15 +150,17 @@ P4 = ["Performance", "Pipelines", "Pixels", "People"]
 P4_TAIL = {3: "Everything human:e."}
 SLOGANS = ["Facts, not fluff.", "Built, not briefed.", "Prompted, not pasted."]
 PROJECTS_LEAD = "Stop starting. Start finishing."
-# section numbers, like the chapters of a slide deck; Sources stays unnumbered, like a deck's appendix
-NUMBERED = ["profile", "fields", "experience", "projects", "approach", "education", "contact"]
+# four chapters, like the parts of a slide deck: the first section of each is numbered and linked in the menu,
+# the sections after it belong to it – P⁴ to Profile, Education to Experience, Approach to Projects, Sources to Contact
+CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": ["approach"], "contact": ["notes"]}
 ```
 
 - `P4` – the four headings of the P⁴ section. `page()` pairs them by position with `CONTENT[lang]["fields"]`.
 - `P4_TAIL` – an extra closing line for selected fields, keyed by index (3 = People). A dict instead of a list because only some fields have a tail; `i in P4_TAIL` checks the keys.
 - `SLOGANS` – paired by position with `CONTENT[lang]["approach"]`.
 - `PROJECTS_LEAD` – the intro line of the Projects section.
-- `NUMBERED` – the sections that get a number in front of their heading, in page order. `section()` takes the number from the position in this list: `profile` is 01, `contact` 07. Sources (`notes`) is not in the list and stays unnumbered. The keys are the English ones, so both languages share the numbers.
+- `CHAPTERS` – the page's four chapters, like the four parts of a slide deck. Each key opens a chapter and is linked in the menu; the list holds the sections that follow it and belong to it. The order of the keys is the order of the chapters, so `profile` is 01 and `contact` 04. The keys are the English ones, so both languages share the numbers.
+- The page order must match: every section in a list comes right after its chapter's first section. That is why Education stands behind Experience in `page()`, not at the end.
 - Pitfall: pairing by position. Reorder `P4` without reordering both `fields` lists and every text lands under the wrong heading. And `zip()` stops at the shorter list: a missing fourth text silently drops "People" – no error.
 
 ---
@@ -163,24 +168,38 @@ NUMBERED = ["profile", "fields", "experience", "projects", "approach", "educatio
 ## 7 · NOTES and stacks
 
 ```python
-# Footnotes: verification links from the QR codes on both diplomas, plus the course pages.
+# Footnotes: verification links (QR codes on the Liora diplomas, thekey.career, edX), plus course pages where they exist.
+# "title": one string, or one per language; "when": which date label (issued | completed), default issued;
+# "by": the organisation behind the credential, for the structured data (hasCredential → recognizedBy).
 NOTES = {
     "ds": {"title": "Data Scientist",
            "verify": "https://document-factory.datascientest.com/verify/3225d69a-a3b6-4bd2-bafe-df9381eff729",
            "course": "https://liora.io/en/courses/data-ai/data-scientist",
-           "date": {"en": "10 June 2025", "de": "10. Juni 2025"}},
+           "date": {"en": "10 June 2025", "de": "10. Juni 2025"}, "by": "Université Paris 1 Panthéon-Sorbonne"},
     "mlops": {"title": "MLOps Engineer",
               "verify": "https://document-factory.datascientest.com/verify/46b46e0c-cd3b-458a-8e9f-4ee08feb9164",
               "course": "https://liora.io/en/courses/data-ai/mlops",
-              "date": {"en": "1 September 2025", "de": "1. September 2025"}},
+              "date": {"en": "1 September 2025", "de": "1. September 2025"}, "by": "Université Paris 1 Panthéon-Sorbonne"},
+    "ihk": {"title": {"en": "Agile project management specialist (IHK)", "de": "Fachkraft für agiles Projektmanagement (IHK)"},
+            "verify": "https://www.thekey.career/zertifikat/ac-2023-bfbe9c/",
+            "date": {"en": "16 February 2023", "de": "16. Februar 2023"}, "when": "completed", "by": "IHK-Projektgesellschaft"},
+    "edx": {"title": "Introduction to Artificial Intelligence (Microsoft)",
+            "verify": "https://courses.edx.org/certificates/e801d0f98e64454e8b81e052d1947108",
+            "date": {"en": "12 June 2018", "de": "12. Juni 2018"}, "by": "Microsoft"},
 }
 
 STACK_DS = "Python · Keras · PyTorch · Google Cloud"
 STACK_MLOPS = "Docker · Airflow · MLflow · FastAPI · Grafana"
 ```
 
-- `NOTES` – a dict of dicts. The outer key (`"ds"`, `"mlops"`) is the footnote ID: it appears in the `[[ds]]` markers in the copy and in the HTML ids `fn-ds` and `ref-ds`.
-- Inner keys: `title` (credential name), `verify` (the URL behind the QR code on the diploma), `course` (course page), `date` (one preformatted string per language).
+- `NOTES` – a dict of dicts. The outer key (`"ds"`, `"mlops"`, `"ihk"`, `"edx"`) is the footnote ID: it appears in the `[[ds]]` markers in the copy and in the HTML ids `fn-ds` and `ref-ds`.
+- Inner keys:
+  - `title` – the credential's name. One string when it is the same in both languages, a dict with one string per language when not (the IHK certificate). `note_title()` (section 12) picks the right one.
+  - `verify` – the verification page: the URL behind the QR code on the Liora diplomas, the certificate pages on thekey.career and edX.
+  - `course` – the course page. Optional: the IHK and edX entries have none, and the Sources list then leaves the link out.
+  - `date` – one preformatted string per language.
+  - `when` – which label goes before the date. Optional, default `"issued"`. The IHK page says the course was *completed* on that date, so its entry says `"completed"`; the label text itself lives in `CONTENT[lang]["notes"]`.
+  - `by` – the organisation behind the credential, for the structured data (section 19).
 - Why preformatted dates instead of `date` objects: Python's month names (`%B` in `strftime`) follow the system locale, and switching to a German locale depends on what the machine has installed. Two literal strings avoid that entirely.
 - `NOTES` feeds both the visible footnotes in `page()` and the credentials in `jsonld()` – one source, two outputs.
 - `STACK_DS`, `STACK_MLOPS` – the tool lines of the two capstone projects. They are the same in both languages, so they are defined once and referenced from both dictionaries.
@@ -217,7 +236,7 @@ CONTENT = {
             …
         ],
         "roles": [
-            {"when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "place": "Laucha",
+            {"when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
              "tree": [("Scope", "…"),
                       ("Result", "…")]},
@@ -225,11 +244,11 @@ CONTENT = {
         ],
         "groups": [
             ("At E+SERVICE+CHECK", [
-                ("Call and inquiry pipeline", "…", "Python · BigQuery · Data Studio", None),
+                ("Call and inquiry pipeline", "…", "Python · BigQuery · Data Studio", []),
                 …
             ]),
             ("Certification capstones", [
-                ("Rakuten product classification", "…", STACK_DS, REPO_DS),
+                ("Rakuten product classification", "…", STACK_DS, [("GitHub", REPO_DS), ("Demo", DEMO_DS)]),
                 …
             ]),
         ],
@@ -239,11 +258,11 @@ CONTENT = {
         ],
         "facts": [
             ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in partnership with Université Paris 1 Panthéon-Sorbonne"),
-            ("2023", "Agile project management specialist (IHK)", ""),
+            ("2023", "Agile project management specialist (IHK)[[ihk]]", "with distinction"),
             …
         ],
         "offline": ("Leipzig.", "Before: Rome, Trento, Jinotega (Nicaragua), Orem (Utah)."),
-        "notes": {"issued": "issued", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
+        "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
         "imprint": "Legal notice", "privacy": "Privacy",
         "jobtitle": "Head of Marketing",
     },
@@ -283,7 +302,7 @@ Interface labels:
 | `skip` | str | text of the skip link |
 | `nav` | list of (id, label) | header links |
 | `sec` | dict | section headings, keyed by internal section name |
-| `notes` | dict | labels in the Sources list |
+| `notes` | dict | labels in the Sources list, incl. the two date labels `issued` and `completed` |
 | `imprint`, `privacy` | str | footer links |
 
 Metadata:
@@ -301,8 +320,8 @@ Copy:
 | `profile` | str | the profile paragraph |
 | `ledger_label`, `ledger` | str, list of (figure, context) | the results list in the profile |
 | `p4_intro`, `fields` | str, list of 4 str | the P⁴ section, paired with `P4` |
-| `roles` | list of dicts | Experience: `when`, `title`, `org`, `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text)) |
-| `groups` | list of (title, items) | Projects; each item is (name, text, stack, link or `None`) |
+| `roles` | list of dicts | Experience: `when`, `title`, `org`, `url` (optional: the company's website), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text)) |
+| `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link |
 | `approach` | list of 3 str | paired with `SLOGANS` |
 | `facts` | list of (label, value, sub-line or `""`) | Education |
 | `offline` | 2-tuple | Contact: current city, earlier places |
@@ -413,11 +432,19 @@ MOON_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
 
 ---
 
-## 12 · sid
+## 12 · sid and num
 
 ```python
 def sid(c, key):
     return c.get("ids", {}).get(key, key)
+
+
+def num(key):
+    """Chapter number of a section, '01'–'04': its own if it opens a chapter, else that of the chapter it belongs to."""
+    for i, (first, rest) in enumerate(CHAPTERS.items(), 1):
+        if key == first or key in rest:
+            return f"{i:02d}"
+    return ""
 ```
 
 - "Section id": turns an internal section key into the anchor used in the HTML.
@@ -426,6 +453,25 @@ def sid(c, key):
 - Second `.get`: the localized ID, or the key itself as fallback.
 - Result: English → `"experience"`, German → `"stationen"`. German visitors get German anchors (`/de/#stationen`).
 - Pitfall: `nav` holds its own copy of these IDs. Rename an ID in `ids` without changing `nav` and the header link points to an anchor that no longer exists. No error – the link just stops scrolling.
+
+`note_title` returns a footnote's title in the page language:
+
+```python
+def note_title(c, note):
+    """A footnote's title in the page language – NOTES titles are a string or one per language."""
+    return note["title"][c["lang"]] if isinstance(note["title"], dict) else note["title"]
+```
+
+- `isinstance(x, dict)` – true when `x` is a dict. Most titles are one string for both languages; only the IHK certificate has a German and an English name.
+- Why not `title`: `head()` and `legal()` have a parameter called `title`. Inside those functions it would hide a function of the same name – the same trap as `t` in `topbar` (section 17).
+
+`num` gives a section its chapter number. Headings and menu both call it, so the two can never disagree.
+
+- `CHAPTERS.items()` – the (key, list) pairs in order: `("profile", ["fields"])`, `("experience", ["education"])` …
+- `enumerate(…, 1)` – counts along, starting at 1 instead of 0. Each round gets the number `i` and the pair, unpacked into `first` and `rest`.
+- `if key == first or key in rest` – the section opens this chapter or belongs to it. `num("fields")` and `num("profile")` both return `"01"`.
+- `:02d` – a format spec: an integer (`d`), at least two digits wide, padded with zeros (`0`). 1 becomes `01`.
+- `return ""` – after the loop: a section in no chapter. None exists today; the empty string keeps `section()` working if one is added.
 
 ---
 
@@ -586,8 +632,10 @@ def theme_switch(c):
 ```python
 def topbar(c, sections=True, langs=True):
     r = c["root"]
-    # data-label: CSS reserves the bold width, so marking the current section does not shift the menu
-    links = "".join(f'<a class="sect" href="#{i}" data-label="{e(t)}">{e(t)}</a>' for i, t in c["nav"]) if sections else ""
+    keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
+    # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
+    links = "".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
+                    f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
     switch = lang_switch(c) if langs else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
@@ -600,10 +648,13 @@ def topbar(c, sections=True, langs=True):
 ```
 
 - `sections`, `langs` – switches. The main pages get section links and the language switch; legal and 404 pages pass `False` for both.
+- `keys` – a dict comprehension that turns the lookup around. `nav` holds the localized ids (`"stationen"`), `num()` needs the section key (`"experience"`). Looping over `CHAPTERS` loops over its keys – the four sections the menu links to. So `keys` maps each id back to its key: `{"profil": "profile", "stationen": "experience", …}` on the German page; in English, id and key are the same.
 - `links = "".join(…) if sections else ""` – the conditional expression wraps the whole join, so the generator only runs when `sections` is true.
+  - Two f-strings in a row, without a `+` between them, are joined into one string by Python itself. That splits a long line without changing the result.
   - `for i, t in c["nav"]` – unpacks each (id, label) pair. Here `t` is a loop variable that shadows the function `t()`. It works because a generator expression has its own scope – outside it, `t()` is untouched – but it is confusing. Do not copy the pattern.
   - `href="#{i}"` – an in-page anchor.
-  - `data-label="{e(t)}"` – the label a second time, as a data attribute. `site.js` marks the section being read in bold; the CSS uses this copy to reserve the bold width in advance (chapter 3, Navigation).
+  - `<span class="no" aria-hidden="true">{num(keys[i])}</span>` – the chapter number, the same as on the heading: "01 Profile", "02 Experience". Hidden from screen readers, so the link is still called "Profile".
+  - `<span class="label" data-label="{e(t)}">` – the label in its own span, plus a copy as a data attribute. `site.js` marks the section being read in bold; the CSS uses the copy to reserve the bold width in advance (chapter 3, Navigation). The span is needed because the trick works on the label alone – the number stays regular.
 - `switch = lang_switch(c) if langs else ""` – same pattern.
 - The skip link comes first in the page so it is the first thing the Tab key reaches. CSS keeps it off-screen until it receives keyboard focus; it jumps to `<main id="main">`.
 - `<header class="top">` and `<div class="wrap">` – the page header and a width-limiting layout container.
@@ -655,8 +706,8 @@ def jsonld(c):
         "knowsLanguage": ["de", "en", "it", "es", "fr"],
         "alumniOf": [{"@type": "CollegeOrUniversity", "name": "Università degli Studi di Trento"}],
         "hasCredential": [
-            {"@type": "EducationalOccupationalCredential", "name": n["title"], "url": n["verify"],
-             "recognizedBy": {"@type": "Organization", "name": "Université Paris 1 Panthéon-Sorbonne"}}
+            {"@type": "EducationalOccupationalCredential", "name": note_title(c, n), "url": n["verify"],
+             "recognizedBy": {"@type": "Organization", "name": n["by"]}}
             for n in NOTES.values()
         ],
     }
@@ -668,7 +719,9 @@ def jsonld(c):
 - `jobTitle` and `description` come from `c`, so each language version describes the person in its own language.
 - `"address"` – a nested object with its own `@type`. City and country only.
 - `"sameAs"` – other profiles of the same person; this ties the site to LinkedIn and GitHub.
-- `"hasCredential"` – a list comprehension: `[{…} for n in NOTES.values()]` builds one credential object per footnote. Dicts keep insertion order (guaranteed since Python 3.7), so the order is always Data Scientist, then MLOps Engineer.
+- `"hasCredential"` – a list comprehension: `[{…} for n in NOTES.values()]` builds one credential object per footnote. Dicts keep insertion order (guaranteed since Python 3.7), so the order is always that of `NOTES`: Data Scientist, MLOps Engineer, IHK, edX.
+  - `note_title(c, n)` – the credential's name in the page language.
+  - `n["by"]` – who stands behind it: the Sorbonne for the Liora certificates, the IHK-Projektgesellschaft for the IHK course, Microsoft for the edX course.
 - `json.dumps(data, ensure_ascii=False)` turns the dict into JSON text. The default (`ensure_ascii=True`) would write `"Università"`; `False` keeps `"Università"`. Both are valid JSON; the second is shorter and readable, and safe because the file is written as UTF-8.
 - Why no `e()` here: the content of a `<script>` element is raw text. The browser does not decode entities inside it, so `&amp;` would land literally in the JSON.
 - Pitfall: `json.dumps` does not protect against the sequence `</script>`. A string containing it would close the script element early. All values here are your own constants, so it cannot happen today. If outside data is ever fed in, replace `"</"` with `"<\/"` in the output.
@@ -680,7 +733,8 @@ def jsonld(c):
 ```python
 def section(c, key, title_html, body, cls="body"):
     i = sid(c, key)
-    no = f'<span class="no" aria-hidden="true">{NUMBERED.index(key) + 1:02d}</span> ' if key in NUMBERED else ""
+    ghost = "" if key in CHAPTERS else " ghost"      # the rest of a chapter repeats its number invisibly: titles line up
+    no = f'<span class="no{ghost}" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
     return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
 <h2 id="h-{i}">{no}{title_html}</h2>
 <div class="{cls}">
@@ -692,9 +746,8 @@ def section(c, key, title_html, body, cls="body"):
 - The wrapper for every content section of the main page.
 - `cls="body"` – a default parameter: used when the caller passes nothing. No caller currently passes another value.
 - `i = sid(c, key)` – the localized anchor.
-- `no` – the section number, or an empty string for sections outside `NUMBERED`.
-  - `NUMBERED.index(key) + 1` – the position in the list, counted from 1.
-  - `:02d` – a format spec: an integer (`d`), at least two digits wide, padded with zeros (`0`). 1 becomes `01`.
+- `ghost` – a second class for the sections that do not open a chapter (P⁴, Education, Approach, Sources). `key in CHAPTERS` checks the dict's keys only, so it is true just for the four chapter openers.
+- `no` – the number span from `num(key)` (section 12). P⁴ gets `<span class="no ghost">01</span>`: the number of its chapter, which the CSS makes invisible. It still takes up its width, so "P⁴" starts exactly where "Profile" does – an outline, without any measuring. An empty string counts as false, so `if num(key)` is enough.
   - `aria-hidden="true"` – screen readers skip the number and announce "Profile", not "zero one Profile". The number is a visual signpost; the order of headings already carries the structure.
   - The space after `</span>` sits outside the span, so the plain text of the heading still reads "01 Profile" for search engines and copy-paste.
 - `aria-labelledby="h-{i}"` points at the `<h2 id="h-{i}">`: the heading becomes the section's name, and a named `<section>` is exposed as a landmark that screen-reader users can jump between.
@@ -830,11 +883,12 @@ def page(c):
     for ro in c["roles"]:
         place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
         ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
+        org = f'<a href="{ro["url"]}">{e(ro["org"])}</a>' if ro.get("url") else e(ro["org"])
         roles.append(f"""<li class="role">
 <p class="when">{e(ro['when'])}</p>
 <div>
 <h3>{e(ro['title'])}</h3>
-<p class="org">{e(ro['org'])}{place}</p>
+<p class="org">{org}{place}</p>
 {ctx}{tree(c, ro['tree'])}
 </div>
 </li>
@@ -845,41 +899,10 @@ def page(c):
 - `ro.get("place")` – optional field: returns `None` when the key is missing and `""` when it is empty (Rapidobject). Both are falsy, so no place span appears.
 - `&nbsp;` before the span – the same job as `dots()`: "· Laucha" must not start a new line. `dots()` cannot do it here, because it only matches the plain sequence ` · `, and here a `<span>` tag sits between the space and the dot. So the place line brings its own non-breaking space.
 - `ctx` – the optional context line, same pattern.
+- `org` – the company name, as a link to its website when the role has a `url` (E+SERVICE+CHECK, Brandible, Posterlounge). The name is escaped inside the link; the URL is one of your own constants and goes in as it is.
 - Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly.
 - `{ctx}{tree(c, ro['tree'])}` – context line and tree directly after each other.
 - `<ol class="roles" reversed>` – an ordered list, because sequence matters; `reversed` makes the numbering count down, so the newest role at the top carries the highest number. It is a boolean attribute: present means true.
-
-### Projects
-
-```python
-    # projects
-    groups = []
-    for gt, items in c["groups"]:
-        lis = []
-        for name, text, stack, link in items:
-            ln = f' · <a href="{link}">GitHub</a>' if link else ""
-            lis.append(f'<li><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
-        groups.append(f'<div class="group"><h3>{e(gt)}</h3>\n<ul class="projects">\n{"".join(lis)}</ul></div>\n')
-    out.append(section(c, "projects", e(s["projects"]),
-                       f'<p class="intro"><strong lang="en">{e(PROJECTS_LEAD)}</strong></p>\n' + "".join(groups)))
-```
-
-- Two nested loops: groups (`gt` = group title), then projects within a group.
-- `for name, text, stack, link in items` – each project is a 4-tuple. A tuple with three or five values raises `ValueError`.
-- `ln` – the GitHub link only when `link` is not `None`; its ` · ` separator gets glued by `dots()` later.
-- The section body is an f-string concatenated with a join result via `+` – both are plain strings.
-- `name` is a local variable here; it does not clash with the constant `NAME` (Python is case-sensitive).
-
-### Approach
-
-```python
-    # approach – three of a kind: X, not Y
-    pr = "".join(f'<li><p><strong lang="en">{e(a)}</strong> {e(b)}</p></li>\n' for a, b in zip(SLOGANS, c["approach"]))
-    out.append(section(c, "approach", e(s["approach"]), f'<ul class="principles">\n{pr}</ul>\n'))
-```
-
-- `zip(SLOGANS, c["approach"])` – English slogan plus localized sentence, paired by position.
-- The slogan is marked `lang="en"` on both pages.
 
 ### Education – where the footnotes are created
 
@@ -893,12 +916,45 @@ def page(c):
     out.append(section(c, "education", e(s["education"]), f'<dl class="facts">\n{"".join(fa)}</dl>\n'))
 ```
 
+- The block sits right behind Experience: Education belongs to chapter 02 (`CHAPTERS`), so it follows Experience on the page – and here, because the order of the `out.append` calls is the order of the page.
 - `for k, v, sub in c["facts"]` – each fact is a 3-tuple; an empty `sub` means "no second line".
 - `re.sub(r"\[\[(\w+)\]\]", fn, e(v))`:
   - Pattern: `\[\[` two literal brackets (escaped, because `[` normally opens a character class), `(\w+)` the key – letters, digits, underscore – as group 1, `\]\]` closing brackets.
   - The replacement is a function, not a string. `re.sub` calls `fn(match)` for every match, left to right, and inserts whatever it returns. That is what makes the numbering follow the order of appearance: the first marker processed gets 1.
   - Escape first again: `e()` does not touch `[` or `]`, so the markers survive, and `fn`'s HTML is inserted after escaping.
 - Pitfalls: a key with a hyphen (`[[ml-ops]]`) does not match `\w+` and stays visible as text. A key that matches but is missing from `NOTES` gets a number here and then crashes the Sources loop with `KeyError`.
+
+### Projects
+
+```python
+    # projects
+    groups = []
+    for gt, items in c["groups"]:
+        lis = []
+        for name, text, stack, links in items:
+            ln = "".join(f' · <a href="{url}">{e(label)}</a>' for label, url in links)
+            lis.append(f'<li><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
+        groups.append(f'<div class="group"><h3>{e(gt)}</h3>\n<ul class="projects">\n{"".join(lis)}</ul></div>\n')
+    out.append(section(c, "projects", e(s["projects"]),
+                       f'<p class="intro"><strong lang="en">{e(PROJECTS_LEAD)}</strong></p>\n' + "".join(groups)))
+```
+
+- Two nested loops: groups (`gt` = group title), then projects within a group.
+- `for name, text, stack, links in items` – each project is a 4-tuple. A tuple with three or five values raises `ValueError`.
+- `ln` – one ` · <a …>` per (label, URL) pair: "GitHub · Demo" for the capstones. For an empty list the generator yields nothing and `"".join` returns `""`, so projects without links need no special case. The ` · ` separators get glued by `dots()` later.
+- The section body is an f-string concatenated with a join result via `+` – both are plain strings.
+- `name` is a local variable here; it does not clash with the constant `NAME` (Python is case-sensitive).
+
+### Approach
+
+```python
+    # approach – three of a kind: X, not Y
+    pr = "".join(f'<li><p><strong lang="en">{e(a)}</strong> {e(b)}</p></li>\n' for a, b in zip(SLOGANS, c["approach"]))
+    out.append(section(c, "approach", e(s["approach"]), f'<ul class="principles">\n{pr}</ul>\n'))
+```
+
+- `zip(SLOGANS, c["approach"])` – English slogan plus localized sentence, paired by position.
+- The slogan is marked `lang="en"` on both pages.
 
 ### Contact
 
@@ -927,9 +983,10 @@ def page(c):
     notes = []
     for key in order:
         n = NOTES[key]
+        course = f' · <a href="{n["course"]}" hreflang="en">{e(nl["course"])}</a>' if n.get("course") else ""
         notes.append(f'<li id="fn-{key}"><a class="back" href="#ref-{key}" aria-label="{e(nl["back"])}">^</a> '
-                     f'{e(n["title"])} · {e(nl["issued"])} {e(n["date"][L])} · '
-                     f'<a href="{n["verify"]}">{e(nl["verify"])}</a> · <a href="{n["course"]}" hreflang="en">{e(nl["course"])}</a></li>\n')
+                     f'{e(note_title(c, n))} · {e(nl[n.get("when", "issued")])} {e(n["date"][L])} · '
+                     f'<a href="{n["verify"]}">{e(nl["verify"])}</a>{course}</li>\n')
     out.append(section(c, "notes", e(s["notes"]), f'<ol class="notes">\n{"".join(notes)}</ol>\n'))
 ```
 
@@ -937,7 +994,8 @@ def page(c):
 - Only footnotes that were actually referenced appear, in the order they were referenced. `<ol>` numbers its items 1, 2, … automatically – matching the numbers `fn()` produced, because both follow `order`.
 - `id="fn-{key}"` – the target of the superscript link. `<a class="back" href="#ref-{key}">^</a>` – the way back, with a spoken label.
 - `n["date"][L]` – the date string for the current language.
-- `hreflang="en"` on the course link – the course page is in English.
+- `nl[n.get("when", "issued")]` – two lookups in one: first which label the note wants (`"issued"` unless it says otherwise), then that label in the page language: "issued", "completed", "ausgestellt am", "abgeschlossen am".
+- `course` – the course link, or nothing when the note has no course page. `hreflang="en"` – the course pages are in English.
 - Three adjacent f-strings inside the `append(…)` parentheses form one string.
 
 ### Closing
@@ -988,7 +1046,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 <h2>Kontakt per E-Mail</h2>
 <p>Wenn Sie eine E-Mail schreiben, werden Ihre Angaben verarbeitet, um die Anfrage zu beantworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Die Daten werden gelöscht, sobald sie dafür nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
 <h2>Links zu anderen Plattformen</h2>
-<p>Die Seite verlinkt auf LinkedIn, GitHub, die Kursseiten von Liora und die Nachweisseiten von DataScientest. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
+<p>Die Seite verlinkt auf LinkedIn, GitHub, die Kursseiten von Liora, die Nachweisseiten von DataScientest, thekey.career und edX, die Demos der Abschlussprojekte bei Streamlit sowie die Websites früherer und heutiger Arbeitgeber. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
 <h2>Ihre Rechte</h2>
 <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Einer Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO können Sie widersprechen (Art. 21). Außerdem können Sie sich bei einer Datenschutz-Aufsichtsbehörde beschweren, etwa bei der zuständigen Behörde Ihres Bundeslandes.</p>
 """

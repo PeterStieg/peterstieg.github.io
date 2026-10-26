@@ -13,6 +13,7 @@ Why the site looks and reads the way it does. Newest first within each topic; ch
 - **Wordplay:** only Pete's own or in his patterns. Tried and dropped: "einSTIEG" as a heading, "See also: root access", "The other four Ps".
 - **Cloud:** Google Cloud is a tool; Azure appears only as the platform of single projects. IT administration (Intune, GPO) is not on the site.
 - **Certificates:** two separate bootcamps (Data Scientist 02–05/2025, MLOps Engineer 05–07/2025), each with a footnote linking the verification page from the diploma's QR code and the course page.
+- **More proof:** the IHK certificate (2023, with distinction – as stated on the certificate page) and the edX course "Introduction to Artificial Intelligence" by Microsoft (2018) carry footnotes to their verification pages too. The capstones link their Streamlit demos next to GitHub. E+SERVICE+CHECK, Brandible and Posterlounge link their websites. Every new link target is named in the privacy statement.
 - **Offline:** Leipzig, before that Rome, Trento, Jinotega (Nicaragua), Orem (Utah).
 - **Not on the site:** recommendations as quotes, photo, logo (both pending).
 
@@ -24,8 +25,9 @@ Why the site looks and reads the way it does. Newest first within each topic; ch
 - **Docking:** while scrolling, PETER STIEG and `>_` travel into the header logo, so the name is visible once. Reduced motion: instant swap.
 - **Minimap:** on wide screens, the page drawn as code lines like the banner; click or drag to jump.
 - **Back to top:** the docked logo and a round button (under the minimap on wide screens) appear once the name has docked.
-- **Section numbers:** 01–07 in front of the section headings, in the accent colour and regular weight, on the same line as the title – like a slide deck's chapters. Sources stays unnumbered, like an appendix. Screen readers skip the numbers.
-- **You are here:** while scrolling, the menu sets the link of the section being read in bold, like the current language. Sections without a menu link (P⁴, Approach, Education, Sources) mark nothing; at the very bottom, Contact. The bold width is reserved, so the menu never shifts.
+- **Four chapters, like the parts of a slide deck:** 01 Profile (with P⁴), 02 Experience (with Education), 03 Projects (with Approach), 04 Contact (with Sources). The number stands in front of the chapter's heading, in the accent colour and regular weight; the sections inside a chapter carry the same number invisibly, so all titles line up like an outline. Education moved up behind Experience for this.
+- **Menu numbers:** the four menu links are the four chapters, numbered like their headings – no gaps. Below 56rem the numbers drop so the header fits.
+- **You are here:** while scrolling, the menu link of the chapter being read looks like its heading – number in the accent colour, label in ink and bold – also in the sections that belong to it; at the very bottom, Contact. The bold width is reserved, so the menu never shifts.
 - **Arrows and tree lines are drawn**, because the typeface has no → glyph and box-drawing characters depend on the font.
 
 ## Tech
