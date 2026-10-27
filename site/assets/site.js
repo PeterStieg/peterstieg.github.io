@@ -381,7 +381,7 @@
     if (!u && (goal ? goal !== hero : window.scrollY > 0)) u = hero;       // above the first section: the top
     if (!goal && window.scrollY + window.innerHeight >= root.scrollHeight - 2) d = null;   // nothing left below
     if (u !== upTo) { upTo = u; label(upBtn, u, u === hero ? pad.dataset.top : u ? pad.dataset.up.replace("%s", name(u)) : pad.dataset.top); }
-    if (d !== downTo) { downTo = d; label(downBtn, d, d ? pad.dataset.down.replace("%s", name(d)) : pad.dataset.down.replace(": %s", "")); }
+    if (d !== downTo) { downTo = d; label(downBtn, d, d ? pad.dataset.down.replace("%s", name(d)) : pad.dataset.down.replace(/:\s*%s/, "")); }
   };
 
   const go = (ev, to) => {

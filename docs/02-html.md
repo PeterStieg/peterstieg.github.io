@@ -768,7 +768,7 @@ On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never
 
 The no-break space works across the tag boundary: "GmbH" and "·" stay on one line, and the break opportunity is the space after the dot, inside the span.
 
-**German numbers stay with their units.** On the German page only, the function `nbsp()` glues "25 %", "240.000 €" and "1,7 Mio. €" together, as German typography (DIN 5008) asks. It inserts the character U+00A0 itself, not the entity `&nbsp;` – the same character for the browser, but invisible in view-source and in an editor. The German copy contains twelve of them; a search for ` ` finds them. The search also turns up two more, in the label templates of the jump control (`data-up` and `data-down`): `nbsp()` is a plain text replacement too, and in `Nach oben: %s` the space before `%s` looks to it like the space before a percent sign.
+**German numbers stay with their units.** On the German page only, the function `nbsp()` glues "25 %", "240.000 €" and "1,7 Mio. €" together, as German typography (DIN 5008) asks. It inserts the character U+00A0 itself, not the entity `&nbsp;` – the same character for the browser, but invisible in view-source and in an editor. The German copy contains twelve of them; a search for ` ` finds them. The search also turns up two more, in the label templates of the jump control (`data-up` and `data-down`): `nbsp()` is a plain text replacement too, and in `Nach oben: %s` the space before `%s` looks to it like the space before a percent sign. Harmless for the labels; `site.js` allows for it where it removes the placeholder ([chapter 4](04-js.md)).
 
 ```html
 <dd>Mediabudget im Monat bei einer KUR von 25 %&nbsp;· <a href="#posterlounge">Posterlounge</a></dd>
