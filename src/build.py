@@ -51,6 +51,7 @@ PROJECTS_LEAD = "Stop starting. Start finishing."
 # four chapters, like the parts of a slide deck: the first section of each is numbered and linked in the menu,
 # the sections after it belong to it – P⁴ to Profile, Education to Experience, Approach to Projects, Sources to Contact
 CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": ["approach"], "contact": ["notes"]}
+SECTIONS = [k for first, rest in CHAPTERS.items() for k in (first, *rest)]   # page order: profile, fields, experience …
 
 # Footnotes: verification links (QR codes on the Liora diplomas, thekey.career, edX), plus course pages where they exist.
 # "title": one string, or one per language; "when": which date label (issued | completed), default issued;
@@ -72,6 +73,9 @@ NOTES = {
             "date": {"en": "12 June 2018", "de": "12. Juni 2018"}, "by": "Microsoft"},
 }
 
+# the ledger names a company, the name links to its role under Experience (role "id")
+COMPANIES = {"e-service-check": "E+SERVICE+CHECK", "brandible": "Brandible", "posterlounge": "Posterlounge"}
+
 STACK_DS = "Python · Keras · PyTorch · Google Cloud"
 STACK_MLOPS = "Docker · Airflow · MLflow · FastAPI · Grafana"
 
@@ -80,7 +84,8 @@ CONTENT = {
     "en": {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
-        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top",
+        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info",
+        "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, self-built tools.",
         "skip": "Skip to content",
         "nav": [("profile", "Profile"), ("experience", "Experience"), ("projects", "Projects"), ("contact", "Contact")],
@@ -88,54 +93,69 @@ CONTENT = {
                 "education": "Education", "contact": "Contact", "notes": "Sources"},
         "entry": {"hw": "mar·ke·tin·ker·er", "pos": "noun", "ety": "[*marketer* × *tinkerer*]",
                   "def": "A marketing leader who builds the tools behind the campaigns."},
-        "profile": "Leadership roles at four companies, with interdisciplinary teams of up to six people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer since 2025 – Liora, in partnership with Université Paris 1 Panthéon-Sorbonne.",
+        "profile": "Leadership roles at four companies, with interdisciplinary teams of up to six people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer – Liora, in partnership with Université Paris 1 Panthéon-Sorbonne.",
         "ledger_label": "Selected results",
         "ledger": [
-            ("€6k → €240k", "monthly media budget at a RoAS of 4.0 · Posterlounge"),
-            ("17 shops", "in 12 languages across the European Economic Area · Posterlounge"),
-            ("RoAS 7.6 → 7.8", "on a €1.7m media budget, while spend grew · Brandible"),
-            ("> 2×", "inbound inquiries year over year · E+SERVICE+CHECK"),
+            ("€6k → €240k", "monthly media budget at a RoAS of 4.0", "posterlounge"),
+            ("17 shops", "in 12 languages across Europe", "posterlounge"),
+            ("RoAS 7.6 → 7.8", "on a €1.7m media budget, while spend grew", "brandible"),
+            ("> 2×", "inbound inquiries year over year", "e-service-check"),
         ],
-        "p4_intro": "P as in Peter.",
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO and marketplaces. Steered by cost per inquiry, quote and order.",
             "Tracking with Google Tag Manager and Consent Mode v2, then Python, SQL, BigQuery and Data Studio on Google Cloud. Internal web apps in Streamlit.",
-            "Corporate identity from claim to logo, websites, templates and employer branding. Figma, Inkscape, Canva – and Python wherever pixels can be generated.",
-            "Teams of up to six, from SEA to graphic design, trained in performance marketing and data analysis. Processes fit people, not the other way round.",
+            "Corporate identity from claim to logo, websites, templates and employer branding. Inkscape, Canva – and Python wherever pixels can be generated.",
+            "Teams of up to six, from SEA to graphic design, trained in performance marketing and data analysis.",
         ],
+        "people_note": "Processes fit people, not the other way round.",
         "roles": [
-            {"when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
+            {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
-             "tree": [("Scope", "marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding"),
+             "tree": [("Team", "functional lead for content, marketing and project management"),
+                      ("Scope", "marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding"),
                       ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark")]},
             {"when": "05/2025 – 07/2025", "title": "MLOps Engineer (full-time)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
-             "tree": [("Capstone", "the Rakuten model as a production pipeline – training, tracking, serving, monitoring")]},
+             "tree": [("Scope", "containers, orchestration, tracking, APIs and monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
+                      ("Result", "certified MLOps Engineer; capstone: the Rakuten model as a production pipeline – training, tracking, serving, monitoring")]},
             {"when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject GmbH", "place": "",
-             "tree": [("Scope", "UI concepts, usability tests, support for the migration from ActiveCampaign to Salesforce")]},
+             "tree": [("Scope", "UI concepts, usability tests, support for the migration from ActiveCampaign to Salesforce"),
+                      ("Result", "Salesforce dashboards, built into the sales process")]},
             {"when": "02/2025 – 05/2025", "title": "Data Scientist (full-time)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
-             "tree": [("Capstone", "multimodal classification of e-commerce products with NLP and computer vision")]},
-            {"when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
+             "tree": [("Scope", "machine learning and deep learning with Python – scikit-learn, Keras, PyTorch, Google Cloud"),
+                      ("Result", "certified Data Scientist; capstone: multimodal classification of e-commerce products with NLP and computer vision")]},
+            {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B promotional products for Germany, Austria and Switzerland.",
              "tree": [("Team", "five – marketing, graphic design, project management"),
-                      ("Budget", "€1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn"),
+                      ("Scope", "SEO, performance marketing and lead generation – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM and newsletters"),
                       ("Result", "RoAS 7.6 → 7.8 while spend grew; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
             {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar GmbH", "place": "Leipzig",
              "tree": [("Scope", "e-commerce operations for discounted sporting goods, email automation, WhatsApp and Telegram")]},
-            {"when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
-             "ctx": "Art prints online in more than 15 European countries.",
-             "tree": [("Path", "SEA Manager in 2017 → Head of Marketing in 2021, three promotions"),
-                      ("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
+            {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
+             "ctx": "Art prints online in more than 15 European countries. From SEA Manager in 2017 to Head of Marketing in 2021, with three promotions.",
+             "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
+                      ("Scope", "SEA, social media, marketplaces, creator relations and print partnerships"),
                       ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")]},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "place": "Rome",
              "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social, native, retargeting")]},
-            {"when": "2010 – 2014", "title": "Marketing, market research, export", "org": "Several companies", "place": "Rome",
-             "tree": [("Scope", "export promotion, brand protection, competitive intelligence, web marketing")]},
+            {"when": "2010 – 2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
+             "tree": [("Scope", "export promotion, brand protection, competitive intelligence, web marketing")],
+             "more": ("All five positions", [
+                 {"when": "04/2014 – 08/2014", "title": "Marketing Consultant", "org": "SBS systems for business solutions Srl", "place": "Rome",
+                  "tree": [("Scope", "export promotion projects for small and medium-sized companies on behalf of the German Federal Ministry for Economic Affairs")]},
+                 {"when": "06/2013 – 05/2014", "title": "Corporate investigations", "org": "Inner Valor Srl", "place": "Rome", "tree": []},
+                 {"when": "06/2013 – 12/2013", "title": "Marketing & export DACH", "org": "Fontebona Srl", "place": "Rome",
+                  "tree": [("Scope", "market entry in Germany, Austria and Switzerland – packaging, trade fairs")]},
+                 {"when": "04/2012 – 05/2013", "title": "Market research", "org": "Proactive Europe Srl", "place": "Rome",
+                  "tree": [("Scope", "brand protection and competitive intelligence")]},
+                 {"when": "10/2010 – 09/2011", "title": "Web Marketing Manager", "org": "PaesiOnLine Srl", "place": "Rocca di Papa",
+                  "tree": [("Scope", "web marketing for the German and Spanish markets of a travel portal")]},
+             ])},
         ],
         "groups": [
             ("At E+SERVICE+CHECK", [
-                ("Call and inquiry pipeline", "More than half a million calls, two phone systems, five web forms – joined with Odoo master data and Google Ads attribution.", "Python · BigQuery · Data Studio", []),
+                ("Call and inquiry pipeline", "More than half a million calls, two phone systems, five web forms – joined with Odoo master data.", "Python · BigQuery · Data Studio", []),
                 ("PRUEF+CHECK", "Rule-based validation of inspection checklists instead of manual Excel checks. From requirement to go-live: five days.", "Streamlit · Azure", []),
                 ("Document extraction", "Around 14,000 unstructured supplier documents turned into structured records for ERP import.", "Python · Claude API", []),
                 ("Customer portal", "Moved to a company-owned Azure tenant with separate production and staging. Running cloud costs: a fraction of before.", "Azure", []),
@@ -152,10 +172,10 @@ CONTENT = {
         ],
         "facts": [
             ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in partnership with Université Paris 1 Panthéon-Sorbonne"),
-            ("2023", "Agile project management specialist (IHK)[[ihk]]", "with distinction"),
+            ("2023", "Agile project management specialist[[ihk]]", "IHK"),
             ("2018", "Introduction to Artificial Intelligence[[edx]]", "Microsoft on edX"),
             ("2010", "Bachelor’s degree in economics", "Università degli Studi di Trento"),
-            ("Languages", "German (native) · English C2 · Italian C2 · Spanish B1 · French A2", ""),
+            ("Languages", ["German (native)", "English C2", "Italian C2", "Spanish B1", "French A2"], ""),
         ],
         "offline": ("Leipzig.", "Before: Rome, Trento, Jinotega (Nicaragua), Orem (Utah)."),
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
@@ -166,7 +186,8 @@ CONTENT = {
     "de": {
         "lang": "de", "path": "de/index.html", "root": "../", "locale": "de_DE",
         "aria_main": "Hauptnavigation", "aria_legal": "Rechtliches", "aria_lang": "Sprache",
-        "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben",
+        "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info",
+        "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
         "desc": "Marketinkerer aus Leipzig: Performance Marketing, Leadgenerierung und Data Science. Führungsverantwortung in vier Unternehmen, Werkzeuge selbst gebaut.",
         "skip": "Zum Inhalt springen",
         "nav": [("profil", "Profil"), ("stationen", "Stationen"), ("projekte", "Projekte"), ("kontakt", "Kontakt")],
@@ -176,54 +197,69 @@ CONTENT = {
                 "approach": "arbeitsweise", "education": "ausbildung", "contact": "kontakt", "notes": "quellen"},
         "entry": {"hw": "Mar|ke|tin|ke|rer", "pos": "der; -s, -", "ety": "[engl. *marketer* × *tinkerer* ‚Tüftler‘]",
                   "def": "Marketingleiter, der die Werkzeuge hinter seinen Kampagnen selbst baut."},
-        "profile": "Führungsverantwortung in vier Unternehmen, für interdisziplinäre Teams mit bis zu sechs Personen in E-Commerce und B2B. Seit 2025 zertifiziert als Data Scientist und MLOps Engineer – Liora in Partnerschaft mit der Université Paris 1 Panthéon-Sorbonne.",
+        "profile": "Führungsverantwortung in vier Unternehmen, für interdisziplinäre Teams mit bis zu sechs Personen in E-Commerce und B2B. Zertifiziert als Data Scientist und MLOps Engineer – Liora in Partnerschaft mit der Université Paris 1 Panthéon-Sorbonne.",
         "ledger_label": "Ausgewählte Ergebnisse",
         "ledger": [
-            ("6.000 → 240.000 €", "Mediabudget im Monat bei einer KUR von 25 % · Posterlounge"),
-            ("17 Shops", "in 12 Sprachen im Europäischen Wirtschaftsraum · Posterlounge"),
-            ("KUR 13,2 → 12,8 %", "bei ausgebautem Mediabudget von 1,7 Mio. € · Brandible"),
-            ("> 2×", "Anfragen im Jahresvergleich · E+SERVICE+CHECK"),
+            ("6.000 → 240.000 €", "Mediabudget im Monat bei einer KUR von 25 %", "posterlounge"),
+            ("17 Shops", "in 12 Sprachen in ganz Europa", "posterlounge"),
+            ("KUR 13,2 → 12,8 %", "bei ausgebautem Mediabudget von 1,7 Mio. €", "brandible"),
+            ("> 2×", "Anfragen im Jahresvergleich", "e-service-check"),
         ],
-        "p4_intro": "P wie Peter.",
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO und Marktplätze. Gesteuert über Kosten je Anfrage, Angebot und Auftrag.",
             "Tracking mit Google Tag Manager und Consent Mode v2, danach Python, SQL, BigQuery und Data Studio auf Google Cloud. Interne Web-Apps mit Streamlit.",
-            "Corporate Identity vom Claim bis zum Logo, Websites, Vorlagen und Employer Branding. Figma, Inkscape, Canva – und Python, wo sich Pixel generieren lassen.",
-            "Teams mit bis zu sechs Personen, von SEA bis Grafik, geschult in Performance Marketing und Datenanalyse. Prozesse passen zu Menschen, nicht umgekehrt.",
+            "Corporate Identity vom Claim bis zum Logo, Websites, Vorlagen und Employer Branding. Inkscape, Canva – und Python, wo sich Pixel generieren lassen.",
+            "Teams mit bis zu sechs Personen, von SEA bis Grafik, geschult in Performance Marketing und Datenanalyse.",
         ],
+        "people_note": "Prozesse passen zu Menschen, nicht umgekehrt.",
         "roles": [
-            {"when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
+            {"id": "e-service-check", "when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-zertifizierte Prüfungen der elektrischen Sicherheit (DGUV V3/V4), bundesweit, 349 Mitarbeitende.",
-             "tree": [("Scope", "Marketing, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, CRM, Events, Employer Branding"),
+             "tree": [("Team", "fachliche Führung in Content, Marketing und Projektmanagement"),
+                      ("Scope", "Marketing, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, CRM, Events, Employer Branding"),
                       ("Result", "Anfragen im Jahresvergleich mehr als verdoppelt; neue Corporate Identity samt Grundlage der EUIPO-Markenanmeldung")]},
             {"when": "05/2025 – 07/2025", "title": "MLOps Engineer (Vollzeit)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
-             "tree": [("Capstone", "das Rakuten-Modell als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
+             "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
+                      ("Result", "zertifizierter MLOps Engineer; Abschlussprojekt: das Rakuten-Modell als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
             {"when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject GmbH", "place": "",
-             "tree": [("Scope", "UI-Konzeption, Usability-Tests, Begleitung der Migration von ActiveCampaign zu Salesforce")]},
+             "tree": [("Scope", "UI-Konzeption, Usability-Tests, Begleitung der Migration von ActiveCampaign zu Salesforce"),
+                      ("Result", "Salesforce-Dashboards, eingebunden in den Vertriebsprozess")]},
             {"when": "02/2025 – 05/2025", "title": "Data Scientist (Vollzeit)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
-             "tree": [("Capstone", "multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
-            {"when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
+             "tree": [("Scope", "Machine Learning und Deep Learning mit Python – scikit-learn, Keras, PyTorch, Google Cloud"),
+                      ("Result", "zertifizierter Data Scientist; Abschlussprojekt: multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
+            {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B-Werbeartikel für Deutschland, Österreich und die Schweiz.",
              "tree": [("Team", "fünf Personen – Marketing, Grafik, Projektmanagement"),
-                      ("Budget", "1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn"),
+                      ("Scope", "SEO, Performance Marketing und Leadgenerierung – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM und Newsletter"),
                       ("Result", "KUR 13,2 → 12,8 % bei ausgebautem Budget; Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %")]},
             {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar GmbH", "place": "Leipzig",
              "tree": [("Scope", "E-Commerce-Betrieb für Sportartikel im Rabattsegment, E-Mail-Automatisierung, WhatsApp und Telegram")]},
-            {"when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
-             "ctx": "Kunstdrucke online in über 15 europäischen Ländern.",
-             "tree": [("Path", "SEA Manager 2017 → Head of Marketing 2021, drei Beförderungen"),
-                      ("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
+            {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
+             "ctx": "Kunstdrucke online in über 15 europäischen Ländern. Vom SEA Manager 2017 zum Head of Marketing 2021, mit drei Beförderungen.",
+             "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
+                      ("Scope", "SEA, Social Media, Marktplätze, Creator Relations und Print-Kooperationen"),
                       ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")]},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "place": "Rom",
              "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social, Native, Retargeting")]},
-            {"when": "2010 – 2014", "title": "Marketing, Marktforschung, Export", "org": "Verschiedene Unternehmen", "place": "Rom",
-             "tree": [("Scope", "Exportförderung, Brand Protection, Competitive Intelligence, Web Marketing")]},
+            {"when": "2010 – 2014", "title": "Marketing, Marktforschung, Export", "org": "Fünf Unternehmen", "place": "Rom",
+             "tree": [("Scope", "Exportförderung, Brand Protection, Competitive Intelligence, Web Marketing")],
+             "more": ("Alle fünf Stationen", [
+                 {"when": "04/2014 – 08/2014", "title": "Marketing Consultant", "org": "SBS systems for business solutions Srl", "place": "Rom",
+                  "tree": [("Scope", "Exportförderprojekte für kleine und mittlere Unternehmen im Auftrag des Bundeswirtschaftsministeriums")]},
+                 {"when": "06/2013 – 05/2014", "title": "Corporate Investigations", "org": "Inner Valor Srl", "place": "Rom", "tree": []},
+                 {"when": "06/2013 – 12/2013", "title": "Marketing & Export DACH", "org": "Fontebona Srl", "place": "Rom",
+                  "tree": [("Scope", "Markteintritt in Deutschland, Österreich und der Schweiz – Verpackung, Fachmessen")]},
+                 {"when": "04/2012 – 05/2013", "title": "Marktforschung", "org": "Proactive Europe Srl", "place": "Rom",
+                  "tree": [("Scope", "Brand Protection und Competitive Intelligence")]},
+                 {"when": "10/2010 – 09/2011", "title": "Web Marketing Manager", "org": "PaesiOnLine Srl", "place": "Rocca di Papa",
+                  "tree": [("Scope", "Web Marketing für die Märkte DE und ES eines Reiseportals")]},
+             ])},
         ],
         "groups": [
             ("Bei E+SERVICE+CHECK", [
-                ("Anruf- und Anfragen-Pipeline", "Über eine halbe Million Anrufe, zwei Telefonanlagen, fünf Webformulare – verknüpft mit Odoo-Stammdaten und Google-Ads-Attribution.", "Python · BigQuery · Data Studio", []),
+                ("Anruf- und Anfragen-Pipeline", "Über eine halbe Million Anrufe, zwei Telefonanlagen, fünf Webformulare – verknüpft mit Odoo-Stammdaten.", "Python · BigQuery · Data Studio", []),
                 ("PRUEF+CHECK", "Regelbasierte Validierung von Prüflisten statt manueller Excel-Kontrolle. Von der Anforderung bis zum Go-live: fünf Tage.", "Streamlit · Azure", []),
                 ("Dokumentenextraktion", "Rund 14.000 unstrukturierte Lieferantendokumente als strukturierte Datensätze für den ERP-Import.", "Python · Claude API", []),
                 ("Kundenportal", "Umzug in einen eigenen Azure-Tenant mit getrennter Produktion und Staging. Laufende Cloud-Kosten: ein Bruchteil von vorher.", "Azure", []),
@@ -240,10 +276,10 @@ CONTENT = {
         ],
         "facts": [
             ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in Partnerschaft mit der Université Paris 1 Panthéon-Sorbonne"),
-            ("2023", "Fachkraft für agiles Projektmanagement (IHK)[[ihk]]", "mit Auszeichnung"),
+            ("2023", "Fachkraft für agiles Projektmanagement[[ihk]]", "IHK"),
             ("2018", "Introduction to Artificial Intelligence[[edx]]", "Microsoft auf edX"),
             ("2010", "Bachelor in Wirtschaftswissenschaften", "Università degli Studi di Trento"),
-            ("Sprachen", "Deutsch (Muttersprache) · Englisch C2 · Italienisch C2 · Spanisch B1 · Französisch A2", ""),
+            ("Sprachen", ["Deutsch (Muttersprache)", "Englisch C2", "Italienisch C2", "Spanisch B1", "Französisch A2"], ""),
         ],
         "offline": ("Leipzig.", "Davor: Rom, Trient, Jinotega (Nicaragua), Orem (Utah)."),
         "notes": {"issued": "ausgestellt am", "completed": "abgeschlossen am", "verify": "Nachweis prüfen", "course": "Kursseite", "back": "Zurück zum Text"},
@@ -276,6 +312,11 @@ SUN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circl
            'M3.05 12.95l1.13-1.13M11.82 4.18l1.13-1.13"/></svg>')
 UP_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
           '<path d="M8 13.5V2.8M3.4 7.2 8 2.6l4.6 4.6"/></svg>')
+DOWN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+            '<path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg>')
+# three code lines, as in the minimap: the section menu before a chapter is reached, and without JavaScript
+LINES_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+             '<path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg>')
 MOON_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
             '<path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg>')
 
@@ -345,8 +386,10 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 <meta property="profile:first_name" content="Peter">
 <meta property="profile:last_name" content="Stieg">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="{r}favicon.ico" sizes="48x48">
 <link rel="icon" href="{r}favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="{r}apple-touch-icon.png">
+<link rel="manifest" href="{r}site.webmanifest">
 <link rel="preload" href="{r}assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{r}assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{r}assets/site.css">
@@ -430,12 +473,29 @@ def jsonld(c):
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>\n"
 
 
-def section(c, key, title_html, body, cls="body"):
+def chapter_no(key):
+    """The number before a section title: visible if the section opens a chapter, invisible (.ghost) for the rest,
+    so the titles line up."""
+    ghost = "" if key in CHAPTERS else " ghost"
+    return f'<span class="no{ghost}" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
+
+
+def info(c, key, text, lang=""):
+    """Toggletip: a superscript i after a heading, the note opens next to it as a popover – no JavaScript needed.
+    lang: the note's language where it differs from the heading's."""
+    tip = f"tip-{key}"
+    lang_attr = f' lang="{lang}"' if lang else ""
+    return (f'<button type="button" class="info" popovertarget="{tip}" aria-label="{e(c["info"])}">i</button>'
+            f'<span class="tip" id="{tip}" popover{lang_attr}>{e(text)}</span>')
+
+
+def section(c, key, title_html, body, cls="body", tip=""):
     i = sid(c, key)
-    ghost = "" if key in CHAPTERS else " ghost"      # the rest of a chapter repeats its number invisibly: titles line up
-    no = f'<span class="no{ghost}" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
-    return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
-<h2 id="h-{i}">{no}{title_html}</h2>
+    label = f"h-{i}"
+    if tip:                                            # the section is named by its title, not by the i
+        title_html, label = f'<span id="t-{i}">{title_html}</span>{tip}', f"t-{i}"
+    return f"""<section class="sec" id="{i}" aria-labelledby="{label}">
+<h2 id="h-{i}">{chapter_no(key)}{title_html}</h2>
 <div class="{cls}">
 {body}</div>
 </section>
@@ -445,7 +505,50 @@ def section(c, key, title_html, body, cls="body"):
 def tree(c, rows):
     lang = ' lang="en"' if c["lang"] != "en" else ""
     items = "".join(f'<li><span class="k"{lang}>{e(k)}</span> {t(c, v)}</li>' for k, v in rows)
-    return f'<ul class="tree">{items}</ul>'
+    return f'<ul class="tree">{items}</ul>' if rows else ""
+
+
+def title_of(c, key):
+    return 'P<sup>4</sup>' if key == "fields" else e(c["sec"][key])
+
+
+def jump(c):
+    """Up, the sections, down – fixed bottom right once the name has docked (replaces the old back-to-top button).
+    site.js points up and down at the section above and below and shows the chapter number in the middle.
+    Without JavaScript: up goes to the top, the menu works (details), down is hidden."""
+    j = c["jump"]
+    items = "".join(f'<li><a href="#{sid(c, k)}" data-t="{"P⁴" if k == "fields" else e(c["sec"][k])}">'
+                    f'{chapter_no(k)}{title_of(c, k)}</a></li>\n' for k in SECTIONS)
+    return f"""<nav class="jump" aria-label="{e(j['label'])}" data-up="{e(j['up'])}" data-down="{e(j['down'])}" data-top="{e(c['to_top'])}">
+<a class="up" href="#top" aria-label="{e(c['to_top'])}" title="{e(c['to_top'])}">{UP_SVG}</a>
+<details class="menu">
+<summary aria-label="{e(j['menu'])}" title="{e(j['menu'])}"><span class="cur" aria-hidden="true"></span>{LINES_SVG}</summary>
+<ol>
+{items}</ol>
+</details>
+<a class="down" href="#{sid(c, SECTIONS[0])}" aria-label="{e(j['down'] % c['sec'][SECTIONS[0]])}" title="{e(j['down'] % c['sec'][SECTIONS[0]])}">{DOWN_SVG}</a>
+</nav>
+"""
+
+
+def role(c, ro, h="h3"):
+    """One role: dates, title, company and place, context, the tree – and, for the years before 2014,
+    the single positions behind a disclosure."""
+    place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
+    ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
+    org = f'<a href="{ro["url"]}">{e(ro["org"])}</a>' if ro.get("url") else e(ro["org"])
+    more = ""
+    if ro.get("more"):
+        label, subs = ro["more"]
+        lis = "".join(f'<li class="role">\n{role(c, sub, "h4")}</li>\n' for sub in subs)
+        more = f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="roles">\n{lis}</ol>\n</details>\n'
+    return f"""<p class="when">{e(ro['when'])}</p>
+<div>
+<{h}>{e(ro['title'])}</{h}>
+<p class="org">{org}{place}</p>
+{ctx}{tree(c, ro['tree'])}
+{more}</div>
+"""
 
 
 def page(c):
@@ -462,7 +565,6 @@ def page(c):
         return f'<sup class="fnref"><a href="#fn-{key}" id="ref-{key}" aria-describedby="h-{sid(c, "notes")}">{n}</a></sup>'
 
     out = [head(c, TITLE, c["desc"], URL + slug), jsonld(c), "</head>\n<body>\n", topbar(c)]
-    out.append(f'<a class="to-top" href="#top" aria-label="{e(c["to_top"])}" title="{e(c["to_top"])}">{UP_SVG}</a>\n')
     out.append('<div class="minimap" aria-hidden="true"></div>\n<main id="main">\n<div class="wrap">\n')
 
     # hero – same order as the LinkedIn banner
@@ -482,40 +584,35 @@ def page(c):
 <p class="def">{e(d['def'])}</p>
 </div>
 """
-    led = "".join(f"<div><dt>{t(c, a)}</dt><dd>{e(b)}</dd></div>\n" for a, b in c["ledger"])
+    # each result names its company; the name leads to the role under Experience
+    led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)} · <a href="#{k}">{e(COMPANIES[k])}</a></dd></div>\n'
+                  for a, b, k in c["ledger"])
     out.append(section(c, "profile", e(s["profile"]),
                        f'{entry}<p>{e(c["profile"])}</p>\n<dl class="ledger" aria-label="{e(c["ledger_label"])}">\n{led}</dl>\n'))
 
-    # P⁴ – P as in Peter
+    # P⁴ – four fields, each a P; People carries its principle as a note behind the i
     p4 = []
     for i, (p, txt) in enumerate(zip(P4, c["fields"])):
         tail = f' <strong lang="en">{e(P4_TAIL[i])}</strong>' if i in P4_TAIL else ""
-        p4.append(f'<div><h3{en_attr}>{e(p)}</h3><p>{e(txt)}{tail}</p></div>\n')
-    out.append(section(c, "fields", 'P<sup>4</sup>',
-                       f'<p class="intro">{e(c["p4_intro"])}</p>\n<div class="fields">\n{"".join(p4)}</div>\n'))
+        note = info(c, "people", c["people_note"], L if L != "en" else "") if p == "People" else ""
+        p4.append(f'<div><h3{en_attr}>{e(p)}{note}</h3><p>{e(txt)}{tail}</p></div>\n')
+    out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
 
     # experience – each role as a #JobAlert-style tree
     roles = []
     for ro in c["roles"]:
-        place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
-        ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
-        org = f'<a href="{ro["url"]}">{e(ro["org"])}</a>' if ro.get("url") else e(ro["org"])
-        roles.append(f"""<li class="role">
-<p class="when">{e(ro['when'])}</p>
-<div>
-<h3>{e(ro['title'])}</h3>
-<p class="org">{org}{place}</p>
-{ctx}{tree(c, ro['tree'])}
-</div>
-</li>
-""")
+        rid = f' id="{ro["id"]}"' if ro.get("id") else ""     # the ledger links here
+        roles.append(f'<li class="role"{rid}>\n{role(c, ro)}</li>\n')
     out.append(section(c, "experience", e(s["experience"]), f'<ol class="roles" reversed>\n{"".join(roles)}</ol>\n'))
 
     # education – certificates carry footnotes
     fa = []
     for k, v, sub in c["facts"]:
         subtxt = f'<br><span class="muted">{e(sub)}</span>' if sub else ""
-        val = re.sub(r"\[\[(\w+)\]\]", fn, e(v))
+        if isinstance(v, list):                             # one per line: the languages
+            val = '<ul class="lines">' + "".join(f"<li>{e(x)}</li>" for x in v) + "</ul>"
+        else:
+            val = re.sub(r"\[\[(\w+)\]\]", fn, e(v))
         fa.append(f"<div><dt>{e(k)}</dt><dd>{val}{subtxt}</dd></div>\n")
     out.append(section(c, "education", e(s["education"]), f'<dl class="facts">\n{"".join(fa)}</dl>\n'))
 
@@ -527,8 +624,8 @@ def page(c):
             ln = "".join(f' · <a href="{url}">{e(label)}</a>' for label, url in links)
             lis.append(f'<li><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
         groups.append(f'<div class="group"><h3>{e(gt)}</h3>\n<ul class="projects">\n{"".join(lis)}</ul></div>\n')
-    out.append(section(c, "projects", e(s["projects"]),
-                       f'<p class="intro"><strong lang="en">{e(PROJECTS_LEAD)}</strong></p>\n' + "".join(groups)))
+    out.append(section(c, "projects", e(s["projects"]), "".join(groups),
+                       tip=info(c, "projects", PROJECTS_LEAD, "en" if L != "en" else "")))
 
     # approach – three of a kind: X, not Y
     pr = "".join(f'<li><p><strong lang="en">{e(a)}</strong> {e(b)}</p></li>\n' for a, b in zip(SLOGANS, c["approach"]))
@@ -557,6 +654,7 @@ def page(c):
 
     out.append("</div>\n</main>\n")
     out.append(footer(c))
+    out.append(jump(c))
     out.append(f'<script src="{c["root"]}assets/site.js" defer></script>\n</body>\n</html>\n')
     return "".join(out)
 
@@ -649,7 +747,8 @@ def build():
     (SITE / "impressum.html").write_text(dots(legal("Impressum", IMPRESSUM, "impressum.html")), encoding="utf-8")
     (SITE / "datenschutz.html").write_text(dots(legal("Datenschutzerklärung", DATENSCHUTZ, "datenschutz.html")), encoding="utf-8")
     (SITE / "404.html").write_text(dots(not_found()), encoding="utf-8")
-    (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\n", encoding="utf-8")
+    (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\nAddType application/manifest+json .webmanifest\n",
+                                    encoding="utf-8")
     (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n", encoding="utf-8")
     # The sitemap lists pages, not content: it changes when pages are added or removed. lastmod = build date.
     today = date.today().isoformat()

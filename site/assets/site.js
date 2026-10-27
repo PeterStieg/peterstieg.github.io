@@ -317,35 +317,147 @@
     rail.addEventListener("pointercancel", () => { dragging = false; });
   }
 
-  /* ---------- You are here: the menu marks the chapter being read, like a slide deck's header. */
+  /* ---------- You are here: the menu marks the chapter being read, like a slide deck's header;
+     the jump control shows its number and marks the section in its list. */
   const marks = [...document.querySelectorAll(".nav .sect")]
     .map((a) => ({ a, sec: document.getElementById(a.hash.slice(1)) }))
     .filter((m) => m.sec);
-  let marked;                                                       // what the menu shows right now
+  const secs = [...document.querySelectorAll("main .sec")];
+  const pad = document.querySelector(".jump");
+  const cur = pad && pad.querySelector(".cur");
+  const list = pad ? [...pad.querySelectorAll(".menu a")] : [];
+  let current;                                                      // the section being read in the last frame
 
   const here = () => {
     if (!marks.length) return;
     const line = top.offsetHeight + window.innerHeight * 0.3;      // reading line: a third down the screen
-    let mark = null;                                                // the chapter: the last menu section above the line –
-    for (const m of marks) if (m.sec.getBoundingClientRect().top <= line) mark = m;  // P⁴ counts as Profile, and so on
+    let sec = null;                                                 // the section: the last one above the line
+    for (const x of secs) if (x.getBoundingClientRect().top <= line) sec = x;
     if (window.scrollY + window.innerHeight >= root.scrollHeight - 2) {  // at the very bottom: the last one in view
-      mark = marks.filter((m) => m.sec.getBoundingClientRect().top < window.innerHeight).pop() || mark;
+      sec = secs.filter((x) => x.getBoundingClientRect().top < window.innerHeight).pop() || sec;
     }
-    if (mark === marked) return;                                    // same chapter as in the last frame
-    marked = mark;
+    if (sec === current) return;                                    // same section as in the last frame
+    current = sec;
+    const i = secs.indexOf(sec);                                    // the chapter: the last menu section up to it –
+    const mark = sec ? marks.filter((m) => secs.indexOf(m.sec) <= i).pop() : null;   // P⁴ counts as Profile, and so on
     for (const m of marks) {
       if (m === mark) m.a.setAttribute("aria-current", "location");
       else m.a.removeAttribute("aria-current");
     }
+    if (cur) cur.textContent = sec ? sec.querySelector("h2 .no").textContent : "";
+    for (const a of list) {
+      if (sec && a.hash === "#" + sec.id) a.setAttribute("aria-current", "location");
+      else a.removeAttribute("aria-current");
+    }
   };
 
+  /* ---------- Jump control: up and down lead to the start of the section above and below. A section counts as
+     above once its start has passed under the header (scroll-padding-top), so up first returns to the start of
+     the section being read. Several clicks in a row count from where the scroll is headed, not from where it is. */
+  const upBtn = pad && pad.querySelector(".up"), downBtn = pad && pad.querySelector(".down");
+  const menu = pad && pad.querySelector(".menu");
+  let upTo, downTo, goal = null, goalTimer = 0;
+
+  const label = (btn, to, text) => {
+    btn.href = "#" + (to ? to.id : "");
+    btn.setAttribute("aria-label", text);
+    btn.title = text;
+    if (to) btn.removeAttribute("aria-disabled");
+    else btn.setAttribute("aria-disabled", "true");
+  };
+  const name = (sec) => (list.find((a) => a.hash === "#" + sec.id) || { dataset: {} }).dataset.t;
+
+  const steer = () => {
+    if (!pad || !marks.length) return;
+    const edge = parseFloat(getComputedStyle(root).scrollPaddingTop) || 0;
+    if (goal && Math.abs(goal.getBoundingClientRect().top - edge) < 2) goal = null;      // arrived
+    const base = goal ? goal.getBoundingClientRect().top : edge;
+    let u = null, d = null;
+    for (const x of secs) {
+      const y = x.getBoundingClientRect().top;
+      if (y < base - 2) u = x;
+      else if (y > base + 2 && !d) d = x;
+    }
+    if (!u && (goal ? goal !== hero : window.scrollY > 0)) u = hero;       // above the first section: the top
+    if (!goal && window.scrollY + window.innerHeight >= root.scrollHeight - 2) d = null;   // nothing left below
+    if (u !== upTo) { upTo = u; label(upBtn, u, u === hero ? pad.dataset.top : u ? pad.dataset.up.replace("%s", name(u)) : pad.dataset.top); }
+    if (d !== downTo) { downTo = d; label(downBtn, d, d ? pad.dataset.down.replace("%s", name(d)) : pad.dataset.down.replace(": %s", "")); }
+  };
+
+  const go = (ev, to) => {
+    if (ev.button || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;   // new tab and so on: a plain link
+    ev.preventDefault();
+    if (!to) return;
+    goal = to;
+    clearTimeout(goalTimer);
+    goalTimer = setTimeout(() => { goal = null; steer(); }, 1200);
+    to.scrollIntoView({ block: "start" });                          // smooth unless reduced motion (CSS scroll-behavior)
+    steer();
+  };
+  if (pad) {
+    upBtn.addEventListener("click", (ev) => go(ev, upTo));
+    downBtn.addEventListener("click", (ev) => go(ev, downTo));
+    // the list: closes on a choice, a click elsewhere, or Esc (focus back on its button)
+    list.forEach((a) => a.addEventListener("click", () => { menu.open = false; }));
+    document.addEventListener("click", (ev) => { if (menu.open && !menu.contains(ev.target)) menu.open = false; });
+    menu.addEventListener("keydown", (ev) => {
+      if (ev.key === "Escape" && menu.open) { menu.open = false; menu.querySelector("summary").focus(); }
+    });
+  }
+
+  /* ---------- Phones: the heading stuck under the header takes over the header's hairline (see site.css). */
+  const heads = [...document.querySelectorAll(".sec > h2")];
+  const narrow = window.matchMedia("(max-width: 47.99rem)");
+  let stuck = null;
+  const stick = () => {
+    let h = null;
+    if (top && narrow.matches) {
+      const edge = top.getBoundingClientRect().bottom;
+      for (const x of heads) {
+        const r = x.getBoundingClientRect();
+        if (r.top <= edge + 0.5 && r.bottom > edge) h = x;
+      }
+    }
+    if (h === stuck) return;
+    if (stuck) stuck.classList.remove("stuck");
+    if (h) h.classList.add("stuck");
+    top.classList.toggle("ext", !!h);
+    stuck = h;
+  };
+
+  /* ---------- Toggletips: the popover opens next to its i, below or – without room – above it.
+     Placed before the first frame it shows in; follows the i while scrolling. Without JavaScript it is centred. */
+  const tips = "popover" in HTMLElement.prototype ? [...document.querySelectorAll(".tip")] : [];
+  const place = (tip) => {
+    const i = document.querySelector(`[popovertarget="${tip.id}"]`).getBoundingClientRect();
+    if (i.bottom < top.offsetHeight || i.top > window.innerHeight) { tip.hidePopover(); return; }   // the i left the screen
+    const m = 8, w = tip.offsetWidth, h = tip.offsetHeight;
+    let y = i.bottom + 6;
+    if (y + h > window.innerHeight - m) y = i.top - h - 6;
+    tip.style.left = Math.max(m, Math.min(i.left - 12, window.innerWidth - w - m)) + "px";
+    tip.style.top = Math.max(m, y) + "px";
+  };
+  tips.forEach((tip) => tip.addEventListener("beforetoggle", (ev) => {
+    if (ev.newState === "open") requestAnimationFrame(() => place(tip));
+  }));
+  const follow = () => tips.forEach((tip) => { if (tip.matches(":popover-open")) place(tip); });
+
+  /* ---------- The positions before 2014: opening them changes the page height – redraw the minimap.
+     Printing shows them open. */
+  const more = [...document.querySelectorAll("details.more")];
+  more.forEach((d) => d.addEventListener("toggle", () => layout()));
+  let closed = [];
+  window.addEventListener("beforeprint", () => { closed = more.filter((d) => !d.open); closed.forEach((d) => { d.open = true; }); });
+  window.addEventListener("afterprint", () => { closed.forEach((d) => { d.open = false; }); });
+
   /* ---------- Wiring */
-  const layout = () => { dockMeasure(); build(); dockApply(); here(); };
+  const hide = () => { if (menu && menu.open && !top.classList.contains("docked")) menu.open = false; };  // back in the hero
+  const layout = () => { dockMeasure(); build(); dockApply(); here(); steer(); stick(); };
 
   let raf = 0;
   window.addEventListener("scroll", () => {
     if (raf) return;
-    raf = requestAnimationFrame(() => { raf = 0; here(); paint(); onScrollTop(); dockApply(); });
+    raf = requestAnimationFrame(() => { raf = 0; here(); steer(); paint(); onScrollTop(); dockApply(); stick(); follow(); hide(); });
   }, { passive: true });
 
   let rt = 0;

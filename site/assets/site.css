@@ -237,6 +237,22 @@ html:not(.js) .themes { display: none; }
   line-height: 1.3;
   font-weight: 700;
 }
+/* phones: the heading of the section being read sticks under the header, as one bar with it – a heading
+   is always in view. site.js marks the stuck one (.stuck): it takes over the header's hairline (.ext). */
+@media (max-width: 47.99rem) {
+  html { scroll-padding-top: 3.5rem; }            /* a jump to a section lands its border on the header's */
+  .sec { padding-top: 2.5rem; }
+  .sec > h2 {
+    position: sticky; top: calc(3.5rem + 1px); z-index: 3;
+    margin-inline: -1rem; padding: 0.5rem 1rem;
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    border-bottom: 1px solid transparent;
+  }
+  .sec > h2.stuck { border-bottom-color: var(--line); }
+  .top.ext { border-bottom-color: transparent; }
+  .role, .fnref a, .notes li { scroll-margin-top: 3.25rem; }   /* targets inside a section clear the stuck heading */
+}
 /* chapter number, like a slide deck's parts: "01 Profile" – equal-width digits keep the titles aligned.
    The other sections of a chapter carry the same number invisibly (.ghost), so their titles line up with it. */
 .sec > h2 .no { color: var(--accent); font-weight: 400; font-variant-numeric: tabular-nums; }
@@ -268,6 +284,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
   font-variant-numeric: tabular-nums; white-space: nowrap;
 }
 .ledger dd { margin: 0; color: var(--muted); }
+.ledger dd a { white-space: nowrap; }
 
 /* fields of work */
 .fields { display: grid; gap: 1.75rem 2.5rem; }
@@ -288,6 +305,29 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 .org { margin: 0 0 0.5rem; }
 .org .place { color: var(--muted); }
 .ctx { margin: 0 0 0.6rem; color: var(--muted); font-size: 1rem; }
+/* reached from the ledger: dates and title in accent */
+.role:target > .when, .role:target > div > h3 { color: var(--accent); }
+
+/* the years before 2014: one entry in the timeline, the single positions behind a disclosure */
+.more { margin-top: 0.75rem; }
+.more summary {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  list-style: none; cursor: pointer; color: var(--muted); font-size: 1rem;
+}
+.more summary::-webkit-details-marker { display: none; }
+.more summary::before {                           /* a chevron: points right, turns down when open */
+  content: ""; width: 0.42em; height: 0.42em; margin-top: -0.1em;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+}
+.more[open] summary::before { transform: rotate(45deg); margin-top: -0.3em; }
+.more summary:hover { color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) { .more summary::before { transition: transform 0.2s, margin 0.2s; } }
+.more .roles { margin-top: 0.75rem; }
+.more .role, .more .role + .role { display: block; padding: 0.85rem 0 0; border-top: 1px solid var(--line); }
+.more .role .when { padding-top: 0; font-size: 0.9rem; }
+.more h4 { margin: 0; font-size: 1.0625rem; line-height: 1.35; }
+.more .org { margin-bottom: 0.2rem; }
 
 /* projects */
 .group + .group { margin-top: 2.5rem; }
@@ -309,6 +349,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 @media (min-width: 36rem) { .facts div { grid-template-columns: 9.5rem 1fr; } }
 .facts dt { color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; padding-top: 0.15rem; }
 .facts dd { margin: 0; }
+.lines { list-style: none; margin: 0; padding: 0; }    /* languages: one per line */
 
 /* contact */
 .hello {
@@ -331,8 +372,6 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 
 /* P⁴ */
 .sec > h2 sup { font-size: 0.62em; line-height: 0; vertical-align: 0.55em; margin-left: 0.04em; }
-.intro { margin: 0 0 1.5rem; color: var(--muted); }
-.intro strong { color: var(--ink); }
 .fields h3 { font-size: 1.375rem; margin-bottom: 0.25rem; }
 
 /* #JobAlert tree: ├── and └── drawn with borders, so they align in any font */
@@ -364,6 +403,30 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 .notes .back { text-decoration: none; color: var(--accent); font-weight: 700; margin-right: 0.15em; }
 .notes li:target { color: var(--ink); }
 
+/* toggletip: a superscript i after a heading, set like the footnote numbers. The note is a popover:
+   it opens and closes without JavaScript (click outside or Esc closes it); site.js only places it next to the i. */
+.info {
+  position: relative;
+  margin: -1em 0 -1em 0.12em; padding: 0 0.1em; border: 0; background: none;   /* negative margins: the line keeps its height */
+  font: inherit; font-size: 0.68em; font-weight: 700; line-height: 1; vertical-align: 0.6em;
+  color: var(--accent); cursor: pointer;
+}
+.info::before { content: ""; position: absolute; inset: -0.9em -0.7em; }   /* a hit area larger than the letter */
+.info:hover, .info:focus-visible { text-decoration: underline; text-underline-offset: 0.15em; }
+.tip {
+  max-width: min(20rem, calc(100vw - 2rem));
+  margin: auto; padding: 0.55rem 0.8rem;
+  border: 1px solid var(--line); border-radius: 0.4rem;
+  background: var(--paper); color: var(--ink);
+  font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;
+  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
+}
+.js .tip { margin: 0; inset: auto; }
+@supports not selector(:popover-open) {            /* browsers without popovers: the note stays in the text */
+  .info { display: none; }
+  .tip { display: block; margin: 0.25rem 0 0; padding: 0; border: 0; box-shadow: none; background: none; color: var(--muted); }
+}
+
 /* contact: Work online | Live offline */
 .reach { margin: 0; display: grid; gap: 0.5rem; }
 .reach div { display: grid; grid-template-columns: 5.5rem 1fr; gap: 0 1rem; align-items: baseline; }
@@ -376,28 +439,59 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 .lost h1 { margin: 0.6rem 0 0.35rem; font-size: clamp(1.3rem, 3.3vw, 2rem); line-height: 1.25; font-weight: 400; }
 .dki { font-family: inherit; font-size: inherit; color: var(--accent); }
 
-/* back to top: appears once the name has docked; on wide screens it sits under the minimap */
-.to-top {
+/* up · sections · down: appears once the name has docked; on wide screens it sits under the minimap.
+   site.js points up and down at the section above and below, the middle shows the chapter and opens the list. */
+.jump {
   position: fixed; z-index: 5;
   right: max(1rem, calc(env(safe-area-inset-right, 0px) + 1rem));
   bottom: max(1rem, calc(env(safe-area-inset-bottom, 0px) + 1rem));
-  width: 2.75rem; height: 2.75rem; border-radius: 50%;
-  display: grid; place-items: center;
-  text-decoration: none; color: var(--ink);
+  display: flex; flex-direction: column;
+  width: 2.75rem; border-radius: 999px;
   background: color-mix(in srgb, var(--paper) 92%, transparent);
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   border: 1px solid var(--line);
   opacity: 0; visibility: hidden; transform: translateY(0.5rem);
   transition: opacity 0.2s, transform 0.2s, visibility 0s linear 0.2s;
 }
-.top.docked ~ .to-top { opacity: 1; visibility: visible; transform: none; transition: opacity 0.2s, transform 0.2s; }
-html:not(.js) .to-top { opacity: 1; visibility: visible; transform: none; }
-.to-top:hover { border-color: var(--accent); color: var(--accent); }
-.to-top:focus-visible { border-radius: 50%; }
-.to-top svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-@media (prefers-reduced-motion: reduce) { .to-top, .top.docked ~ .to-top { transition: none; } }
+.top.docked ~ .jump { opacity: 1; visibility: visible; transform: none; transition: opacity 0.2s, transform 0.2s; }
+html:not(.js) .jump { opacity: 1; visibility: visible; transform: none; }
+html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to the top and the list */
+.jump .up, .jump .down, .jump summary {
+  display: grid; place-items: center; height: 2.5rem;
+  color: var(--ink); text-decoration: none; cursor: pointer;
+}
+.jump .up { border-radius: 999px 999px 0 0; }
+.jump .down { border-radius: 0 0 999px 999px; }
+.jump summary {
+  list-style: none;
+  background: linear-gradient(var(--line), var(--line)) top / 1.25rem 1px no-repeat,
+              linear-gradient(var(--line), var(--line)) bottom / 1.25rem 1px no-repeat;   /* short hairlines between the three */
+}
+.jump summary::-webkit-details-marker { display: none; }
+.jump .up:hover, .jump .down:hover, .jump summary:hover, .jump .menu[open] summary { color: var(--accent); }
+.jump [aria-disabled="true"], .jump [aria-disabled="true"]:hover { color: var(--line); cursor: default; }
+.jump :focus-visible { outline-offset: -3px; }
+.jump svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.jump .cur { font-size: 0.9rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.jump .cur:empty { display: none; }
+.jump .cur:not(:empty) + svg { display: none; }    /* the chapter number once there is one, the lines before */
+.jump .menu ol {
+  position: absolute; right: calc(100% + 0.5rem); bottom: 0;
+  margin: 0; padding: 0.4rem 0; list-style: none;
+  max-height: calc(100vh - 6rem); overflow: auto;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 0.5rem;
+  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
+  font-size: 0.95rem;
+}
+.jump .menu a { display: block; padding: 0.35rem 1.1rem 0.35rem 0.9rem; color: var(--muted); text-decoration: none; white-space: nowrap; }
+.jump .menu a:hover { color: var(--ink); }
+.jump .menu .no { color: var(--accent); font-variant-numeric: tabular-nums; }
+.jump .menu .ghost { visibility: hidden; }
+.jump .menu sup { font-size: 0.62em; line-height: 0; vertical-align: 0.55em; }
+.jump .menu [aria-current] { color: var(--ink); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .jump, .top.docked ~ .jump { transition: none; } }
 @media (min-width: 74rem) and (min-height: 30rem) {
-  .to-top { right: calc(1.75rem + (4.25rem - 2.75rem) / 2); bottom: 1.75rem; }
+  .jump { right: calc(1.75rem + (4.25rem - 2.75rem) / 2); bottom: 1.75rem; }
 }
 
 /* footer */
@@ -424,7 +518,7 @@ html:not(.js) .to-top { opacity: 1; visibility: visible; transform: none; }
     position: fixed;
     right: 1.75rem;
     top: 5rem;
-    bottom: 5.25rem;
+    bottom: 10.25rem;                             /* above the jump control */
     width: 4.25rem;
     cursor: pointer;
     touch-action: none;
@@ -448,7 +542,7 @@ html:not(.js) .to-top { opacity: 1; visibility: visible; transform: none; }
 }
 
 @media print {
-  .top, .minimap, .skip, .to-top { display: none; }
+  .top, .minimap, .skip, .jump, .info { display: none; }
   .hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }
   .hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }
   .sec > h2 { position: static; }
