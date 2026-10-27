@@ -341,18 +341,38 @@ Visually hidden, still read by screen readers. In the hero, the visible typed te
 
 ```css
 .home {
+  position: relative; flex: none;
   font-weight: 700; text-decoration: none; white-space: nowrap;
   font-size: 1rem;
 }
+/* logo: the lockup >_ P/S, 28 px tall – its clear space (one stem, 158 of 813 units: 5.4 px) is inside the
+   header's height and gaps. overflow: visible lets the wordmark reach out while it condenses (site.js). */
+.home .lockup { display: block; height: 1.75rem; width: auto; overflow: visible; }
+.lockup .acc { fill: var(--accent); }
+.lockup .ink { fill: var(--ink); }
+/* the wordmark the hero name docks into: measured, never shown – site.js draws it into the lockup instead */
+.home .word { position: absolute; left: 0; top: 50%; transform: translateY(-50%); visibility: hidden; pointer-events: none; }
 .home .caret { display: inline-block; color: var(--accent); margin-right: 0.45em; }
 .home .name { display: inline-block; text-transform: uppercase; letter-spacing: 0.055em; }
 ```
 
-`.home` is the header logo – `>_ PETER STIEG`, a link to the top.
+`.home` is the header logo – the lockup `>_ P/S`, a link to the top – plus the invisible wordmark `>_ PETER STIEG` that the hero name docks into.
 
+- `position: relative;` – makes `.home` the reference box for the absolutely positioned wordmark inside it.
+- `flex: none;` – the logo never shrinks, however tight the header gets. Without it a flex item may be squeezed below its content width.
 - `font-weight: 700; text-decoration: none;` – bold, no underline.
 - `white-space: nowrap;` – caret and name always on one line. `site.js` needs the docking target to be a single line box; if it wrapped, the script would fall back to a plain swap without the flight.
-- `font-size: 1rem;` – a fixed 16px base for the logo, independent of the body's 18px.
+- `font-size: 1rem;` – a fixed 16px base for the wordmark, independent of the body's 18px.
+- `.home .lockup` – the SVG.
+  - `display: block` – an inline SVG sits on the text baseline like a letter and leaves a gap below it for descenders. As a block it is exactly as tall as its height.
+  - `height: 1.75rem` – 28 px. `width: auto` follows from the `viewBox` ratio: 28 × 1971 / 813 = 67.9 px (measured). The lockup's minimum is 24 px; at 28 px its three gaps are 1.7 px wide and stay sharp on ordinary screens too.
+  - **Clear space:** the design asks for one stem – 158 of 813 units, 5.4 px at this size – on every side. The 56 px header leaves 14 px above and below, the `gap` of the header row at least 12 px to the right.
+  - `overflow: visible` – an `<svg>` clips everything outside its box by default. While the wordmark condenses, it is wider than the final lockup and reaches out to the right; without this rule, `PETER STIEG` would be cut off after "PE".
+- `.lockup .acc` and `.lockup .ink` – the two colours for what `site.js` draws while condensing: the prompt in the accent colour, the letters in ink. The finished lockup carries the same two colours in its own paths.
+- `.home .word` – the old wordmark, kept only as a measuring target.
+  - `position: absolute; left: 0; top: 50%; transform: translateY(-50%)` – takes it out of the flow, so the link is only as wide as the lockup, and centres it vertically on the header line: `top: 50%` puts its top edge at the middle, `translateY(-50%)` pulls it up by half its own height.
+  - `visibility: hidden` – invisible, but still laid out, so `getClientRects` can measure every letter. `display: none` would leave nothing to measure.
+  - `pointer-events: none` – it never catches a click meant for the link.
 - `.home .caret` – `display: inline-block` gives the span a box of its own that the script can measure (its hero counterpart must be inline-block to be transformable at all). `color: var(--accent)` makes the `>_` bordeaux; `margin-right: 0.45em` is the gap before the name.
 - `.home .name` – `text-transform: uppercase` renders capitals while the HTML says "Peter Stieg". The source keeps normal case for screen readers and search engines. `letter-spacing: 0.055em` adds 5.5% of the font size after each letter: capitals are designed to stand next to lowercase letters and look cramped in a row of their own.
 
@@ -386,7 +406,7 @@ While you scroll, the hero's `PETER STIEG` and its `>_` travel into the header l
 
 Declaration by declaration:
 
-- `.js .top.dock .home { visibility: hidden; }` – while the hero name is on screen, the header logo is hidden: the name is visible exactly once. `visibility: hidden` keeps the logo's space, so the header layout doesn't shift, and takes it out of the tab order and the accessibility tree – measured: the first Tab presses go skip link, then the section links. Without JavaScript, `.js` is missing, nothing is hidden, and the header logo simply stays visible.
+- `.js .top.dock .home { visibility: hidden; }` – while the hero name is on screen, the header logo is hidden: the name is visible exactly once. The lockup shows only once the name has docked. `visibility: hidden` keeps the logo's space, so the header layout doesn't shift, and takes it out of the tab order and the accessibility tree – measured: the first Tab presses go skip link, then the section links. Without JavaScript, `.js` is missing, nothing is hidden, and the header logo simply stays visible.
 - `.js .top.dock.docked .home { visibility: visible; }` – once docked, the real logo appears. (0,5,0) beats (0,4,0).
 - `.hero h1, .hero .prompt .caret { transform-origin: 0 0; }` – a selector list: the comma gives both selectors the same declaration. `transform-origin: 0 0` makes scaling start from the top-left corner instead of the default center, matching the coordinates the script calculates with. While flying, `site.js` sets a more precise origin inline (the offset of the text inside its box), and inline styles beat stylesheet rules; the CSS value is the baseline when no inline value is set.
 - `.hero.flying …` – three declarations that apply only while the elements are in motion:

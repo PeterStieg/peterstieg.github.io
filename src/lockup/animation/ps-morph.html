@@ -1,0 +1,532 @@
+<title>P/S Morph</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one column like peterstieg.com – the stage is a strip of the site background with a keystroke strip, controls under it, then the sequence, the end-spacing proposals and the angles. */
+:root {
+  --ground: #EFEDE8;      /* page around the stage */
+  --paper: #F7F6F3;       /* site background, also the stage */
+  --ink: #1A1C1E;
+  --muted: #565B60;
+  --line: #DCDAD4;
+  --accent: #7A1A2C;      /* Bordeaux, the site's only accent */
+  --sel: #E8C3CA;         /* the site's ::selection background */
+  --font: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #111315; --paper: #181A1C; --ink: #F5F4F2; --muted: #A3A8AD; --line: #2F3337; --accent: #C98593; --sel: #4E0E1B;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #111315; --paper: #181A1C; --ink: #F5F4F2; --muted: #A3A8AD; --line: #2F3337; --accent: #C98593; --sel: #4E0E1B;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--ground); color: var(--ink);
+  font-family: var(--font); font-size: 1rem; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 4rem;
+}
+::selection { background: var(--sel); color: var(--ink); }
+.wrap { max-width: 70rem; margin-inline: auto; display: flex; flex-direction: column; gap: 2.5rem; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* header: the site's wordmark convention */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; border-bottom: 1px solid var(--line); }
+.brand { font-weight: 700; white-space: nowrap; margin: 0; font-size: 1rem; }
+.brand .caret { color: var(--accent); margin-right: 0.45em; }
+.brand .name { text-transform: uppercase; letter-spacing: 0.055em; }
+.pill { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 0.15rem; background: var(--paper); }
+.pill button, .pill label {
+  font: inherit; font-size: 0.9rem; color: var(--muted); background: none; border: 0; border-radius: 999px;
+  padding: 0.2rem 0.65rem; cursor: pointer; line-height: 1.5; white-space: nowrap;
+}
+.pill button:hover, .pill label:hover { color: var(--ink); }
+.pill [aria-pressed="true"], .pill input:checked + span { color: var(--ink); font-weight: 700; }
+.pill input { position: absolute; opacity: 0; pointer-events: none; }
+.pill label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.intro { display: flex; flex-direction: column; gap: 0.6rem; max-width: 44rem; }
+h1 { margin: 0; font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.15; text-wrap: balance; }
+.lede { margin: 0; font-size: 1.1rem; color: var(--muted); }
+
+/* stage */
+.player { display: flex; flex-direction: column; gap: 0.9rem; }
+.stage { margin: 0; position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.stage svg.scene { display: block; width: 100%; height: auto; aspect-ratio: 12 / 5; max-width: 100%; }
+.ink { fill: var(--ink); }
+.acc { fill: var(--accent); }
+.sel { fill: var(--sel); }
+.fade { fill: color-mix(in srgb, var(--ink) calc(var(--k, 1) * 100%), var(--paper)); }
+.guides line { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 5 4; opacity: 0.75; }
+
+/* keystroke strip: a German keyboard, so "/" is Shift + 7 and Home is "Pos1" */
+.keys { position: absolute; right: 1rem; bottom: 1rem; display: flex; gap: 0.4rem; align-items: flex-end; }
+.keys[hidden] { display: none; }
+.key {
+  height: 2.2rem; min-width: 2.2rem; padding: 0 0.45rem; border-radius: 6px;
+  border: 1px solid var(--line); border-bottom-width: 3px; background: var(--paper); color: var(--muted);
+  display: grid; place-items: center; font-family: var(--font); font-weight: 700; font-size: 0.78rem; line-height: 1;
+  transition: background-color 60ms, color 60ms, border-color 60ms, transform 60ms;
+}
+.key.wide { min-width: 3.3rem; }
+.key svg { width: 1.05rem; height: 1.05rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; display: block; }
+.key .two { display: grid; gap: 0.1rem; justify-items: start; width: 100%; font-size: 0.72rem; }
+.key.down { background: var(--accent); border-color: var(--accent); color: var(--paper); transform: translateY(1px); }
+@media (max-width: 40rem) {
+  .keys { position: static; justify-content: flex-end; flex-wrap: wrap; padding: 0 0.6rem 0.6rem; }
+  .key { height: 1.9rem; min-width: 1.9rem; }
+  .key.wide { min-width: 2.7rem; }
+}
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem; }
+.transport { display: flex; align-items: center; gap: 0.75rem; flex: 1 1 22rem; min-width: 0; }
+.btn {
+  font: inherit; font-weight: 700; font-size: 0.95rem; color: var(--paper); background: var(--ink);
+  border: 0; border-radius: 999px; padding: 0.4rem 1rem; cursor: pointer; white-space: nowrap;
+}
+.btn.ghost { color: var(--ink); background: none; border: 1px solid var(--line); }
+.btn:hover { background: var(--accent); color: var(--paper); }
+.btn.ghost:hover { border-color: var(--accent); background: none; color: var(--ink); }
+input[type="range"] { flex: 1 1 auto; min-width: 6rem; accent-color: var(--accent); margin: 0; }
+.time { font-family: var(--mono); font-size: 0.9rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 7.5em; text-align: right; }
+.options { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+/* sequence */
+section > h2 { margin: 0 0 1rem; font-size: 1.15rem; }
+.beats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem 1rem; }
+@media (max-width: 52rem) { .beats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 30rem) { .beats { grid-template-columns: minmax(0, 1fr); } }
+.beat {
+  width: 100%; height: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  background: none; border: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem;
+}
+.thumb { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.thumb svg { display: block; width: 100%; height: auto; aspect-ratio: 12 / 5; }
+.beat:hover .thumb, .beat[aria-current="step"] .thumb { border-color: var(--accent); }
+.beat h3, .end h3 { margin: 0; font-size: 1rem; display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; }
+.beat h3 .n { font-family: var(--mono); color: var(--accent); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.beat p, .end p { margin: 0; font-size: 0.92rem; color: var(--muted); line-height: 1.45; }
+
+/* the end state, measured */
+.lockup { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 1.5rem 2.5rem; align-items: center; }
+@media (max-width: 52rem) { .lockup { grid-template-columns: minmax(0, 1fr); } }
+.lockup h2 { grid-column: 1 / -1; margin: 0; font-size: 1.15rem; }
+.spec { margin: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 0.75rem; }
+.spec svg { display: block; width: 100%; height: auto; }
+.dim line { stroke: var(--muted); stroke-width: 1; fill: none; }
+.dim .ext { stroke-dasharray: 4 4; opacity: 0.7; }
+.spec text { font-family: var(--mono); font-size: 64px; fill: var(--muted); }
+
+/* angles */
+.angles { display: grid; grid-template-columns: minmax(0, 27rem) minmax(0, 1fr); gap: 1.5rem 2.5rem; align-items: start; }
+@media (max-width: 52rem) { .angles { grid-template-columns: minmax(0, 1fr); } }
+.angles h2 { grid-column: 1 / -1; margin: 0; font-size: 1.15rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 0.45rem 0; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+th { font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+td.deg { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 1rem; }
+td.use { color: var(--muted); padding-left: 1rem; font-size: 0.9rem; }
+tr.hit td.deg { color: var(--accent); font-weight: 700; }
+.note { margin: 0; display: flex; flex-direction: column; gap: 0.8rem; max-width: 36rem; color: var(--muted); }
+.note p { margin: 0; }
+.note strong { color: var(--ink); }
+
+@media (max-width: 30rem) {
+  .transport { flex-basis: 100%; flex-wrap: wrap; }
+  .transport input[type="range"] { order: 3; flex-basis: 100%; }
+  .time { min-width: 0; margin-left: auto; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="brand"><span class="caret" aria-hidden="true">&gt;_</span><span class="name">P/S Morph</span></p>
+    <div class="pill" role="group" aria-label="Farbschema">
+      <button type="button" id="th-auto" data-theme-set="auto" aria-pressed="true">Auto</button>
+      <button type="button" id="th-light" data-theme-set="light" aria-pressed="false">Hell</button>
+      <button type="button" id="th-dark" data-theme-set="dark" aria-pressed="false">Dunkel</button>
+    </div>
+  </header>
+
+  <section class="intro">
+    <h1>Vom Prompt zum Monogramm</h1>
+    <p class="lede">Der Cursor markiert, tippt und löscht wie in einer echten Eingabezeile. Pos1 bringt ihn zurück ans &gt;, Enter führt aus: P/S rückt zusammen, bis 50 vor den Cursor.</p>
+  </section>
+
+  <section class="player" aria-label="Animation">
+    <figure class="stage" id="stage">
+      <div class="keys" id="keys" aria-hidden="true">
+        <div class="key wide" data-key="shift"><svg viewBox="0 0 16 16"><path d="M8 2 2.5 8H5.5V13.5H10.5V8H13.5Z"/></svg></div>
+        <div class="key" data-key="right"><svg viewBox="0 0 16 16"><path d="M5.5 3.5 10.5 8l-5 4.5Z"/></svg></div>
+        <div class="key" data-key="7"><span class="two"><span>/</span><span>7</span></span></div>
+        <div class="key wide" data-key="back"><svg viewBox="0 0 16 16"><path d="M14 8H2.5M6 4.5 2.5 8 6 11.5"/></svg></div>
+        <div class="key wide" data-key="home">Pos1</div>
+        <div class="key wide" data-key="enter"><svg viewBox="0 0 16 16"><path d="M13 3V9H3M6.5 5.5 3 9l3.5 3.5"/></svg></div>
+      </div>
+    </figure>
+    <div class="controls">
+      <div class="transport">
+        <button type="button" class="btn" id="play">Abspielen</button>
+        <button type="button" class="btn ghost" id="replay">Von vorn</button>
+        <input type="range" id="scrub" min="0" max="8800" step="10" value="0" aria-label="Zeitpunkt">
+        <span class="time" id="time">0,0 / 8,8 s</span>
+      </div>
+      <div class="options">
+        <div class="pill" role="group" aria-label="Tempo">
+          <button type="button" id="sp-1" data-speed="1" aria-pressed="true">1×</button>
+          <button type="button" id="sp-half" data-speed="0.5" aria-pressed="false">½×</button>
+          <button type="button" id="sp-quarter" data-speed="0.25" aria-pressed="false">¼×</button>
+        </div>
+        <div class="pill">
+          <label for="opt-keys"><input type="checkbox" id="opt-keys" checked><span>Tasten</span></label>
+          <label for="opt-zoom"><input type="checkbox" id="opt-zoom" checked><span>Zoom</span></label>
+          <label for="opt-guides"><input type="checkbox" id="opt-guides"><span>Hilfslinien</span></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-seq">
+    <h2 id="h-seq">Ablauf</h2>
+    <ol class="beats" id="beats"></ol>
+  </section>
+
+  <section class="lockup" aria-labelledby="h-lock">
+    <h2 id="h-lock">Schluss: Ein Takt</h2>
+    <figure class="spec" id="spec"></figure>
+    <div class="note">
+      <p><strong>Dreimal 50.</strong> Die Schrift setzt &gt; und _ 50 auseinander. Der Spalt trennt P und S um 50, senkrecht zur Schräge gemessen. Mit 50 zwischen _ und Stamm hat die ganze Zeile denselben Takt.</p>
+      <p><strong>Lockup und Monogramm.</strong> &gt;_ P/S misst 1971 × 813 Einheiten (2,42 : 1) – für Header und breite Flächen. Favicon, Avatar und Lebenslauf behalten das Monogramm allein.</p>
+      <p><strong>Kleinste Größe:</strong> 24 px Höhe, wie beim Monogramm. Darunter schließen sich die drei Abstände.</p>
+    </div>
+  </section>
+
+  <section class="angles" aria-labelledby="h-ang">
+    <h2 id="h-ang">Was die Schrift vorgibt</h2>
+    <table>
+      <thead><tr><th>Maß</th><th style="text-align:right">Wert</th><th style="padding-left:1rem">im Monogramm</th></tr></thead>
+      <tbody>
+        <tr class="hit"><td>/, Winkel</td><td class="deg">68,66°</td><td class="use">Spalt</td></tr>
+        <tr class="hit"><td>/, hier gezeichnet</td><td class="deg">50</td><td class="use">Spaltbreite</td></tr>
+        <tr class="hit"><td>S, untere Endung</td><td class="deg">19,86°</td><td class="use">Fuß</td></tr>
+        <tr><td>&gt; bis _, Abstand</td><td class="deg">50</td><td class="use">Takt</td></tr>
+        <tr><td>&gt;, Innenkanten</td><td class="deg">19,95° · 20,27°</td><td class="use">parallel</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <p><strong>Der / ist schmal.</strong> Atkinsons Schrägstrich in seinem Winkel und mit seinen Seitenabständen, aber nur 50 breit – so breit wie der Spalt, den er im Monogramm hinterlässt.</p>
+      <p><strong>Der / wird zum Spalt.</strong> Er gleitet an seinen Platz im P, das S schiebt sich von rechts heran. Was unter ihm liegt, fällt weg, dann löst er sich selbst auf.</p>
+      <p><strong>Der Fuß folgt dem S.</strong> Der Stamm des P reicht bis zur Linie der unteren S-Endung. Während das S einen Balken hinabsteigt, wächst er mit.</p>
+      <p><strong>Endbild = finales Monogramm vom 23.10.:</strong> Spalt 50 bei 68,7°, Stufe 133, Fuß von −119 bis −62, 968 × 813 Einheiten.</p>
+    </div>
+  </section>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs id="glyph-defs"></defs></svg>
+
+<script>
+(() => {
+  "use strict";
+  // ---- glyph outlines, font units (UPM 1000, y up), from atkinson-hyperlegible-latin-700-normal.woff2
+  const G = {">":{"d":"M40 -12V130L365 250L40 368V510L533 299V200Z","adv":573},"_":{"d":"M10 -128V0H420V-128Z","adv":430},"P":{"d":"M44 0V668H301Q388 668 456.5 650Q525 632 564.5 585Q604 538 604 450Q604 363 564.5 315.5Q525 268 456.5 250Q388 232 301 232H202V0ZM202 363H306Q343 363 372.5 370Q402 377 419.5 396Q437 415 437 450Q437 485 419.5 503.5Q402 522 372.5 528.5Q343 535 306 535H202Z","adv":626},"E":{"d":"M44 0V668H558V529H202V413H419V274H202V139H558V0Z","adv":580},"T":{"d":"M230 0V529H15V668H602V529H387V0Z","adv":617},"R":{"d":"M44 0V668H301Q388 668 456.5 651Q525 634 564.5 589Q604 544 604 461Q604 423 590 385.5Q576 348 541.5 317Q507 286 443 269L637 0H454L273 252H202V0ZM202 384H306Q362 384 399.5 398.5Q437 413 437 459Q437 506 399.5 520.5Q362 535 306 535H202Z","adv":654},"S":{"d":"M314 -12Q205 -12 130.5 32.5Q56 77 25 157L169 209Q183 161 221.5 138Q260 115 315 115Q344 115 371 121.5Q398 128 416 143.5Q434 159 434 185Q434 220 400 239.5Q366 259 312 269L231 285Q177 296 130.5 318.5Q84 341 56 378.5Q28 416 28 473Q28 527 53 566Q78 605 119.5 630Q161 655 211 667.5Q261 680 311 680Q365 680 415.5 665Q466 650 506 618.5Q546 587 567 535L424 483Q411 517 377.5 535Q344 553 297 553Q251 553 220.5 536.5Q190 520 190 489Q190 464 211 446Q232 428 266 421L356 403Q397 395 439 382.5Q481 370 516.5 349.5Q552 329 574 295Q596 261 596 209Q596 156 571.5 114.5Q547 73 506.5 45Q466 17 416 2.5Q366 -12 314 -12Z","adv":619},"I":{"d":"M57 0V124H151V544H57V668H401V544H309V124H401V0Z","adv":458},"G":{"d":"M352 -12Q254 -12 183 30.5Q112 73 73.5 151.5Q35 230 35 336Q35 442 78 519Q121 596 197.5 638Q274 680 375 680Q463 680 533.5 645Q604 610 644 542L508 486Q492 512 458.5 531Q425 550 373 550Q326 550 287 526Q248 502 225 454.5Q202 407 202 336Q202 231 250 174.5Q298 118 376 118Q413 118 447 128.5Q481 139 503 164Q525 189 525 231V250H375V378H683V0H579L557 74Q493 -12 352 -12Z","adv":719},"/":{"d":"M15 0 276 668H427L168 0Z","adv":442}};
+  const SL = Math.atan2(668, 261);                  // Atkinson's "/" : 68.66°
+  const SIN = Math.sin(SL), COS = Math.cos(SL);
+  const HW = 50 / SIN;                              // a 50-unit stroke, measured horizontally: 53.69
+  // the "/" drawn thinner: same angle, same 15-unit side bearings, stroke 50 = the monogram's gap
+  G["/"] = { d: `M15 0L276 668H${(276 + HW).toFixed(2)}L${(15 + HW).toFixed(2)} 0Z`, adv: 15 + 261 + HW + 15 };
+
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const gid = ch => "g-" + ({ ">": "gt", "_": "us", "/": "sl" }[ch] || ch);
+  document.getElementById("glyph-defs").innerHTML =
+    Object.keys(G).map(ch => `<path id="${gid(ch)}" d="${G[ch].d}"/>`).join("");
+  const adv = ch => ch === " " ? 320 : ch === "gap" ? 430 : G[ch].adv;
+
+  // ---- wordmark as in the site header: ">" "_" then 0.45em, letter-spacing 0.055em -------
+  const LS = 55, GAP_X = 573, P_TXT = 573 + 430 + 450;   // P at 1453
+  const SEL_Y0 = -170, SEL_Y1 = 830;                       // line box at line-height 1 (hhea 950 / −290)
+  const kern = (a, b) => (a === "E" && b === "G") ? -19 : 0;   // the only GPOS pair in this text
+  function layout(chars) {
+    const xs = []; let x = GAP_X;
+    chars.forEach((ch, i) => {
+      if (i === 1) x = P_TXT;
+      else if (i > 1) x += kern(chars[i - 1], ch);
+      xs.push(x);
+      x += adv(ch) + (i === 0 ? 0 : LS);
+    });
+    return { xs, end: x };
+  }
+
+  // ---- the keystrokes (s). German layout: "/" is Shift + 7, Home is "Pos1" -------------
+  const K = [];
+  const tap = (t, k, extra = {}) => K.push({ t, k, ...extra });
+  tap(1.20, "right"); tap(1.42, "right");
+  [1.85, 1.99, 2.13, 2.27, 2.41].forEach(t => tap(t, "right", { shift: true }));
+  tap(2.95, "type", { ch: "/" });
+  tap(3.40, "right");
+  [3.75, 3.87, 3.99, 4.11].forEach(t => tap(t, "right", { shift: true }));
+  tap(4.55, "back");
+  tap(5.05, "home");
+  tap(5.45, "enter");
+  const SHIFT = [[1.70, 2.60], [2.84, 3.08], [3.62, 4.30]];
+
+  function editor(t) {
+    let chars = ["gap", "P", "E", "T", "E", "R", " ", "S", "T", "I", "E", "G"];
+    let caret = 0, anchor = null, last = 0;
+    for (const e of K) {
+      if (e.t > t) break;
+      last = e.t;
+      const sel = anchor === null ? null : [Math.min(anchor, caret), Math.max(anchor, caret)];
+      if (e.k === "right") {
+        if (e.shift) { if (anchor === null) anchor = caret; } else anchor = null;
+        caret = Math.min(chars.length, caret + 1);
+        if (anchor === caret) anchor = null;
+      } else if (e.k === "type") {
+        const [a, b] = sel || [caret, caret];
+        chars.splice(a, b - a, e.ch); caret = a + 1; anchor = null;
+      } else if (e.k === "back") {
+        const [a, b] = sel || [caret - 1, caret];
+        chars.splice(a, b - a); caret = a; anchor = null;
+      } else if (e.k === "home") { caret = 0; anchor = null; }
+    }
+    const sel = anchor === null ? null : [Math.min(anchor, caret), Math.max(anchor, caret)];
+    return { chars, caret, sel, last };
+  }
+
+  // ---- the monogram, all numbers from the font (see the Final board) ---------------------
+  const GAP_C = 350, GAP_H = 25;                    // gap centre (equal ink from P and S), 50 wide
+  const S_SLOT = 626 - 158;                         // S one stem under the bowl
+  const STEP = { x: -133 * 261 / 668, y: -133 };    // one bar (133) down the slash
+  const KT = 52 / 144;                              // slope of the S's lower terminal, 19.86°
+  const SLASH_REL = 626 + LS, S_REL = SLASH_REL + G["/"].adv + LS;   // "P/S" as text, relative to P
+  const lineX = (c, y) => (c + y * COS) / SIN;      // x on the line n·p = c, relative to P
+  const SL_TXT = [[15, 0], [276, 668], [276 + HW, 668], [15 + HW, 0]].map(([x, y]) => [x + SLASH_REL, y]);
+  const SL_END = [[lineX(GAP_C - GAP_H, 0), 0], [lineX(GAP_C - GAP_H, 668), 668], [lineX(GAP_C + GAP_H, 668), 668], [lineX(GAP_C + GAP_H, 0), 0]];
+  // the P's foot: stem extended down to the S's lower terminal line (wherever that line is below the baseline)
+  function foot(w) {
+    // + lift: at w = 0 the line would already graze the stem's corner (−5); start the foot from nothing
+    const lift = (5.1 + 0.05) * (1 - w);
+    const x0 = 25 + S_SLOT + STEP.x * w, y0 = 157 + STEP.y * w + lift, y = x => y0 + (x - x0) * KT;
+    const yl = y(44), yr = y(202);
+    if (yl >= 0) return null;
+    const top = 20;                                 // reaches into the stem, so no seam shows at the baseline
+    if (yr >= 0) { const xz = x0 - y0 / KT; return [[44, top], [xz, top], [xz, 0], [44, yl]]; }
+    return [[44, top], [202, top], [202, yr], [44, yl]];
+  }
+  const FOOT_END = foot(1);
+
+  // ---- "Ein Takt": the P's stem starts 50 after the "_" ends, like > to _ and P to S ------
+  const US_R = GAP_X + 420;                          // right end of the "_": 993
+  const P_END = US_R + 50 - 44;                      // P at 999 (decided 25.10.2026)
+
+  // ---- timeline ------------------------------------------------------------------------
+  const T = { design: 5.50, slideA: 5.60, slideB: 6.75, stepA: 6.85, stepB: 7.45, camA: 5.50, camB: 7.55, end: 8.80 };
+  const FADE = [0.55, 0.90];                        // the "/" turns into the gap while P and S reach it
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const prog = (t, a, b) => clamp((t - a) / (b - a));
+  const inOut = u => u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  const sine = u => -(Math.cos(Math.PI * u) - 1) / 2;
+  const lerp = (a, b, u) => a + (b - a) * u;
+  const lerpPts = (A, B, u) => A.map((p, i) => [lerp(p[0], B[i][0], u), lerp(p[1], B[i][1], u)]);
+  const shift = (P, dx, dy = 0) => P.map(([x, y]) => [x + dx, y + dy]);
+  const pts = P => P.map(p => p[0].toFixed(2) + "," + p[1].toFixed(2)).join(" ");
+
+  function keysDown(t) {
+    const d = new Set();
+    for (const e of K) if (t >= e.t && t < e.t + 0.11) d.add(e.k === "type" ? "7" : e.k);
+    for (const [a, b] of SHIFT) if (t >= a && t < b) d.add("shift");
+    return d;
+  }
+
+  // half-plane on one side of the line p1–p2 (side −1: left of the slash, +1: right)
+  function halfPlane(p1, p2, side) {
+    const R = 40000, dx = p2[0] - p1[0], dy = p2[1] - p1[1], L = Math.hypot(dx, dy);
+    const ux = dx / L, uy = dy / L, nx = uy, ny = -ux;
+    const a = [p1[0] - ux * R, p1[1] - uy * R], b = [p1[0] + ux * R, p1[1] + uy * R];
+    return pts([a, b, [b[0] + nx * R * side, b[1] + ny * R * side], [a[0] + nx * R * side, a[1] + ny * R * side]]);
+  }
+
+  // ---- camera --------------------------------------------------------------------------
+  const ASPECT = 12 / 5, WORD_R = 8354;
+  const FRAME_W = { cx: WORD_R / 2, cy: 300, w: WORD_R + 1200 };
+  const frameEnd = () => {
+    const x0 = 40, x1 = P_END + 1012;
+    return { cx: (x0 + x1) / 2, cy: 261.5, w: Math.max((x1 - x0) / 0.8, (813 / 0.6) * ASPECT) };
+  };
+  function viewBox(u) {
+    const F = frameEnd();
+    const w = FRAME_W.w * Math.pow(F.w / FRAME_W.w, u), h = w / ASPECT;
+    const ox = (F.cx - FRAME_W.cx) / FRAME_W.w, oy = (F.cy - FRAME_W.cy) / (FRAME_W.w / ASPECT);
+    const cx = F.cx - lerp(ox, 0, u) * w, cy = F.cy - lerp(oy, 0, u) * h;
+    return `${(cx - w / 2).toFixed(2)} ${(-(cy + h / 2)).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)}`;
+  }
+
+  // ---- one frame as markup ---------------------------------------------------------------
+  const use = (ch, x, y = 0, cls = "ink") =>
+    `<use href="#${gid(ch)}" class="${cls}" transform="translate(${x.toFixed(2)} ${y.toFixed(2)})"/>`;
+  // the blink restarts with every keystroke; after Enter the cursor holds still until the monogram is done
+  const blinkOn = (t, last) => t >= T.design && t < T.stepB ? true : ((t - Math.max(last, t >= T.stepB ? T.stepB : 0)) % 1.06) < 0.53;
+
+  function markup(t, id, opt) {
+    const ed = editor(t);
+    let s = use(">", 0, 0, "acc");                         // the prompt never moves
+    const L = layout(ed.chars);
+    const xAt = i => i < ed.chars.length ? L.xs[i] : L.end;
+    if (t < T.design) {
+      if (ed.sel) s += `<rect class="sel" x="${xAt(ed.sel[0])}" y="${SEL_Y0}" width="${xAt(ed.sel[1]) - xAt(ed.sel[0])}" height="${SEL_Y1 - SEL_Y0}"/>`;
+      ed.chars.forEach((ch, i) => { if (i > 0 && ch !== " ") s += use(ch, L.xs[i]); });
+    } else {
+      const u = inOut(prog(t, T.slideA, T.slideB));
+      const w = sine(prog(t, T.stepA, T.stepB));
+      const px = lerp(P_TXT, P_END, u);
+      const sl = shift(lerpPts(SL_TXT, SL_END, u), px);
+      const sx = px + lerp(S_REL, S_SLOT, u) + STEP.x * w, sy = STEP.y * w;
+      const k = 1 - clamp((u - FADE[0]) / (FADE[1] - FADE[0]));
+      s += `<clipPath id="${id}-p" clipPathUnits="userSpaceOnUse"><polygon points="${halfPlane(sl[0], sl[1], -1)}"/></clipPath>`;
+      s += `<clipPath id="${id}-s" clipPathUnits="userSpaceOnUse"><polygon points="${halfPlane(sl[3], sl[2], 1)}"/></clipPath>`;
+      s += `<g clip-path="url(#${id}-p)">${use("P", px)}</g>`;
+      const f = foot(w); if (f) s += `<polygon class="ink" points="${pts(shift(f, px))}"/>`;
+      s += `<g clip-path="url(#${id}-s)">${use("S", sx, sy)}</g>`;
+      if (k > 0.002) s += `<polygon class="fade" style="--k:${k.toFixed(3)}" points="${pts(sl)}"/>`;
+      if (opt.guides) {
+        const gl = c => `<line x1="${(px + lineX(c, -400)).toFixed(1)}" y1="-400" x2="${(px + lineX(c, 1100)).toFixed(1)}" y2="1100" vector-effect="non-scaling-stroke"/>`;
+        const fy = x => FOOT_END[3][1] + (x - 44) * KT;
+        s += `<g class="guides">${gl(GAP_C - GAP_H)}${gl(GAP_C + GAP_H)}<line x1="${(px - 700).toFixed(1)}" y1="${fy(-700).toFixed(1)}" x2="${(px + 1300).toFixed(1)}" y2="${fy(1300).toFixed(1)}" vector-effect="non-scaling-stroke"/></g>`;
+      }
+    }
+    if (blinkOn(t, ed.last) || t >= T.end - 0.01) {
+      const i = ed.caret, x0 = xAt(i), cw = i < ed.chars.length ? adv(ed.chars[i]) : 430;
+      s += `<rect class="acc" x="${x0 + 10}" y="-128" width="${cw - 20}" height="128"/>`;
+    }
+    return s;
+  }
+
+  let uid = 0;
+  function makeScene(host, label) {
+    const id = "sc" + (uid++);
+    const svg = document.createElementNS(SVGNS, "svg");
+    svg.setAttribute("class", "scene");
+    svg.setAttribute("viewBox", viewBox(0));
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", label);
+    svg.innerHTML = `<g transform="scale(1 -1)"></g>`;
+    host.prepend(svg);
+    const g = svg.firstElementChild;
+    return {
+      svg,
+      draw(t, opt) {
+        g.innerHTML = markup(t, id, opt);
+        svg.setAttribute("viewBox", viewBox(opt.zoom ? inOut(prog(t, T.camA, T.camB)) : 0));
+      }
+    };
+  }
+
+  // ---- player ----------------------------------------------------------------------------
+  const $ = id => document.getElementById(id);
+  const main = makeScene($("stage"), "Die Wortmarke >_ PETER STIEG wird zum Monogramm P/S neben dem Prompt");
+  const keyEls = {}; document.querySelectorAll("[data-key]").forEach(el => { keyEls[el.dataset.key] = el; });
+  const opt = { zoom: true, guides: false, keys: true };
+  let t = 0, playing = false, speed = 1, last = 0;
+  const fmt = v => v.toFixed(1).replace(".", ",");
+  const BEATS = [
+    { t: 0.30, h: "Prompt", p: "„>_ PETER STIEG“ wie im Header der Website. Der Cursor blinkt, das > steht." },
+    { t: 2.50, h: "Markieren", p: "Zweimal Pfeil rechts, dann mit gedrückter Umschalttaste: „ETER “ ist markiert, in der Auswahlfarbe der Website." },
+    { t: 3.20, h: "Ersetzen", p: "Umschalt + 7 tippt einen schmalen / (deutsches Layout). Er ersetzt die Auswahl, „STIEG“ rückt nach." },
+    { t: 4.25, h: "Löschen", p: "Pfeil rechts, „TIEG“ markieren, Rücktaste. Übrig bleibt P/S." },
+    { t: 5.30, h: "Pos1", p: "Der Cursor springt an den Zeilenanfang, zurück ans >. Rot und Schwarz stehen nebeneinander." },
+    { t: T.end, h: "Enter", p: "P/S rückt zusammen, bis 50 vor den Cursor. Der / wird zum Spalt, das S steigt hinab, der Fuß wächst mit." }
+  ];
+  const beatScenes = [], beatEls = [];
+  BEATS.forEach((b, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<button type="button" class="beat" id="beat-${i + 1}"><div class="thumb"></div><h3><span class="n">${i + 1}</span>${b.h}</h3><p>${b.p}</p></button>`;
+    $("beats").appendChild(li);
+    const btn = li.firstElementChild;
+    const sc = makeScene(btn.querySelector(".thumb"), `Schritt ${i + 1}: ${b.h}`);
+    sc.svg.setAttribute("aria-hidden", "true");
+    sc.draw(b.t, { zoom: true, guides: false });
+    btn.addEventListener("click", () => { pause(); seek(b.t); });
+    beatScenes.push(sc); beatEls.push(btn);
+  });
+
+  // ---- the end state, measured: three times 50 -------------------------------------------
+  (function spec() {
+    const ln = (x1, y1, x2, y2, cls = "") =>
+      `<line${cls ? ` class="${cls}"` : ""} x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" vector-effect="non-scaling-stroke"/>`;
+    const tick = (x, y, a) => { const r = 16, q = a + Math.PI / 4; return ln(x - r * Math.cos(q), y - r * Math.sin(q), x + r * Math.cos(q), y + r * Math.sin(q)); };
+    const label = (x, y, s, anchor = "middle") => `<text x="${x.toFixed(1)}" y="${(-y).toFixed(1)}" text-anchor="${anchor}">${s}</text>`;
+    let d = "", txt = "";
+    const DY = -300;                                   // one row under the mark: > to _, _ to P
+    [[533, 583, 190, -150], [US_R, P_END + 44, -150, -135]].forEach(([a, b, ya, yb]) => {
+      d += ln(a, ya, a, DY - 40, "ext") + ln(b, yb, b, DY - 40, "ext");
+      d += ln(a - 70, DY, b + 70, DY) + tick(a, DY, 0) + tick(b, DY, 0);
+      txt += label((a + b) / 2, DY - 120, "50");
+    });
+    // P to S, square to the slash, above the mark
+    [GAP_C - GAP_H, GAP_C + GAP_H].forEach(c => { d += ln(P_END + lineX(c, 700), 700, P_END + lineX(c, 990), 990, "ext"); });
+    const Y = 900, ax = P_END + lineX(GAP_C - GAP_H, Y), ay = Y, bx = ax + 50 * SIN, by = Y - 50 * COS, ang = Math.atan2(-COS, SIN);
+    d += ln(ax - 70 * SIN, ay + 70 * COS, bx + 70 * SIN, by - 70 * COS) + tick(ax, ay, ang) + tick(bx, by, ang);
+    txt += label(bx + 110, by - 20, "50", "start");
+    $("spec").innerHTML = `<svg viewBox="-120 -1120 2280 1620" role="img" aria-label="Lockup >_ P/S mit Bemaßung: > bis _, _ bis P und P bis S je 50 Einheiten">` +
+      `<g transform="scale(1 -1)">${markup(T.end, "spec", { guides: false })}<g class="dim">${d}</g></g>${txt}</svg>`;
+  })();
+
+  function render() {
+    main.draw(t, opt);
+    const down = keysDown(t);
+    for (const k in keyEls) keyEls[k].classList.toggle("down", down.has(k));
+    $("scrub").value = Math.round(t * 1000);
+    $("time").textContent = `${fmt(t)} / ${fmt(T.end)} s`;
+    let cur = 0; BEATS.forEach((b, i) => { if (t >= b.t - 0.05) cur = i; });
+    beatEls.forEach((el, i) => { if (i === cur) el.setAttribute("aria-current", "step"); else el.removeAttribute("aria-current"); });
+  }
+  function seek(v) { t = clamp(v, 0, T.end); render(); }
+  function frame(now) {
+    if (!playing) return;
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    t += dt * speed;
+    if (t >= T.end) { t = T.end; playing = false; $("play").textContent = "Abspielen"; }
+    render();
+    if (playing) requestAnimationFrame(frame);
+  }
+  function play() {
+    if (t >= T.end) t = 0;
+    playing = true; $("play").textContent = "Pause";
+    last = performance.now(); requestAnimationFrame(frame);
+  }
+  function pause() { playing = false; $("play").textContent = "Abspielen"; }
+  $("play").addEventListener("click", () => playing ? pause() : play());
+  $("replay").addEventListener("click", () => { t = 0; render(); play(); });
+  $("scrub").addEventListener("input", e => { pause(); seek(e.target.value / 1000); });
+  document.querySelectorAll("[data-speed]").forEach(b => b.addEventListener("click", () => {
+    speed = +b.dataset.speed;
+    document.querySelectorAll("[data-speed]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  }));
+  $("opt-keys").addEventListener("change", e => { opt.keys = e.target.checked; $("keys").hidden = !opt.keys; });
+  $("opt-zoom").addEventListener("change", e => { opt.zoom = e.target.checked; render(); });
+  $("opt-guides").addEventListener("change", e => { opt.guides = e.target.checked; render(); });
+
+  // theme
+  const root = document.documentElement;
+  function setTheme(v) {
+    if (v === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", v);
+    document.querySelectorAll("[data-theme-set]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.themeSet === v)));
+    try { localStorage.setItem("ps-morph-theme", v); } catch (e) {}
+  }
+  document.querySelectorAll("[data-theme-set]").forEach(b => b.addEventListener("click", () => setTheme(b.dataset.themeSet)));
+  try { const v = localStorage.getItem("ps-morph-theme"); if (v) setTheme(v); } catch (e) {}
+
+  // start: play once, unless the viewer asked for less motion
+  const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (still) { seek(T.end); }
+  else { seek(0); setTimeout(() => { if (!playing && t === 0) play(); }, 700); }
+})();
+</script>

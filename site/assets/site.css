@@ -117,9 +117,17 @@ a:focus-visible, button:focus-visible {
   gap: 1.5rem; min-height: 3.5rem;
 }
 .home {
+  position: relative; flex: none;
   font-weight: 700; text-decoration: none; white-space: nowrap;
   font-size: 1rem;
 }
+/* logo: the lockup >_ P/S, 28 px tall – its clear space (one stem, 158 of 813 units: 5.4 px) is inside the
+   header's height and gaps. overflow: visible lets the wordmark reach out while it condenses (site.js). */
+.home .lockup { display: block; height: 1.75rem; width: auto; overflow: visible; }
+.lockup .acc { fill: var(--accent); }
+.lockup .ink { fill: var(--ink); }
+/* the wordmark the hero name docks into: measured, never shown – site.js draws it into the lockup instead */
+.home .word { position: absolute; left: 0; top: 50%; transform: translateY(-50%); visibility: hidden; pointer-events: none; }
 .home .caret { display: inline-block; color: var(--accent); margin-right: 0.45em; }
 .home .name { display: inline-block; text-transform: uppercase; letter-spacing: 0.055em; }
 .nav { display: flex; align-items: center; gap: 1.25rem; font-size: 0.95rem; }

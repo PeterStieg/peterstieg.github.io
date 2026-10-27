@@ -96,6 +96,7 @@
     const name = pairs[0];
     dist = Math.min(400, Math.max(120, name.y0 - headerBottom + 40));
     if (mode === "swap") dist = Math.max(0, name.bottom - headerBottom);
+    lockMeasure();
   };
 
   const dockApply = () => {
@@ -103,6 +104,7 @@
     const sy = window.scrollY;
     const done = sy >= dist;
     top.classList.toggle("docked", done);
+    if (done) condense(mode === "swap" ? 1 : (sy - dist) / CONDENSE);   // reduced motion: straight to the lockup
     if (mode === "swap") return;
     hero.classList.toggle("docked", done);
     const q = ease(Math.min(1, Math.max(0, sy / dist)));
@@ -117,6 +119,122 @@
     const o = Math.max(0, 1 - q * 1.8);
     fades.forEach((f) => { f.style.opacity = q ? String(o) : ""; });
   };
+
+  /* ---------- Lockup: once docked, the wordmark >_ PETER STIEG condenses into the logo >_ P/S while you keep
+     scrolling – the other letters drop out, P and S close up, the / becomes the gap, the S steps down one bar.
+     Drawn from the font's own outlines (Atkinson Hyperlegible Bold, 1000 units per em, y up), so the first frame
+     matches the header text and the last one the lockup in the page. The design is in src/lockup/. */
+  const logo = home && home.querySelector(".lockup");
+  const still = logo && logo.querySelector(".still");
+  const CONDENSE = 180;                                            // px of scroll from wordmark to lockup
+  const GLYPH = {
+    ">": "M40 -12V130L365 250L40 368V510L533 299V200Z",
+    "_": "M10 -128V0H420V-128Z",
+    "P": "M44 0V668H301Q388 668 456.5 650Q525 632 564.5 585Q604 538 604 450Q604 363 564.5 315.5Q525 268 456.5 250Q388 232 301 232H202V0ZM202 363H306Q343 363 372.5 370Q402 377 419.5 396Q437 415 437 450Q437 485 419.5 503.5Q402 522 372.5 528.5Q343 535 306 535H202Z",
+    "E": "M44 0V668H558V529H202V413H419V274H202V139H558V0Z",
+    "T": "M230 0V529H15V668H602V529H387V0Z",
+    "R": "M44 0V668H301Q388 668 456.5 651Q525 634 564.5 589Q604 544 604 461Q604 423 590 385.5Q576 348 541.5 317Q507 286 443 269L637 0H454L273 252H202V0ZM202 384H306Q362 384 399.5 398.5Q437 413 437 459Q437 506 399.5 520.5Q362 535 306 535H202Z",
+    "S": "M314 -12Q205 -12 130.5 32.5Q56 77 25 157L169 209Q183 161 221.5 138Q260 115 315 115Q344 115 371 121.5Q398 128 416 143.5Q434 159 434 185Q434 220 400 239.5Q366 259 312 269L231 285Q177 296 130.5 318.5Q84 341 56 378.5Q28 416 28 473Q28 527 53 566Q78 605 119.5 630Q161 655 211 667.5Q261 680 311 680Q365 680 415.5 665Q466 650 506 618.5Q546 587 567 535L424 483Q411 517 377.5 535Q344 553 297 553Q251 553 220.5 536.5Q190 520 190 489Q190 464 211 446Q232 428 266 421L356 403Q397 395 439 382.5Q481 370 516.5 349.5Q552 329 574 295Q596 261 596 209Q596 156 571.5 114.5Q547 73 506.5 45Q466 17 416 2.5Q366 -12 314 -12Z",
+    "I": "M57 0V124H151V544H57V668H401V544H309V124H401V0Z",
+    "G": "M352 -12Q254 -12 183 30.5Q112 73 73.5 151.5Q35 230 35 336Q35 442 78 519Q121 596 197.5 638Q274 680 375 680Q463 680 533.5 645Q604 610 644 542L508 486Q492 512 458.5 531Q425 550 373 550Q326 550 287 526Q248 502 225 454.5Q202 407 202 336Q202 231 250 174.5Q298 118 376 118Q413 118 447 128.5Q481 139 503 164Q525 189 525 231V250H375V378H683V0H579L557 74Q493 -12 352 -12Z"
+  };
+  const SL = Math.atan2(668, 261), SIN = Math.sin(SL), COS = Math.cos(SL);   // the font's "/": 68.66°
+  const HW = 50 / SIN;                                             // a "/" only 50 wide – as wide as the gap
+  const LS = 55, P_TXT = 1453, P_END = 999;                        // letter-spacing 0.055em · P in the text · P in the lockup
+  const ADV = { " ": 320, P: 626, E: 580, T: 617, R: 654, S: 619, I: 458, G: 719 };
+  const WORD = [];                                                 // "PETER STIEG" as the browser sets it
+  for (let i = 0, x = P_TXT, prev = ""; i < 11; i++) {
+    const ch = "PETER STIEG"[i];
+    if (prev === "E" && ch === "G") x -= 19;                       // the font's one kerning pair here
+    WORD.push([ch, x]);
+    x += ADV[ch] + LS; prev = ch;
+  }
+  const GAP_C = 350, GAP_H = 25;                                   // the gap: centre and half width, square to the /
+  const S_SLOT = 626 - 158;                                        // the S one stem under the bowl
+  const STEP = [-133 * 261 / 668, -133];                           // one bar (133) down the slash
+  const KT = 52 / 144;                                             // slope of the S's lower end, 19.86°
+  const SLASH_REL = 626 + LS, S_REL = SLASH_REL + 15 + 261 + HW + 15 + LS;   // "P/S" as text, relative to P
+  const S_WORD = WORD[6][1] - P_TXT;                               // the S of STIEG, relative to P
+  const lineX = (c, y) => (c + y * COS) / SIN;                     // x on a line at the slash angle
+  const SL_TXT = [[15, 0], [276, 668], [276 + HW, 668], [15 + HW, 0]].map(([x, y]) => [x + SLASH_REL, y]);
+  const SL_END = [[lineX(GAP_C - GAP_H, 0), 0], [lineX(GAP_C - GAP_H, 668), 668],
+    [lineX(GAP_C + GAP_H, 668), 668], [lineX(GAP_C + GAP_H, 0), 0]];
+  const clamp01 = (x) => Math.min(1, Math.max(0, x));
+  const sine = (x) => (1 - Math.cos(Math.PI * x)) / 2;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const pts = (P) => P.map(([x, y]) => x.toFixed(1) + "," + y.toFixed(1)).join(" ");
+  const halfPlane = (p1, p2, side) => {                            // everything on one side of the line p1–p2
+    const R = 40000, dx = p2[0] - p1[0], dy = p2[1] - p1[1], L = Math.hypot(dx, dy);
+    const ux = dx / L, uy = dy / L, nx = uy * side, ny = -ux * side;
+    const a = [p1[0] - ux * R, p1[1] - uy * R], b = [p1[0] + ux * R, p1[1] + uy * R];
+    return pts([a, b, [b[0] + nx * R, b[1] + ny * R], [a[0] + nx * R, a[1] + ny * R]]);
+  };
+  const foot = (w) => {                                            // the P's stem, grown to the S's lower end
+    const lift = 5.15 * (1 - w);
+    const x0 = 25 + S_SLOT + STEP[0] * w, y0 = 157 + STEP[1] * w + lift, y = (x) => y0 + (x - x0) * KT;
+    const yl = y(44), yr = y(202);
+    if (yl >= 0) return null;
+    if (yr >= 0) { const xz = x0 - y0 / KT; return [[44, 20], [xz, 20], [xz, 0], [44, yl]]; }
+    return [[44, 20], [202, 20], [202, yr], [44, yl]];
+  };
+
+  let cam0 = null, morph = null, lastV = -1;                       // cam0: the header text, in the lockup's units
+  const lockMeasure = () => {
+    cam0 = null; lastV = -1;
+    const word = home && home.querySelector(".word");
+    if (!logo || !word) return;
+    const box = logo.getBoundingClientRect(), k = box.height / 813;        // px per unit
+    const fs = parseFloat(getComputedStyle(word).fontSize);
+    const r = textRects(word.querySelector(".caret"))[0];
+    if (!r || !k) return;
+    // Range boxes start at the glyph origin and reach 950 units (the ascent) above the baseline
+    cam0 = { m: fs / 1000 / k, x: 40 + (r.left - box.left) / k, y: -668 + (r.top - box.top + 0.95 * fs) / k };
+  };
+
+  const condense = (v) => {
+    if (!logo) return;
+    v = clamp01(v);
+    if (v === lastV) return;
+    lastV = v;
+    const done = v >= 1 || !cam0;
+    still.style.display = done ? "" : "none";
+    if (morph) morph.style.display = done ? "none" : "";
+    if (done) return;
+    if (!morph) {
+      morph = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      morph.setAttribute("class", "morph");
+      logo.insertAdjacentHTML("afterbegin", "<defs>" + Object.keys(GLYPH)
+        .map((ch) => `<path id="lk-${ch === ">" ? "gt" : ch === "_" ? "us" : ch}" d="${GLYPH[ch]}"/>`).join("") + "</defs>");
+      logo.appendChild(morph);
+    }
+    const a = clamp01(v / 0.25);                                   // 0–25 %: the other letters fade out
+    const b = ease(clamp01((v - 0.2) / 0.3));                      // 20–50 %: the S closes up, the / appears – P/S
+    const u = ease(clamp01((v - 0.45) / 0.4));                     // 45–85 %: Enter – P/S slide together
+    const w = sine(clamp01((v - 0.8) / 0.2));                      // 80–100 %: the S steps down, the foot grows
+    const z = ease(clamp01((v - 0.4) / 0.6));                      // 40–100 %: from 16 px text to the 28 px lockup
+    const px = lerp(P_TXT, P_END, u);
+    const sRel = lerp(lerp(S_WORD, S_REL, b), S_SLOT, u);
+    const sl = SL_TXT.map((p, i) => [lerp(p[0], SL_END[i][0], u) + px, lerp(p[1], SL_END[i][1], u)]);
+    const k = 1 - clamp01((u - 0.55) / 0.35);                      // the / fades into the gap
+    const use = (id, x, y, extra = "") => `<use href="#lk-${id}" x="${x.toFixed(1)}" y="${y.toFixed(1)}"${extra}/>`;
+    let s = `<g class="acc">${use("gt", 0, 0)}${use("us", 573, 0)}</g><g class="ink">`;
+    s += `<clipPath id="lk-cp" clipPathUnits="userSpaceOnUse"><polygon points="${halfPlane(sl[0], sl[1], -1)}"/></clipPath>`;
+    s += `<clipPath id="lk-cs" clipPathUnits="userSpaceOnUse"><polygon points="${halfPlane(sl[3], sl[2], 1)}"/></clipPath>`;
+    s += `<g clip-path="url(#lk-cp)">${use("P", px, 0)}</g>`;
+    const f = foot(w);
+    if (f) s += `<polygon points="${pts(f.map(([x, y]) => [x + px, y]))}"/>`;
+    s += `<g clip-path="url(#lk-cs)">${use("S", px + sRel + STEP[0] * w, STEP[1] * w)}</g>`;
+    if (a < 1) WORD.forEach(([ch, x], i) => {                      // E T E R and T I E G – the S's companions move with it
+      if (i === 0 || i === 6 || ch === " ") return;
+      s += use(ch, x + (i > 6 ? sRel - S_WORD : 0), 0, ` opacity="${(1 - a).toFixed(3)}"`);
+    });
+    if (b * k > 0.002) s += `<polygon points="${pts(sl)}" opacity="${(b * k).toFixed(3)}"/>`;
+    s += "</g>";
+    const m = Math.pow(cam0.m, 1 - z);                             // zoom: geometric, so it feels even
+    morph.setAttribute("transform", `translate(${(cam0.x * (1 - z)).toFixed(2)} ${(cam0.y * (1 - z)).toFixed(2)}) scale(${m.toFixed(4)} ${(-m).toFixed(4)})`);
+    morph.innerHTML = s;
+  };
+
 
   /* ---------- Minimap: the page drawn as code lines, like the LinkedIn banner – click or drag to navigate. */
   const rail = document.querySelector(".minimap");

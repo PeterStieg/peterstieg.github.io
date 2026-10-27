@@ -15,14 +15,15 @@ Why the site looks and reads the way it does. Newest first within each topic; ch
 - **Certificates:** two separate bootcamps (Data Scientist 02–05/2025, MLOps Engineer 05–07/2025), each with a footnote linking the verification page from the diploma's QR code and the course page.
 - **More proof:** the IHK certificate (2023, with distinction – as stated on the certificate page) and the edX course "Introduction to Artificial Intelligence" by Microsoft (2018) carry footnotes to their verification pages too. The capstones link their Streamlit demos next to GitHub. E+SERVICE+CHECK, Brandible and Posterlounge link their websites. Every new link target is named in the privacy statement.
 - **Offline:** Leipzig, before that Rome, Trento, Jinotega (Nicaragua), Orem (Utah).
-- **Not on the site:** recommendations as quotes, photo, logo (both pending).
+- **Not on the site:** recommendations as quotes, photo (pending).
 
 ## Design
 
 - **Typeface:** Atkinson Hyperlegible, self-hosted, no font service.
 - **Colour:** bordeaux as the only accent (prompt, focus, footnotes, hover). Light and dark themes with the same structure.
 - **Hero:** same order as the LinkedIn banner – name, tagline, claim, prompt `>_ sudo dream plan ship`.
-- **Docking:** while scrolling, PETER STIEG and `>_` travel into the header logo, so the name is visible once. Reduced motion: instant swap.
+- **Logo:** the lockup `>_ P/S` ("Ein Takt", decided 25.10.2026) in the header, 28 px tall, inline so it follows light and dark. Source and generator in `src/lockup/`. The monogram alone is for favicon, avatar and CV.
+- **Docking:** while scrolling, PETER STIEG and `>_` travel into the header as the wordmark `>_ PETER STIEG`, so the name is visible once. Scrolling on (180 px), the wordmark condenses into the lockup – the closing step of `src/lockup/animation/ps-morph.html`, scroll-driven and reversible. Reduced motion: the lockup appears instantly.
 - **Minimap:** on wide screens, the page drawn as code lines like the banner; click or drag to jump.
 - **Back to top:** the docked logo and a round button (under the minimap on wide screens) appear once the name has docked.
 - **Four chapters, like the parts of a slide deck:** 01 Profile (with P⁴), 02 Experience (with Education), 03 Projects (with Approach), 04 Contact (with Sources). The number stands in front of the chapter's heading, in the accent colour and regular weight; the sections inside a chapter carry the same number invisibly, so all titles line up like an outline. Education moved up behind Experience for this.

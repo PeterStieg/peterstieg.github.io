@@ -262,17 +262,21 @@ The content of the block, indented for reading (in the file it is one line):
 ```html
 <header class="top">
 <div class="wrap">
-<a class="home" href="#top"><span class="caret" aria-hidden="true">&gt;_</span><span class="name">Peter Stieg</span></a>
+<a class="home" href="#top"><span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">Peter Stieg</span></span><svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="40 -668 1971.03 813" role="img" aria-label="Peter Stieg"><g class="still"><path style="fill:var(--accent,#7A1A2C)" d="…"/><path style="fill:var(--ink,#1A1C1E)" d="…"/></g></svg></a>
 ```
 
 - `<header>` – directly inside `<body>`, it becomes the page's banner landmark. Screen readers keep a list of landmarks (banner, navigation, main, regions, contentinfo) and let the user jump between them, the way a sighted reader scans a layout.
 - `class="top"` – the hook for CSS: sticky position, translucent background, a hairline that appears once the page scrolls.
 - `<div class="wrap">` – no meaning, only layout: maximum width and side padding. The same wrapper sits in `<main>` and `<footer>`, so all three align.
 - `<a class="home" href="#top">` – the logo links to the hero section (`id="top"`), not to `index.html`. On a one-page site, "home" means "back to the beginning" and needs no reload. A side note: `#top` would scroll to the top even without an element of that id, because the HTML specification treats the fragment `top` specially. Here the id exists, so the browser scrolls to the hero.
-- `<span class="caret" aria-hidden="true">&gt;_</span>` – the terminal prompt `>_`. `&gt;` is the escaped `>`; `build.py` escapes it with Python's `html.escape`, and the browser shows `>`. `aria-hidden="true"` removes the span from the accessibility tree, so a screen reader does not say "greater than underscore" before the name.
-- `<span class="name">Peter Stieg</span>` – the name. The capitals on screen come from CSS (`text-transform: uppercase`); the source keeps normal case. The link's accessible name is "Peter Stieg".
-- No whitespace between the two spans: inside an inline element like `<a>`, a space or line break would render as a visible space. The gap comes from a CSS margin on `.caret` instead.
-- Docking: `site.js` moves the large hero name into this logo while you scroll. Until the name has arrived, the logo has `visibility: hidden`, which also takes it out of the tab order and the accessibility tree. That is intended: at that point the hero name is visible.
+- **The logo** is the lockup `>_ P/S`, an inline `<svg>`: the prompt `>_` and the P/S monogram, built from the outlines of the site's own font (`src/lockup/`). Inline rather than an `<img>`, because only inline SVG can take its colours from the page's CSS variables: `fill:var(--accent,#7A1A2C)` paints the prompt Bordeaux, `fill:var(--ink,#1A1C1E)` the letters – and both switch with the theme. The second value in `var()` is the fallback if the variable is missing.
+- `viewBox="40 -668 1971.03 813"` – the drawing in font units: it starts at x = 40 (where the `>` begins) and y = −668 (the top of the P, since SVG's y axis points down), 1971 wide and 813 tall. The CSS sets the height to 28 px; the width follows from the ratio, 2.42 : 1.
+- `role="img"` and `aria-label="Peter Stieg"` – to screen readers the drawing is one image with that name, and it gives the link its name: "Peter Stieg, link".
+- `<g class="still">` – a group around the two paths, so `site.js` can hide them while it draws the condensing wordmark into the same SVG.
+- `<span class="word" aria-hidden="true">` – the previous logo, `>_ PETER STIEG`, kept as text. It is never shown (`visibility: hidden` in the CSS) and hidden from screen readers; it marks where the flying hero name lands, so the script can measure it.
+  - Inside it: `<span class="caret">&gt;_</span>` – the prompt, `&gt;` being the escaped `>` – and `<span class="name">Peter Stieg</span>`, whose capitals come from CSS (`text-transform: uppercase`).
+  - No whitespace between the spans: inside an inline element, a space or line break would render as a visible space and shift the letters the script measures.
+- Docking: `site.js` moves the large hero name into the wordmark's place while you scroll; scrolling on, the wordmark condenses into the lockup. Until the name has arrived, the whole logo has `visibility: hidden`, which also takes it out of the tab order and the accessibility tree. That is intended: at that point the hero name is visible.
 
 ### Navigation
 
@@ -721,7 +725,7 @@ The no-break space works across the tag boundary: "GmbH" and "·" stay on one li
 ```
 
 ```html
-<a class="home" href="/index.html"><span class="caret" aria-hidden="true">&gt;_</span><span class="name">Peter Stieg</span></a>
+<a class="home" href="/index.html"><svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="40 -668 1971.03 813" role="img" aria-label="Peter Stieg"><g class="still">…</g></svg></a>
 <nav class="nav" aria-label="Main"><span class="themes" role="group" aria-label="Theme">…</span></nav>
 …
 <main id="main">
@@ -779,9 +783,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-23</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-25</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-23</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-25</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```
