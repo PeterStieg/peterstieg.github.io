@@ -27,7 +27,7 @@ One colour per use. No gradients, outlines or shadows.
 
 ## Where it goes
 
-- Mark alone: favicon, avatar, CV footer, profile images.
+- Mark alone: favicon, avatar, document footers, profile images.
 - With the wordmark: `lockup-light`, `lockup-dark`. The P stands at twice the cap height of `>_ PETER STIEG`, the mark is centred as a whole on the text's cap height, gap 0.9 em.
 - The site header works as the wordmark alone.
 
