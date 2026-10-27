@@ -74,7 +74,7 @@ The same code, indented for reading (`build.py` writes it on one line, from the 
 
 - `(function () { … })()` – an IIFE ("immediately invoked function expression"): a function that is defined and called in one go. The outer parentheses make the parser read `function` as an expression instead of a declaration; the final `()` calls it. Its purpose is scope: variables declared inside, such as `t`, exist only within the function. A plain `var t` at the top level of a script would land on the global object as `window.t`, where any other script could overwrite or read it.
 - `document.documentElement` – the `<html>` element.
-- `.classList.add('js')` – turns it into `<html lang="en" class="js">`. CSS uses the class to tell "JavaScript runs" from "JavaScript is off": `html:not(.js) .themes` hides the theme buttons (without JavaScript they would do nothing), `html:not(.js) .to-top` shows the back-to-top button permanently.
+- `.classList.add('js')` – turns it into `<html lang="en" class="js">`. CSS uses the class to tell "JavaScript runs" from "JavaScript is off": `html:not(.js) .themes` hides the theme buttons (without JavaScript they would do nothing), `html:not(.js) .jump .down` hides the down link of the jump control, which only the script can point at the right section.
 - `localStorage.getItem('theme')` – reads the theme a visitor picked on an earlier visit. `site.js` stores it when someone clicks a theme button.
 - `if (t === 'light' || t === 'dark')` – accepts only the two known values. Anything else (empty, outdated, edited by hand) is ignored, and the page follows the system setting.
 - `setAttribute('data-theme', t)` – writes `data-theme="dark"` or `data-theme="light"` on `<html>`. The CSS has rules for `:root[data-theme="dark"]` and `:root:not([data-theme="light"])`, so this one attribute switches every color variable at once.
@@ -160,13 +160,20 @@ LinkedIn's preview is built from `og:title`, `og:description`, `og:image` and `o
 ### Icons
 
 ```html
+<link rel="icon" href="favicon.ico" sizes="48x48">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
 ```
 
-- `rel="icon"` with an SVG file – a vector favicon stays sharp at every size and can switch colors in dark mode (see `favicon.svg` at the end of this chapter). `type="image/svg+xml"` lets a browser that cannot use SVG icons skip the file.
-- `rel="apple-touch-icon"` – the icon iOS shows when someone adds the page to the home screen. iOS does not take SVG here, so it is a 180 × 180 px PNG.
-- Relative paths – `favicon.svg` resolves against the page's own address. The German page, one folder deeper, writes `../favicon.svg`. `build.py` handles this with the value `root` per language (`""` or `"../"`). Relative paths make the site work anywhere: on the domain, in a subfolder, or opened straight from disk. The 404 page is the exception, for reasons explained there.
+Four lines for four kinds of reader. All of them show the same mark, the PS monogram (see `favicon.svg` at the end of this chapter).
+
+- `rel="icon"` with `favicon.ico` – the classic format: one file that holds several bitmaps, here 16, 32 and 48 px. It serves browsers that cannot use an SVG icon – Safari before version 26, older browsers – and tools that ask for `/favicon.ico` without reading the HTML at all, such as some feed readers. Its 16 and 32 px images are drawn by hand on the pixel grid, so the small sizes stay crisp instead of blurring.
+- `sizes="48x48"` – the largest image in the file. The attribute also steers the choice between the two icons: Chrome, given an ICO marked `sizes="any"` (an older recommendation), takes it over the SVG. With a concrete size, the scalable SVG is the better match.
+- `rel="icon"` with `favicon.svg` – the vector icon for Chrome, Edge, Firefox and Safari from version 26. It stays sharp at every size and on every screen density, and it switches colour in dark mode. `type="image/svg+xml"` lets a browser that cannot use SVG icons skip the file without downloading it.
+- `rel="apple-touch-icon"` – the icon iOS and iPadOS show when someone adds the page to the home screen. iOS does not take SVG here, so it is a 180 × 180 px PNG: the monogram on an opaque, paper-coloured square. iOS rounds the corners itself.
+- `rel="manifest"` – the web app manifest, a small JSON file with the site's name and two larger icons. Android reads it when someone adds the page to the home screen (see `site.webmanifest` under "The other files").
+- Relative paths – `favicon.svg` resolves against the page's own address. The German page, one folder deeper, writes `../favicon.ico`, `../favicon.svg`, `../apple-touch-icon.png` and `../site.webmanifest`. `build.py` handles this with the value `root` per language (`""` or `"../"`). Relative paths make the site work anywhere: on the domain, in a subfolder, or opened straight from disk. The 404 page is the exception, for reasons explained there.
 
 ### Font preload and stylesheet
 
@@ -183,7 +190,7 @@ Without a hint, a web font is discovered late: the browser downloads the HTML, t
 - `type="font/woff2"` – a browser that cannot read WOFF2 skips the preload instead of wasting bandwidth.
 - `crossorigin` – the non-obvious one. Fonts are always requested in CORS mode, even from your own server; the CSS Fonts specification demands it. A preload without `crossorigin` is made in "no-cors" mode. The two requests differ in mode, the browser treats them as different resources, and the font is downloaded twice – Chrome then warns in the console that a preloaded resource was not used. The bare attribute means `crossorigin="anonymous"`: CORS mode without cookies, exactly what `@font-face` does.
 - Only two of the three font files are preloaded: bold (name, headings, ledger figures) and regular (body text). The italic appears only in a few words of the dictionary entry and loads on demand. Every preload competes with the stylesheet for bandwidth, so preloads are limited to what the first screen needs.
-- `rel="stylesheet"` – the CSS, one file of about 16 KB, no third-party styles. It is render-blocking: the browser paints nothing until it has arrived, which prevents a flash of unstyled content.
+- `rel="stylesheet"` – the CSS, one file of about 23 KB, no third-party styles. It is render-blocking: the browser paints nothing until it has arrived, which prevents a flash of unstyled content.
 
 ### Structured data: JSON-LD
 
@@ -332,18 +339,6 @@ The content of the block, indented for reading (in the file it is one line):
 - Without JavaScript the whole group is hidden (`html:not(.js) .themes`): a button that cannot work should not be offered.
 - Strictly, `<nav>` is meant for navigation links; the theme buttons sit inside it because they share the header row. Screen readers cope with this without problems.
 
-### Back to top
-
-```html
-<a class="to-top" href="#top" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 13.5V2.8M3.4 7.2 8 2.6l4.6 4.6"/></svg></a>
-```
-
-- A plain link to `#top`, so it works without JavaScript. Smooth scrolling comes from CSS (`scroll-behavior: smooth`, only when the visitor has not asked the operating system to reduce motion).
-- `aria-label` – an icon-only link needs a name, same reasoning as the theme buttons. German: "Nach oben".
-- The path: `M8 13.5V2.8` draws the shaft from bottom to top; `M3.4 7.2 8 2.6l4.6 4.6` draws the arrowhead. How the coordinates after `M` work is explained with the arrow in the Profile section.
-- CSS fixes the button to the bottom-right corner and fades it in only once the name has docked into the header. Without JavaScript it is always visible.
-- It sits between `</header>` and `<main>`, outside any landmark. In the tab order it therefore comes right after the header, although it appears at the bottom of the screen. While it is invisible (`visibility: hidden`), Tab skips it.
-
 ### Minimap
 
 ```html
@@ -376,7 +371,7 @@ The content of the block, indented for reading (in the file it is one line):
 ```
 
 - `<section>` without a name – a section becomes a region landmark only when it has an accessible name (`aria-label` or `aria-labelledby`). The hero has none on purpose: it opens `<main>`, which is already a landmark, and its `<h1>` is the first thing a screen reader meets there. A name would only make the screen reader say "Peter Stieg" twice – once for the region, once for the heading.
-- `id="top"` – the target of the logo and the back-to-top link.
+- `id="top"` – the target of the logo and of the jump control's up link, as long as there is no section above to go to (and always without JavaScript).
 - `<h1>` – the one top-level heading. Search engines read it as the page's main topic; screen-reader users reach it with a single key (H or 1 in most screen readers). Once the name has docked into the header, the CSS fades this `<h1>` out with `opacity: 0` (plus `pointer-events: none`, so it cannot be clicked or selected while invisible). Unlike `visibility: hidden` or `display: none`, opacity leaves the element in the accessibility tree: heading navigation still finds the `<h1>` while the page is scrolled down.
 - `<p class="tagline" lang="en">` – three `&nbsp;` keep "Performance Marketing" and "Data Science" together and glue the middle dot to "Marketing". On a narrow phone the line can only break after the dot. `build.py` inserts the first two in the hero template; `dots()` adds the one before the dot. `lang="en"` marks the tagline as an English brand element, which matters on the German page.
 - `<p class="claim" lang="en">` – the claim. `lang="en"` is redundant on the English page and essential on the German one (see "English inside the German page").
@@ -403,9 +398,10 @@ Every content section comes from this template (function `section()` in `build.p
 - `<section>` – a thematic group with its own heading.
 - `id="profile"` – the target for `#profile` links.
 - `aria-labelledby="h-profile"` – names the region after its heading, so the screen reader's landmark list reads "Profile, Experience, Projects …". It points to the heading's id instead of repeating the text in `aria-label`: the name always matches the visible heading, and it is translated along with it (some browser translation tools leave `aria-label` untranslated).
+- One variant: when the heading carries a toggletip (Projects), `section()` points `aria-labelledby` at a span around the title instead of the whole heading. Why is explained under "Projects".
 - `<span class="no" aria-hidden="true">01</span>` – the chapter number, like the parts of a slide deck. The page has four chapters: 01 Profile, 02 Experience, 03 Projects, 04 Contact. `aria-hidden` keeps the number out of what screen readers announce, so the region is still named "Profile", not "01 Profile".
 - The sections inside a chapter repeat its number with a second class, `<span class="no ghost" aria-hidden="true">01</span>` on P⁴. The CSS makes it invisible; it only keeps the space, so the title lines up with the chapter's title.
-- `<h2 id="h-profile">` – the heading, with the id the section points to. Heading levels form an outline: `h1` (name) → `h2` (sections) → `h3` (roles, fields, project groups) → `h4` (single projects). Screen-reader users move through this outline the way sighted users skim bold text.
+- `<h2 id="h-profile">` – the heading, with the id the section points to. Heading levels form an outline: `h1` (name) → `h2` (sections) → `h3` (roles, fields, project groups) → `h4` (single projects, and the five positions behind "All five positions"). Screen-reader users move through this outline the way sighted users skim bold text.
 - `<div class="body">` – the content column next to the sticky heading (CSS grid). No meaning.
 - The eight sections make eight region landmarks. That makes the landmark list longer; in exchange, every section is one keystroke away.
 
@@ -433,10 +429,10 @@ The section opens with the word "marketinkerer", set like an entry in a dictiona
 ```html
 <p>Leadership roles at four companies, … Université Paris 1 Panthéon-Sorbonne.</p>
 <dl class="ledger" aria-label="Selected results">
-<div><dt>€6k <span class="arr" role="img" aria-label="to"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg></span> €240k</dt><dd>monthly media budget at a RoAS of 4.0&nbsp;· Posterlounge</dd></div>
-<div><dt>17 shops</dt><dd>in 12 languages across the European Economic Area&nbsp;· Posterlounge</dd></div>
-<div><dt>RoAS 7.6 <span class="arr" role="img" aria-label="to">…</span> 7.8</dt><dd>on a €1.7m media budget, while spend grew&nbsp;· Brandible</dd></div>
-<div><dt>&gt; 2×</dt><dd>inbound inquiries year over year&nbsp;· E+SERVICE+CHECK</dd></div>
+<div><dt>€6k <span class="arr" role="img" aria-label="to"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg></span> €240k</dt><dd>monthly media budget at a RoAS of 4.0&nbsp;· <a href="#posterlounge">Posterlounge</a></dd></div>
+<div><dt>17 shops</dt><dd>in 12 languages across Europe&nbsp;· <a href="#posterlounge">Posterlounge</a></dd></div>
+<div><dt>RoAS 7.6 <span class="arr" role="img" aria-label="to">…</span> 7.8</dt><dd>on a €1.7m media budget, while spend grew&nbsp;· <a href="#brandible">Brandible</a></dd></div>
+<div><dt>&gt; 2×</dt><dd>inbound inquiries year over year&nbsp;· <a href="#e-service-check">E+SERVICE+CHECK</a></dd></div>
 </dl>
 ```
 
@@ -447,6 +443,13 @@ The section opens with the word "marketinkerer", set like an entry in a dictiona
 - `<dt>€6k … €240k</dt>` – the figure. `<dd>` – what it means and where.
 - `&gt; 2×` – the escaped `>`, then the multiplication sign: "more than twice".
 - `&nbsp;·` – the middle dot glued to the word before it (see "Non-breaking spaces and middle dots").
+
+The company link:
+
+- `<a href="#posterlounge">Posterlounge</a>` – every result ends with its company, and the name leads to that company's role under Experience, `<li class="role" id="posterlounge">`. The figure makes the claim; one click further are the team, the scope and the years behind it.
+- In `build.py` a ledger row is a tuple of figure, text and company key; the map `COMPANIES` turns the key into the name shown (see 01-build). Two rows name Posterlounge and lead to the same role: same link text, same target.
+- The ids are the same on both pages (`#posterlounge`, not translated like the section ids): a company has one name in every language.
+- After the jump, the CSS sets the dates and the title of the targeted role in the accent colour (`.role:target`), so you see where you landed – the same idea as the highlighted footnote under Sources.
 
 The drawn arrow:
 
@@ -468,11 +471,10 @@ The drawn arrow:
 <section class="sec" id="fields" aria-labelledby="h-fields">
 <h2 id="h-fields"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
-<p class="intro">P as in Peter.</p>
 <div class="fields">
 <div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO and marketplaces. Steered by cost per inquiry, quote and order.</p></div>
 …
-<div><h3>People</h3><p>Teams of up to six, … Processes fit people, not the other way round. <strong lang="en">Everything human:e.</strong></p></div>
+<div><h3>People<button type="button" class="info" popovertarget="tip-people" aria-label="Info">i</button><span class="tip" id="tip-people" popover>Processes fit people, not the other way round.</span></h3><p>Teams of up to six, … <strong lang="en">Everything human:e.</strong></p></div>
 </div>
 </div>
 </section>
@@ -480,21 +482,31 @@ The drawn arrow:
 
 - `id="fields"` – not linked from the navigation, but addressable. German: `p-wie-peter`.
 - `P<sup>4</sup>` – "P to the power of four" for the four Ps. `<sup>` is meant for typographic conventions that need superscript (exponents, footnote marks), so this is correct use. Screen readers usually ignore the superscript and say "P4"; that is also the section's name in the landmark list.
-- `<p class="intro">` – a one-line lead-in.
-- `<div class="fields">` – a 2 × 2 grid on wider screens. Four `<div>`s, each with an `<h3>` and a `<p>`. Not a list: each block stands on its own with a heading, and headings are more useful for navigation than list items.
+- `<div class="fields">` – the section starts straight with its grid: 2 × 2 on wider screens. Four `<div>`s, each with an `<h3>` and a `<p>`. Not a list: each block stands on its own with a heading, and headings are more useful for navigation than list items.
 - `<strong lang="en">Everything human:e.</strong>` – `<strong>` means strong importance (`<b>` would be visual only). The colon in "human:e" belongs to the slogan; it is not a typo.
 - On the German page the four `<h3>` carry `lang="en"`, because the four Ps stay English.
+
+The toggletip after "People", piece by piece:
+
+- A toggletip is the click-to-open relative of the tooltip: a small "i" after the heading, and a note that opens on a click, a tap or Enter. Unlike a tooltip it needs no hovering, so it works on touch screens and with the keyboard. The principle "Processes fit people, not the other way round." waits behind the i instead of standing in the running text.
+- `<button type="button" class="info">i</button>` – a real button: focusable, operated with Enter and Space. The CSS sets the letter like a footnote number: small, raised, in the accent colour.
+- `popovertarget="tip-people"` – the HTML popover API. A button with this attribute opens and closes the element with that id. It is declared in HTML; no JavaScript is involved. Browsers also report to assistive technology whether the popover is open, as an expanded or collapsed button.
+- `aria-label="Info"` – the button's name. Without it, a screen reader would announce the bare letter: "i, button". The value is the UI string `info` in `build.py`, "Info" in both languages.
+- `<span class="tip" id="tip-people" popover>` – the note. The bare attribute `popover` means `popover="auto"`: hidden until opened (the browser's default style is `display: none`), and once open it sits in the top layer, above everything else on the page, whatever the `z-index` or `overflow` of its ancestors. "Auto" also brings light dismiss: a click outside or Esc closes it, and opening another popover of this kind closes the first.
+- Inside the `<h3>` – a heading may contain phrasing content such as `<button>` and `<span>`. The note follows its button directly, so in reading order it comes right after the i. While closed it is not rendered, so it is neither seen nor read as part of the heading.
+- Placement: the browser's default style centres an open popover in the window. `site.js` moves it next to the i and keeps it there while the page scrolls (see 04-js). In a browser without popover support, the CSS hides the i and shows the note as a muted line of text under the title (see 03-css).
+- `lang` – on the German page the heading carries `lang="en"`, and the note inside it would inherit English. The note is German, so it switches back: `<span class="tip" id="tip-people" popover lang="de">Prozesse passen zu Menschen, nicht umgekehrt.</span>`. The function `info()` in `build.py` takes the note's language and writes it only where it differs from the heading's. On the English page the note simply inherits English.
 
 ### Experience: a reversed timeline
 
 ```html
 <ol class="roles" reversed>
-<li class="role">
+<li class="role" id="e-service-check">
 <p class="when">since 11/2025</p>
 <div>
 <h3>Head of Marketing</h3>
 <p class="org"><a href="https://www.e-service-check.de/">E+SERVICE+CHECK GmbH</a>&nbsp;<span class="place">· Laucha</span></p>
-<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Scope</span> marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
+<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team</span> functional lead for content, marketing and project management</li><li><span class="k">Scope</span> marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
 </div>
 </li>
 …
@@ -504,9 +516,9 @@ The drawn arrow:
 Nine entries; the first stands for all.
 
 - `<ol>` – an ordered list, because the order carries meaning: it is a timeline. A `<ul>` would say "these items could come in any order".
-- `reversed` – the numbering counts down: the newest entry is number 9, the oldest number 1. The list runs newest-first like a CV, so this is the honest numbering. The CSS hides the numbers (`list-style: none`); you see them only if the stylesheet fails to load.
+- `reversed` – the numbering counts down: the newest entry is number 9, the oldest number 1. The list runs newest-first, so this is the honest numbering. The CSS hides the numbers (`list-style: none`); you see them only if the stylesheet fails to load.
 - A known quirk: Safari has, in many versions, stopped announcing lists as lists in VoiceOver once CSS sets `list-style: none`. The usual fix is `role="list"` on the list. It applies to all unstyled lists on this page.
-- `<li class="role">` – one position.
+- `<li class="role" id="e-service-check">` – one position. The `id` makes it a link target: three roles carry one – E+SERVICE+CHECK, Brandible and Posterlounge, the three companies the ledger in the Profile links to. The value comes from the role's `id` field in `build.py`; the other roles have none.
 - `<p class="when">` – the period, in the left column on wide screens.
 - `<div>` – groups everything else into the right column, so the CSS grid gets exactly two columns: date | details.
 - `<h3>` – the job title. As a heading, every role is reachable through heading navigation.
@@ -515,24 +527,62 @@ Nine entries; the first stands for all.
 - `<p class="ctx">` – one line of company context. Optional: `build.py` emits it only for roles that have a `ctx`, and the `place` span only for roles that have a place (Rapidobject has none).
 - `<ul class="tree">` – the details as an unordered list, styled like the output of the Unix `tree` command – the format of the #JobAlert posts. The branches `├──` and `└──` are not characters in the HTML but CSS borders on `::before` and `::after`. They align in any font, and screen readers do not read out box-drawing characters.
 - `<span class="k">Scope</span>` – the key. CSS sets it bold and adds the colon via `content: ":"`. Screen readers generally read such generated content, so they say "Scope: marketing, design …". On the German page the keys carry `lang="en"` – Scope, Team, Result are brand vocabulary.
-- Variants among the nine entries: some have no `ctx`, one has no place, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items.
+- The same three keys, in the same order, wherever there are facts for them: Team (who), Scope (what), Result (what came of it). Someone comparing two roles finds the same kind of fact in the same place. What is none of the three goes into the `ctx` line – at Posterlounge, the path from SEA Manager in 2017 to Head of Marketing in 2021. For the two Liora certifications, Scope is the curriculum and Result the certificate with its capstone project.
+- Variants among the nine entries: some have no `ctx`, one has no place, some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. The last entry holds five more positions behind a disclosure.
+
+### Experience: five positions behind a disclosure
+
+```html
+<li class="role">
+<p class="when">2010 – 2014</p>
+<div>
+<h3>Marketing, market research, export</h3>
+<p class="org">Five companies&nbsp;<span class="place">· Rome</span></p>
+<ul class="tree"><li><span class="k">Scope</span> export promotion, brand protection, competitive intelligence, web marketing</li></ul>
+<details class="more">
+<summary>All five positions</summary>
+<ol class="roles">
+<li class="role">
+<p class="when">04/2014 – 08/2014</p>
+<div>
+<h4>Marketing Consultant</h4>
+<p class="org">SBS systems for business solutions Srl&nbsp;<span class="place">· Rome</span></p>
+<ul class="tree"><li><span class="k">Scope</span> export promotion projects for small and medium-sized companies on behalf of the German Federal Ministry for Economic Affairs</li></ul>
+</div>
+</li>
+…
+</ol>
+</details>
+</div>
+</li>
+```
+
+The years 2010 to 2014 stay one entry in the timeline: five short positions, summed up as "Five companies" with one Scope line. The single positions are there for anyone who wants them, without making the timeline longer for everyone else.
+
+- `<details class="more">` – HTML's built-in disclosure widget. Closed, it shows only its `<summary>`; a click, Enter or Space opens it, and the browser announces the summary as a control that is collapsed or expanded. No JavaScript, no ARIA. The content of a closed `<details>` is not rendered, so screen readers skip it too until it is opened.
+- `<summary>All five positions</summary>` – the label of the toggle, as visible text. Browsers draw a small triangle in front of it; the CSS replaces that with a chevron that turns down when the disclosure is open. German: "Alle fünf Stationen".
+- `<ol class="roles">` – the five positions with the same markup as the timeline around them: the function `role()` in `build.py` writes one role and, for the entries under its `more` key, calls itself. Same classes, same CSS, adjusted inside `.more`. Unlike the outer list, this one is not `reversed`; with the numbers hidden, that only shows if the stylesheet fails.
+- `<h4>` – one level below the entry's `<h3>`. The outline reads: Experience (h2) → Marketing, market research, export (h3) → Marketing Consultant (h4).
+- One of the five, the corporate investigations at Inner Valor, has no tree. For a role without rows, `tree()` returns an empty string, which leaves a blank line in the HTML. Whitespace between block elements renders nothing.
+- Opening the disclosure makes the page taller, so `site.js` redraws the minimap on the `toggle` event. For printing, it opens the closed ones before and closes them again afterwards (`beforeprint`, `afterprint`), so paper shows all five; see 04-js.
 
 ### Education and footnote references
 
 ```html
 <dl class="facts">
 <div><dt>2025</dt><dd>Data Scientist<sup class="fnref"><a href="#fn-ds" id="ref-ds" aria-describedby="h-notes">1</a></sup>&nbsp;· MLOps Engineer<sup class="fnref"><a href="#fn-mlops" id="ref-mlops" aria-describedby="h-notes">2</a></sup><br><span class="muted">Liora in partnership with Université Paris 1 Panthéon-Sorbonne</span></dd></div>
-<div><dt>2023</dt><dd>Agile project management specialist (IHK)<sup class="fnref"><a href="#fn-ihk" id="ref-ihk" aria-describedby="h-notes">3</a></sup><br><span class="muted">with distinction</span></dd></div>
+<div><dt>2023</dt><dd>Agile project management specialist<sup class="fnref"><a href="#fn-ihk" id="ref-ihk" aria-describedby="h-notes">3</a></sup><br><span class="muted">IHK</span></dd></div>
 <div><dt>2018</dt><dd>Introduction to Artificial Intelligence<sup class="fnref"><a href="#fn-edx" id="ref-edx" aria-describedby="h-notes">4</a></sup><br><span class="muted">Microsoft on edX</span></dd></div>
 <div><dt>2010</dt><dd>Bachelor’s degree in economics<br><span class="muted">Università degli Studi di Trento</span></dd></div>
-<div><dt>Languages</dt><dd>German (native)&nbsp;· English C2&nbsp;· Italian C2&nbsp;· Spanish B1&nbsp;· French A2</dd></div>
+<div><dt>Languages</dt><dd><ul class="lines"><li>German (native)</li><li>English C2</li><li>Italian C2</li><li>Spanish B1</li><li>French A2</li></ul></dd></div>
 </dl>
 ```
 
 - `<dl class="facts">` – the description-list pattern from the ledger: year (or "Languages") → what.
 - `<br>` – a line break that belongs to the content: the institution goes on its own line.
-- `<span class="muted">` – grey text, no meaning.
+- `<span class="muted">` – grey text, no meaning. It holds the issuer under each title: Liora, IHK, Microsoft on edX, the university. The 2023 certificate follows the same pattern, so "IHK" stands on the second line instead of in brackets after the title. The note under Sources and the JSON-LD keep the certificate's full name, "Agile project management specialist (IHK)".
 - `’` in "Bachelor’s" – a typographic apostrophe, not the straight `'`.
+- `<ul class="lines">` inside the `<dd>` – one language per line. A `<dd>` may contain any flow content, lists included. Five languages are five items of the same kind, so they form a list: a screen reader announces "list, 5 items" and can step through them. In `build.py` a facts value may be a list, which becomes this `<ul>`. The CSS removes bullets and indentation; the VoiceOver quirk mentioned under Experience applies here as well.
 
 The footnote reference, piece by piece:
 
@@ -545,13 +595,12 @@ The footnote reference, piece by piece:
 ### Projects
 
 ```html
-<section class="sec" id="projects" aria-labelledby="h-projects">
-<h2 id="h-projects"><span class="no" aria-hidden="true">03</span> Projects</h2>
+<section class="sec" id="projects" aria-labelledby="t-projects">
+<h2 id="h-projects"><span class="no" aria-hidden="true">03</span> <span id="t-projects">Projects</span><button type="button" class="info" popovertarget="tip-projects" aria-label="Info">i</button><span class="tip" id="tip-projects" popover>Stop starting. Start finishing.</span></h2>
 <div class="body">
-<p class="intro"><strong lang="en">Stop starting. Start finishing.</strong></p>
 <div class="group"><h3>At E+SERVICE+CHECK</h3>
 <ul class="projects">
-<li><h4>Call and inquiry pipeline</h4><p>More than half a million calls, two phone systems, five web forms – joined with Odoo master data and Google Ads attribution.</p><p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p></li>
+<li><h4>Call and inquiry pipeline</h4><p>More than half a million calls, two phone systems, five web forms – joined with Odoo master data.</p><p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p></li>
 …
 </ul></div>
 <div class="group"><h3>Certification capstones</h3>
@@ -563,7 +612,9 @@ The footnote reference, piece by piece:
 </section>
 ```
 
-- `<p class="intro"><strong lang="en">` – the lead slogan, important and English on both pages.
+- The section's slogan, "Stop starting. Start finishing.", sits in a toggletip after the heading – the same button and popover as after "People" in P⁴. The section starts straight with its first group.
+- `aria-labelledby="t-projects"` and `<span id="t-projects">Projects</span>` – with a button inside the heading, the heading's text is no longer just the title. A name taken from the whole `<h2>` would include the button's name and read "Projects Info" (the number is skipped, it is `aria-hidden`). So the section points at a span that wraps the title alone, and the region is called "Projects" in the landmark list. `section()` in `build.py` does this whenever it is given a `tip`. The heading keeps its id `h-projects`, as every section heading does.
+- `lang` – on the English page the note inherits English. On the German page the heading is German and the slogan stays English, so the note carries `lang="en"`.
 - `<div class="group">` – two groups, each with an `<h3>` and a list. The outline reads: Projects (h2) → At E+SERVICE+CHECK (h3) → Call and inquiry pipeline (h4).
 - `<ul class="projects">` – unordered: the projects are not ranked.
 - `<li><h4>…</h4><p>…</p><p class="stack">…</p></li>` – name, description, tech stack. A list item may hold headings and paragraphs; it does not have to be a single line.
@@ -645,6 +696,43 @@ The footnote reference, piece by piece:
 - Here the tags sit on separate lines. The nav is a flex container (CSS), so the line breaks do not create extra spaces.
 - `© 2026` – `build.py` inserts the current year at build time (`date.today().year`). The year changes with the next build, not on its own.
 
+### Jump control
+
+```html
+<nav class="jump" aria-label="Sections" data-up="Up: %s" data-down="Down: %s" data-top="Back to top">
+<a class="up" href="#top" aria-label="Back to top" title="Back to top"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 13.5V2.8M3.4 7.2 8 2.6l4.6 4.6"/></svg></a>
+<details class="menu">
+<summary aria-label="All sections" title="All sections"><span class="cur" aria-hidden="true"></span><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg></summary>
+<ol>
+<li><a href="#profile" data-t="Profile"><span class="no" aria-hidden="true">01</span> Profile</a></li>
+<li><a href="#fields" data-t="P⁴"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></a></li>
+<li><a href="#experience" data-t="Experience"><span class="no" aria-hidden="true">02</span> Experience</a></li>
+…
+<li><a href="#notes" data-t="Sources"><span class="no ghost" aria-hidden="true">04</span> Sources</a></li>
+</ol>
+</details>
+<a class="down" href="#profile" aria-label="Down: Profile" title="Down: Profile"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg></a>
+</nav>
+```
+
+A vertical pill in the bottom-right corner with three parts: up, the number of the chapter being read, down. Up and down lead to the start of the section above and below; the number opens a list of all eight sections. The CSS fixes it in place and fades it in once the name has docked into the header; on wide screens it sits under the minimap.
+
+- `<nav>` – everything in it leads to a place on the page, so it is navigation: a third navigation landmark next to "Main" and "Legal".
+- `aria-label="Sections"` – its name in the landmark list. German: "Abschnitte".
+- Position in the source: after `</footer>`, directly inside `<body>`. Since the CSS fixes it to the corner, its place in the source decides only two things: the order in which keyboard and screen-reader users meet it, and the landmark it belongs to. After the footer, the Tab key reaches it last – after the content and the legal links – instead of putting a stop between the header and the content. Outside `<main>` and `<footer>`, it is part of neither the content nor the contentinfo landmark. One more condition comes from the CSS: it shows the control with `.top.docked ~ .jump`, and the `~` combinator only finds elements that follow the header among its siblings.
+- `data-up="Up: %s"`, `data-down="Down: %s"`, `data-top="Back to top"` – label templates for `site.js`. The script builds the labels from them, with the section name in place of `%s` ("Up: Experience"), and uses `data-top` when up leads to the top of the page. `build.py` writes the strings per language (German: "Nach oben: %s", "Nach unten: %s", "Nach oben"), so `site.js` itself contains no language.
+- `<a class="up">` and `<a class="down">` – links, not buttons, because they go somewhere: to a place on the page with an address. A link works without JavaScript, shows its target in the status bar and can be opened in a new tab; `site.js` leaves clicks with a modifier key to the browser. While the page scrolls, the script points `href` at the start of the section above or below (`#experience`) and updates the labels to match.
+- `aria-label` and `title` – the links contain only an arrow, so they need a name, the same reasoning as with the theme buttons. The name says where the link leads ("Down: Education"); `title` shows the same text as a tooltip. When there is nothing left above or below, `site.js` sets `aria-disabled="true"`: the link stays focusable but is announced as unavailable, and the CSS dims it.
+- The arrows: `M8 13.5V2.8` draws the shaft from bottom to top, `M3.4 7.2 8 2.6l4.6 4.6` the head; the down arrow is the mirror image. How the coordinates after `M` work is explained with the arrow in the Profile section.
+- `href="#top"` and `href="#profile"` – the starting values from the build: at the top of the page, up leads to the top and down to the first section. Without JavaScript, up keeps leading to the top, which is always correct. Down would always lead to Profile, whatever the visitor is reading, so the CSS hides it.
+- `<details class="menu">` – the middle part does not go anywhere; it shows something. Showing and hiding a list under a visible control is what `<details>` and `<summary>` do on their own: open on a click, Enter or Space, announced as expanded or collapsed, no script needed. `site.js` adds three ways to close it: choosing a section, clicking elsewhere, and Esc, which also puts the focus back on the summary.
+- `<summary aria-label="All sections" title="All sections">` – its visible content is a number or an icon, so the label names it.
+- `<span class="cur" aria-hidden="true"></span>` – empty in the HTML. `site.js` writes the number of the chapter being read ("02"), taken from the heading of the current section. Until the first section is reached, and without JavaScript, the CSS shows the icon instead: three lines of different length and indent (`M2.5 4.5h11M4.5 8h9M2.5 11.5h7`), like lines of code in the minimap.
+- `<ol>` – the eight sections in page order; ordered, because the order is the page's. `build.py` builds the list from `SECTIONS`, the page order derived from `CHAPTERS`. Each entry repeats the heading pattern: the number visible for the four sections that open a chapter, `no ghost` for the others – invisible, but it keeps the titles aligned.
+- `data-t="Profile"` – the section's name as plain text, for the up and down labels. For P⁴ it is `P⁴` with the Unicode superscript four: an attribute holds text, not markup, so the `<sup>` of the heading cannot go there.
+- While scrolling, `site.js` marks the entry of the section being read with `aria-current="location"`, as it does for the chapter in the header menu.
+- Without JavaScript the control is visible from the start: up leads to the top, the list opens and every entry works, down is hidden.
+
 ### The script
 
 ```html
@@ -655,8 +743,8 @@ The footnote reference, piece by piece:
 
 - `src` – an external file, so the browser can cache it between visits.
 - `defer` – download without stopping the parser, run after the whole document has been parsed, just before the `DOMContentLoaded` event; several deferred scripts run in source order. `site.js` can therefore rely on every element being present. `defer` only works on external scripts.
-- Position: a deferred script could also sit in the head, where its download would start earlier. At the end of the body, the download starts only when the parser gets there. For an 18 KB page the difference is milliseconds, and the time-critical part – the theme – already ran in the head.
-- Everything `site.js` adds is an enhancement. Without it the page is complete: the motto stands untyped, the theme follows the system, the back-to-top link is always visible.
+- Position: a deferred script could also sit in the head, where its download would start earlier. At the end of the body, the download starts only when the parser gets there. For a 26 KB page the difference is milliseconds, and the time-critical part – the theme – already ran in the head.
+- Everything `site.js` adds is an enhancement. Without it the page is complete: the motto stands untyped, the theme follows the system, the jump control leads to the top and to every section, the toggletips open (centred on the screen) and the disclosure under 2010–2014 works.
 
 ---
 
@@ -667,7 +755,7 @@ The footnote reference, piece by piece:
 **Middle dots never start a line.** The copy in `build.py` uses " · " as a separator. Before writing any page – the two home pages, the legal pages and the 404 page – the function `dots()` replaces every " · " after `<body>` with `&nbsp;· `. The dot is now glued to the word before it, and the only break opportunity is after it:
 
 ```html
-<dd>monthly media budget at a RoAS of 4.0&nbsp;· Posterlounge</dd>
+<dd>monthly media budget at a RoAS of 4.0&nbsp;· <a href="#posterlounge">Posterlounge</a></dd>
 ```
 
 On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
@@ -680,10 +768,10 @@ On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never
 
 The no-break space works across the tag boundary: "GmbH" and "·" stay on one line, and the break opportunity is the space after the dot, inside the span.
 
-**German numbers stay with their units.** On the German page only, the function `nbsp()` glues "25 %", "240.000 €" and "1,7 Mio. €" together, as German typography (DIN 5008) asks. It inserts the character U+00A0 itself, not the entity `&nbsp;` – the same character for the browser, but invisible in view-source and in an editor. The German page contains twelve of them; a search for ` ` finds them.
+**German numbers stay with their units.** On the German page only, the function `nbsp()` glues "25 %", "240.000 €" and "1,7 Mio. €" together, as German typography (DIN 5008) asks. It inserts the character U+00A0 itself, not the entity `&nbsp;` – the same character for the browser, but invisible in view-source and in an editor. The German copy contains twelve of them; a search for ` ` finds them. The search also turns up two more, in the label templates of the jump control (`data-up` and `data-down`): `nbsp()` is a plain text replacement too, and in `Nach oben: %s` the space before `%s` looks to it like the space before a percent sign.
 
 ```html
-<dd>Mediabudget im Monat bei einer KUR von 25 %&nbsp;· Posterlounge</dd>
+<dd>Mediabudget im Monat bei einer KUR von 25 %&nbsp;· <a href="#posterlounge">Posterlounge</a></dd>
 ```
 
 (The space between "25" and "%" in this line is a U+00A0.)
@@ -699,11 +787,12 @@ The no-break space works across the tag boundary: "GmbH" and "·" stay on one li
 <li><span class="k" lang="en">Scope</span> Marketing, Design und Automatisierung von Grund auf aufgebaut – …</li>
 <li><p><strong lang="en">Facts, not fluff.</strong> Jede Zahl auf dieser Seite ist auf Nachfrage belegbar. …</p></li>
 <span class="ety">[engl. <i lang="en">marketer</i> × <i lang="en">tinkerer</i> ‚Tüftler‘]</span>
+<h2 id="h-projekte"><span class="no" aria-hidden="true">03</span> <span id="t-projekte">Projekte</span>…<span class="tip" id="tip-projects" popover lang="en">Stop starting. Start finishing.</span></h2>
 ```
 
 - The mechanism: a screen reader switches voice at every `lang` change. Without the attribute, a German voice would read "Built, not briefed" with German pronunciation rules – recognizable at best. Spell-checkers and hyphenation use the same attribute.
-- On the English page some of these attributes are left out: `build.py` adds them to the P⁴ headings, the tree keys and the italic words only when the page language is not English (variables `en_attr` and `lang`). Others are written into the shared template and therefore appear on both pages – tagline, claim, prompt, slogans, footer motto, Online/Offline. On the English page they are redundant and harmless.
-- The mirror case is on the 404 page: an English page with one German line, marked `lang="de"`.
+- On the English page some of these attributes are left out: `build.py` adds them to the P⁴ headings, the tree keys and the italic words only when the page language is not English (variables `en_attr` and `lang`), and to the notes of the toggletips only where their language differs from the heading's (parameter `lang` of `info()`). Others are written into the shared template and therefore appear on both pages – tagline, claim, prompt, slogans, footer motto, Online/Offline. On the English page they are redundant and harmless.
+- The mirror case is on the 404 page: an English page with one German line, marked `lang="de"`. A smaller one sits in P⁴ on the German page: the note behind the i of the English heading "People" is German and switches back with `lang="de"`.
 
 ---
 
@@ -715,8 +804,10 @@ The no-break space works across the tag boundary: "GmbH" and "·" stay on one li
 <title>404 – Peter Stieg</title>
 <meta name="description" content="Page not found.">
 …
+<link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 …
 <link rel="stylesheet" href="/assets/site.css">
@@ -749,18 +840,21 @@ The no-break space works across the tag boundary: "GmbH" and "·" stay on one li
 - `{KeyWord:Page}` – Google Ads syntax for Dynamic Keyword Insertion: `{KeyWord:Default}` puts the searched keyword into an ad, or the default text when the keyword does not fit. The capitalization of `KeyWord` even controls the case of the inserted words. Here the "default" won – a joke for anyone who has run search campaigns. `<code>` marks it as code; the CSS keeps the regular font and sets it in the accent color.
 - `lang="de"` – the German line inside the English page.
 - `cd ~` – the shell command "change to the home directory", linked to `/`.
-- The page has no minimap and no back-to-top link. `site.js` checks whether elements exist before using them, so it runs here without errors.
+- The page has no minimap and no jump control. `site.js` checks whether elements exist before using them, so it runs here without errors.
 - Like every page, this one passes through `dots()`: the `&nbsp;` glues the dot to `cd ~`.
 
 ### `.htaccess`
 
 ```apache
 ErrorDocument 404 /404.html
+AddType application/manifest+json .webmanifest
 ```
 
-- A configuration file for the Apache web server, read per directory. This line says: for every "not found" error, deliver `/404.html`.
+- A configuration file for the Apache web server, read per directory. The first line says: for every "not found" error, deliver `/404.html`.
 - With a local path, Apache keeps the status code 404, so browsers and crawlers learn that the page does not exist. With a full `https://` URL, Apache would send a redirect instead, and the error status would be lost.
 - Only Apache and compatible servers read `.htaccess`, and only if the host allows overrides. GitHub Pages ignores it and serves a `404.html` from the site root automatically. With both in place, the error page works on either kind of host.
+- `AddType application/manifest+json .webmanifest` – the second line is about the `Content-Type` header. A web server sends every file with a media type that tells the browser what it is receiving, and Apache picks that type from a table of file extensions. `.webmanifest` is a young extension; a server whose table lacks it sends the manifest with a generic type, or with none. `application/manifest+json` is the type the Web App Manifest specification registers for these files.
+- Why it belongs here: the site runs on shared hosting at IONOS, where Apache's own configuration – including its table of types – is out of reach. `.htaccess` is the one place where a site can add an entry, and `AddType` adds exactly one: files ending in `.webmanifest` go out as `application/manifest+json`. Browsers are forgiving and read a manifest under a generic type as well; the line makes the server state correctly what the file is.
 - The leading dot makes it a hidden file on Unix systems; some FTP clients and file managers do not show it. Since `site/` is uploaded by hand (see `decisions.md`), check that it arrived.
 
 ### `robots.txt`
@@ -783,9 +877,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-25</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-27</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-25</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-27</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```
@@ -835,38 +929,71 @@ Deutschland</address>
 - The closing line links back to both language versions.
 - The privacy page has the same structure with more `<h2>` sections and a dated line `<p class="muted">Stand: Oktober 2026</p>`, which is fixed text in `build.py` and needs a manual update when the policy changes.
 
+### `site.webmanifest`
+
+```json
+{
+  "name": "Peter Stieg",
+  "short_name": "PS",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#F7F6F3",
+  "background_color": "#F7F6F3",
+  "display": "browser"
+}
+```
+
+A web app manifest: JSON that tells the browser what the site is called and which icons it has, for the moment someone adds the page to a home screen. Android reads it; iOS takes the `apple-touch-icon` instead. Like the icons, the file is not written by `build.py`; it comes with the favicon set from `src/monogram/` (see `favicon.svg` below).
+
+- `name`, `short_name` – the full name, and a short one for places with little room, such as the label under a home-screen icon.
+- `icons` – two PNGs, 192 and 512 px, the pair of sizes Android and Chrome ask for: the smaller one for the home screen, the larger one for bigger surfaces such as a splash screen. Both show the monogram at about 62 % of an opaque, paper-coloured square.
+- `src` – resolved against the manifest's own URL, not the page's. `icon-192.png` therefore points to the site root for the German page as well, although that page sits one folder deeper.
+- `"purpose": "any maskable"` – "any": the icon may be shown as it is. "maskable": it has enough margin that the platform may cut it to its own shape, a circle or a rounded square, without cutting into the letters. One file for both is a compromise: Chrome's DevTools advise against combining the two values, because an icon padded for masking looks small where it is shown unmasked. Here the paper-coloured margin is part of the icon either way.
+- `theme_color`, `background_color` – both the paper white `#F7F6F3`, `--paper` in light mode. The first tints the browser frame of a page opened from the home screen, the second fills the screen while it starts. A manifest has no media queries, so both stay light; for the browser frame, the `theme-color` tags in the head handle dark mode.
+- `"display": "browser"` – the icon opens the site in an ordinary browser tab, with its address bar, as a bookmark would. The site is a page to read, not an app; the manifest is there for the name and the icons.
+- No `start_url` – without one, the start URL is the page that linked the manifest. An icon added from `/de/` opens the German page.
+
 ### `favicon.svg`
 
 ```svg
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <style>
-    .c { fill: none; stroke: #7A1A2C; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
-    .u { fill: #7A1A2C; }
-    @media (prefers-color-scheme: dark) { .c { stroke: #C98593; } .u { fill: #C98593; } }
-  </style>
-  <path class="c" d="M5 8 L13 16 L5 24"/>
-  <rect class="u" x="15" y="22" width="13" height="4" rx="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="15.0 -774.7 1026.3 1026.3" role="img" aria-label="PS">
+<style>path{fill:#7A1A2C}@media (prefers-color-scheme: dark){path{fill:#C98593}}</style>
+<path d="M44 119.4 202 62.4V-232H301Q381.3 -232 445.9 -247.4L573 -573.8Q569 -579.7 564.5 -585Q525 -632 456.5 -650Q388 -668 301 -668H44V119.4ZM202 -363V-535H306Q343 -535 372.5 -528.5Q402 -522 419.5 -503.5Q437 -485 437 -450Q437 -415 419.5 -396Q402 -377 372.5 -370Q343 -363 306 -363Z"/>
+<path d="M730.2 145Q782.2 145 832.2 130.5…L490.6 -224.4…Z"/>
 </svg>
 ```
 
-A static file, not generated by `build.py`.
+The PS monogram: P and S from Atkinson Hyperlegible Bold, the site's own font. The outlines are read from the font file, not redrawn. The S slides under the P's bowl, a slash at the angle of the font's own `/` divides the two, the S steps down by one bar, and the P's stem ends in a slanted cut. `src/monogram/README.md` documents the construction with all its measurements; the header logo `>_ P/S` uses the same P and S. The file is not written by `build.py`: the generator `src/monogram/source/ps_monogram.py` makes the whole favicon set – this SVG, `favicon.ico`, the touch and manifest icons and `site.webmanifest`.
 
 - `xmlns="http://www.w3.org/2000/svg"` – required in a standalone SVG file. Inline SVG inside HTML gets the namespace from the HTML parser, which is why the icons in the page do without it.
-- `viewBox="0 0 32 32"` – a 32 × 32 drawing area.
-- `<style>` – CSS inside the SVG. It applies only to this drawing.
-- `.c` – the chevron: no fill, a 4-unit stroke in the accent color, with round ends and corners.
-- `.u` – the underscore: a filled shape in the same color.
-- `@media (prefers-color-scheme: dark)` – in dark mode, the lighter accent color. Both values equal `--accent` in `site.css`. The query sees the system or browser setting; the favicon is a separate document and knows nothing about the page's `data-theme`, so it does not follow the theme buttons. Support for media queries inside favicons varies between browsers.
-- `<path d="M5 8 L13 16 L5 24"/>` – from the upper left to the middle right and back to the lower left: `>`.
-- `<rect x="15" y="22" width="13" height="4" rx="2"/>` – a 13 × 4 bar with rounded corners (radius 2) at the bottom: `_`.
-- Together: `>_`, the same mark as the caret in the header.
+- `viewBox="15.0 -774.7 1026.3 1026.3"` – coordinates in font units, as in the header logo: 1000 units to the em, the P 668 units tall (the font's cap height), negative y above the baseline because SVG's y axis points down. The mark itself is 968 × 813 units; the viewBox is a square of 1026.3 units with the mark in its centre. Favicons are square – Google Search, which shows them next to its results, asks for a 1 : 1 icon – and the square puts the margin into the file: 29 units left and right, more above and below, because the mark is wider than it is tall.
+- `role="img"` and `aria-label="PS"` – name the drawing for assistive technology wherever the SVG is shown as a document of its own, for instance when the file is opened directly. As a favicon, nothing reads it out.
+- `<style>` – CSS inside the SVG, valid only for this drawing. `path{fill:#7A1A2C}` fills both letters in Bordeaux; `@media (prefers-color-scheme: dark)` switches them to the lighter rose `#C98593`. Both values equal `--accent` in `site.css`, and the whole mark takes one colour, as the README prescribes.
+- The query sees the system or browser setting; the favicon is a separate document and knows nothing about the page's `data-theme`, so it does not follow the theme buttons. Support for media queries inside favicons varies between browsers.
+- Two `<path>` elements: the P and the S. Their commands: `M` move, `L` line, `H` and `V` horizontal and vertical lines, `Q` a quadratic Bézier curve, `Z` close the shape. `Q` is the curve type TrueType fonts store, so the font's points carry over one to one.
+- `M44 119.4 202 62.4` – the P begins at its foot: a straight cut across the stem, 158 units wide (one stem) and rising 57 – about 20°, close to the angle of the `>` in the prompt.
+- `L573 -573.8` – the right edge of the P's bowl, cut along the slash at 68.7°. In the S, `L490.6 -224.4` is the slash's other edge: parallel, 50 units away. That gap divides the two letters; 50 units is also the space the font itself leaves between P and S.
+- `M202 -363V-535H306…Z` – a second outline inside the first path: the counter, the hole in the P's bowl. It runs the other way round from the outer outline, so the default fill rule (`nonzero`) leaves it empty – the way fonts mark their holes.
+- Small sizes: a vector drawing scaled to 16 px lands its edges between pixels, and the browser smooths them into grey. That is why `favicon.ico` exists alongside it. Its 16 and 32 px images are drawn by hand on the pixel grid (`src/monogram/source/favicons.py`): stems of whole pixels, and a clear one-pixel channel where the slash divides P and S. Its 48 px image is the outline drawing scaled down. Which of the two files a browser shows in its tab is the browser's choice; browsers with SVG support generally take the vector.
 
 ---
 
 ## Try it
 
-1. **Source vs DOM.** Open https://peterstieg.com/ and press Ctrl+U (view-source). Find the comment and the theme boot script. Then open DevTools (F12) → Elements and compare: `<html>` now has `class="js"`, one theme button has `aria-pressed="true"`, and on a wide screen `.minimap` is full of `span.mm-bar`. Click the moon and check `<html data-theme="dark">` and, under Application → Local Storage, the key `theme`. Finally press Ctrl+Shift+P, run "Disable JavaScript" and reload: theme buttons gone, motto static, back-to-top button always visible.
-2. **Accessibility tree.** In Elements, select a `span.arr` and open the Accessibility pane: role "image", name "to". Select a theme button and click it – watch "pressed" flip. Select the footnote link "1" and find its description "Sources". Then open the Network panel, filter by "Font" and reload: the two preloaded fonts start early, the italic only after `site.css` has been read.
+1. **Source vs DOM.** Open https://peterstieg.com/ and press Ctrl+U (view-source). Find the comment and the theme boot script. Then open DevTools (F12) → Elements and compare: `<html>` now has `class="js"`, one theme button has `aria-pressed="true"`, and on a wide screen `.minimap` is full of `span.mm-bar`. Click the moon and check `<html data-theme="dark">` and, under Application → Local Storage, the key `theme`; Application → Manifest shows the name and the two icons from `site.webmanifest`. Finally press Ctrl+Shift+P, run "Disable JavaScript" and reload: theme buttons gone, motto static, the jump control visible from the start with up and the section list but without down. Click the i after "People": the note still opens, centred on the screen – the popover needs no script.
+2. **Accessibility tree.** In Elements, select a `span.arr` and open the Accessibility pane: role "image", name "to". Select a theme button and click it – watch "pressed" flip. Select the footnote link "1" and find its description "Sources". Select the Projects `<section>`: its name is "Projects", while the `<h2>` inside reads "Projects Info". Scroll to 2010–2014, open "All five positions" and watch the attribute `open` appear on `<details class="more">`. Then open the Network panel, filter by "Font" and reload: the two preloaded fonts start early, the italic only after `site.css` has been read.
 3. **Link preview and structured data.** Paste https://peterstieg.com/ into LinkedIn's Post Inspector (https://www.linkedin.com/post-inspector/) and compare title, description and image with the `og:` tags; repeat with https://peterstieg.com/de/. The Inspector fetches fresh, which also refreshes LinkedIn's cached card. Then paste the URL into https://validator.schema.org/ and find the Person with its `sameAs` and `hasCredential` entries.
 
 ## Key terms
@@ -881,6 +1008,10 @@ A static file, not generated by `build.py`.
 - **Preload** – `<link rel="preload">`: fetch a resource early, before the browser would discover it. Fonts need `as="font"` and `crossorigin`.
 - **defer** – a script attribute: download in parallel, execute after parsing, in source order.
 - **No-break space** – U+00A0, written `&nbsp;`: looks like a space, forbids a line break at that point.
+- **Popover** – an element with the `popover` attribute: hidden until a button with `popovertarget` (or a script) opens it, shown in the top layer above everything else, closed by a click outside or Esc (light dismiss).
+- **Toggletip** – a small button, here a superscript i, that shows a short note on click or tap rather than on hover; on this site built from a button and a popover.
+- **Disclosure** – content that opens and closes under a visible label; in HTML, `<details>` with its `<summary>`.
+- **Web app manifest** – a JSON file, linked with `<link rel="manifest">`, that gives the site a name and icons for home screens.
 
 ---
 
