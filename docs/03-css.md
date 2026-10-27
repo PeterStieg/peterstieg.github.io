@@ -231,7 +231,7 @@ a {
   text-underline-offset: 0.22em;
 }
 a:hover { text-decoration-color: var(--accent); }
-a:focus-visible, button:focus-visible {
+a:focus-visible, button:focus-visible, summary:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 2px;
@@ -247,7 +247,7 @@ a:focus-visible, button:focus-visible {
 - `outline: 2px solid var(--accent);` – the focus ring. An outline is drawn outside the border and takes no space, so focusing never shifts the layout, which a border would. The accent reaches 9.7:1 and 6.0:1, far above the 3:1 needed for focus indicators.
 - `outline-offset: 3px;` – a gap between element and ring.
 - `border-radius: 2px;` – current browsers draw outlines along the border radius, so the ring gets soft corners. Side effect: it rounds the element itself too, and at (0,1,1) it beats any single-class rule. A round element therefore needs a rule of at least the same weight to stay round while focused. The jump control's ends have one: `.jump .up` and `.jump .down` weigh (0,2,0), beat (0,1,1), and keep their rounded ends under focus (see the jump control section). The theme buttons need nothing extra: `.themes button` is also (0,1,1), ties, and wins because it comes later.
-- The rule names `a` and `button` only. A `<summary>` – the clickable line of a `<details>` element, used twice on the home page – gets the browser's own focus ring instead.
+- `summary` – the clickable line of a `<details>` element, used twice on the home page (the jump control's number and "All five positions"). It is focusable like a button but is neither `a` nor `button`; without its own entry it would get the browser's default ring instead of the accent one.
 
 ## Skip link and visually hidden text
 
@@ -848,10 +848,10 @@ The years 2010–2014 appear in the timeline as one entry, "Five companies". Bel
   - `content: ""; width: 0.42em; height: 0.42em;` – an empty square. As a flex item, the pseudo-element is blockified, so `width`, `height` and `transform` apply – on an ordinary inline box they would not.
   - `border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;` – only two sides drawn: an L with its corner at the bottom right. In `currentColor`, so it follows the summary's colour on hover.
   - `transform: rotate(-45deg);` – turned 45° anticlockwise, the corner points right: ›.
-  - `margin-top: -0.1em;` – an optical correction: lifts the shape a little, so it sits at the middle of the lowercase letters rather than the middle of the line box.
+  - `margin-top: -0.1em;` – an optical correction that lifts the shape a little. Turned like this, the two strokes lie symmetrically around the middle of the square.
 - `.more[open] summary::before { transform: rotate(45deg); margin-top: -0.3em; }` – while open, turned the other way: the corner points down. The visible strokes now lie in the lower half of the square, so the shape is lifted further.
 - `.more summary:hover { color: var(--ink); }` – label and chevron in ink.
-- `@media (prefers-reduced-motion: no-preference) { … }` – the turn is animated only for visitors who have not asked for less motion: the browser interpolates between the two rotations (and margins) in 0.2s. Everyone else gets the instant switch. This is the pattern of `scroll-behavior` in the base rules – motion added only under `no-preference` – while the jump control uses the opposite one: transitions by default, removed under `reduce`. Both work; the first one also leaves browsers that don't know the media feature without motion.
+- `@media (prefers-reduced-motion: no-preference) { … }` – the turn is animated only for visitors who have not asked for less motion: the browser interpolates between the two rotations (and margins) in 0.2s. Everyone else gets the instant switch. This is the pattern of `scroll-behavior` in the base rules – motion added only under `no-preference` – while the jump control uses the opposite one: transitions by default, removed under `reduce`. Both work; adding motion only under `no-preference` also leaves browsers that don't know the media feature without it.
 
 ```css
 .more .roles { margin-top: 0.75rem; }
@@ -1119,7 +1119,7 @@ Two headings carry a short note behind a raised "i": "People" in P⁴ and "Proje
 - `margin: auto;` – repeats the browser's default: with `inset: 0`, auto margins centre the box. This is where the note appears without JavaScript (measured: centred on a 1280 × 800 window).
 - `padding: 0.55rem 0.8rem; border: …; border-radius: 0.4rem;` – a small card with soft corners and the site's hairline.
 - `background: var(--paper); color: var(--ink);` – the theme's colours instead of the system colours, and opaque, unlike the header: the note must stay readable over any text.
-- `font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;` – in the HTML, the note is a child of the heading. Inheritance follows the document tree, also for an element drawn in the top layer, so without these values the note would be set like the heading: 1.25rem and bold. The rule sets the text back to body values, whatever heading it follows.
+- `font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;` – in the HTML, the note is a child of the heading. Inheritance follows the document tree, also for an element drawn in the top layer, so without these values the note would be set like its heading: large and bold. The rule sets the text back to body values, whatever heading it follows.
 - `box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);` – a soft shadow 0.4rem below the card, blurred over 1.25rem, lifts it off the page. Its colour is 14% ink: a dark shadow on light paper, a faint light glow on dark paper – the same one-colour-for-both-themes idea as `.mm-view`. The list of the jump control uses the same shadow.
 - `.js .tip { margin: 0; inset: auto; }` – with JavaScript, `site.js` places the note next to its i: below it, or above it when there is no room below; it follows the i while scrolling and closes the note when the i leaves the screen ([chapter 4](04-js.md)). The script writes `left` and `top` inline. For those two values to decide the position, the centring has to go: `inset: auto` clears the four offsets the browser set to 0, `margin: 0` removes the auto margins. (0,2,0) beats `.tip`. Without JavaScript, `.js` is missing, and the note stays centred – readable, just not next to its i.
   - `site.js` positions the note on `beforetoggle`, in the next animation frame, before the first frame in which the note is visible. It never flashes in the centre.
@@ -1247,7 +1247,7 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 - The first rule – bordeaux on hover for all three parts. The summary also stays bordeaux while the list is open (`[open]` on the `<details>`), so the open state is visible.
 - `.jump [aria-disabled="true"]` – at the very top there is nothing above, at the very bottom nothing below. `site.js` then sets `aria-disabled="true"` on the link concerned and ignores clicks on it ([chapter 4](04-js.md)). A link has no `disabled` attribute – that exists only for form controls – but `aria-disabled` tells screen readers that it is unavailable, and this rule shows it: the icon in the hairline colour, the default arrow cursor. WCAG exempts inactive controls from its contrast requirements.
   - Why the `:hover` twin: `.jump .up:hover` weighs (0,3,0) and would still turn a disabled arrow bordeaux under the mouse. `.jump [aria-disabled="true"]` is only (0,2,0) – an attribute selector counts like a class. With `:hover` added it reaches (0,3,0) as well and wins by coming later in the file.
-- `.jump :focus-visible { outline-offset: -3px; }` – the space before `:focus-visible` makes it a descendant selector: any focused element inside the pill. The parts touch each other and the pill's border, so a ring 3px outside, as the global rule draws it, would run over the neighbours. `-3px` draws it 3px inside the part instead, along its rounded end. (0,2,0) beats the global `a:focus-visible` (0,1,1). The summary is not covered by the global rule; it gets the browser's own ring – in Chromium a dark `auto` outline (measured) – and this rule moves that inside as well.
+- `.jump :focus-visible { outline-offset: -3px; }` – the space before `:focus-visible` makes it a descendant selector: any focused element inside the pill. The parts touch each other and the pill's border, so a ring 3px outside, as the global rule draws it, would run over the neighbours. `-3px` draws it 3px inside the part instead, along its rounded end. (0,2,0) beats the global `a:focus-visible` (0,1,1). The summary gets the same accent ring from the global rule, and this rule moves it inside as well.
 - `.jump svg` – outline icons in `currentColor`, slightly heavier (1.8) than the theme icons: the two arrows and the three lines in the middle.
 
 ```css
