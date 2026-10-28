@@ -60,7 +60,7 @@ Specificity counts the parts of a selector in three columns, written (a,b,c): a 
 | `:root` | (0,1,0) |
 | `:root[data-theme="dark"]` | (0,2,0) |
 | `:root:not([data-theme="light"])` | (0,2,0) – `:not()` counts as its argument |
-| `.intro` | (0,1,0) |
+| `.hello` | (0,1,0) |
 | `:where(.body) p` | (0,0,1) – `:where()` counts as nothing |
 | `.js .top.dock .home` | (0,4,0) |
 
@@ -180,7 +180,7 @@ WCAG contrast ratios computed from the token values. For reference, level AA ask
 ```
 
 - `*` – the universal selector: every element. Pseudo-elements are not elements, so `*::before, *::after` adds the generated boxes (the tree lines use them).
-- `box-sizing: border-box` – `width` and `height` include padding and border. With the default `content-box`, padding and border are added on top: `.to-top` would be 2.75rem plus 2px of border wide, and `.wrap`'s 70rem maximum would grow by its side padding. With `border-box`, the size you write is the size you get.
+- `box-sizing: border-box` – `width` and `height` include padding and border. With the default `content-box`, padding and border are added on top: the jump control `.jump` would be 2.75rem plus 2px of border wide, and `.wrap`'s 70rem maximum would grow by its side padding. With `border-box`, the size you write is the size you get.
 - `*` has specificity (0,0,0), so any other rule can override this.
 
 ```css
@@ -189,7 +189,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-to
 ```
 
 - `-webkit-text-size-adjust: 100%; text-size-adjust: 100%;` – some mobile browsers, Safari on iOS in particular, enlarge text on their own, for example after rotating to landscape. `100%` switches that off, because the site's sizes are already designed for small screens. Pinch-zoom is unaffected. The prefixed name is the one iOS Safari has relied on for years; the standard name covers the others.
-- `scroll-padding-top: 4.5rem;` – when the browser scrolls to an anchor target (`#profile`, a footnote, the skip-link target `#main`), it aligns the target with the top edge of the viewport – exactly where the sticky header sits, so the heading would end up underneath it. Scroll padding on the scroll container (for the page, that is `html`) moves this alignment line down: targets land 4.5rem (72px) below the top. The header is 3.5rem plus a 1px border (57px, measured), which leaves about 15px of air. Remove the declaration and every in-page link hides its heading behind the header.
+- `scroll-padding-top: 4.5rem;` – when the browser scrolls to an anchor target (`#profile`, a footnote, the skip-link target `#main`), it aligns the target with the top edge of the viewport – exactly where the sticky header sits, so the heading would end up underneath it. Scroll padding on the scroll container (for the page, that is `html`) moves this alignment line down: targets land 4.5rem (72px) below the top. The header is 3.5rem plus a 1px border (57px, measured), which leaves about 15px of air. Remove the declaration and every in-page link hides its heading behind the header. Phones use a smaller value, 3.5rem, because there the section heading itself sticks under the header (see Sections).
 - `@media (prefers-reduced-motion: no-preference)` – true when the visitor has not asked the OS to reduce motion. Large animated movements can cause dizziness or nausea for people with vestibular disorders; the OS setting exists for them.
 - `scroll-behavior: smooth;` – anchor jumps glide instead of jumping. Because the rule sits behind `no-preference`, the instant jump is the default: visitors who asked for less motion, and browsers that don't know the media feature, get no animation.
 
@@ -231,7 +231,7 @@ a {
   text-underline-offset: 0.22em;
 }
 a:hover { text-decoration-color: var(--accent); }
-a:focus-visible, button:focus-visible {
+a:focus-visible, button:focus-visible, summary:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 2px;
@@ -246,7 +246,8 @@ a:focus-visible, button:focus-visible {
 - `:focus-visible` – matches an element that has focus *and* for which the browser decides a focus indicator should show: yes after keyboard navigation, usually not after a mouse click on a link or button. Plain `:focus` would also draw the ring on every click.
 - `outline: 2px solid var(--accent);` – the focus ring. An outline is drawn outside the border and takes no space, so focusing never shifts the layout, which a border would. The accent reaches 9.7:1 and 6.0:1, far above the 3:1 needed for focus indicators.
 - `outline-offset: 3px;` – a gap between element and ring.
-- `border-radius: 2px;` – current browsers draw outlines along the border radius, so the ring gets soft corners. Side effect: it rounds the element itself too, and at (0,1,1) it beats any single-class rule. A round element therefore needs a stronger rule to stay round while focused. The back-to-top button has one: `.to-top { border-radius: 50% }` is only (0,1,0), so `.to-top:focus-visible` at (0,2,0) sets 50% again (see the back-to-top section). The theme buttons need nothing extra: `.themes button` is also (0,1,1), ties, and wins because it comes later.
+- `border-radius: 2px;` – current browsers draw outlines along the border radius, so the ring gets soft corners. Side effect: it rounds the element itself too, and at (0,1,1) it beats any single-class rule. A round element therefore needs a rule of at least the same weight to stay round while focused. The jump control's ends have one: `.jump .up` and `.jump .down` weigh (0,2,0), beat (0,1,1), and keep their rounded ends under focus (see the jump control section). The theme buttons need nothing extra: `.themes button` is also (0,1,1), ties, and wins because it comes later.
+- `summary` – the clickable line of a `<details>` element, used twice on the home page (the jump control's number and "All five positions"). It is focusable like a button but is neither `a` nor `button`; without its own entry it would get the browser's default ring instead of the accent one.
 
 ## Skip link and visually hidden text
 
@@ -331,7 +332,7 @@ Visually hidden, still read by screen readers. In the hero, the visible typed te
 - `background: color-mix(in srgb, var(--paper) 92%, transparent);` – mixes 92% paper with 8% nothing: the paper color at 92% opacity, in whichever theme is active. `color-mix()` works in all major browsers since 2023. There is no fallback declaration, so an older browser would show a fully transparent header.
 - `-webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);` – `filter` would blur the element itself; `backdrop-filter` blurs whatever lies *behind* it. Content scrolling under the header is blurred and shows faintly through the 8% transparency. Older Safari versions only understand the prefixed name. A backdrop filter also forms a stacking context.
 - `border-bottom: 1px solid transparent;` – reserves the pixel from the start, so the line that appears later doesn't push the page down.
-- `.top.scrolled { border-bottom-color: var(--line); }` – `site.js` adds `.scrolled` once the page has moved more than 8px; the hairline separates header and content. No space between two classes means both on the same element: (0,2,0).
+- `.top.scrolled { border-bottom-color: var(--line); }` – `site.js` adds `.scrolled` once the page has moved more than 8px; the hairline separates header and content. No space between two classes means both on the same element: (0,2,0). On phones, `.top.ext` takes the line away again while a section heading is stuck under the header (see Sections).
 - `.top .wrap` – with a space: a `.wrap` *inside* `.top`.
   - `display: flex;` – logo and navigation become flex items in a row.
   - `align-items: center;` – vertical centering within the row.
@@ -598,7 +599,7 @@ html:not(.js) .themes { display: none; }
   - `4` – four cycles; then the animation ends, the cursor returns to its normal style and stays solid. Endless blinking distracts from reading. The number is chosen for a limit: WCAG 2.2.2 (Pause, Stop, Hide) asks for a pause control when blinking content runs longer than 5 seconds. Four cycles last 4.4 seconds and need none; six would already take 6.6.
 - The rule sits inside `prefers-reduced-motion: no-preference`, so visitors who asked for less motion see a steady cursor. (`site.js` skips the typing for them as well.)
 
-**Transitions versus animations.** A transition reacts to a change: when a property gets a new value (a class is added, `:hover` begins), the browser interpolates from the old value to the new one over the given time. It needs a trigger and runs once per change. An animation runs keyframes on its own timeline as soon as it applies; it can loop or run a fixed number of times, with no change of state needed. The cursor uses an animation; the back-to-top button uses transitions.
+**Transitions versus animations.** A transition reacts to a change: when a property gets a new value (a class is added, `:hover` begins), the browser interpolates from the old value to the new one over the given time. It needs a trigger and runs once per change. An animation runs keyframes on its own timeline as soon as it applies; it can loop or run a fixed number of times, with no change of state needed. The cursor uses an animation; the jump control and the chevron of the "All five positions" disclosure use transitions.
 
 ## Sections
 
@@ -621,10 +622,6 @@ html:not(.js) .themes { display: none; }
   line-height: 1.3;
   font-weight: 700;
 }
-/* chapter number, like a slide deck's parts: "01 Profile" – equal-width digits keep the titles aligned.
-   The other sections of a chapter carry the same number invisibly (.ghost), so their titles line up with it. */
-.sec > h2 .no { color: var(--accent); font-weight: 400; font-variant-numeric: tabular-nums; }
-.sec > h2 .ghost { visibility: hidden; }
 ```
 
 Each content section is a `.sec`: heading left and body right on wide screens, stacked on phones.
@@ -640,6 +637,50 @@ Each content section is a `.sec`: heading left and body right on wide screens, s
   - `.sec > h2 { position: sticky; top: 5rem; align-self: start; }` – the heading stays visible while you scroll through a long section; `top: 5rem` keeps it clear of the header. The child combinator `>` limits this to the section's own `h2`.
   - **Why `align-self: start` is essential:** grid items stretch to the full height of their row by default. The row is as tall as the section body, so a stretched heading would already fill its whole area and have no room to move – sticky would do nothing. With `start`, the heading is only as tall as its text and can slide down inside the tall grid area. It stops at the end of the section, because a sticky element never leaves its containing block.
 - `.sec > h2` – no margin, 1.25rem, line height 1.3, bold. This unconditional rule comes after the media query; the two set different properties, so the order doesn't matter.
+
+```css
+/* phones: the heading of the section being read sticks under the header, as one bar with it – a heading
+   is always in view. site.js marks the stuck one (.stuck): it takes over the header's hairline (.ext). */
+@media (max-width: 47.99rem) {
+  html { scroll-padding-top: 3.5rem; }            /* a jump to a section lands its border on the header's */
+  .sec { padding-top: 2.5rem; }
+  .sec > h2 {
+    position: sticky; top: calc(3.5rem + 1px); z-index: 3;
+    margin-inline: -1rem; padding: 0.5rem 1rem;
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    border-bottom: 1px solid transparent;
+  }
+  .sec > h2.stuck { border-bottom-color: var(--line); }
+  .top.ext { border-bottom-color: transparent; }
+  .role, .fnref a, .notes li { scroll-margin-top: 3.25rem; }   /* targets inside a section clear the stuck heading */
+}
+```
+
+On wide screens the heading column keeps the current heading in view. On phones there is no such column – heading and body stack – and without this block a long section such as Experience would scroll its heading away after the first screen. Here the heading of the section being read sticks directly under the header, and the two read as one bar.
+
+- `@media (max-width: 47.99rem)` – phones; the counterpart of the `min-width: 48rem` block above. Every width gets exactly one kind of sticky heading.
+- `html { scroll-padding-top: 3.5rem; }` – replaces the 4.5rem of the base rules. 3.5rem is 56px, one pixel less than the header with its border. A jump to a section therefore puts the section's 1px top border exactly on the header's hairline (measured: the section starts at 56px). With 4.5rem, a 15px strip of the previous section would stay visible between the two. `site.js` reads the same computed value to decide which section counts as "above" for the jump control (see [chapter 4](04-js.md)).
+- `.sec { padding-top: 2.5rem; }` – 0.5rem less than the base 3rem above the heading. The heading's own top padding (below) adds the 0.5rem back, so the title still starts 3rem below the section's line.
+- `.sec > h2 { … }` – the heading becomes a bar:
+  - `position: sticky; top: calc(3.5rem + 1px);` – it sticks right under the header: 3.5rem of header height plus the header's 1px border. `calc()` can add rem and px. As on wide screens, it sticks only while its own section is on screen; at the section's end it scrolls away and the next heading takes its place.
+  - No `align-self: start` is needed here. With a single column, every grid item gets a row of its own, as tall as its content, so there is nothing to stretch into. Measured: in the middle of Experience, its heading sits at 57px.
+  - `z-index: 3;` – sticky elements are positioned, so `z-index` applies. Positioned elements without a z-index are painted in document order, and the section body contains some: the tree items (`position: relative`, see the #JobAlert tree) come after the heading and would be painted over it as they scroll underneath. 3 keeps the bar above the content and below the header and the jump control (5).
+  - `margin-inline: -1rem; padding: 0.5rem 1rem;` – the negative margins pull the heading's box 1rem out on both sides, over the 1rem gutter of `.wrap`, and the side padding puts the text back where it was. The background now spans the full screen width like the header's (measured: 390px on a 390px screen). The 0.5rem above and below give the bar its height: 43px around the 26px line (measured).
+  - `background: …; backdrop-filter: blur(6px);` – the same frosted surface as the header, so header and heading look like one piece.
+  - `border-bottom: 1px solid transparent;` – reserves the hairline, as in the header.
+- `.sec > h2.stuck { border-bottom-color: var(--line); }` – `site.js` gives `.stuck` to the heading that currently sits at the header's lower edge (see [chapter 4](04-js.md)). Only that heading shows the hairline, at the bottom of the combined bar.
+- `.top.ext { border-bottom-color: transparent; }` – at the same time `site.js` gives the header `.ext`, and the header drops its own hairline: the bar has one line at its bottom instead of one in the middle. `.top.scrolled` sets the line with the same (0,2,0); this rule comes later in the file, so it wins while both classes are present.
+- `.role, .fnref a, .notes li { scroll-margin-top: 3.25rem; }` – targets *inside* a section: a role reached from the ledger, a footnote number reached from its back link `^`, a source reached from its footnote. Scroll padding alone would put them directly under the header – behind the stuck heading of their own section. `scroll-margin-top` is set on the target instead of the scroll container, and the browser adds the two: 3.5rem + 3.25rem = 6.75rem (108px). The bar ends at 100px (57 + 43), which leaves 8px of air (measured: `#posterlounge` lands at 108px, under the stuck "02 Experience").
+  - Sections themselves get no scroll margin: when a section has just been reached, its heading is still in the flow, not stuck.
+
+```css
+/* chapter number, like a slide deck's parts: "01 Profile" – equal-width digits keep the titles aligned.
+   The other sections of a chapter carry the same number invisibly (.ghost), so their titles line up with it. */
+.sec > h2 .no { color: var(--accent); font-weight: 400; font-variant-numeric: tabular-nums; }
+.sec > h2 .ghost { visibility: hidden; }
+```
+
 - `.sec > h2 .no` – the chapter number in front of the heading: accent colour, regular weight, so the title stays the strong part.
   - `font-variant-numeric: tabular-nums` – switches the font to its equal-width digits (the OpenType feature `tnum`). By default Atkinson Hyperlegible uses proportional digits: in the regular weight used here, a "1" is about 60 % as wide as a "0". With tabular digits every number from 01 to 04 has the same width, so all titles start on the same pixel (measured).
 - `.sec > h2 .ghost { visibility: hidden; }` – the sections inside a chapter (P⁴, Education, Approach, Sources) carry their chapter's number with this extra class. `visibility: hidden` hides it but keeps its box, so the title after it starts on the same pixel as the chapter's title (measured: all eight titles at the same x). The page reads like an outline.
@@ -660,7 +701,7 @@ Each content section is a `.sec`: heading left and body right on wide screens, s
 
 **`:where()` and why the default must be weak.** `:where()` is a pseudo-class that takes a list of selectors and matches whatever any of them matches – but it always adds zero specificity, whatever is inside. So `:where(.body) p` weighs (0,0,1), the same as a bare `p`.
 
-This rule is a default: "paragraphs in the content column get a bottom margin unless something more specific says otherwise". A default must lose against every class rule written for a particular paragraph. Written as `.body p`, it would weigh (0,1,1) – one class plus one element – and beat any single-class rule such as `.intro` (0,1,0), wherever that rule stands in the file. The margins of seven paragraph classes would then be silently ignored: `.intro`, `.hello`, `.hw`, `.def`, `.when`, `.org` and `.ctx` (`.hello` would get 48px below instead of 16px). With `:where()`, every one of them wins by specificity, and the margins they declare are the ones you see (measured). Rules such as `.fields p` (0,1,1) win by specificity as well, wherever they stand in the file, and `.body > :first-child` and `.body > :last-child` (0,2,0) still trim the ends.
+This rule is a default: "paragraphs in the content column get a bottom margin unless something more specific says otherwise". A default must lose against every class rule written for a particular paragraph. Written as `.body p`, it would weigh (0,1,1) – one class plus one element – and beat any single-class rule such as `.hello` (0,1,0), wherever that rule stands in the file. The margins of six paragraph classes would then be silently ignored: `.hello`, `.hw`, `.def`, `.when`, `.org` and `.ctx` (`.hello` would get 48px below instead of 16px). With `:where()`, every one of them wins by specificity, and the margins they declare are the ones you see (measured). Rules such as `.fields p` (0,1,1) win by specificity as well, wherever they stand in the file, and `.body > :first-child` and `.body > :last-child` (0,2,0) still trim the ends.
 
 `:where()` works in all major browsers since early 2021. A browser that doesn't know it drops the whole rule, as with any selector it cannot parse, and paragraphs fall back to the browser's default margins.
 
@@ -714,12 +755,14 @@ From 36rem, figures and explanations form two aligned columns.
   font-variant-numeric: tabular-nums; white-space: nowrap;
 }
 .ledger dd { margin: 0; color: var(--muted); }
+.ledger dd a { white-space: nowrap; }
 ```
 
 - `font-size: 1.5rem; font-weight: 700; line-height: 1.2;` – the figure as the visual anchor.
 - `font-variant-numeric: tabular-nums;` – Atkinson's digits are proportional by default (the 1 is much narrower than the 0). `tabular-nums` switches on the font's tabular figures (the OpenType feature `tnum`, which these files contain): every digit gets the same width, so numbers line up.
 - `white-space: nowrap;` – "€6k → €240k" stays on one line; with `max-content`, this line sets the width of the first column.
 - `.ledger dd { margin: 0; color: var(--muted); }` – `<dd>` has a 40px left margin by default; removed. Explanations in muted grey.
+- `.ledger dd a { white-space: nowrap; }` – each explanation ends with a link to the company's role under Experience ("· Posterlounge", `href="#posterlounge"`). The link keeps the underline and the muted colour of the text around it. `nowrap` keeps a company name on one line: when the row runs out of space, the whole name moves to the next line. The three current names are single words without a break opportunity, so today the rule changes nothing (measured at 320px, with and without it); it guards against a name of several words. The dot in front is bound to the preceding word by a non-breaking space in the HTML, so it never starts a line.
 
 ## Fields of work
 
@@ -758,6 +801,8 @@ From 36rem, figures and explanations form two aligned columns.
 .org { margin: 0 0 0.5rem; }
 .org .place { color: var(--muted); }
 .ctx { margin: 0 0 0.6rem; color: var(--muted); font-size: 1rem; }
+/* reached from the ledger: dates and title in accent */
+.role:target > .when, .role:target > div > h3 { color: var(--accent); }
 ```
 
 - `.when` – the date column:
@@ -769,6 +814,64 @@ From 36rem, figures and explanations form two aligned columns.
 - `.role h3 { margin-bottom: 0.1rem; }` – job title close to the company line.
 - `.org` – the company line, 0.5rem above the next line. `.org .place` – the city, muted.
 - `.ctx` – a context line (industry, size), muted at 1rem, 0.6rem above the tree. Both margins apply because `:where(.body) p` is weaker than any class.
+- `.role:target > .when, .role:target > div > h3` – the three roles that the ledger links to carry an `id` (`posterlounge`, `brandible`, `e-service-check`). After a click on "· Brandible", the URL ends in `#brandible`, `:target` matches that `<li>`, and its dates and job title turn bordeaux: you see at once which entry the figure belongs to. The same idea as `.notes li:target` in the footnotes, with no JavaScript.
+  - The child combinators `>` limit the colour to the role's own date (a direct child of the `<li>`) and its own title (the `h3` in its `<div>`). With descendant selectors, a targeted role would also colour the dates of any roles nested inside it, like the positions behind the disclosure below.
+  - On phones, `scroll-margin-top` lets the target land below the stuck section heading (see Sections).
+
+```css
+/* the years before 2014: one entry in the timeline, the single positions behind a disclosure */
+.more { margin-top: 0.75rem; }
+.more summary {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  list-style: none; cursor: pointer; color: var(--muted); font-size: 1rem;
+}
+.more summary::-webkit-details-marker { display: none; }
+.more summary::before {                           /* a chevron: points right, turns down when open */
+  content: ""; width: 0.42em; height: 0.42em; margin-top: -0.1em;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+}
+.more[open] summary::before { transform: rotate(45deg); margin-top: -0.3em; }
+.more summary:hover { color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) { .more summary::before { transition: transform 0.2s, margin 0.2s; } }
+```
+
+The years 2010–2014 appear in the timeline as one entry, "Five companies". Below its tree, a `<details class="more">` holds the five single positions: its `<summary>` reads "All five positions", and a click opens it. `<details>` is the browser's built-in disclosure: it opens and closes without JavaScript, keyboard and screen readers included, and the browser sets the attribute `open` on the element while it is open. No rule shows or hides the content: a closed `<details>` renders only its `<summary>`.
+
+- `.more { margin-top: 0.75rem; }` – space between the entry's tree and the disclosure.
+- `.more summary`:
+  - `display: inline-flex; align-items: center; gap: 0.5em;` – the chevron and the label in a row, centred vertically, half an em apart. *Inline*-flex makes the summary only as wide as its content. By default a `<summary>` is block-level, and the whole width of the column would be clickable.
+  - `list-style: none;` – browsers draw the default triangle as the list marker of the summary, which by default is `display: list-item`. Only list items get markers, so `inline-flex` alone already removes it; `list-style: none` makes the intent explicit.
+  - `cursor: pointer; color: var(--muted); font-size: 1rem;` – the hand cursor, quiet colour and size, like `.ctx`.
+- `.more summary::-webkit-details-marker { display: none; }` – older Safari versions draw the triangle with a pseudo-element of their own, which neither `display` nor `list-style` removes.
+- `.more summary::before` – a chevron drawn with CSS, in the same spirit as the tree lines:
+  - `content: ""; width: 0.42em; height: 0.42em;` – an empty square. As a flex item, the pseudo-element is blockified, so `width`, `height` and `transform` apply – on an ordinary inline box they would not.
+  - `border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;` – only two sides drawn: an L with its corner at the bottom right. In `currentColor`, so it follows the summary's colour on hover.
+  - `transform: rotate(-45deg);` – turned 45° anticlockwise, the corner points right: ›.
+  - `margin-top: -0.1em;` – an optical correction that lifts the shape a little. Turned like this, the two strokes lie symmetrically around the middle of the square.
+- `.more[open] summary::before { transform: rotate(45deg); margin-top: -0.3em; }` – while open, turned the other way: the corner points down. The visible strokes now lie in the lower half of the square, so the shape is lifted further.
+- `.more summary:hover { color: var(--ink); }` – label and chevron in ink.
+- `@media (prefers-reduced-motion: no-preference) { … }` – the turn is animated only for visitors who have not asked for less motion: the browser interpolates between the two rotations (and margins) in 0.2s. Everyone else gets the instant switch. This is the pattern of `scroll-behavior` in the base rules – motion added only under `no-preference` – while the jump control uses the opposite one: transitions by default, removed under `reduce`. Both work; adding motion only under `no-preference` also leaves browsers that don't know the media feature without it.
+
+```css
+.more .roles { margin-top: 0.75rem; }
+.more .role, .more .role + .role { display: block; padding: 0.85rem 0 0; border-top: 1px solid var(--line); }
+.more .role .when { padding-top: 0; font-size: 0.9rem; }
+.more h4 { margin: 0; font-size: 1.0625rem; line-height: 1.35; }
+.more .org { margin-bottom: 0.2rem; }
+```
+
+Inside the disclosure is a second `<ol class="roles">` with one `.role` per position, built by the same function as the timeline (see [chapter 1](01-build.md)). The timeline rules match these elements too, so only a few corrections are needed.
+
+- `.more .roles { margin-top: 0.75rem; }` – space below the summary. (0,2,0) beats the reset in `.roles`.
+- `.more .role, .more .role + .role { display: block; … }` – the nested positions are stacked: date above title, not the 9.5rem date column of the timeline. The disclosure itself sits in the content column of its entry, which leaves no room for a second date column. As a block, the `<li>` ignores the `grid-template-columns` of the 36rem media query.
+  - `padding: 0.85rem 0 0; border-top: 1px solid var(--line);` – every position gets a line above, the first one included: it separates the list from the summary. No padding below; the next line does the separating.
+  - Why two selectors: `.role + .role` sets `padding-top: 2rem` at (0,2,0). `.more .role` alone also weighs (0,2,0) and would win only because it comes later in the file; `.more .role + .role` at (0,3,0) wins by specificity, wherever the rules stand.
+- `.more .role .when { padding-top: 0; font-size: 0.9rem; }` – the 0.15rem that lowers a date to the line of a title next to it has no purpose when nothing stands next to it. A little smaller than the timeline dates.
+- `.more h4 { margin: 0; font-size: 1.0625rem; line-height: 1.35; }` – the positions are one heading level below the entry's `h3`. 1.0625rem is 17px, a step below the h3's 18px.
+- `.more .org { margin-bottom: 0.2rem; }` – the company line closer to the tree that follows. (0,2,0) beats `.org`.
+
+Opening the disclosure makes the page taller, so `site.js` redraws the minimap on every `toggle` event, and opens all disclosures before printing (see [chapter 4](04-js.md)).
 
 ## Projects
 
@@ -812,6 +915,7 @@ From 36rem, figures and explanations form two aligned columns.
 @media (min-width: 36rem) { .facts div { grid-template-columns: 9.5rem 1fr; } }
 .facts dt { color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; padding-top: 0.15rem; }
 .facts dd { margin: 0; }
+.lines { list-style: none; margin: 0; padding: 0; }    /* languages: one per line */
 ```
 
 - `.facts` – another `<dl>` with div-wrapped pairs.
@@ -820,6 +924,7 @@ From 36rem, figures and explanations form two aligned columns.
 - From 36rem, `9.5rem 1fr` – the same column width as the experience dates, so the years in Education line up with the dates in Experience.
 - `.facts dt` – the year: muted, smaller, tabular digits, lowered 0.15rem like `.when`.
 - `.facts dd { margin: 0; }` – removes the default indent.
+- `.lines` – the languages, one per line: the value of that row is a `<ul class="lines">` inside the `<dd>`. A list rather than lines separated by `<br>`, because the five languages are a list: the markup says what they are, the CSS decides how they look. Bullets, margins and the 40px indent are removed, so the list looks like plain lines of text that start where the other values start.
 
 ## Contact: greeting and e-mail
 
@@ -867,13 +972,11 @@ The Profile section opens like a dictionary entry: headword with syllable dots, 
 - `.def` – the definition at 1.25rem, `margin: 0`. The space below the entry comes from `.entry` alone.
 - `.ety i { font-style: italic; }` – `<i>` is italic by default, so this repeats the default. It also sits after `.def`, apart from the other `.ety` rule.
 
-## P⁴ and intro lines
+## P⁴
 
 ```css
 /* P⁴ */
 .sec > h2 sup { font-size: 0.62em; line-height: 0; vertical-align: 0.55em; margin-left: 0.04em; }
-.intro { margin: 0 0 1.5rem; color: var(--muted); }
-.intro strong { color: var(--ink); }
 .fields h3 { font-size: 1.375rem; margin-bottom: 0.25rem; }
 ```
 
@@ -882,8 +985,7 @@ The Profile section opens like a dictionary entry: headword with syllable dots, 
   - `line-height: 0;` – the browser's default `vertical-align: super` raises the box and can make its line taller, so lines with a superscript get uneven spacing. With a line height of zero, the raised box adds nothing to the line's height.
   - `vertical-align: 0.55em;` – raises it by 0.55em of the superscript's own, already reduced, size.
   - `margin-left: 0.04em;` – a hair of space after the P.
-- `.intro` – the short muted line that opens a section ("P as in Peter.", "Stop starting. Start finishing."), with 1.5rem of space below – more than a normal paragraph, to set it apart from what it introduces.
-- `.intro strong { color: var(--ink); }` – bold parts in full ink.
+  - The list of the jump control repeats the first three values for its own "P⁴" (see the jump control section).
 - `.fields h3` – the four field names, larger than other h3s.
 
 ## #JobAlert tree
@@ -972,6 +1074,69 @@ The Education section has footnote numbers (`<sup class="fnref">`) that link to 
 - `.notes .back` – the `^` back link: no underline, bordeaux, bold, a little space after it.
 - `.notes li:target` – `:target` matches the element whose `id` equals the URL fragment. Click footnote 1, the URL ends in `#fn-ds`, and that list item switches from muted to ink: a highlight for the note you came to read, with no JavaScript.
 
+## Toggletips
+
+```css
+/* toggletip: a superscript i after a heading, set like the footnote numbers. The note is a popover:
+   it opens and closes without JavaScript (click outside or Esc closes it); site.js only places it next to the i. */
+.info {
+  position: relative;
+  margin: -1em 0 -1em 0.12em; padding: 0 0.1em; border: 0; background: none;   /* negative margins: the line keeps its height */
+  font: inherit; font-size: 0.68em; font-weight: 700; line-height: 1; vertical-align: 0.6em;
+  color: var(--accent); cursor: pointer;
+}
+.info::before { content: ""; position: absolute; inset: -0.9em -0.7em; }   /* a hit area larger than the letter */
+.info:hover, .info:focus-visible { text-decoration: underline; text-underline-offset: 0.15em; }
+```
+
+Two headings carry a short note behind a raised "i": "People" in P⁴ and "Projects". The pattern is called a toggletip – a button that shows a note on click – as opposed to a tooltip, which appears on hover and is out of reach on touch screens. The HTML is a `<button class="info" popovertarget="tip-projects">` followed by a `<span class="tip" id="tip-projects" popover>` that holds the note ([chapter 2](02-html.md)). `popover` and `popovertarget` are the HTML popover API: the button opens and closes the element with the matching id, without any script. An open popover is shown in the **top layer**, a layer the browser draws above the whole page – above every `z-index` and outside every ancestor's stacking context. A click outside it or Esc closes it again ("light dismiss").
+
+- `.info` – the button is set like a footnote number:
+  - `position: relative;` – the reference box for the hit area below.
+  - `margin: -1em 0 -1em 0.12em;` – on the left, a hair of space after the title. Top and bottom are negative, and that is the point of the rule. A button is an inline-block, and an inline-block takes part in its line with its whole margin box: raised by `vertical-align`, it can push the top of the line box up and make the heading taller. `.fnref` avoids this with `line-height: 0`, which works for an inline box such as `<sup>`. On an inline-block, the same value would make the button's own box zero pixels tall – and with it its focus ring and its hit area. Negative margins of one em each shrink the margin box instead, while the button keeps its size. Measured: with the i, the headings keep their height (26px on wide screens, 43px as the phone bar); without the negative margins, the h2 grows by 0.16px – tiny here, and ruled out by the margins.
+  - `padding: 0 0.1em; border: 0; background: none;` – the browser's button look removed; the same side padding as `.fnref a`.
+  - `font: inherit;` – buttons do not inherit the font of the text around them; browsers give them a font of their own. The shorthand `font: inherit` takes family, weight, style and the rest from the heading. The longhands after it then adjust single values; they must come after the shorthand, which would otherwise reset them.
+  - `font-size: 0.68em; font-weight: 700; line-height: 1; vertical-align: 0.6em;` – the footnote values: 68% of the heading's size, bold, raised by 0.6em of its own size. `line-height: 1` makes the box one font size tall (13.6px in an h2, measured).
+  - `color: var(--accent); cursor: pointer;` – bordeaux like a footnote number, and the hand cursor that buttons don't get by default.
+- `.info::before { content: ""; position: absolute; inset: -0.9em -0.7em; }` – an empty box that reaches 0.9em above and below the button and 0.7em to each side. `inset` is the shorthand for `top`, `right`, `bottom` and `left`; with two values, the first is vertical, the second horizontal, and negative values reach outside the button. A pseudo-element belongs to its element, so a click on this box is a click on the button. The letter alone is a target of 7 × 14px (measured: 7.0 × 13.6px); with the box it is about 26 × 38px, above the 24 × 24px that WCAG 2.5.8 (Target Size, Minimum) asks for.
+- `.info:hover, .info:focus-visible` – an underline under the i on hover, as on the footnote numbers, and on keyboard focus, in addition to the accent ring of the global `button:focus-visible` rule. `text-underline-offset: 0.15em` keeps the line close to the small letter.
+
+```css
+.tip {
+  max-width: min(20rem, calc(100vw - 2rem));
+  margin: auto; padding: 0.55rem 0.8rem;
+  border: 1px solid var(--line); border-radius: 0.4rem;
+  background: var(--paper); color: var(--ink);
+  font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;
+  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
+}
+.js .tip { margin: 0; inset: auto; }
+```
+
+`.tip` is the note. The browser's own stylesheet already styles every element with a `popover` attribute: hidden while closed; when open, `position: fixed` with `inset: 0`, `fit-content` width and height, `margin: auto` – which centres it on the screen – and a plain border and padding in system colours.
+
+- `max-width: min(20rem, calc(100vw - 2rem));` – `min()` returns the smaller argument: at most 20rem (320px), and on a narrow phone never wider than the screen minus 1rem on each side. A longer note wraps.
+- `margin: auto;` – repeats the browser's default: with `inset: 0`, auto margins centre the box. This is where the note appears without JavaScript (measured: centred on a 1280 × 800 window).
+- `padding: 0.55rem 0.8rem; border: …; border-radius: 0.4rem;` – a small card with soft corners and the site's hairline.
+- `background: var(--paper); color: var(--ink);` – the theme's colours instead of the system colours, and opaque, unlike the header: the note must stay readable over any text.
+- `font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;` – in the HTML, the note is a child of the heading. Inheritance follows the document tree, also for an element drawn in the top layer, so without these values the note would be set like its heading: large and bold. The rule sets the text back to body values, whatever heading it follows.
+- `box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);` – a soft shadow 0.4rem below the card, blurred over 1.25rem, lifts it off the page. Its colour is 14% ink: a dark shadow on light paper, a faint light glow on dark paper – the same one-colour-for-both-themes idea as `.mm-view`. The list of the jump control uses the same shadow.
+- `.js .tip { margin: 0; inset: auto; }` – with JavaScript, `site.js` places the note next to its i: below it, or above it when there is no room below; it follows the i while scrolling and closes the note when the i leaves the screen ([chapter 4](04-js.md)). The script writes `left` and `top` inline. For those two values to decide the position, the centring has to go: `inset: auto` clears the four offsets the browser set to 0, `margin: 0` removes the auto margins. (0,2,0) beats `.tip`. Without JavaScript, `.js` is missing, and the note stays centred – readable, just not next to its i.
+  - `site.js` positions the note on `beforetoggle`, in the next animation frame, before the first frame in which the note is visible. It never flashes in the centre.
+  - **Why the top layer matters here.** A `backdrop-filter`, like a `transform`, makes an element the containing block for its `position: fixed` descendants. The phone heading bar has one, so a fixed note inside it would be placed relative to the bar, not to the screen. Elements in the top layer are exempt: an open popover is positioned against the viewport, whatever its ancestors do, and the screen coordinates of `site.js` are correct.
+
+```css
+@supports not selector(:popover-open) {            /* browsers without popovers: the note stays in the text */
+  .info { display: none; }
+  .tip { display: block; margin: 0.25rem 0 0; padding: 0; border: 0; box-shadow: none; background: none; color: var(--muted); }
+}
+```
+
+- `@supports not selector(:popover-open)` – a feature query about a selector: `selector()` is true when the browser can parse the selector in it. `:popover-open`, the pseudo-class of an open popover, exists exactly in the browsers that support popovers, so the block applies to those without. Popovers reached all major engines in spring 2024 (Firefox 125 came last).
+- In such a browser, `popover` and `popovertarget` are unknown attributes: the button would do nothing, and the note would run on after the title as ordinary text, inside the heading.
+- `.info { display: none; }` – the useless button goes.
+- `.tip { display: block; … }` – the note becomes a quiet line of its own under the title: a block, a little space above, no card (no padding, border, shadow or background), in muted grey. The text values of `.tip` still apply, so it is set as body text, not as part of the heading.
+
 ## Contact: online and offline
 
 ```css
@@ -1007,17 +1172,17 @@ The Education section has footnote numbers (`<sup class="fnref">`) that link to 
 - `.lost h1` – the message, sized like the tagline, in regular weight so it reads as a sentence. The page also reuses `.claim` and `.prompt` from the hero.
 - `.dki` – the `{KeyWord:Page}` placeholder, a nod to Google Ads keyword insertion, marked up as `<code>`. Browsers render `<code>` in a monospace font at a smaller size; `font-family: inherit` and `font-size: inherit` make it match the heading, and the accent color marks it.
 
-## Back-to-top button
+## Jump control
 
 ```css
-/* back to top: appears once the name has docked; on wide screens it sits under the minimap */
-.to-top {
+/* up · sections · down: appears once the name has docked; on wide screens it sits under the minimap.
+   site.js points up and down at the section above and below, the middle shows the chapter and opens the list. */
+.jump {
   position: fixed; z-index: 5;
   right: max(1rem, calc(env(safe-area-inset-right, 0px) + 1rem));
   bottom: max(1rem, calc(env(safe-area-inset-bottom, 0px) + 1rem));
-  width: 2.75rem; height: 2.75rem; border-radius: 50%;
-  display: grid; place-items: center;
-  text-decoration: none; color: var(--ink);
+  display: flex; flex-direction: column;
+  width: 2.75rem; border-radius: 999px;
   background: color-mix(in srgb, var(--paper) 92%, transparent);
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   border: 1px solid var(--line);
@@ -1026,36 +1191,123 @@ The Education section has footnote numbers (`<sup class="fnref">`) that link to 
 }
 ```
 
+The jump control is a vertical pill at the bottom right with three parts: an arrow up, the chapter number, an arrow down. In the HTML it is a `<nav class="jump">` after the footer, holding a link `.up`, a `<details class="menu">` whose `<summary>` shows the number and opens a list of all eight sections, and a link `.down` ([chapter 2](02-html.md)). `site.js` points the two links at the start of the section above and below and writes the number ([chapter 4](04-js.md)); the CSS draws the pill and its states.
+
 - `position: fixed; z-index: 5;` – fixed to the viewport: out of the flow, unaffected by scrolling. Unlike a sticky element, it has no place in the document at all.
 - `right: max(1rem, calc(env(safe-area-inset-right, 0px) + 1rem));` and the same for `bottom` – 1rem from the edges, plus the safe-area inset on phones with rounded corners or a home indicator. `max()` returns the larger argument. As written, the `calc()` can never be smaller than 1rem (insets are never negative), so the `max()` changes nothing; and as with the header, the insets are 0 without `viewport-fit=cover`.
-- `width: 2.75rem; height: 2.75rem; border-radius: 50%;` – a 44px circle, the common minimum size for touch targets. 50% radius on a square gives a circle.
-- `display: grid; place-items: center;` – centers the arrow icon.
-- `text-decoration: none; color: var(--ink);` – it's a link: no underline, ink icon.
+- `display: flex; flex-direction: column;` – the three parts stacked from top to bottom.
+- `width: 2.75rem; border-radius: 999px;` – 44px wide, the common minimum size for touch targets. No height: the pill is as tall as its three parts. The radius is the pill trick of the language switch: the browser scales it down to half the width, which gives half-circle ends at the top and bottom.
 - `background: …; backdrop-filter: blur(6px); border: 1px solid var(--line);` – the same frosted look as the header.
 - `opacity: 0; visibility: hidden; transform: translateY(0.5rem);` – the hidden state: transparent, not interactive, 0.5rem lower.
 - `transition: opacity 0.2s, transform 0.2s, visibility 0s linear 0.2s;` – the transitions used when *entering* this hidden state.
 
-**The visibility trick.** `opacity: 0` alone hides the button only for the eye: it stays clickable and keyboard-focusable, so a Tab press could land on an invisible control. `visibility: hidden` takes it out of the tab order, the accessibility tree and mouse hit-testing. But `visibility` cannot fade, and if it switched to `hidden` at once, the fade-out would be cut short. Hence the entry `visibility 0s linear 0.2s`: duration 0, delay 0.2s – it flips to `hidden` only after the 0.2s fade has finished. On the way in, the visible state's `transition` (next rule) has no `visibility` entry, so visibility switches on immediately and the fade-in can be seen. The mechanism behind it: a transition always uses the `transition` value of the state being entered.
+**The visibility trick.** `opacity: 0` alone hides the control only for the eye: it stays clickable and keyboard-focusable, so a Tab press could land on an invisible control. `visibility: hidden` takes it out of the tab order, the accessibility tree and mouse hit-testing. But `visibility` cannot fade, and if it switched to `hidden` at once, the fade-out would be cut short. Hence the entry `visibility 0s linear 0.2s`: duration 0, delay 0.2s – it flips to `hidden` only after the 0.2s fade has finished. On the way in, the visible state's `transition` (next rule) has no `visibility` entry, so visibility switches on immediately and the fade-in can be seen. The mechanism behind it: a transition always uses the `transition` value of the state being entered.
 
 ```css
-.top.docked ~ .to-top { opacity: 1; visibility: visible; transform: none; transition: opacity 0.2s, transform 0.2s; }
-html:not(.js) .to-top { opacity: 1; visibility: visible; transform: none; }
-.to-top:hover { border-color: var(--accent); color: var(--accent); }
-.to-top:focus-visible { border-radius: 50%; }
-.to-top svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-@media (prefers-reduced-motion: reduce) { .to-top, .top.docked ~ .to-top { transition: none; } }
-@media (min-width: 74rem) and (min-height: 30rem) {
-  .to-top { right: calc(1.75rem + (4.25rem - 2.75rem) / 2); bottom: 1.75rem; }
+.top.docked ~ .jump { opacity: 1; visibility: visible; transform: none; transition: opacity 0.2s, transform 0.2s; }
+html:not(.js) .jump { opacity: 1; visibility: visible; transform: none; }
+html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to the top and the list */
+```
+
+- `.top.docked ~ .jump` – the general sibling combinator `~`: a `.jump` that comes *after* a `.top.docked` element with the same parent – anywhere after it, not only directly. In the HTML, `<nav class="jump">` follows `<header class="top">`, `<main>` and the footer inside `<body>`. When `site.js` adds `.docked` to the header, the control's visibility follows from CSS alone; no script shows or hides it. Apart from the newer `:has()`, selectors can only look at later siblings and at descendants, which is why the control comes after the header in the markup. The declarations: fully opaque, visible, back in place, and transitions without the visibility delay. (0,3,0) beats `.jump` (0,1,0).
+- `html:not(.js) .jump` – without JavaScript there is no docking, so the control is simply always visible.
+- `html:not(.js) .jump .down { display: none; }` – without JavaScript, nothing updates the down link. The HTML points it at the first section, which is wrong as soon as you have read past it, so it is removed. The other two parts work without a script: up is a plain link to `#top`, and the list is a native `<details>` full of ordinary anchors. The pill then has two parts (measured).
+
+```css
+.jump .up, .jump .down, .jump summary {
+  display: grid; place-items: center; height: 2.5rem;
+  color: var(--ink); text-decoration: none; cursor: pointer;
+}
+.jump .up { border-radius: 999px 999px 0 0; }
+.jump .down { border-radius: 0 0 999px 999px; }
+.jump summary {
+  list-style: none;
+  background: linear-gradient(var(--line), var(--line)) top / 1.25rem 1px no-repeat,
+              linear-gradient(var(--line), var(--line)) bottom / 1.25rem 1px no-repeat;   /* short hairlines between the three */
+}
+.jump summary::-webkit-details-marker { display: none; }
+```
+
+- `.jump .up, .jump .down, .jump summary` – the three parts:
+  - `display: grid; place-items: center;` – the icon or number in the middle of its part.
+  - `height: 2.5rem;` – the same 40px for all three, whatever they contain. The middle shows a number or an icon, and the pill keeps its height either way. Three parts of 40px plus 2px of border make the pill 122px tall; each part is 42px wide inside it (measured).
+  - `color: var(--ink); text-decoration: none; cursor: pointer;` – ink icons, no underline, and the hand cursor on all three – the summary included, which is not a link.
+- `.jump .up` and `.jump .down` – rounded ends that match the pill: at the top for up, at the bottom for down. The parts have no background, so the rounding is invisible until they get focus: the focus ring follows `border-radius` (see `.jump :focus-visible` below). The pill cannot simply clip its parts with `overflow: hidden` instead – the list opens outside the pill and would be clipped too.
+- `.jump summary` – the middle part:
+  - `list-style: none;` – no disclosure triangle. As with the "All five positions" disclosure, `display: grid` already removes the marker; `::-webkit-details-marker` in the next rule covers older Safari.
+  - `background: linear-gradient(…) top / 1.25rem 1px no-repeat, …` – the two short hairlines between the parts. A border always runs along the full side of its box and would cut the pill into three boxes. A background image can be sized and placed: `linear-gradient(var(--line), var(--line))` is a gradient from one colour to the same colour – a solid image of any size. After the position (`top` or `bottom`; the other axis defaults to the centre), the slash introduces the size: 1.25rem wide, 1px high. `no-repeat` keeps one copy. Two comma-separated layers give the two lines.
+
+```css
+.jump .up:hover, .jump .down:hover, .jump summary:hover, .jump .menu[open] summary { color: var(--accent); }
+.jump [aria-disabled="true"], .jump [aria-disabled="true"]:hover { color: var(--line); cursor: default; }
+.jump :focus-visible { outline-offset: -3px; }
+.jump svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+```
+
+- The first rule – bordeaux on hover for all three parts. The summary also stays bordeaux while the list is open (`[open]` on the `<details>`), so the open state is visible.
+- `.jump [aria-disabled="true"]` – at the very top there is nothing above, at the very bottom nothing below. `site.js` then sets `aria-disabled="true"` on the link concerned and ignores clicks on it ([chapter 4](04-js.md)). A link has no `disabled` attribute – that exists only for form controls – but `aria-disabled` tells screen readers that it is unavailable, and this rule shows it: the icon in the hairline colour, the default arrow cursor. WCAG exempts inactive controls from its contrast requirements.
+  - Why the `:hover` twin: `.jump .up:hover` weighs (0,3,0) and would still turn a disabled arrow bordeaux under the mouse. `.jump [aria-disabled="true"]` is only (0,2,0) – an attribute selector counts like a class. With `:hover` added it reaches (0,3,0) as well and wins by coming later in the file.
+- `.jump :focus-visible { outline-offset: -3px; }` – the space before `:focus-visible` makes it a descendant selector: any focused element inside the pill. The parts touch each other and the pill's border, so a ring 3px outside, as the global rule draws it, would run over the neighbours. `-3px` draws it 3px inside the part instead, along its rounded end. (0,2,0) beats the global `a:focus-visible` (0,1,1). The summary gets the same accent ring from the global rule, and this rule moves it inside as well.
+- `.jump svg` – outline icons in `currentColor`, slightly heavier (1.8) than the theme icons: the two arrows and the three lines in the middle.
+
+```css
+.jump .cur { font-size: 0.9rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.jump .cur:empty { display: none; }
+.jump .cur:not(:empty) + svg { display: none; }    /* the chapter number once there is one, the lines before */
+```
+
+The summary holds a `<span class="cur">` followed by an icon of three lines, like lines of code. `site.js` writes the number of the chapter being read into the span – "01" to "04" – and empties it above the first section.
+
+- `.jump .cur` – the number, set like the heading numbers: accent and tabular digits, here bold and at 0.9rem.
+- `.jump .cur:empty { display: none; }` – `:empty` matches an element without any children: no elements, no text, not even a space. An empty span is removed.
+- `.jump .cur:not(:empty) + svg { display: none; }` – `+` is the adjacent sibling combinator: the svg directly after a `.cur` that has content. So exactly one of the two shows: the number once there is one, the three lines before – in the hero, and always without JavaScript (measured). No class is toggled; the text of the span alone decides. Specificity (0,3,1): `:not()` counts as its argument.
+
+```css
+.jump .menu ol {
+  position: absolute; right: calc(100% + 0.5rem); bottom: 0;
+  margin: 0; padding: 0.4rem 0; list-style: none;
+  max-height: calc(100vh - 6rem); overflow: auto;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 0.5rem;
+  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
+  font-size: 0.95rem;
 }
 ```
 
-- `.top.docked ~ .to-top` – the general sibling combinator `~`: a `.to-top` that comes *after* a `.top.docked` element with the same parent. In the HTML, `<a class="to-top">` follows `<header class="top">` inside `<body>`. When `site.js` adds `.docked` to the header, the button's state follows from CSS alone; no script touches the button. Apart from the newer `:has()`, selectors can only look at later siblings and at descendants, which is why the button comes after the header in the markup. The declarations: fully opaque, visible, back in place, and transitions without the visibility delay. (0,3,0) beats `.to-top` (0,1,0).
-- `html:not(.js) .to-top` – without JavaScript there is no docking, so the button is simply always visible. It is a plain link to `#top` and needs no script.
-- `.to-top:hover` – bordeaux border and icon.
-- `.to-top:focus-visible { border-radius: 50%; }` – keeps the circle round under keyboard focus. The global `a:focus-visible` sets `border-radius: 2px` at (0,1,1), which beats the base `.to-top` (0,1,0) and would turn the button into a rounded square. This rule, (0,2,0), wins it back, and the focus ring follows the circle (measured: 50% while focused).
-- `.to-top svg` – an outline arrow in `currentColor`, slightly heavier (1.8) than the theme icons.
-- `@media (prefers-reduced-motion: reduce)` – no fade and no slide for visitors who asked for less motion. Both selectors are needed: `.top.docked ~ .to-top` sets its own `transition` at (0,3,0), which `.to-top` alone could not override.
-- `@media (min-width: 74rem) and (min-height: 30rem)` – the same condition as the minimap. `right: calc(1.75rem + (4.25rem - 2.75rem) / 2)` comes to 2.5rem: the minimap starts 1.75rem from the edge and is 4.25rem wide, so adding half the difference between minimap and button width centers the button under it. `bottom: 1.75rem` puts the button's top edge at 4.5rem, 0.75rem below the minimap's lower end at 5.25rem. Same specificity as the base rule, later in the file, so it wins.
+The list of sections opens beside the pill. As with the disclosure in Experience, no rule shows or hides it: a closed `<details>` renders only its summary.
+
+- `position: absolute;` – the `<details>` is not positioned, so the nearest positioned ancestor, the fixed `.jump`, is the reference box.
+- `right: calc(100% + 0.5rem);` – a percentage in `right` refers to the width of the reference box. The list's right edge sits one pill width plus 0.5rem in from the pill's right edge: 0.5rem to the left of the pill.
+- `bottom: 0;` – the list's lower edge is aligned with the pill's, so it grows upwards, where there is room.
+- `margin: 0; padding: 0.4rem 0; list-style: none;` – list reset, a little space at the top and bottom.
+- `max-height: calc(100vh - 6rem); overflow: auto;` – on a short screen, such as a phone held sideways, the list never grows taller than the viewport minus 6rem, and the rest scrolls inside it. Counted from a pill 1rem or 1.75rem above the bottom, its top edge stays about 4.25rem or more below the top of the screen, clear of the 3.5rem header.
+- `background: var(--paper); border: …; border-radius: 0.5rem; box-shadow: …` – an opaque card like the toggletip note, with the same shadow.
+- `font-size: 0.95rem;` – the size of the header menu.
+
+```css
+.jump .menu a { display: block; padding: 0.35rem 1.1rem 0.35rem 0.9rem; color: var(--muted); text-decoration: none; white-space: nowrap; }
+.jump .menu a:hover { color: var(--ink); }
+.jump .menu .no { color: var(--accent); font-variant-numeric: tabular-nums; }
+.jump .menu .ghost { visibility: hidden; }
+.jump .menu sup { font-size: 0.62em; line-height: 0; vertical-align: 0.55em; }
+.jump .menu [aria-current] { color: var(--ink); font-weight: 700; }
+```
+
+- `.jump .menu a` – each entry is a block, so the whole row is the target, with comfortable padding; muted and without underline, like the header menu.
+  - **Why `white-space: nowrap` is essential.** An absolutely positioned box with `width: auto` gets a *shrink-to-fit* width: as narrow as its content allows, but no wider than the space available. That space is computed from the reference box: the pill's 2.75rem minus a `right` offset of 2.75rem + 0.5rem – less than nothing. The list would therefore shrink to its min-content width, the widest single word, and break every entry after each word. `nowrap` makes each entry one unbreakable piece, so the list is as wide as its longest entry. Measured: 137px wide and 293px tall with `nowrap`, 113px and 363px without it.
+- `.jump .menu a:hover` – ink.
+- `.jump .menu .no` and `.jump .menu .ghost` – the numbers as in the section headings: chapter openers with a bordeaux number, the other sections with their chapter's number made invisible, so all eight titles start at the same x.
+- `.jump .menu sup` – the 4 of "P⁴", with the values of `.sec > h2 sup`, minus its hair of margin.
+- `.jump .menu [aria-current]` – `site.js` marks the entry of the section being read with `aria-current="location"`: ink and bold. The header menu marks the chapter; this list marks the section itself.
+
+```css
+@media (prefers-reduced-motion: reduce) { .jump, .top.docked ~ .jump { transition: none; } }
+@media (min-width: 74rem) and (min-height: 30rem) {
+  .jump { right: calc(1.75rem + (4.25rem - 2.75rem) / 2); bottom: 1.75rem; }
+}
+```
+
+- `@media (prefers-reduced-motion: reduce)` – no fade and no slide for visitors who asked for less motion. Both selectors are needed: `.top.docked ~ .jump` sets its own `transition` at (0,3,0), which `.jump` alone could not override.
+- `@media (min-width: 74rem) and (min-height: 30rem)` – the same condition as the minimap. `right: calc(1.75rem + (4.25rem - 2.75rem) / 2)` comes to 2.5rem: the minimap starts 1.75rem from the edge and is 4.25rem wide, so adding half the difference between minimap and pill width centres the pill under it (measured: both centred on the same pixel column). `bottom: 1.75rem` puts the pill's lower edge 28px above the bottom of the screen; its 122px reach up to 150px. The minimap ends at 10.25rem, 164px, which leaves a 14px gap (measured). Same specificity as the base rule, later in the file, so it wins.
 
 ## Footer
 
@@ -1107,7 +1359,7 @@ On `impressum.html` and `datenschutz.html`, the frame carries both classes (`cla
     position: fixed;
     right: 1.75rem;
     top: 5rem;
-    bottom: 5.25rem;
+    bottom: 10.25rem;                             /* above the jump control */
     width: 4.25rem;
     cursor: pointer;
     touch-action: none;
@@ -1121,11 +1373,11 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 - `.minimap { display: none; }` – hidden by default. `site.js` reads the computed `display` and builds nothing while it is `none`, so this media query is the single switch for the whole feature.
 - `(min-width: 74rem) and (min-height: 30rem)` – both conditions must hold: wide enough for the lane that `.wrap` reserves, tall enough for a usable rail.
   - `display: block; position: fixed;` – shown, and fixed to the viewport.
-  - `right: 1.75rem; top: 5rem; bottom: 5.25rem;` – with both `top` and `bottom` set and no height, a positioned box stretches between them: the rail fills the viewport height below the header and above the back-to-top button.
+  - `right: 1.75rem; top: 5rem; bottom: 10.25rem;` – with both `top` and `bottom` set and no height, a positioned box stretches between them: the rail fills the viewport height below the header and above the jump control. 10.25rem is the control's 1.75rem distance from the bottom, plus its height of three 2.5rem parts, plus about 1rem of air.
   - `width: 4.25rem;` – the rail width.
   - `cursor: pointer;` – signals that the rail is clickable.
   - `touch-action: none;` – on a touch screen the browser would normally claim a drag for scrolling and cancel the pointer events. `none` leaves all touch gestures on the rail to the pointer handlers in `site.js`, so dragging works.
-  - `z-index: 4;` – below header and button (5).
+  - `z-index: 4;` – below the header and the jump control (5).
 
 ```css
 .mm-measure .sec > h2 { position: static; }
@@ -1172,7 +1424,7 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 
 ```css
 @media print {
-  .top, .minimap, .skip, .to-top { display: none; }
+  .top, .minimap, .skip, .jump, .info { display: none; }
   .hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }
   .hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }
   .sec > h2 { position: static; }
@@ -1181,12 +1433,12 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 ```
 
 - `@media print` – applies when the page is printed or saved as PDF.
-- `.top, .minimap, .skip, .to-top { display: none; }` – navigation and screen-only aids don't belong on paper. The back-to-top button matters most here: browsers typically repeat fixed elements on every printed page.
+- `.top, .minimap, .skip, .jump, .info { display: none; }` – navigation and screen-only aids don't belong on paper. The jump control matters most here: browsers typically repeat fixed elements on every printed page. The toggletip's i goes as well: on paper it cannot be clicked and would be a stray letter after the heading. The disclosure in Experience needs no rule: `site.js` opens it before printing ([chapter 4](04-js.md)).
 - `.hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }` – puts the name and its caret back in the hero. Once you have scrolled down, the name has docked: `site.js` has moved and shrunk it with an inline `transform`, and `.hero.docked` has set its opacity to 0. With the header hidden on paper, the printout would otherwise carry no name at all.
   - **Why `!important`.** An inline style beats every normal stylesheet declaration, whatever its specificity. The one way for a stylesheet to override it is `!important`: important declarations from the site outrank normal ones, inline styles included. The same flag also beats `.hero.docked`'s `opacity: 0` (0,2,1), which (0,1,1) alone could not.
   - Measured with Chromium's print emulation after scrolling: name visible, no transform.
 - `.hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }` – the rest of the prompt line. During the flight, `site.js` fades the typed motto and the cursor block with inline `opacity`, down to 0 once the name has docked. They don't move, so only the opacity needs resetting, and again only `!important` can beat the inline value. A page printed after scrolling shows the full `>_ sudo dream plan ship` with its cursor.
-- `.sec > h2 { position: static; }` – sticky makes no sense on a printed page. Same specificity as the sticky rule, later in the file, so it wins.
+- `.sec > h2 { position: static; }` – sticky makes no sense on a printed page. Same specificity as both sticky rules – the wide-screen one and the phone one – and later in the file, so it wins.
 - `body { font-size: 11pt; }` – `pt` (1/72 inch) is a natural unit on paper. Only text that inherits its size from `body` changes; everything sized in rem (headings, ledger figures, the hero name) stays relative to the root.
 
 ---
@@ -1211,6 +1463,8 @@ Open peterstieg.com (or `site/index.html` locally) and the DevTools (F12).
 - **Sticky and fixed** – sticky stays in the flow and sticks at an offset while its containing block is on screen; fixed leaves the flow and is placed relative to the viewport.
 - **Stacking context** – a group of elements whose z-index values are compared only with each other. Created, for example, by a position with a z-index, `transform`, `opacity` below 1 or `backdrop-filter`.
 - **Pseudo-element** – a box CSS generates without markup: `::before`, `::after`, `::marker`, `::selection`. `::before` and `::after` need `content` to exist.
+- **Disclosure: `<details>` and `<summary>`** – the browser's built-in open/close widget. A click on the summary toggles the `open` attribute; a closed `<details>` renders only its summary, with no CSS or script involved.
+- **Popover and top layer** – an element with the `popover` attribute opens and closes from a button with `popovertarget`, without script. While open, it is drawn in the top layer: above every z-index and stacking context, positioned against the viewport. A click outside it or Esc closes it.
 - **Transition and animation** – a transition interpolates between two values when a value changes; an animation runs keyframes on its own timeline, can repeat and needs no trigger.
 - **User-preference media query** – `prefers-color-scheme` and `prefers-reduced-motion` read OS or browser settings, so the page can follow the visitor's choices live.
 

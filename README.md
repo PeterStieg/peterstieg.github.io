@@ -8,13 +8,15 @@ One Python script turns the copy into static HTML. No framework, no tracking, no
 peterstieg.github.io
 ├── src/build.py          all copy (EN · DE) and the HTML templates
 ├── src/lockup/           the logo >_ P/S: generator, SVG files, the design's animation
+├── src/monogram/         the PS monogram: generator, SVG files, the link preview's source
 ├── site/                 generated – exactly what goes on the server
 │   ├── index.html        English (default)
 │   ├── de/index.html     German
 │   ├── impressum.html · datenschutz.html
 │   ├── 404.html · .htaccess
 │   ├── assets/           site.css · site.js · fonts/
-│   └── favicon.svg · apple-touch-icon.png · og-image.png · robots.txt · sitemap.xml
+│   ├── favicon.ico · favicon.svg · apple-touch-icon.png · icon-192/512.png · site.webmanifest
+│   └── og-image.png · robots.txt · sitemap.xml
 ├── docs/                 the code explained, line by line
 ├── forward/              forward.css · forward.js · fonts/ – the terminal scene on peterstieg.github.io
 └── index.html · 404.html · _config.yml   forward peterstieg.github.io to peterstieg.com

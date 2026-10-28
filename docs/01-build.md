@@ -153,19 +153,24 @@ PROJECTS_LEAD = "Stop starting. Start finishing."
 # four chapters, like the parts of a slide deck: the first section of each is numbered and linked in the menu,
 # the sections after it belong to it – P⁴ to Profile, Education to Experience, Approach to Projects, Sources to Contact
 CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": ["approach"], "contact": ["notes"]}
+SECTIONS = [k for first, rest in CHAPTERS.items() for k in (first, *rest)]   # page order: profile, fields, experience …
 ```
 
 - `P4` – the four headings of the P⁴ section. `page()` pairs them by position with `CONTENT[lang]["fields"]`.
 - `P4_TAIL` – an extra closing line for selected fields, keyed by index (3 = People). A dict instead of a list because only some fields have a tail; `i in P4_TAIL` checks the keys.
 - `SLOGANS` – paired by position with `CONTENT[lang]["approach"]`.
-- `PROJECTS_LEAD` – the intro line of the Projects section.
+- `PROJECTS_LEAD` – the note behind the superscript i after the Projects heading (a toggletip, section 20).
 - `CHAPTERS` – the page's four chapters, like the four parts of a slide deck. Each key opens a chapter and is linked in the menu; the list holds the sections that follow it and belong to it. The order of the keys is the order of the chapters, so `profile` is 01 and `contact` 04. The keys are the English ones, so both languages share the numbers.
 - The page order must match: every section in a list comes right after its chapter's first section. That is why Education stands behind Experience in `page()`, not at the end.
+- `SECTIONS` – all eight section keys in page order, derived from `CHAPTERS`: `["profile", "fields", "experience", "education", "projects", "approach", "contact", "notes"]`. The jump control lists the sections from it (section 22).
+  - A list comprehension with two `for` clauses reads like two nested loops, left to right: for each chapter (`first`, `rest`), for each `k` in that chapter.
+  - `(first, *rest)` builds a tuple: the opener, then the items of `rest` unpacked into it. `("experience", *["education"])` is `("experience", "education")`.
+  - Derived, not typed: add a section to `CHAPTERS` and it appears in the jump control's list with the right number. The order of the `out.append` calls in `page()` still has to follow by hand.
 - Pitfall: pairing by position. Reorder `P4` without reordering both `fields` lists and every text lands under the wrong heading. And `zip()` stops at the shorter list: a missing fourth text silently drops "People" – no error.
 
 ---
 
-## 7 · NOTES and stacks
+## 7 · NOTES, companies and stacks
 
 ```python
 # Footnotes: verification links (QR codes on the Liora diplomas, thekey.career, edX), plus course pages where they exist.
@@ -188,6 +193,9 @@ NOTES = {
             "date": {"en": "12 June 2018", "de": "12. Juni 2018"}, "by": "Microsoft"},
 }
 
+# the ledger names a company, the name links to its role under Experience (role "id")
+COMPANIES = {"e-service-check": "E+SERVICE+CHECK", "brandible": "Brandible", "posterlounge": "Posterlounge"}
+
 STACK_DS = "Python · Keras · PyTorch · Google Cloud"
 STACK_MLOPS = "Docker · Airflow · MLflow · FastAPI · Grafana"
 ```
@@ -202,6 +210,7 @@ STACK_MLOPS = "Docker · Airflow · MLflow · FastAPI · Grafana"
   - `by` – the organisation behind the credential, for the structured data (section 19).
 - Why preformatted dates instead of `date` objects: Python's month names (`%B` in `strftime`) follow the system locale, and switching to a German locale depends on what the machine has installed. Two literal strings avoid that entirely.
 - `NOTES` feeds both the visible footnotes in `page()` and the credentials in `jsonld()` – one source, two outputs.
+- `COMPANIES` – the companies the results ledger names. Each key does two jobs: it looks up the display name, and it is the HTML id of that company's role under Experience (`#posterlounge`), so the name in the ledger becomes a link to the role. The names are the same in both languages, so they live outside `CONTENT`, and each is spelled once instead of once per ledger row.
 - `STACK_DS`, `STACK_MLOPS` – the tool lines of the two capstone projects. They are the same in both languages, so they are defined once and referenced from both dictionaries.
 
 ---
@@ -216,7 +225,8 @@ CONTENT = {
     "en": {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
-        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top",
+        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info",
+        "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: …",
         "skip": "Skip to content",
         "nav": [("profile", "Profile"), ("experience", "Experience"), ("projects", "Projects"), ("contact", "Contact")],
@@ -227,20 +237,29 @@ CONTENT = {
         "profile": "Leadership roles at four companies, …",
         "ledger_label": "Selected results",
         "ledger": [
-            ("€6k → €240k", "monthly media budget at a RoAS of 4.0 · Posterlounge"),
+            ("€6k → €240k", "monthly media budget at a RoAS of 4.0", "posterlounge"),
             …
         ],
-        "p4_intro": "P as in Peter.",
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO and marketplaces. …",
             …
         ],
+        "people_note": "Processes fit people, not the other way round.",
         "roles": [
-            {"when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
+            {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
-             "tree": [("Scope", "…"),
+             "tree": [("Team", "…"),
+                      ("Scope", "…"),
                       ("Result", "…")]},
             …
+            {"when": "2010 – 2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
+             "tree": [("Scope", "…")],
+             "more": ("All five positions", [
+                 {"when": "04/2014 – 08/2014", "title": "Marketing Consultant", "org": "SBS systems for business solutions Srl", "place": "Rome",
+                  "tree": [("Scope", "…")]},
+                 {"when": "06/2013 – 05/2014", "title": "Corporate investigations", "org": "Inner Valor Srl", "place": "Rome", "tree": []},
+                 …
+             ])},
         ],
         "groups": [
             ("At E+SERVICE+CHECK", [
@@ -258,8 +277,9 @@ CONTENT = {
         ],
         "facts": [
             ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in partnership with Université Paris 1 Panthéon-Sorbonne"),
-            ("2023", "Agile project management specialist (IHK)[[ihk]]", "with distinction"),
+            ("2023", "Agile project management specialist[[ihk]]", "IHK"),
             …
+            ("Languages", ["German (native)", "English C2", "Italian C2", "Spanish B1", "French A2"], ""),
         ],
         "offline": ("Leipzig.", "Before: Rome, Trento, Jinotega (Nicaragua), Orem (Utah)."),
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
@@ -298,7 +318,9 @@ Interface labels:
 | `aria_main`, `aria_legal`, `aria_lang` | str | accessible names of the header nav, footer nav and language group |
 | `theme` | 3-tuple | group label, "light" label, "dark" label for `theme_switch()` |
 | `arrow` | str | what a screen reader says for a drawn → (`"to"` / `"auf"`) |
-| `to_top` | str | label of the back-to-top button |
+| `to_top` | str | label of the jump control's up link while it leads to the top of the page (`"Back to top"` / `"Nach oben"`) |
+| `info` | str | spoken name of the superscript i that opens a toggletip |
+| `jump` | dict | the jump control: `label` names its `<nav>`, `menu` the button that opens the section list, `up` and `down` are templates in which `%s` stands for a section name (`"Up: %s"` → "Up: Experience") |
 | `skip` | str | text of the skip link |
 | `nav` | list of (id, label) | header links |
 | `sec` | dict | section headings, keyed by internal section name |
@@ -318,21 +340,24 @@ Copy:
 |---|---|---|
 | `entry` | dict | the dictionary entry: `hw` headword with syllable marks, `pos` part of speech, `ety` etymology, `def` definition |
 | `profile` | str | the profile paragraph |
-| `ledger_label`, `ledger` | str, list of (figure, context) | the results list in the profile |
-| `p4_intro`, `fields` | str, list of 4 str | the P⁴ section, paired with `P4` |
-| `roles` | list of dicts | Experience: `when`, `title`, `org`, `url` (optional: the company's website), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text)) |
+| `ledger_label`, `ledger` | str, list of (figure, context, company key) | the results list in the profile; the key looks up the name in `COMPANIES` and links to the role with that `id` |
+| `fields` | list of 4 str | the P⁴ section, paired with `P4` |
+| `people_note` | str | the toggletip after the People heading in P⁴ |
+| `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when`, `title`, `org`, `url` (optional: the company's website), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `more` (optional: (label, list of sub-roles) – the single positions behind a disclosure, each a role dict of its own) |
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link |
 | `approach` | list of 3 str | paired with `SLOGANS` |
-| `facts` | list of (label, value, sub-line or `""`) | Education |
+| `facts` | list of (label, value, sub-line or `""`) | Education; the value is a string, or a list of strings shown one per line (the languages) |
 | `offline` | 2-tuple | Contact: current city, earlier places |
 
 ### How EN and DE mirror each other
 
 - Same keys, same shapes, same number and order of list items. The only key that exists in one language and not the other is `ids` – English uses the internal keys directly as anchors.
 - Localized, not translated: German uses KUR, English RoAS (rule 2), job titles follow German usage ("Leiter Marketing"), number formats follow each language ("6.000 → 240.000 €" vs "€6k → €240k").
-- English inside German: tree labels such as `"Scope"`, `"Team"`, `"Result"`, `"Capstone"` stay English in the DE dict (rule 5).
+- English inside German: the tree labels `"Team"`, `"Scope"` and `"Result"` stay English in the DE dict (rule 5). Every role uses the same three, in that order, wherever there is something to say – a role without a team simply has no `"Team"` row.
+- Not localized at all: the company keys at the end of each `ledger` entry and the role `id`s they point to. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates.
+- Nested lists mirror too: the five sub-roles under `"more"` exist in both dicts, in the same order.
 - Nothing checks parity. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A missing list item – a role or project only added in EN – is silent: the German page simply shows one entry fewer. Edit both languages in the same sitting.
-- Quick parity check from the repository root (importing does not build anything, see section 25):
+- Quick parity check from the repository root (importing does not build anything, see section 28):
 
   ```
   python3 -c "import sys; sys.path.insert(0, 'src'); import build as b; print(set(b.CONTENT['en']) ^ set(b.CONTENT['de']))"
@@ -347,9 +372,9 @@ Copy:
 | `→` | `"€6k → €240k"` | a drawn SVG arrow with a spoken label | `t()` |
 | `*word*` | `"[*marketer* × *tinkerer*]"` | `<i>word</i>` – words cited as words, like in a dictionary | `t()` |
 | `[[key]]` | `"Data Scientist[[ds]]"` | a numbered footnote reference to `NOTES[key]` | regex in `page()`, education section |
-| ` · ` | `"… · Posterlounge"` | a middle dot glued to the word before it | `dots()` |
+| ` · ` | `"Python · BigQuery · Data Studio"` | a middle dot glued to the word before it | `dots()` |
 
-Pitfall: the markers only work where the code runs the text through the matching function. `t()` handles `entry["ety"]`, the first item of each `ledger` pair and the values in each role's `tree`. The `[[…]]` regex runs only on the middle value of each `facts` tuple. Everywhere else – `profile`, `fields`, `ctx`, `groups`, `approach` – the text only goes through `e()`: asterisks stay visible and `→` stays a plain character in a fallback font.
+Pitfall: the markers only work where the code runs the text through the matching function. `t()` handles `entry["ety"]`, the first item of each `ledger` entry and the values in each role's `tree`. The `[[…]]` regex runs only on the middle value of each `facts` tuple, and only when that value is a string – the items of a list go through `e()` alone. Everywhere else – `profile`, `fields`, `people_note`, `ctx`, `groups`, `approach` – the text only goes through `e()`: asterisks stay visible and `→` stays a plain character in a fallback font.
 
 ---
 
@@ -372,7 +397,7 @@ SOURCE_NOTE = f"""<!--
 - The content is an HTML comment (`<!-- … -->`): invisible on the page, visible to anyone who opens the page source. `head()` places it between `<!doctype html>` and `<html>`.
 - The comment text must never contain `-->` – that would end the comment early and print the rest on the page.
 - Pitfall: the comment comes before `<meta charset="utf-8">`. Browsers look for the charset declaration only in the first 1024 bytes of the file; it currently sits at byte 232. Let the comment grow by several hundred bytes and the browser may have to guess the encoding – umlauts and the tree characters break.
-- `dots()` deliberately leaves this comment alone (section 24).
+- `dots()` deliberately leaves this comment alone (section 27).
 
 ---
 
@@ -418,6 +443,11 @@ SUN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circl
            'M3.05 12.95l1.13-1.13M11.82 4.18l1.13-1.13"/></svg>')
 UP_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
           '<path d="M8 13.5V2.8M3.4 7.2 8 2.6l4.6 4.6"/></svg>')
+DOWN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+            '<path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg>')
+# three code lines, as in the minimap: the section menu before a chapter is reached, and without JavaScript
+LINES_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+             '<path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg>')
 MOON_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
             '<path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg>')
 
@@ -431,7 +461,9 @@ LOCKUP = re.sub(r"<svg ([^>]*)>(.*)</svg>",
 ```
 
 - Inline SVG as strings, pasted straight into the HTML: no image requests, and the icons can take the text color.
-- Why draw the arrow: the site font, Atkinson Hyperlegible, has no → glyph. The browser would borrow it from a fallback font with a different weight and baseline. Sun, moon and up-arrow have no font equivalent anyway.
+- Why draw the arrow: the site font, Atkinson Hyperlegible, has no → glyph. The browser would borrow it from a fallback font with a different weight and baseline. Sun, moon, the two jump arrows and the three lines have no font equivalent anyway.
+- `UP_SVG` and `DOWN_SVG` – the two ends of the jump control (section 22). `DOWN_SVG` is `UP_SVG` mirrored: the shaft runs from y = 2.5 down to 13.2 (`v10.7` – a vertical line, relative), the head points down.
+- `LINES_SVG` – three horizontal strokes of different lengths (`h11`, `h9`, `h7`), the second one indented: lines of code, like the bars of the minimap. It sits in the middle of the jump control as long as there is no chapter number to show – at the top of the page and without JavaScript.
 - `viewBox="0 0 16 10"` – the internal coordinate system (16 × 10 units). The real size comes from CSS (`.arr` is 0.95em × 0.62em), so the icon scales with the text.
 - `<path d="…">` – drawing commands. In the arrow: `M1 5` moves the pen to (1, 5), `h13.5` draws a horizontal line 13.5 units to the right (the shaft), `M10 1.2` jumps to the top of the head, `14 5` draws to the tip (coordinate pairs after an `M` count as line commands), `l-4 3.8` draws relative to the tip down to the bottom of the head. Uppercase = absolute coordinates, lowercase = relative.
 - No `fill` or `stroke` in the markup: the CSS sets `fill: none; stroke: currentColor`, so every icon takes the current text color. Dark mode and hover colors work without a second set of icons.
@@ -490,7 +522,7 @@ def note_title(c, note):
 - `enumerate(…, 1)` – counts along, starting at 1 instead of 0. Each round gets the number `i` and the pair, unpacked into `first` and `rest`.
 - `if key == first or key in rest` – the section opens this chapter or belongs to it. `num("fields")` and `num("profile")` both return `"01"`.
 - `:02d` – a format spec: an integer (`d`), at least two digits wide, padded with zeros (`0`). 1 becomes `01`.
-- `return ""` – after the loop: a section in no chapter. None exists today; the empty string keeps `section()` working if one is added.
+- `return ""` – after the loop: a section in no chapter. None exists today; the empty string keeps `chapter_no()` (section 20) working if one is added.
 
 ---
 
@@ -553,8 +585,10 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 <meta property="profile:first_name" content="Peter">
 <meta property="profile:last_name" content="Stieg">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="{r}favicon.ico" sizes="48x48">
 <link rel="icon" href="{r}favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="{r}apple-touch-icon.png">
+<link rel="manifest" href="{r}site.webmanifest">
 <link rel="preload" href="{r}assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{r}assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{r}assets/site.css">
@@ -592,7 +626,11 @@ The returned document head, top to bottom:
 - `og:*` – Open Graph: what LinkedIn, Slack, WhatsApp and others show when the link is shared. `og:image` must be an absolute URL, because crawlers do not resolve relative paths. `width` and `height` let the platform lay out the preview before the image arrives.
 - `profile:first_name`, `profile:last_name` – Open Graph fields for the `profile` type.
 - `twitter:card` – asks X for a large image preview; title, description and image fall back to the `og:*` values.
-- Icons with `{r}` – relative to where the page lives.
+- Four icon lines, all with `{r}` – relative to where the page lives. All four files are drawn from the "PS" monogram; they are made in `src/monogram/`, not here (section 29).
+  - `favicon.ico` with `sizes="48x48"` – the classic format: one file that holds several bitmaps, here 16, 32 and 48 pixels. Why it still exists next to the SVG: not every browser takes an SVG favicon (Safari did not for a long time), and some programs ask for `/favicon.ico` directly without reading the page at all – feed readers, bookmark services, older browsers. On top of that, the 16 and 32 pixel versions are drawn by hand on the pixel grid, which stays sharper in a browser tab than any automatic downscaling of the vector. `sizes` names the largest bitmap in the file: a fixed size marks the ICO as the bitmap fallback, so a browser that understands SVG prefers the vector, which fits any size.
+  - `favicon.svg` – the vector mark. It carries its own `prefers-color-scheme` rule and switches to the lighter accent in dark mode. `type="image/svg+xml"` lets a browser that cannot use SVG icons skip the file.
+  - `apple-touch-icon` – the icon iOS shows when someone adds the page to the home screen: a 180 × 180 pixel PNG, because iOS takes neither the SVG nor the ICO here.
+  - `manifest` – `site.webmanifest`, a small JSON file that describes the site as a web app: its name, a short name, the colors, and two more icons (192 and 512 pixels). Android and Chrome take their home-screen and install icons from it. Its `"display": "browser"` keeps the site an ordinary page in a browser tab even when opened from the home screen – the manifest is here for the icons, not to turn the site into an app.
 - `rel="preload"` for two font files – starts the download immediately instead of after the CSS has been parsed and the fonts discovered there. `crossorigin` is required: fonts are always fetched in CORS mode, and a preload without it does not match the real request, so the font would download twice. The italic file is not preloaded; it is only needed for a few words.
 - `<link rel="stylesheet">` – the CSS, deliberately after `THEME_BOOT`.
 - No `</head>` at the end. Callers add more first (JSON-LD, `robots` meta) and close the head themselves. If you write a new page function, you must close it.
@@ -752,15 +790,60 @@ def jsonld(c):
 
 ---
 
-## 20 · section and tree
+## 20 · chapter_no and info
+
+Two small helpers that put something into a heading: the chapter number in front, a toggletip behind.
 
 ```python
-def section(c, key, title_html, body, cls="body"):
+def chapter_no(key):
+    """The number before a section title: visible if the section opens a chapter, invisible (.ghost) for the rest,
+    so the titles line up."""
+    ghost = "" if key in CHAPTERS else " ghost"
+    return f'<span class="no{ghost}" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
+```
+
+- The number before a section title, as a finished span. Two places show it: the section headings (`section()`, section 21) and the list in the jump control (section 22). Both call this one function, so the two can never disagree.
+- `ghost` – a second class for the sections that do not open a chapter (P⁴, Education, Approach, Sources). `key in CHAPTERS` checks the dict's keys only, so it is true just for the four chapter openers.
+- The span holds the number from `num(key)` (section 12). P⁴ gets `<span class="no ghost">01</span>`: the number of its chapter, which the CSS makes invisible. It still takes up its width, so "P⁴" starts exactly where "Profile" does – an outline, without any measuring. An empty string counts as false, so `if num(key)` is enough.
+  - `aria-hidden="true"` – screen readers skip the number and announce "Profile", not "zero one Profile". The number is a visual signpost; the order of headings already carries the structure.
+  - The space after `</span>` sits outside the span, so the plain text of the heading still reads "01 Profile" for search engines and copy-paste.
+
+```python
+def info(c, key, text, lang=""):
+    """Toggletip: a superscript i after a heading, the note opens next to it as a popover – no JavaScript needed.
+    lang: the note's language where it differs from the heading's."""
+    tip = f"tip-{key}"
+    lang_attr = f' lang="{lang}"' if lang else ""
+    return (f'<button type="button" class="info" popovertarget="{tip}" aria-label="{e(c["info"])}">i</button>'
+            f'<span class="tip" id="{tip}" popover{lang_attr}>{e(text)}</span>')
+```
+
+- A toggletip: a small button that shows a short note when clicked or tapped and hides it again on the next click. Unlike a tooltip, which appears on hover, it works the same with a mouse, a finger and the keyboard (Enter or Space on the focused button). The page has two: after the People heading in P⁴ and after the Projects heading.
+- `tip = f"tip-{key}"` – the note's id: `tip-people`, `tip-projects`. Ids must be unique on a page, so every call needs its own key.
+- `lang_attr` – an optional `lang` attribute for the note. The note sits inside a heading and inherits the heading's language unless it says otherwise. The caller passes a language only where the two differ: on the German page the People heading is English and its note German, the Projects heading German and its note English.
+- The return value is two elements side by side, the button and the note. Both end up inside an `<h2>` or `<h3>`; both are phrasing content, which a heading may contain.
+- The button:
+  - `type="button"` – the safe habit (section 16).
+  - `popovertarget="{tip}"` – the HTML popover API. A button with this attribute opens and closes the element with that id, provided the element carries the `popover` attribute. The browser does it on its own, without JavaScript.
+  - Its visible text is a plain `i`, set as a superscript by the CSS (`.info`). `aria-label` gives the button a real name: "Info". The browser also tells screen readers whether the note is open or closed.
+- The note:
+  - `popover` – short for `popover="auto"`: the element stays hidden until its button opens it. Then it is drawn in the top layer – above everything else on the page, regardless of `z-index`, and never cut off by a parent element. "Auto" also brings light dismiss: a click outside the note or the Esc key closes it, and opening another auto popover closes the first.
+  - Where it appears: without JavaScript, the browser's default style centers it in the window. `site.js` places it right next to the i, keeps it there while the page scrolls and closes it once the i leaves the screen (chapter 4).
+  - `{e(text)}` – the note is copy, so it is escaped.
+- A browser without popover support does not know the attribute and shows the `<span>` as ordinary text. The CSS builds on that: `@supports not selector(:popover-open)` hides the i and sets the note as a muted line under the title (chapter 3). The note is never lost.
+
+---
+
+## 21 · section and tree
+
+```python
+def section(c, key, title_html, body, cls="body", tip=""):
     i = sid(c, key)
-    ghost = "" if key in CHAPTERS else " ghost"      # the rest of a chapter repeats its number invisibly: titles line up
-    no = f'<span class="no{ghost}" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
-    return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
-<h2 id="h-{i}">{no}{title_html}</h2>
+    label = f"h-{i}"
+    if tip:                                            # the section is named by its title, not by the i
+        title_html, label = f'<span id="t-{i}">{title_html}</span>{tip}', f"t-{i}"
+    return f"""<section class="sec" id="{i}" aria-labelledby="{label}">
+<h2 id="h-{i}">{chapter_no(key)}{title_html}</h2>
 <div class="{cls}">
 {body}</div>
 </section>
@@ -769,31 +852,125 @@ def section(c, key, title_html, body, cls="body"):
 
 - The wrapper for every content section of the main page.
 - `cls="body"` – a default parameter: used when the caller passes nothing. No caller currently passes another value.
+- `tip=""` – an optional toggletip from `info()`, placed right after the title. Only Projects passes one; the People note belongs to an `<h3>` inside P⁴ and is added in `page()`.
 - `i = sid(c, key)` – the localized anchor.
-- `ghost` – a second class for the sections that do not open a chapter (P⁴, Education, Approach, Sources). `key in CHAPTERS` checks the dict's keys only, so it is true just for the four chapter openers.
-- `no` – the number span from `num(key)` (section 12). P⁴ gets `<span class="no ghost">01</span>`: the number of its chapter, which the CSS makes invisible. It still takes up its width, so "P⁴" starts exactly where "Profile" does – an outline, without any measuring. An empty string counts as false, so `if num(key)` is enough.
-  - `aria-hidden="true"` – screen readers skip the number and announce "Profile", not "zero one Profile". The number is a visual signpost; the order of headings already carries the structure.
-  - The space after `</span>` sits outside the span, so the plain text of the heading still reads "01 Profile" for search engines and copy-paste.
-- `aria-labelledby="h-{i}"` points at the `<h2 id="h-{i}">`: the heading becomes the section's name, and a named `<section>` is exposed as a landmark that screen-reader users can jump between.
-- `title_html` – the name says it: raw HTML, inserted unescaped. Callers pass `e(s["profile"])` and so on; only P⁴ passes markup (`'P<sup>4</sup>'`). Pitfall: pass plain copy here without `e()` and the first `&` breaks the markup.
+- `label` – the id of the element that names the section; normally the heading's, `h-{i}`.
+- `aria-labelledby="{label}"` – the text of the element with that id becomes the section's name, and a named `<section>` is exposed as a landmark that screen-reader users can jump between.
+- `if tip:` – with a toggletip inside the heading, the heading's text includes the button's name: pointing at the `<h2>` would name the section "Projects Info". So the title gets a span of its own, `<span id="t-{i}">`, and the label points there – the section is called "Projects". In browsers without popovers, where the note shows as text inside the heading, the span keeps the note out of the name as well.
+  - `title_html, label = …, …` – tuple assignment: two names get new values in one statement. Python evaluates the whole right side first, so the new title is built from the old one.
+  - The `<h2>` keeps `id="h-{i}"` either way. The footnote references point at the Sources heading by that id (section 24).
+- `{chapter_no(key)}{title_html}` – number, then title (section 20).
+- `title_html` – the name says it: raw HTML, inserted unescaped. Callers pass `e(s["profile"])` and so on, or `title_of()` for P⁴ (section 22), which returns markup. Pitfall: pass plain copy here without `e()` and the first `&` breaks the markup.
 - `{body}</div>` – every caller's body ends with `\n`, so `</div>` lands on its own line.
 
 ```python
 def tree(c, rows):
     lang = ' lang="en"' if c["lang"] != "en" else ""
     items = "".join(f'<li><span class="k"{lang}>{e(k)}</span> {t(c, v)}</li>' for k, v in rows)
-    return f'<ul class="tree">{items}</ul>'
+    return f'<ul class="tree">{items}</ul>' if rows else ""
 ```
 
 - Renders a role's `tree` list (the #JobAlert format) as `<ul class="tree">`.
 - `lang` – labels such as "Scope" stay English and are marked as such on the German page.
 - `for k, v in rows` – each row is a (label, text) pair, unpacked in the generator.
 - The label goes through `e()`, the text through `t()` – so arrows and italics work in the text.
+- `if rows else ""` – a role with nothing to list (one of the five early positions) gets no list at all. An empty `<ul></ul>` would be valid HTML, but a screen reader may still announce "list, 0 items", and the list's margin would leave a gap.
 - No colon after the label in the HTML: the CSS adds it (`.tree .k::after { content: ":"; }`) and draws the branch lines with `::before` and `::after`. The content stays clean data; the presentation lives in CSS.
 
 ---
 
-## 21 · page – one complete language version
+## 22 · title_of and jump
+
+```python
+def title_of(c, key):
+    return 'P<sup>4</sup>' if key == "fields" else e(c["sec"][key])
+```
+
+- A section's title as HTML: the escaped heading from `sec`, or for P⁴, which has no entry in `sec`, the fixed markup with a superscript 4. `page()` uses it for the P⁴ heading, `jump()` for every item of its list – so the list shows the titles exactly as the headings do.
+
+```python
+def jump(c):
+    """Up, the sections, down – fixed bottom right once the name has docked (replaces the old back-to-top button).
+    site.js points up and down at the section above and below and shows the chapter number in the middle.
+    Without JavaScript: up goes to the top, the menu works (details), down is hidden."""
+    j = c["jump"]
+    items = "".join(f'<li><a href="#{sid(c, k)}" data-t="{"P⁴" if k == "fields" else e(c["sec"][k])}">'
+                    f'{chapter_no(k)}{title_of(c, k)}</a></li>\n' for k in SECTIONS)
+    return f"""<nav class="jump" aria-label="{e(j['label'])}" data-up="{e(j['up'])}" data-down="{e(j['down'])}" data-top="{e(c['to_top'])}">
+<a class="up" href="#top" aria-label="{e(c['to_top'])}" title="{e(c['to_top'])}">{UP_SVG}</a>
+<details class="menu">
+<summary aria-label="{e(j['menu'])}" title="{e(j['menu'])}"><span class="cur" aria-hidden="true"></span>{LINES_SVG}</summary>
+<ol>
+{items}</ol>
+</details>
+<a class="down" href="#{sid(c, SECTIONS[0])}" aria-label="{e(j['down'] % c['sec'][SECTIONS[0]])}" title="{e(j['down'] % c['sec'][SECTIONS[0]])}">{DOWN_SVG}</a>
+</nav>
+"""
+```
+
+The jump control: a narrow vertical pill in the bottom-right corner of the window with three parts – up, the sections, down. As the docstring says, `site.js` does the steering (chapter 4); `build.py` writes a version that already works without it.
+
+- `j = c["jump"]` – the four labels of this language (section 8).
+- `items` – one `<li>` per section in `SECTIONS`, in page order:
+  - `href="#{sid(c, k)}"` – the localized anchor, as in the header menu.
+  - `{chapter_no(k)}{title_of(c, k)}` – number and title as on the heading: chapter openers numbered, the others with the invisible number, so the titles line up here too.
+  - `data-t` – the section's name as plain text. `site.js` builds the labels of the two arrows from it ("Up: Experience"). The link text cannot serve: it contains the number and, for P⁴, markup. An attribute holds text, not tags, so P⁴ is written with the superscript character `⁴` here.
+  - Nested quotes once more: the f-string is single-quoted, so `"P⁴"` and `c["sec"][k]` inside the replacement field use double quotes (section 13).
+- The `<nav>`:
+  - `aria-label` – "Sections": the page's third navigation landmark, after the header menu and the footer's legal links, told apart from them by its name.
+  - `data-up`, `data-down`, `data-top` – the label templates for `site.js`, so the script itself contains no words in either language. It replaces `%s` with a section name.
+- The up link: `href="#top"` with the label from `to_top`. That is its state at the top of the page and its whole behavior without JavaScript: back to the hero. With JavaScript, `site.js` points it at the start of the section above.
+- `<details class="menu">` with `<summary>` – the native disclosure element: a click on the summary opens and closes the rest, with keyboard and screen-reader support built in and no JavaScript needed. Here the rest is the list of sections.
+  - `aria-label` on the summary – its visible content is an icon or a number, so it needs a name: "All sections".
+  - `<span class="cur" aria-hidden="true"></span>` – empty in the HTML. `site.js` writes the current chapter number into it, "01" to "04". While it is empty, the CSS shows `LINES_SVG` (section 11) instead; once it holds a number, the icon hides.
+  - `<ol>` – an ordered list, because the sections have an order.
+- The down link: `href` points at the first section, `SECTIONS[0]`, and the label names it. That is correct at the top of the page, where "down" means Profile.
+  - `j['down'] % c['sec'][SECTIONS[0]]` – Python's `%` operator on a string fills in `%s`: `"Down: %s" % "Profile"` gives `"Down: Profile"`. The same template serves Python here and `site.js` later (`.replace("%s", …)`).
+  - Without JavaScript, the CSS hides the down link: a fixed target would be wrong as soon as the page scrolls. It still gets a real target because `THEME_BOOT` sets the `js` class before `site.js` has even loaded. If `site.js` then fails, the CSS shows the link anyway, and it should lead somewhere sensible.
+- Where it goes in the page: after the footer (section 24).
+
+---
+
+## 23 · role
+
+```python
+def role(c, ro, h="h3"):
+    """One role: dates, title, company and place, context, the tree – and, for the years before 2014,
+    the single positions behind a disclosure."""
+    place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
+    ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
+    org = f'<a href="{ro["url"]}">{e(ro["org"])}</a>' if ro.get("url") else e(ro["org"])
+    more = ""
+    if ro.get("more"):
+        label, subs = ro["more"]
+        lis = "".join(f'<li class="role">\n{role(c, sub, "h4")}</li>\n' for sub in subs)
+        more = f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="roles">\n{lis}</ol>\n</details>\n'
+    return f"""<p class="when">{e(ro['when'])}</p>
+<div>
+<{h}>{e(ro['title'])}</{h}>
+<p class="org">{org}{place}</p>
+{ctx}{tree(c, ro['tree'])}
+{more}</div>
+"""
+```
+
+- One entry of the Experience timeline: dates, title, company with place, context line, tree – the inside of an `<li class="role">`. The `<li>` itself is written by the caller, because only `page()` gives a role its `id` (section 24).
+- `place` – optional field: `ro.get("place")` returns `None` when the key is missing and `""` when it is empty (Rapidobject). Both are falsy, so no place span appears.
+- `&nbsp;` before the span – the same job as `dots()`: "· Laucha" must not start a new line. `dots()` cannot do it here, because it only matches the plain sequence ` · `, and here a `<span>` tag sits between the space and the dot. So the place line brings its own non-breaking space.
+- `ctx` – the optional context line, same pattern.
+- `org` – the company name, as a link to its website when the role has a `url` (E+SERVICE+CHECK, Brandible, Posterlounge). The name is escaped inside the link; the URL is one of your own constants and goes in as it is.
+- `more` – used by one entry only: "2010 – 2014 · Five companies" keeps the timeline at one line for those years and holds the five single positions behind a disclosure.
+  - `label, subs = ro["more"]` – the summary text ("All five positions") and the list of sub-roles.
+  - `role(c, sub, "h4")` – the function calls itself, once per sub-role: recursion. A sub-role is a role dict like any other, so the same code renders it. The recursion ends because the sub-roles have no `"more"` of their own: those calls return without calling `role()` again.
+  - `h` – the heading level, `"h3"` unless the caller says otherwise. The sub-roles sit below the `<h3>` of their summary entry and pass `"h4"`, so the outline stays correct: Experience (h2) › Marketing, market research, export (h3) › Marketing Consultant (h4).
+  - The sub-roles get an `<ol class="roles">` of their own, inside `<details class="more">` – the same native disclosure as in the jump control: closed by default, opened by click or keyboard, announced as collapsed or expanded. `site.js` adds two things: it redraws the minimap when the disclosure opens, because the page just got longer, and it opens the disclosure for printing (chapter 4).
+- `<{h}>{e(ro['title'])}</{h}>` – a replacement field can produce part of a tag name: `<h3>` or `<h4>`.
+- Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly. `tree` may be an empty list (Inner Valor); `tree()` then returns `""`.
+- `{ctx}{tree(c, ro['tree'])}` – context line and tree directly after each other, then the disclosure, if there is one.
+
+---
+
+## 24 · page – one complete language version
 
 The largest function. It collects HTML fragments in the list `out` and joins them once at the end. Appending to a list and joining once is the standard Python idiom for building long strings: strings are immutable, and repeated `+=` may copy the growing string over and over.
 
@@ -828,12 +1005,10 @@ def page(c):
 
 ```python
     out = [head(c, TITLE, c["desc"], URL + slug), jsonld(c), "</head>\n<body>\n", topbar(c)]
-    out.append(f'<a class="to-top" href="#top" aria-label="{e(c["to_top"])}" title="{e(c["to_top"])}">{UP_SVG}</a>\n')
     out.append('<div class="minimap" aria-hidden="true"></div>\n<main id="main">\n<div class="wrap">\n')
 ```
 
 - The list starts with four parts: the head (canonical URL = `URL + slug`, for example `https://peterstieg.com/de/`), the JSON-LD block, the closing `</head>` with the opening `<body>`, and the header.
-- The back-to-top link: an icon with label and tooltip. CSS shows it only once the name has docked into the header – or always, without JavaScript.
 - `<div class="minimap">` – empty; `site.js` fills it with bars drawn from the page on wide screens. `aria-hidden` because it is a purely visual navigation aid.
 - `<main id="main">` – the main landmark and the target of the skip link.
 
@@ -850,7 +1025,7 @@ def page(c):
 """)
 ```
 
-- `id="top"` – target of the home link and the back-to-top link.
+- `id="top"` – target of the home link and of the jump control's up link – its first target, and its only one without JavaScript.
 - No `aria-label` on the section: the `<h1>` inside already names the block, and a label on top would make screen readers announce the name twice.
 - `<h1>{NAME}</h1>` – the only `<h1>` on the page.
 - The tagline: two chained `.replace()` calls inside the replacement field put `&nbsp;` inside each phrase, so "Performance Marketing" and "Data Science" never break in the middle; the line can only break at the middle dot. Pitfall: the replace matches the exact wording. Reword `TAGLINE` and the replace silently stops matching.
@@ -869,7 +1044,9 @@ def page(c):
 <p class="def">{e(d['def'])}</p>
 </div>
 """
-    led = "".join(f"<div><dt>{t(c, a)}</dt><dd>{e(b)}</dd></div>\n" for a, b in c["ledger"])
+    # each result names its company; the name leads to the role under Experience
+    led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)} · <a href="#{k}">{e(COMPANIES[k])}</a></dd></div>\n'
+                  for a, b, k in c["ledger"])
     out.append(section(c, "profile", e(s["profile"]),
                        f'{entry}<p>{e(c["profile"])}</p>\n<dl class="ledger" aria-label="{e(c["ledger_label"])}">\n{led}</dl>\n'))
 ```
@@ -879,25 +1056,32 @@ def page(c):
   - `[·|]` is a character class: one character that is either the middle dot (English dictionary style: mar·ke·tin·ker·er) or the pipe (Duden style: Mar|ke|tin|ke|rer). Inside square brackets `|` is a literal character, not "or".
   - `( )` captures the separator as group 1; `\1` in the raw replacement string puts it back inside the span.
 - `entry` – the dictionary entry. `<dfn>` marks the term being defined – the right element for a headword. `pos` and `def` go through `e()`, `ety` through `t()` for its italics.
-- `led` – the results list as a description list: `<dt>` holds the figure (through `t()` for the arrows; "> 2×" becomes `&gt; 2×`), `<dd>` the context. A `<div>` around each `dt`/`dd` pair is valid inside `<dl>` and gives CSS one box per row.
+- `led` – the results list as a description list: `<dt>` holds the figure (through `t()` for the arrows; "> 2×" becomes `&gt; 2×`), `<dd>` the context, a middle dot and the company. A `<div>` around each `dt`/`dd` pair is valid inside `<dl>` and gives CSS one box per row.
+  - `for a, b, k in c["ledger"]` – each entry is a 3-tuple: figure, context, company key. The generator spans two lines; inside the parentheses of `join()` Python needs no line-continuation sign.
+  - `<a href="#{k}">{e(COMPANIES[k])}</a>` – the company's name from `COMPANIES` (section 7), as a link to the role with that `id` under Experience. In the CSS, `.role:target` colors the dates and title of the role the visitor arrived at (chapter 3).
+  - The ` · ` before the link is glued to the context by `dots()` later.
+  - Pitfalls: a key missing from `COMPANIES` raises `KeyError` – loud. A key that no role carries as its `id` is silent: the link points at nothing and does not scroll.
 - `section(…)` – heading escaped, body = entry + profile paragraph + results list with its own `aria-label`.
 
 ### P⁴
 
 ```python
-    # P⁴ – P as in Peter
+    # P⁴ – four fields, each a P; People carries its principle as a note behind the i
     p4 = []
     for i, (p, txt) in enumerate(zip(P4, c["fields"])):
         tail = f' <strong lang="en">{e(P4_TAIL[i])}</strong>' if i in P4_TAIL else ""
-        p4.append(f'<div><h3{en_attr}>{e(p)}</h3><p>{e(txt)}{tail}</p></div>\n')
-    out.append(section(c, "fields", 'P<sup>4</sup>',
-                       f'<p class="intro">{e(c["p4_intro"])}</p>\n<div class="fields">\n{"".join(p4)}</div>\n'))
+        note = info(c, "people", c["people_note"], L if L != "en" else "") if p == "People" else ""
+        p4.append(f'<div><h3{en_attr}>{e(p)}{note}</h3><p>{e(txt)}{tail}</p></div>\n')
+    out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
 ```
 
 - `zip(P4, c["fields"])` pairs each heading with its text; `enumerate(…)` adds a counter. `for i, (p, txt) in …` unpacks both levels at once: the counter, then the pair.
 - `if i in P4_TAIL` – `in` on a dict checks its keys. Only index 3 (People) gets the tail, marked English.
+- `note` – the toggletip for People (section 20), an empty string for the other three fields. `p == "People"` compares with the English word from `P4`, which is the same on both pages.
+  - The language argument: the P-words are English, so on the German page the heading carries `lang="en"` and the German note needs `lang="de"` – `L` is `"de"` there. On the English page heading and note agree, and `""` adds nothing.
+  - `{e(p)}{note}` – the i follows the word without a space, like a footnote number.
 - `<h3{en_attr}>` – the P-words are English on both pages.
-- The section key is `"fields"`, but `sec` has no `"fields"` heading: the title is the fixed markup `P<sup>4</sup>` in every language. The German anchor is `p-wie-peter`.
+- The section key is `"fields"`, but `sec` has no `"fields"` heading: `title_of()` (section 22) returns the fixed markup `P<sup>4</sup>` in every language. The German anchor is `p-wie-peter`.
 
 ### Experience
 
@@ -905,27 +1089,14 @@ def page(c):
     # experience – each role as a #JobAlert-style tree
     roles = []
     for ro in c["roles"]:
-        place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
-        ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
-        org = f'<a href="{ro["url"]}">{e(ro["org"])}</a>' if ro.get("url") else e(ro["org"])
-        roles.append(f"""<li class="role">
-<p class="when">{e(ro['when'])}</p>
-<div>
-<h3>{e(ro['title'])}</h3>
-<p class="org">{org}{place}</p>
-{ctx}{tree(c, ro['tree'])}
-</div>
-</li>
-""")
+        rid = f' id="{ro["id"]}"' if ro.get("id") else ""     # the ledger links here
+        roles.append(f'<li class="role"{rid}>\n{role(c, ro)}</li>\n')
     out.append(section(c, "experience", e(s["experience"]), f'<ol class="roles" reversed>\n{"".join(roles)}</ol>\n'))
 ```
 
-- `ro.get("place")` – optional field: returns `None` when the key is missing and `""` when it is empty (Rapidobject). Both are falsy, so no place span appears.
-- `&nbsp;` before the span – the same job as `dots()`: "· Laucha" must not start a new line. `dots()` cannot do it here, because it only matches the plain sequence ` · `, and here a `<span>` tag sits between the space and the dot. So the place line brings its own non-breaking space.
-- `ctx` – the optional context line, same pattern.
-- `org` – the company name, as a link to its website when the role has a `url` (E+SERVICE+CHECK, Brandible, Posterlounge). The name is escaped inside the link; the URL is one of your own constants and goes in as it is.
-- Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly.
-- `{ctx}{tree(c, ro['tree'])}` – context line and tree directly after each other.
+- `role(c, ro)` renders the inside of each entry (section 23); the loop only adds the `<li>` around it.
+- `rid` – the anchor the ledger links to, for the three roles that carry an `id`. The leading space belongs to the attribute string, so a role without an id gets a clean `<li class="role">` – the same pattern as `en_attr`.
+- On phones, where the section heading sticks under the header, the CSS gives `.role` a `scroll-margin-top`: a role reached from the ledger stops below the stuck heading instead of under it (chapter 3).
 - `<ol class="roles" reversed>` – an ordered list, because sequence matters; `reversed` makes the numbering count down, so the newest role at the top carries the highest number. It is a boolean attribute: present means true.
 
 ### Education – where the footnotes are created
@@ -935,14 +1106,21 @@ def page(c):
     fa = []
     for k, v, sub in c["facts"]:
         subtxt = f'<br><span class="muted">{e(sub)}</span>' if sub else ""
-        val = re.sub(r"\[\[(\w+)\]\]", fn, e(v))
+        if isinstance(v, list):                             # one per line: the languages
+            val = '<ul class="lines">' + "".join(f"<li>{e(x)}</li>" for x in v) + "</ul>"
+        else:
+            val = re.sub(r"\[\[(\w+)\]\]", fn, e(v))
         fa.append(f"<div><dt>{e(k)}</dt><dd>{val}{subtxt}</dd></div>\n")
     out.append(section(c, "education", e(s["education"]), f'<dl class="facts">\n{"".join(fa)}</dl>\n'))
 ```
 
 - The block sits right behind Experience: Education belongs to chapter 02 (`CHAPTERS`), so it follows Experience on the page – and here, because the order of the `out.append` calls is the order of the page.
 - `for k, v, sub in c["facts"]` – each fact is a 3-tuple; an empty `sub` means "no second line".
-- `re.sub(r"\[\[(\w+)\]\]", fn, e(v))`:
+- `isinstance(v, list)` – the value is a string or a list. The list – the languages – becomes `<ul class="lines">` with one `<li>` per item; the CSS removes the bullets, so each language stands on its own line.
+  - A list rather than `<br>` line breaks, because it is one: screen readers announce "list, 5 items" and can step through it. A `<ul>` is allowed inside `<dd>`.
+  - `'<ul class="lines">' + "".join(…) + "</ul>"` – three strings joined with `+`.
+  - Each item goes through `e()` only – no footnote markers in a list.
+- `re.sub(r"\[\[(\w+)\]\]", fn, e(v))` – for string values:
   - Pattern: `\[\[` two literal brackets (escaped, because `[` normally opens a character class), `(\w+)` the key – letters, digits, underscore – as group 1, `\]\]` closing brackets.
   - The replacement is a function, not a string. `re.sub` calls `fn(match)` for every match, left to right, and inserts whatever it returns. That is what makes the numbering follow the order of appearance: the first marker processed gets 1.
   - Escape first again: `e()` does not touch `[` or `]`, so the markers survive, and `fn`'s HTML is inserted after escaping.
@@ -959,14 +1137,15 @@ def page(c):
             ln = "".join(f' · <a href="{url}">{e(label)}</a>' for label, url in links)
             lis.append(f'<li><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
         groups.append(f'<div class="group"><h3>{e(gt)}</h3>\n<ul class="projects">\n{"".join(lis)}</ul></div>\n')
-    out.append(section(c, "projects", e(s["projects"]),
-                       f'<p class="intro"><strong lang="en">{e(PROJECTS_LEAD)}</strong></p>\n' + "".join(groups)))
+    out.append(section(c, "projects", e(s["projects"]), "".join(groups),
+                       tip=info(c, "projects", PROJECTS_LEAD, "en" if L != "en" else "")))
 ```
 
 - Two nested loops: groups (`gt` = group title), then projects within a group.
 - `for name, text, stack, links in items` – each project is a 4-tuple. A tuple with three or five values raises `ValueError`.
 - `ln` – one ` · <a …>` per (label, URL) pair: "GitHub · Demo" for the capstones. For an empty list the generator yields nothing and `"".join` returns `""`, so projects without links need no special case. The ` · ` separators get glued by `dots()` later.
-- The section body is an f-string concatenated with a join result via `+` – both are plain strings.
+- The section body is the joined groups alone.
+- `tip=info(…)` – a keyword argument: `section()` has two optional parameters, `cls` and `tip`, and naming `tip` skips `cls`. The toggletip holds `PROJECTS_LEAD`, which is English on every page; on the German page, under the heading "Projekte", it gets `lang="en"`. `section()` then names the section by its title alone (section 21).
 - `name` is a local variable here; it does not clash with the constant `NAME` (Python is case-sensitive).
 
 ### Approach
@@ -1027,17 +1206,21 @@ def page(c):
 ```python
     out.append("</div>\n</main>\n")
     out.append(footer(c))
+    out.append(jump(c))
     out.append(f'<script src="{c["root"]}assets/site.js" defer></script>\n</body>\n</html>\n')
     return "".join(out)
 ```
 
 - Closes the `wrap` div and `<main>`, adds the footer.
+- `jump(c)` – the jump control (section 22) comes after the footer. The CSS fixes it to the corner of the window, so its place in the HTML does not decide where it appears. It decides two other things:
+  - Tab order: keyboard focus reaches the control last, after the content and the footer links, instead of before the content.
+  - The CSS fades it in with `.top.docked ~ .jump` – "a `.jump` that comes after the docked header, under the same parent". The `~` combinator only looks forward, so the control has to follow the header; both are direct children of `<body>`.
 - `defer` – the script downloads while the HTML is parsed and runs only after parsing is complete. By then every element exists, so `site.js` can query all of them.
 - `"".join(out)` – one string for the whole page.
 
 ---
 
-## 22 · Legal pages
+## 25 · Legal pages
 
 ```python
 # ---------- legal pages (German) ----------
@@ -1107,7 +1290,7 @@ def legal(title, body, path):
 
 ---
 
-## 23 · not_found
+## 26 · not_found
 
 ```python
 def not_found():
@@ -1143,7 +1326,7 @@ def not_found():
 
 ---
 
-## 24 · nbsp and dots – typography after the fact
+## 27 · nbsp and dots – typography after the fact
 
 ```python
 def nbsp(html):
@@ -1175,7 +1358,7 @@ def dots(html):
 
 ---
 
-## 25 · build – writing to disk
+## 28 · build – writing to disk
 
 ```python
 def build():
@@ -1187,7 +1370,8 @@ def build():
     (SITE / "impressum.html").write_text(dots(legal("Impressum", IMPRESSUM, "impressum.html")), encoding="utf-8")
     (SITE / "datenschutz.html").write_text(dots(legal("Datenschutzerklärung", DATENSCHUTZ, "datenschutz.html")), encoding="utf-8")
     (SITE / "404.html").write_text(dots(not_found()), encoding="utf-8")
-    (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\n", encoding="utf-8")
+    (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\nAddType application/manifest+json .webmanifest\n",
+                                    encoding="utf-8")
     (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n", encoding="utf-8")
     # The sitemap lists pages, not content: it changes when pages are added or removed. lastmod = build date.
     today = date.today().isoformat()
@@ -1212,12 +1396,15 @@ The two main pages:
 The other files:
 
 - `impressum.html`, `datenschutz.html`, `404.html` – one line each: build the path with `/`, generate the HTML, pass it through `dots()`, write it. The calls nest from the inside out: `legal(…)` runs first, `dots()` gets its result, `write_text()` gets that. `(SITE / "…")` needs the parentheses so `.write_text` applies to the joined path, not to the string.
-- `.htaccess` – configuration for Apache web servers: "for a 404, deliver `/404.html`". Other servers ignore the file. The leading dot hides it by default in `ls` and in the macOS Finder.
+- `.htaccess` – configuration for Apache web servers, two lines. Other servers ignore the file. The leading dot hides it by default in `ls` and in the macOS Finder.
+  - `ErrorDocument 404 /404.html` – "for a 404, deliver `/404.html`".
+  - `AddType application/manifest+json .webmanifest` – "send files ending in `.webmanifest` with this media type". Every response carries a `Content-Type` header that tells the browser what the bytes are. `application/manifest+json` is the registered type for web app manifests, but Apache's built-in list of extensions does not necessarily contain `.webmanifest`; without this line the manifest from `head()` (section 14) may go out under a generic type.
+  - The call no longer fits on one line, so it continues inside the parentheses of `write_text(…)`, aligned under the first argument.
 - `robots.txt` – `User-agent: *` addresses all crawlers, `Allow: /` permits everything, `Sitemap:` gives the absolute URL of the sitemap.
 
 The sitemap:
 
-- `today = date.today().isoformat()` – the date as `YYYY-MM-DD` (for example `2026-10-20`), the format sitemaps expect.
+- `today = date.today().isoformat()` – the date as `YYYY-MM-DD` (for example `2026-10-27`), the format sitemaps expect.
 - `alts` – one `<xhtml:link>` per language. The block is the same for every URL, since every language version lists all versions.
 - `urls` – one `<url>` per language. `for *_, slug in LANGS` puts the star first: everything except the last value goes into `_`, `slug` gets the last one.
 - The `<urlset>` declares two namespaces: the sitemap format itself and `xhtml`, which provides the `<xhtml:link>` elements for language versions.
@@ -1238,7 +1425,7 @@ if __name__ == "__main__":
 
 ---
 
-## 26 · Running it, output, and why site/ is committed
+## 29 · Running it, output, and why site/ is committed
 
 Run from the repository root:
 
@@ -1261,11 +1448,17 @@ What it writes (and overwrites):
 | `site/impressum.html` | `legal("Impressum", IMPRESSUM, …)` → `dots()` |
 | `site/datenschutz.html` | `legal("Datenschutzerklärung", DATENSCHUTZ, …)` → `dots()` |
 | `site/404.html` | `not_found()` → `dots()` |
-| `site/.htaccess` | fixed string |
+| `site/.htaccess` | fixed string, two lines |
 | `site/robots.txt` | f-string with `URL` |
 | `site/sitemap.xml` | `LANGS` plus build date |
 
-What it never touches: `site/assets/site.css`, `site/assets/site.js`, `site/assets/fonts/`, `favicon.svg`, `apple-touch-icon.png`, `og-image.png`. Those are hand-made and edited directly in `site/`.
+What it never touches: `site/assets/site.css`, `site/assets/site.js`, `site/assets/fonts/`, `favicon.ico`, `favicon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest`, `og-image.png`. Those are hand-made: the CSS and JavaScript are edited directly in `site/`; the icons, the manifest and the preview image come from `src/monogram/`, the source of the "PS" monogram:
+
+- `src/monogram/README.md` – the mark's construction, colors, sizes and the full file list.
+- `src/monogram/source/` – the generator (`ps_monogram.py`) and the hand-drawn pixel grids for the 16 and 32 pixel favicons (`favicons.py`). The generator writes the favicon set to `out/final/favicon/`; from there the files are copied to `site/` by hand.
+- `src/monogram/og/og.html` – the source of `og-image.png`: a 1200 × 630 page with the hero text and the monogram on the right. Open it at exactly that size and take a screenshot; the comment at the top of the file shows how.
+
+`head()` only links these files. Changing an icon means regenerating it there, not editing `build.py`.
 
 Working rules:
 
@@ -1301,8 +1494,12 @@ Make each change in `src/build.py`, run `python3 src/build.py`, look at the resu
 - **f-string** – a string literal with an `f` prefix whose `{expressions}` are evaluated at runtime; `{{` and `}}` produce literal braces.
 - **Generator expression** – `(expr for x in items if condition)`: produces values one at a time; used here inside `"".join()` and `next()`.
 - **Closure** – a function defined inside another function that uses the outer function's variables, like `fn()` with `order`.
+- **Recursion** – a function that calls itself for a part of its input, like `role()` for each sub-role. It ends where the input offers nothing more to recurse into.
 - **Canonical and hreflang** – link annotations that tell search engines the preferred URL of a page and which language versions exist.
 - **JSON-LD** – structured data in a `<script type="application/ld+json">` block, using the schema.org vocabulary.
+- **Web app manifest** – a JSON file linked with `<link rel="manifest">` that describes a site as an installable app: name, colors, icons, display mode. Here it supplies the home-screen icons.
+- **Popover and toggletip** – a popover is an element with the `popover` attribute: hidden until a button with `popovertarget` opens it, then drawn above the whole page, closed again by a click outside or Esc. A toggletip is the pattern built from it here: a small button that shows a short note on click instead of on hover.
+- **Disclosure** – a control that shows and hides a block of content. HTML has one built in: `<details>` with its `<summary>`, used for the five early positions and the jump control's list.
 - **Relative vs root-absolute path** – `assets/site.css` or `../assets/site.css` resolve from the current page's folder; `/assets/site.css` resolves from the domain root.
 - **Non-breaking space** – U+00A0 or `&nbsp;`: looks like a space, but a line never breaks there.
 
