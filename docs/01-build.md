@@ -62,13 +62,13 @@ import json
 import re
 ```
 
-- `date` – `date.today()` supplies the copyright year in `footer()` and the `lastmod` date in the sitemap.
+- `date` – `date.today()` supplies the copyright year in `footer()`, the `lastmod` date in the sitemap and the end month of the role that is still running in `months()`.
 - `escape as e` – `html.escape` under a one-letter alias, because it is called dozens of times inside f-strings and `{e(text)}` keeps those lines short. It replaces the five characters that have meaning in HTML: `&` → `&amp;` · `<` → `&lt;` · `>` → `&gt;` · `"` → `&quot;` · `'` → `&#x27;`.
 - Why escaping matters: unescaped, a `<` in the copy opens a tag, an `&` may start an entity, and a `"` inside an attribute value ends the attribute – the page breaks in ways that are hard to spot. If text ever comes from outside (a form, an API, a spreadsheet export), the same gap lets a `<script>` in that text run in the visitor's browser: cross-site scripting (XSS). All copy here is your own, so the practical risk is broken markup; the habit protects you the day content comes from elsewhere.
 - Pitfall: never use `e` as a variable name in this file. Inside a function, even `except Exception as e:` turns `e` into a local variable for the whole function, and every `e(...)` call in it fails with `UnboundLocalError`.
 - `Path` – object-oriented file paths: `/` joins parts, `.parent` goes up a level, `.mkdir()`, `.write_text()` and `.rglob()` do the file work.
 - `json` – serializes the structured-data block in `jsonld()`.
-- `re` – regular expressions for three text markers: `*italics*`, syllable dots and `[[footnotes]]`.
+- `re` – regular expressions for three text markers: `*italics*`, syllable dots and `[[footnotes]]` – and for the `MM/YYYY` dates of the roles.
 
 All five are standard library – that is what "no dependencies beyond Python 3" means.
 
@@ -226,6 +226,7 @@ CONTENT = {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
         "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info",
+        "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: …",
         "skip": "Skip to content",
@@ -252,7 +253,15 @@ CONTENT = {
                       ("Scope", "…"),
                       ("Result", "…")]},
             …
-            {"when": "2010 – 2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
+            {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
+             "ctx": "Art prints online in more than 15 European countries.",
+             "tree": [("Team", "…"),
+                      ("Scope", "…"),
+                      ("Result", "…")],
+             "path": ("Three promotions", [("10/2017", "SEA Manager"), ("", "Digital Marketing Manager"),
+                             ("", "Senior Marketing Manager"), ("06/2021", "Head of Marketing")])},
+            …
+            {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "…")],
              "more": ("All five positions", [
                  {"when": "04/2014 – 08/2014", "title": "Marketing Consultant", "org": "SBS systems for business solutions Srl", "place": "Rome",
@@ -317,9 +326,10 @@ Interface labels:
 |---|---|---|
 | `aria_main`, `aria_legal`, `aria_lang` | str | accessible names of the header nav, footer nav and language group |
 | `theme` | 3-tuple | group label, "light" label, "dark" label for `theme_switch()` |
-| `arrow` | str | what a screen reader says for a drawn → (`"to"` / `"auf"`) |
+| `arrow` | str | the word behind a drawn → (`"to"` / `"auf"`): what screen readers say and what copied text reads |
 | `to_top` | str | label of the jump control's up link while it leads to the top of the page (`"Back to top"` / `"Nach oben"`) |
 | `info` | str | spoken name of the superscript i that opens a toggletip |
+| `dur` | 4-tuple | the words for the durations under the role dates: year, years, month, months (`duration()`, section 21). Joined by commas, they also go to `site.js`, which recounts the running role |
 | `jump` | dict | the jump control: `label` names its `<nav>`, `menu` the button that opens the section list, `up` and `down` are templates in which `%s` stands for a section name (`"Up: %s"` → "Up: Experience") |
 | `skip` | str | text of the skip link |
 | `nav` | list of (id, label) | header links |
@@ -343,7 +353,7 @@ Copy:
 | `ledger_label`, `ledger` | str, list of (figure, context, company key) | the results list in the profile; the key looks up the name in `COMPANIES` and links to the role with that `id` |
 | `fields` | list of 4 str | the P⁴ section, paired with `P4` |
 | `people_note` | str | the toggletip after the People heading in P⁴ |
-| `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when`, `title`, `org`, `url` (optional: the company's website), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `more` (optional: (label, list of sub-roles) – the single positions behind a disclosure, each a role dict of its own) |
+| `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`, or `"since MM/YYYY"` for the role that is still running – `months()` reads the dates), `title`, `org`, `url` (optional: the company's website), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (date or `""`, title)) – the titles within one role, behind a disclosure), `more` (optional: (label, list of sub-roles) – the single positions behind a disclosure, each a role dict of its own) |
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link |
 | `approach` | list of 3 str | paired with `SLOGANS` |
 | `facts` | list of (label, value, sub-line or `""`) | Education; the value is a string, or a list of strings shown one per line (the languages) |
@@ -352,10 +362,10 @@ Copy:
 ### How EN and DE mirror each other
 
 - Same keys, same shapes, same number and order of list items. The only key that exists in one language and not the other is `ids` – English uses the internal keys directly as anchors.
-- Localized, not translated: German uses KUR, English RoAS (rule 2), job titles follow German usage ("Leiter Marketing"), number formats follow each language ("6.000 → 240.000 €" vs "€6k → €240k").
+- Localized, not translated: German uses KUR, English RoAS (rule 2), job titles follow German usage ("Leiter Marketing"), number formats follow each language ("6.000 → 240.000 €" vs "€6k → €240k"), and trade terms follow each language's habit – "marketing automation" (Brandible, Rapidobject) is "Marketing Automation" in German, the English term German marketing uses, capitalized as a German noun.
 - English inside German: the tree labels `"Team"`, `"Scope"` and `"Result"` stay English in the DE dict (rule 5). Every role uses the same three, in that order, wherever there is something to say – a role without a team simply has no `"Team"` row.
 - Not localized at all: the company keys at the end of each `ledger` entry and the role `id`s they point to. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates.
-- Nested lists mirror too: the five sub-roles under `"more"` exist in both dicts, in the same order.
+- Nested lists mirror too: the five sub-roles under `"more"` and the four titles under `"path"` exist in both dicts, in the same order. Only the labels differ ("Three promotions", "Drei Beförderungen"); the titles are the same in both, because they are the titles that were held.
 - Nothing checks parity. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A missing list item – a role or project only added in EN – is silent: the German page simply shows one entry fewer. Edit both languages in the same sitting.
 - Quick parity check from the repository root (importing does not build anything, see section 28):
 
@@ -369,12 +379,12 @@ Copy:
 
 | Marker | Example | Becomes | Handled by |
 |---|---|---|---|
-| `→` | `"€6k → €240k"` | a drawn SVG arrow with a spoken label | `t()` |
+| `→` | `"€6k → €240k"` | a drawn SVG arrow, its word kept as visually hidden text | `t()` |
 | `*word*` | `"[*marketer* × *tinkerer*]"` | `<i>word</i>` – words cited as words, like in a dictionary | `t()` |
 | `[[key]]` | `"Data Scientist[[ds]]"` | a numbered footnote reference to `NOTES[key]` | regex in `page()`, education section |
 | ` · ` | `"Python · BigQuery · Data Studio"` | a middle dot glued to the word before it | `dots()` |
 
-Pitfall: the markers only work where the code runs the text through the matching function. `t()` handles `entry["ety"]`, the first item of each `ledger` entry and the values in each role's `tree`. The `[[…]]` regex runs only on the middle value of each `facts` tuple, and only when that value is a string – the items of a list go through `e()` alone. Everywhere else – `profile`, `fields`, `people_note`, `ctx`, `groups`, `approach` – the text only goes through `e()`: asterisks stay visible and `→` stays a plain character in a fallback font.
+Pitfall: the markers only work where the code runs the text through the matching function. `t()` handles `entry["ety"]`, the first item of each `ledger` entry and the values in each role's `tree`. The `[[…]]` regex runs only on the middle value of each `facts` tuple, and only when that value is a string – the items of a list go through `e()` alone. Everywhere else – `profile`, `fields`, `people_note`, `ctx`, `path`, `groups`, `approach` – the text only goes through `e()`: asterisks stay visible and `→` stays a plain character in a fallback font.
 
 ---
 
@@ -462,12 +472,12 @@ LOCKUP = re.sub(r"<svg ([^>]*)>(.*)</svg>",
 
 - Inline SVG as strings, pasted straight into the HTML: no image requests, and the icons can take the text color.
 - Why draw the arrow: the site font, Atkinson Hyperlegible, has no → glyph. The browser would borrow it from a fallback font with a different weight and baseline. Sun, moon, the two jump arrows and the three lines have no font equivalent anyway.
-- `UP_SVG` and `DOWN_SVG` – the two ends of the jump control (section 22). `DOWN_SVG` is `UP_SVG` mirrored: the shaft runs from y = 2.5 down to 13.2 (`v10.7` – a vertical line, relative), the head points down.
+- `UP_SVG` and `DOWN_SVG` – the two ends of the jump control (section 22). `DOWN_SVG` also follows each company name in the results ledger, as a small superscript ↓ (section 24). It is `UP_SVG` mirrored: the shaft runs from y = 2.5 down to 13.2 (`v10.7` – a vertical line, relative), the head points down.
 - `LINES_SVG` – three horizontal strokes of different lengths (`h11`, `h9`, `h7`), the second one indented: lines of code, like the bars of the minimap. It sits in the middle of the jump control as long as there is no chapter number to show – at the top of the page and without JavaScript.
 - `viewBox="0 0 16 10"` – the internal coordinate system (16 × 10 units). The real size comes from CSS (`.arr` is 0.95em × 0.62em), so the icon scales with the text.
 - `<path d="…">` – drawing commands. In the arrow: `M1 5` moves the pen to (1, 5), `h13.5` draws a horizontal line 13.5 units to the right (the shaft), `M10 1.2` jumps to the top of the head, `14 5` draws to the tip (coordinate pairs after an `M` count as line commands), `l-4 3.8` draws relative to the tip down to the bottom of the head. Uppercase = absolute coordinates, lowercase = relative.
 - No `fill` or `stroke` in the markup: the CSS sets `fill: none; stroke: currentColor`, so every icon takes the current text color. Dark mode and hover colors work without a second set of icons.
-- `aria-hidden="true"` – screen readers skip the drawing. The meaning comes from the parent: the arrow's `<span role="img" aria-label="to">`, the button's `aria-label`.
+- `aria-hidden="true"` – screen readers skip the drawing. The meaning comes from elsewhere: the arrow's word "to" in a visually hidden span next to it (section 13), the button's `aria-label`, the link text of the ledger's company names.
 - `focusable="false"` – Internet Explorer and old Edge put inline SVGs into the keyboard tab order. This switches that off; modern browsers ignore it.
 
 **The logo** is the one SVG that is not typed in here. `LOCKUP` reads the lockup from its own folder, `src/lockup/`, where `lockup_takt50.py` builds it from the font (see `src/lockup/README.md`):
@@ -531,16 +541,18 @@ def note_title(c, note):
 ```python
 def t(c, text):
     """Escape, draw arrows, set *words* in italics (words cited as words, as in a dictionary)."""
-    html = e(text).replace("→", f'<span class="arr" role="img" aria-label="{e(c["arrow"])}">{ARROW_SVG}</span>')
+    html = e(text).replace("→", f'<span class="arr">{ARROW_SVG}<span class="sr-only">{e(c["arrow"])}</span></span>')
     lang = ' lang="en"' if c["lang"] != "en" else ""
     return re.sub(r"\*([^*]+)\*", rf"<i{lang}>\1</i>", html)
 ```
 
 - `t` for "text": the function for strings that may contain markers.
 - First line, part one: `e(text)` escapes the copy. Escaping first and inserting markup second is the central pattern of the whole file. The reverse order would escape your own `<span>` into visible `&lt;span&gt;`. `e()` leaves `→` and `*` untouched, so the markers survive.
-- First line, part two: `.replace("→", …)` swaps every arrow for a `<span>` holding the SVG. `role="img"` plus `aria-label` makes a screen reader say "€6k to €240k".
+- First line, part two: `.replace("→", …)` swaps every arrow for a `<span class="arr">` holding two things: the SVG, which only draws, and the arrow's word in a `<span class="sr-only">` – "to", "auf" on the German page.
+  - `sr-only` ("screen reader only") is a CSS class that shrinks an element to one clipped pixel: invisible on screen, but still text. The hero prompt uses the same class for the motto (section 24).
+  - Why text and not an `aria-label`: a label exists only for assistive technology. Screen readers would still say "€6k to €240k", but everything that reads the page as text – copy and paste, search engines, tools that extract a profile from a page – would get "€6k €240k". As text, the word is there for all of them.
   - Nested quotes: the f-string is delimited by single quotes, so `c["arrow"]` inside it uses double quotes. Before Python 3.12, an expression inside an f-string could not reuse the outer quote character. The file alternates quote types throughout and runs unchanged on Python 3.11.
-  - Even the short label goes through `e()`: it ends up inside an attribute, where a stray `"` would end the attribute early.
+  - Even the short word goes through `e()`: it is copy like any other.
 - Second line: a conditional expression – `A if condition else B`. On non-English pages the italic words get `lang="en"`, because they are English words ("marketer", "tinkerer") and screen readers should pronounce them as such.
 - Third line: `re.sub(pattern, replacement, string)` replaces every match.
   - Pattern `r"\*([^*]+)\*"`: `\*` is a literal asterisk (escaped, because `*` alone means "repeat"); `([^*]+)` captures one or more characters that are not asterisks as group 1; `\*` closes. Because `[^*]` cannot cross an asterisk, `*a* and *b*` yields two matches, not one long one.
@@ -649,7 +661,7 @@ def lang_switch(c):
             items.append(f'<span aria-current="page" title="{name}">{label}</span>')
         else:
             items.append(f'<a href="{r}{path}" hreflang="{code}" lang="{code}" title="{name}">{label}</a>')
-    return f'<span class="langs" role="group" aria-label="{e(c["aria_lang"])}">{"".join(items)}</span>'
+    return f'<span class="langs" role="group" aria-label="{e(c["aria_lang"])}">{" ".join(items)}</span>'
 ```
 
 - The docstring names the two current languages. The output itself follows `LANGS`, so a third entry there would appear in the switch automatically.
@@ -658,8 +670,8 @@ def lang_switch(c):
 - Current language: a `<span>`, not a link – a link to the page you are on is noise. `aria-current="page"` tells screen readers "this is the current one"; the CSS rule `.langs [aria-current]` sets it in bold.
 - Other languages: `<a href="{r}{path}">` – from the English page `de/index.html`, from the German page `../index.html`. `hreflang` states the language of the target page; `lang` the language of the link text itself; `title` shows the full name on hover.
 - The wrapper: `role="group"` with `aria-label` lets a screen reader announce "Language, group" before the links.
-- `{"".join(items)}` – an expression inside the f-string. Double quotes inside, single quotes outside.
-- No separator characters in the HTML: the spacing comes from CSS padding.
+- `{" ".join(items)}` – an expression inside the f-string. Double quotes inside, single quotes outside.
+- The space between the items is there for the text, not for the eye. Without it, copied or extracted text reads "ENDE"; with it, "EN DE". On screen it changes nothing: `.langs` is an inline flex container, and a flex container ignores text that is only whitespace. The visible spacing comes from CSS padding. No separator characters such as `|` – the CSS draws the pill around both.
 
 ---
 
@@ -691,8 +703,8 @@ def topbar(c, sections=True, langs=True):
     r = c["root"]
     keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
-    links = "".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
-                    f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
+    links = "\n".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
+                     f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
     switch = lang_switch(c) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
     word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if sections else ""
@@ -700,7 +712,9 @@ def topbar(c, sections=True, langs=True):
 <header class="top">
 <div class="wrap">
 <a class="home" href="{'#top' if sections else r + c['path']}">{word}{LOCKUP}</a>
-<nav class="nav" aria-label="{e(c['aria_main'])}">{links}{switch}{theme_switch(c)}</nav>
+<nav class="nav" aria-label="{e(c['aria_main'])}">{links}
+{switch}
+{theme_switch(c)}</nav>
 </div>
 </header>
 """
@@ -708,7 +722,8 @@ def topbar(c, sections=True, langs=True):
 
 - `sections`, `langs` – switches. The main pages get section links and the language switch; legal and 404 pages pass `False` for both.
 - `keys` – a dict comprehension that turns the lookup around. `nav` holds the localized ids (`"stationen"`), `num()` needs the section key (`"experience"`). Looping over `CHAPTERS` loops over its keys – the four sections the menu links to. So `keys` maps each id back to its key: `{"profil": "profile", "stationen": "experience", …}` on the German page; in English, id and key are the same.
-- `links = "".join(…) if sections else ""` – the conditional expression wraps the whole join, so the generator only runs when `sections` is true.
+- `links = "\n".join(…) if sections else ""` – the conditional expression wraps the whole join, so the generator only runs when `sections` is true.
+  - `"\n"` – a line break between the links. Like the space in the language switch (section 15), it is there for the text: the number span has no space before it, so without a separator the menu's text reads "01 Profile02 Experience". With it, copy and paste and search engines get "01 Profile 02 Experience …".
   - Two f-strings in a row, without a `+` between them, are joined into one string by Python itself. That splits a long line without changing the result.
   - `for i, t in c["nav"]` – unpacks each (id, label) pair. Here `t` is a loop variable that shadows the function `t()`. It works because a generator expression has its own scope – outside it, `t()` is untouched – but it is confusing. Do not copy the pattern.
   - `href="#{i}"` – an in-page anchor.
@@ -723,6 +738,7 @@ def topbar(c, sections=True, langs=True):
   - `LOCKUP` – the logo `>_ P/S` (section 11), on every page. Its `role="img"` and `aria-label="Peter Stieg"` give the link its name: screen readers say "Peter Stieg, link".
   - `&gt;_` – `>` written as an entity, so the parser cannot mistake it for the end of a tag.
 - `<nav aria-label=…>` – a named navigation landmark. The name matters because the page has two navs (header and footer).
+- `{links}`, `{switch}` and `{theme_switch(c)}` on lines of their own – the same whitespace for the same reason: "Contact EN DE" instead of "ContactENDE". `.nav` is a flex container, so the line breaks do not move anything; the gaps between the items come from `gap` in the CSS.
 
 ---
 
@@ -792,7 +808,7 @@ def jsonld(c):
 
 ## 20 · chapter_no and info
 
-Two small helpers that put something into a heading: the chapter number in front, a toggletip behind.
+Two small helpers for headings: the chapter number in front, a toggletip behind.
 
 ```python
 def chapter_no(key):
@@ -811,37 +827,43 @@ def chapter_no(key):
 ```python
 def info(c, key, text, lang=""):
     """Toggletip: a superscript i after a heading, the note opens next to it as a popover – no JavaScript needed.
-    lang: the note's language where it differs from the heading's."""
+    Returns the button (it goes into the heading; its i is drawn by CSS) and the note (it goes after the heading) – so the
+    heading's text stays its title for anything that reads the page as text. lang: the note's language where it differs
+    from the page's."""
     tip = f"tip-{key}"
     lang_attr = f' lang="{lang}"' if lang else ""
-    return (f'<button type="button" class="info" popovertarget="{tip}" aria-label="{e(c["info"])}">i</button>'
+    return (f'<button type="button" class="info" popovertarget="{tip}" aria-label="{e(c["info"])}"></button>',
             f'<span class="tip" id="{tip}" popover{lang_attr}>{e(text)}</span>')
 ```
 
 - A toggletip: a small button that shows a short note when clicked or tapped and hides it again on the next click. Unlike a tooltip, which appears on hover, it works the same with a mouse, a finger and the keyboard (Enter or Space on the focused button). The page has two: after the People heading in P⁴ and after the Projects heading.
 - `tip = f"tip-{key}"` – the note's id: `tip-people`, `tip-projects`. Ids must be unique on a page, so every call needs its own key.
-- `lang_attr` – an optional `lang` attribute for the note. The note sits inside a heading and inherits the heading's language unless it says otherwise. The caller passes a language only where the two differ: on the German page the People heading is English and its note German, the Projects heading German and its note English.
-- The return value is two elements side by side, the button and the note. Both end up inside an `<h2>` or `<h3>`; both are phrasing content, which a heading may contain.
+- `lang_attr` – an optional `lang` attribute for the note, for where its language differs from the page's. The Projects note is English on the German page (rule 5).
+- The return value is a pair – a tuple of two strings, the button and the note, separated by the comma at the end of the first line. The caller unpacks it and puts the two in different places:
+  - the button into the heading, right after the title – the superscript i belongs there;
+  - the note after the heading – for People right after the `</h3>`, for Projects as the first thing in the section's body (section 21).
+- Why apart: everything inside a heading is part of its text. Programs that read the HTML as text – search engines, tools that extract a profile from a page – take a heading as one string. With the i and the note inside, the People heading would read "PeopleiProcesses fit people, not the other way round." Now it reads "People", and the Projects heading "03 Projects": the title, nothing else. On screen nothing changes – `site.js` places the open note next to the i wherever the note sits in the HTML.
 - The button:
   - `type="button"` – the safe habit (section 16).
-  - `popovertarget="{tip}"` – the HTML popover API. A button with this attribute opens and closes the element with that id, provided the element carries the `popover` attribute. The browser does it on its own, without JavaScript.
-  - Its visible text is a plain `i`, set as a superscript by the CSS (`.info`). `aria-label` gives the button a real name: "Info". The browser also tells screen readers whether the note is open or closed.
+  - `popovertarget="{tip}"` – the HTML popover API. A button with this attribute opens and closes the element with that id, provided the element carries the `popover` attribute. The browser does it on its own, without JavaScript. The two do not need to be next to each other.
+  - It is empty in the HTML. The visible `i` comes from the CSS – `.info::after { content: "i"; }` – and is set as a superscript there. Text that CSS generates with `content` is drawn but is not part of the page's text, so the heading reads "People", not "Peoplei". `aria-label` gives the button its real name: "Info". The browser also tells screen readers whether the note is open or closed.
 - The note:
   - `popover` – short for `popover="auto"`: the element stays hidden until its button opens it. Then it is drawn in the top layer – above everything else on the page, regardless of `z-index`, and never cut off by a parent element. "Auto" also brings light dismiss: a click outside the note or the Esc key closes it, and opening another auto popover closes the first.
   - Where it appears: without JavaScript, the browser's default style centers it in the window. `site.js` places it right next to the i, keeps it there while the page scrolls and closes it once the i leaves the screen (chapter 4).
   - `{e(text)}` – the note is copy, so it is escaped.
-- A browser without popover support does not know the attribute and shows the `<span>` as ordinary text. The CSS builds on that: `@supports not selector(:popover-open)` hides the i and sets the note as a muted line under the title (chapter 3). The note is never lost.
+- A browser without popover support does not know the attribute and shows the `<span>` as ordinary text. The CSS builds on that: `@supports not selector(:popover-open)` hides the i and sets the note as a muted line between the heading and the text (chapter 3). The note is never lost.
 
 ---
 
-## 21 · section and tree
+## 21 · section, tree, months and duration
 
 ```python
-def section(c, key, title_html, body, cls="body", tip=""):
+def section(c, key, title_html, body, cls="body", tip=None):
     i = sid(c, key)
     label = f"h-{i}"
     if tip:                                            # the section is named by its title, not by the i
-        title_html, label = f'<span id="t-{i}">{title_html}</span>{tip}', f"t-{i}"
+        button, note = tip
+        title_html, label, body = f'<span id="t-{i}">{title_html}</span>{button}', f"t-{i}", note + "\n" + body
     return f"""<section class="sec" id="{i}" aria-labelledby="{label}">
 <h2 id="h-{i}">{chapter_no(key)}{title_html}</h2>
 <div class="{cls}">
@@ -852,12 +874,14 @@ def section(c, key, title_html, body, cls="body", tip=""):
 
 - The wrapper for every content section of the main page.
 - `cls="body"` – a default parameter: used when the caller passes nothing. No caller currently passes another value.
-- `tip=""` – an optional toggletip from `info()`, placed right after the title. Only Projects passes one; the People note belongs to an `<h3>` inside P⁴ and is added in `page()`.
+- `tip=None` – an optional toggletip: the (button, note) pair from `info()` (section 20). `None` means "no toggletip"; `if tip:` is false for it. Only Projects passes one; the People toggletip belongs to an `<h3>` inside P⁴ and is placed in `page()`.
 - `i = sid(c, key)` – the localized anchor.
 - `label` – the id of the element that names the section; normally the heading's, `h-{i}`.
 - `aria-labelledby="{label}"` – the text of the element with that id becomes the section's name, and a named `<section>` is exposed as a landmark that screen-reader users can jump between.
-- `if tip:` – with a toggletip inside the heading, the heading's text includes the button's name: pointing at the `<h2>` would name the section "Projects Info". So the title gets a span of its own, `<span id="t-{i}">`, and the label points there – the section is called "Projects". In browsers without popovers, where the note shows as text inside the heading, the span keeps the note out of the name as well.
-  - `title_html, label = …, …` – tuple assignment: two names get new values in one statement. Python evaluates the whole right side first, so the new title is built from the old one.
+- `if tip:` – with the i inside the heading, the heading's accessible name includes the button's name: pointing at the `<h2>` would name the section "Projects Info". So the title gets a span of its own, `<span id="t-{i}">`, and the label points there – the section is called "Projects".
+  - `button, note = tip` – unpacks the pair into two names. A `tip` that is not a pair raises `ValueError`.
+  - `title_html, label, body = …, …, …` – tuple assignment: three names get new values in one statement. Python evaluates the whole right side first, so the new title is built from the old title and the new body from the old body.
+  - The button goes after the title span, inside the heading. The note goes in front of the body, followed by a line break: it becomes the first thing in `<div class="body">`, right under the heading – outside it, so the heading's text stays "03 Projects" (section 20).
   - The `<h2>` keeps `id="h-{i}"` either way. The footnote references point at the Sources heading by that id (section 24).
 - `{chapter_no(key)}{title_html}` – number, then title (section 20).
 - `title_html` – the name says it: raw HTML, inserted unescaped. Callers pass `e(s["profile"])` and so on, or `title_of()` for P⁴ (section 22), which returns markup. Pitfall: pass plain copy here without `e()` and the first `&` breaks the markup.
@@ -866,7 +890,7 @@ def section(c, key, title_html, body, cls="body", tip=""):
 ```python
 def tree(c, rows):
     lang = ' lang="en"' if c["lang"] != "en" else ""
-    items = "".join(f'<li><span class="k"{lang}>{e(k)}</span> {t(c, v)}</li>' for k, v in rows)
+    items = "".join(f'<li><span class="k"{lang}>{e(k)}:</span> {t(c, v)}</li>' for k, v in rows)
     return f'<ul class="tree">{items}</ul>' if rows else ""
 ```
 
@@ -875,7 +899,49 @@ def tree(c, rows):
 - `for k, v in rows` – each row is a (label, text) pair, unpacked in the generator.
 - The label goes through `e()`, the text through `t()` – so arrows and italics work in the text.
 - `if rows else ""` – a role with nothing to list (one of the five early positions) gets no list at all. An empty `<ul></ul>` would be valid HTML, but a screen reader may still announce "list, 0 items", and the list's margin would leave a gap.
-- No colon after the label in the HTML: the CSS adds it (`.tree .k::after { content: ":"; }`) and draws the branch lines with `::before` and `::after`. The content stays clean data; the presentation lives in CSS.
+- `{e(k)}:` – the colon after the label is part of the text, inside the bold span. It could come from the CSS (`content: ":"`), but generated content is not part of the page's text: copied or extracted, the line would read "Scope SEA, social media …" with nothing between label and text. The CSS only draws the branch lines, with `::before` and `::after` on each `<li>` – lines are presentation, the colon is punctuation.
+
+```python
+def months(when):
+    """Length of a role in months, counted like LinkedIn: first and last month included (10/2017 – 06/2023: 69).
+    "since 11/2025" runs to the build date; site.js recounts it when the page loads."""
+    dates = [(int(y), int(m)) for m, y in re.findall(r"(\d{2})/(\d{4})", when)]
+    (y1, m1), (y2, m2) = dates[0], dates[1] if len(dates) > 1 else (date.today().year, date.today().month)
+    return (y2 - y1) * 12 + m2 - m1 + 1
+```
+
+- The length of a role in months, read from its `when` string. `role()` (section 23) prints it under the dates.
+- Counted like LinkedIn: the first and the last month both count. 10/2017 – 06/2023 is (2023 − 2017) × 12 + 6 − 10 + 1 = 69 months. Without the `+ 1`, the result is the number of steps from one month to the other, 68 – and a role from 03/2025 to 03/2025 would last zero months.
+- `re.findall(r"(\d{2})/(\d{4})", when)` – every date in the string:
+  - `\d` is one digit, `{2}` exactly two of them, `/` a literal slash, `\d{4}` four digits. The parentheses make month and year two groups.
+  - With groups in the pattern, `findall` returns one tuple of the groups per match: `"10/2017 – 06/2023"` gives `[("10", "2017"), ("06", "2023")]`, `"since 11/2025"` gives `[("11", "2025")]`. The words around the dates do not matter.
+- `[(int(y), int(m)) for m, y in …]` – a list comprehension that unpacks each tuple into month and year, turns both into numbers and puts the year first: `[(2017, 10), (2023, 6)]`.
+- The second line unpacks start and end in one statement:
+  - The right side is a tuple of two items, separated by the comma: `dates[0]` and `dates[1] if len(dates) > 1 else (…)`. The conditional expression binds more tightly than the comma, so the `if … else` decides the second item only.
+  - Two dates: the end is `dates[1]`. One date, as for a role that is still running: the end is the year and month of today – the build date.
+  - The left side, `(y1, m1), (y2, m2)`, is nested unpacking: two pairs, each split into year and month.
+- `(y2 - y1) * 12 + m2 - m1 + 1` – whole years in months, plus the difference of the months, plus one. The month difference may be negative (6 − 10 = −4); the year term makes up for it.
+- The running role: "since 11/2025" built in October 2026 counts 11/2025 – 10/2026, 12 months. That number is right on the day of the build and then ages until the next one. So `role()` hands the start to `site.js`, which counts again in the visitor's browser (chapter 4).
+- Pitfalls: a `when` without an `MM/YYYY` date finds nothing, and `dates[0]` raises `IndexError` – loud. That is why the entry for the years before 2014 carries exact months, "10/2010 – 08/2014": a duration needs months. Quieter: a one-digit month. `"03/2025 – 7/2025"` finds only the first date (`\d{2}` wants two digits), and the role counts as still running. Always write months with two digits.
+
+```python
+def duration(c, n):
+    """69 → "5 years 9 months", in full words: no yrs/mos to decode."""
+    year, years, month, months_ = c["dur"]
+    y, m = divmod(n, 12)
+    return " ".join(([f"{y} {year if y == 1 else years}"] if y else []) + ([f"{m} {month if m == 1 else months_}"] if m else []))
+```
+
+- Turns a number of months into words in the page language: 69 → "5 years 9 months", "5 Jahre 9 Monate".
+- `year, years, month, months_ = c["dur"]` – the four words from `CONTENT` (section 8), singular and plural of each.
+  - The trailing underscore in `months_`: `months` is already the name of the function above. A local variable of the same name would hide that function inside `duration()` – the same trap as `t` in `topbar()` (section 17). The underscore is the usual Python way around a name that is taken (`class_`, `type_`).
+- `y, m = divmod(n, 12)` – division and remainder in one call: `divmod(69, 12)` is `(5, 9)`, five whole years and nine months left over. The same as `(n // 12, n % 12)`.
+- `year if y == 1 else years` – the word is chosen, not built. Adding an "s" works in English but not in German ("Jahr", "Jahre"), so each language lists both forms.
+- `[…] if y else []` – each part is a list with one string, or an empty list when its number is 0. `+` joins the two lists, `" ".join` puts a space between whatever is left:
+  - 69 → `["5 years", "9 months"]` → "5 years 9 months"
+  - 12 → `["1 year"]` → "1 year", not "1 year 0 months"
+  - 3 → `["3 months"]` → "3 months"
+- Full words instead of "5 yrs 9 mos", as the docstring says: nothing to decode, for readers and for programs that read the text.
 
 ---
 

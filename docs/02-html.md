@@ -287,10 +287,12 @@ The content of the block, indented for reading (in the file it is one line):
 
 ### Navigation
 
-`build.py` assembles the whole `<nav>` from f-string pieces, so it lands on one line without whitespace between the tags. As a flex container, the nav would ignore such whitespace anyway; the spacing comes from CSS `gap`. The three parts, quoted one by one:
+`build.py` assembles the `<nav>` from f-string pieces: the four section links joined by line breaks, then the language switch and the theme buttons, each on a line of its own. The line breaks are for anything that reads the page as text. A tag is no separator: without whitespace between them, the link texts run together – "01 Profile02 Experience03 Projects…". On screen the whitespace changes nothing. The nav is a flex container, and a flex container ignores text that consists only of whitespace between its items – unlike the inline spans of the logo above; the spacing comes from CSS `gap`. The three parts, quoted one by one:
 
 ```html
-<nav class="nav" aria-label="Main"><a class="sect" href="#profile"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profile">Profile</span></a><a class="sect" href="#experience"><span class="no" aria-hidden="true">02</span> <span class="label" data-label="Experience">Experience</span></a>…
+<nav class="nav" aria-label="Main"><a class="sect" href="#profile"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profile">Profile</span></a>
+<a class="sect" href="#experience"><span class="no" aria-hidden="true">02</span> <span class="label" data-label="Experience">Experience</span></a>
+…
 ```
 
 - `<nav>` – a navigation landmark.
@@ -303,10 +305,11 @@ The content of the block, indented for reading (in the file it is one line):
 - The German page uses German ids (`#profil`, `#stationen`, `#projekte`, `#kontakt`), so shared links read naturally in each language. They come from the `ids` map in `build.py`.
 
 ```html
-<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span><a href="de/index.html" hreflang="de" lang="de" title="Deutsch">DE</a></span>
+<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="de/index.html" hreflang="de" lang="de" title="Deutsch">DE</a></span>
 ```
 
 - `<span class="langs" role="group" aria-label="Language">` – a span carries no meaning; `role="group"` turns it into a named group, so a screen reader announces "Language, group" on entering. Visually it is the pill around EN and DE.
+- The space between `EN` and `DE` – the same reason as the line breaks between the links: as text the pill reads "EN DE", not "ENDE". The CSS makes the pill `inline-flex`, so the space does not render either.
 - `<span aria-current="page" title="English">EN</span>` – the current language is not a link; a link to the page you are on is a dead end.
   - `aria-current="page"` – screen readers that support it announce "current page". The CSS uses the same attribute (`.langs [aria-current]`) to set the label bold: one attribute drives both meaning and style.
   - `title="English"` – the tooltip on hover.
@@ -429,10 +432,10 @@ The section opens with the word "marketinkerer", set like an entry in a dictiona
 ```html
 <p>Leadership roles at four companies, … Université Paris 1 Panthéon-Sorbonne.</p>
 <dl class="ledger" aria-label="Selected results">
-<div><dt>€6k <span class="arr" role="img" aria-label="to"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg></span> €240k</dt><dd>monthly media budget at a RoAS of 4.0&nbsp;· <a href="#posterlounge">Posterlounge</a></dd></div>
-<div><dt>17 shops</dt><dd>in 12 languages across Europe&nbsp;· <a href="#posterlounge">Posterlounge</a></dd></div>
-<div><dt>RoAS 7.6 <span class="arr" role="img" aria-label="to">…</span> 7.8</dt><dd>on a €1.7m media budget, while spend grew&nbsp;· <a href="#brandible">Brandible</a></dd></div>
-<div><dt>&gt; 2×</dt><dd>inbound inquiries year over year&nbsp;· <a href="#e-service-check">E+SERVICE+CHECK</a></dd></div>
+<div><dt>€6k <span class="arr"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg><span class="sr-only">to</span></span> €240k</dt><dd>monthly media budget at a RoAS of 4.0&nbsp;· <a href="#posterlounge">Posterlounge<span class="jmp"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg></span></a></dd></div>
+<div><dt>17 shops</dt><dd>in 12 languages across Europe&nbsp;· <a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd></div>
+<div><dt>RoAS 7.6 <span class="arr">…<span class="sr-only">to</span></span> 7.8</dt><dd>on a €1.7m media budget, while spend grew&nbsp;· <a href="#brandible">Brandible<span class="jmp">…</span></a></dd></div>
+<div><dt>&gt; 2×</dt><dd>inbound inquiries year over year&nbsp;· <a href="#e-service-check">E+SERVICE+CHECK<span class="jmp">…</span></a></dd></div>
 </dl>
 ```
 
@@ -446,17 +449,17 @@ The section opens with the word "marketinkerer", set like an entry in a dictiona
 
 The company link:
 
-- `<a href="#posterlounge">Posterlounge</a>` – every result ends with its company, and the name leads to that company's role under Experience, `<li class="role" id="posterlounge">`. The figure makes the claim; one click further are the team, the scope and the years behind it.
+- `<a href="#posterlounge">Posterlounge…</a>` – every result ends with its company, and the name leads to that company's role under Experience, `<li class="role" id="posterlounge">`. The figure makes the claim; one click further are the team, the scope and the years behind it.
+- `<span class="jmp">` – a small ↓ after the name, inside the link: the down arrow of the jump control (the constant `DOWN_SVG` in `build.py`), its SVG `aria-hidden` as there. The CSS raises it and sets it in the accent colour, like the footnote numbers and the i of the toggletips. It says "this link stays on the page and leads further down"; an arrow pointing up and right (↗) would conventionally mean "leaves the site". Inside the link it is part of the click target, but the link's underline does not run under it: the span is an `inline-block`, and text decoration does not propagate into inline-blocks. The link's name stays "Posterlounge", and as text the row ends with the company name and nothing else.
 - In `build.py` a ledger row is a tuple of figure, text and company key; the map `COMPANIES` turns the key into the name shown (see 01-build). Two rows name Posterlounge and lead to the same role: same link text, same target.
 - The ids are the same on both pages: unlike the section ids, `#posterlounge` is not translated, because a company has one name in every language.
 - After the jump, the CSS sets the dates and the title of the targeted role in the accent colour (`.role:target`), so you see where you landed – the same idea as the highlighted footnote under Sources.
 
 The drawn arrow:
 
-- `<span class="arr" role="img" aria-label="to">` – the arrow → is not part of the Atkinson Hyperlegible font. A text arrow would come from a fallback font and look foreign, so `build.py` (function `t()`) replaces every → in the copy with this drawn version.
-- `role="img"` – turns the span into a single image as far as assistive technology is concerned; its inner content is no longer read.
-- `aria-label="to"` – the image's text alternative. A screen reader reads "€6k, to, €240k", often adding "image" or "graphic". A text arrow would be read as "right arrow", which makes no sentence. The German page uses `aria-label="auf"`: "6.000 auf 240.000 €".
-- `<svg … aria-hidden="true">` inside – hidden so the arrow is not announced twice.
+- `<span class="arr">` – the arrow → is not part of the Atkinson Hyperlegible font. A text arrow would come from a fallback font and look foreign, so `build.py` (function `t()`) replaces every → in the copy with this drawn version.
+- `<svg … aria-hidden="true">` – the drawing, hidden from assistive technology.
+- `<span class="sr-only">to</span>` – the arrow's word as text, invisible on screen (the `.sr-only` class from the hero). A screen reader reads "€6k to €240k"; a text arrow would be read as "right arrow", which makes no sentence. Because the word is real text, everything else that reads the page as text gets the same sentence: a copy and paste, a search engine, a parser. An `aria-label` on the span would serve screen readers only – it is not text, and a copy would read "€6k €240k", two figures with nothing between them. The German page uses `auf`: "6.000 auf 240.000 €".
 - The path `M1 5h13.5M10 1.2 14 5l-4 3.8`, in a 16 × 10 `viewBox`, command by command:
   - `M1 5` – move the pen to x 1, y 5 (the vertical middle) without drawing.
   - `h13.5` – a horizontal line 13.5 units to the right: the shaft.
@@ -474,7 +477,7 @@ The drawn arrow:
 <div class="fields">
 <div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO and marketplaces. Steered by cost per inquiry, quote and order.</p></div>
 …
-<div><h3>People<button type="button" class="info" popovertarget="tip-people" aria-label="Info">i</button><span class="tip" id="tip-people" popover>Processes fit people, not the other way round.</span></h3><p>Teams of up to six, … <strong lang="en">Everything human:e.</strong></p></div>
+<div><h3>People<button type="button" class="info" popovertarget="tip-people" aria-label="Info"></button></h3><span class="tip" id="tip-people" popover>Processes fit people, not the other way round.</span><p>Teams of up to six, … <strong lang="en">Everything human:e.</strong></p></div>
 </div>
 </div>
 </section>
@@ -489,24 +492,25 @@ The drawn arrow:
 The toggletip after "People", piece by piece:
 
 - A toggletip is the click-to-open relative of the tooltip: a small "i" after the heading, and a note that opens on a click, a tap or Enter. Unlike a tooltip it needs no hovering, so it works on touch screens and with the keyboard. The principle "Processes fit people, not the other way round." waits behind the i instead of standing in the running text.
-- `<button type="button" class="info">i</button>` – a real button: focusable, operated with Enter and Space. The CSS sets the letter like a footnote number: small, raised, in the accent colour.
+- `<button type="button" class="info"></button>` – a real button: focusable, operated with Enter and Space. It sits inside the `<h3>`, right after the title; a heading may contain phrasing content such as `<button>`.
+- Empty in the HTML – the letter comes from the CSS, `.info::after { content: "i"; }`, set like a footnote number: small, raised, in the accent colour. Generated content is not part of the document's text, so the heading's text is its title alone, "People", for anything that reads the page as text – search engines, parsers, a copy and paste. With the letter in the HTML, the heading read "Peoplei".
 - `popovertarget="tip-people"` – the HTML popover API. A button with this attribute opens and closes the element with that id. It is declared in HTML; no JavaScript is involved. Browsers also report to assistive technology whether the popover is open, as an expanded or collapsed button.
-- `aria-label="Info"` – the button's name. Without it, a screen reader would announce the bare letter: "i, button". The value is the UI string `info` in `build.py`, "Info" in both languages.
+- `aria-label="Info"` – the button's name. Without it, a screen reader would announce at best the letter the CSS draws: "i, button". The value is the UI string `info` in `build.py`, "Info" in both languages.
 - `<span class="tip" id="tip-people" popover>` – the note. The bare attribute `popover` means `popover="auto"`: hidden until opened (the browser's default style is `display: none`), and once open it sits in the top layer, above everything else on the page, whatever the `z-index` or `overflow` of its ancestors. "Auto" also brings light dismiss: a click outside or Esc closes it, and opening another popover of this kind closes the first.
-- Inside the `<h3>` – a heading may contain phrasing content such as `<button>` and `<span>`. The note follows its button directly, so in reading order it comes right after the i. While closed it is not rendered, so it is neither seen nor read as part of the heading.
-- Placement: the browser's default style centres an open popover in the window. `site.js` moves it next to the i and keeps it there while the page scrolls (see 04-js). In a browser without popover support, the CSS hides the i and shows the note as a muted line of text under the title (see 03-css).
-- `lang` – on the German page the heading carries `lang="en"`, and the note inside it would inherit English. The note is German, so it switches back: `<span class="tip" id="tip-people" popover lang="de">Prozesse passen zu Menschen, nicht umgekehrt.</span>`. The function `info()` in `build.py` takes the note's language and writes it only where it differs from the heading's. On the English page the note simply inherits English.
+- After the `</h3>` – the note follows the heading directly. The button is the last thing in the heading, so in reading order the note still comes right after the i. Inside the heading, its text would count as part of the heading's text, popover or not: a text extraction read the heading as "PeopleiProcesses fit people, not the other way round." `info()` in `build.py` therefore returns two pieces, the button and the note, and the P⁴ loop puts the first into the `<h3>` and the second after it.
+- Placement: the browser's default style centres an open popover in the window. `site.js` moves it next to the i and keeps it there while the page scrolls (see 04-js). In a browser without popover support, the CSS hides the i and shows the note as a muted line of text between the heading and the paragraph (see 03-css).
+- `lang` – on the German page the heading carries `lang="en"`, the note is German: `<span class="tip" id="tip-people" popover lang="de">Prozesse passen zu Menschen, nicht umgekehrt.</span>`. The attribute dates from the time the note sat inside the English heading; after it, the note inherits German from the page anyway, so `lang="de"` is now redundant and harmless. On the English page the note carries no `lang` and inherits English.
 
 ### Experience: a reversed timeline
 
 ```html
 <ol class="roles" reversed>
 <li class="role" id="e-service-check">
-<p class="when">since 11/2025</p>
+<p class="when">since 11/2025<br><span class="dur" data-from="2025-11" data-units="year,years,month,months">1 year</span></p>
 <div>
 <h3>Head of Marketing</h3>
 <p class="org"><a href="https://www.e-service-check.de/">E+SERVICE+CHECK GmbH</a>&nbsp;<span class="place">· Laucha</span></p>
-<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team</span> functional lead for content, marketing and project management</li><li><span class="k">Scope</span> marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
+<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team:</span> functional lead for content, marketing and project management</li><li><span class="k">Scope:</span> marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result:</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
 </div>
 </li>
 …
@@ -519,35 +523,62 @@ Nine entries; the first stands for all.
 - `reversed` – the numbering counts down: the newest entry is number 9, the oldest number 1. The list runs newest-first, so this is the honest numbering. The CSS hides the numbers (`list-style: none`); you see them only if the stylesheet fails to load.
 - A known quirk: Safari has, in many versions, stopped announcing lists as lists in VoiceOver once CSS sets `list-style: none`. The usual fix is `role="list"` on the list. It applies to all unstyled lists on this page.
 - `<li class="role" id="e-service-check">` – one position. The `id` makes it a link target: three roles carry one – E+SERVICE+CHECK, Brandible and Posterlounge, the three companies the ledger in the Profile links to. The value comes from the role's `id` field in `build.py`; the other roles have none.
-- `<p class="when">` – the period, in the left column on wide screens.
+- `<p class="when">` – the period, in the left column on wide screens, and under it the role's length.
+- `<br>` – puts the duration on a line of its own. It also keeps dates and duration apart in plain text: text extraction turns a `<br>` into a line break, so the two do not run together as "since 11/20251 year".
+- `<span class="dur">1 year</span>` – the duration in full words, "5 years 9 months" rather than abbreviations to decode; German "5 Jahre 9 Monate". It is counted like LinkedIn counts: first and last month included, so 10/2017 – 06/2023 makes 69 months, 5 years 9 months. `build.py` reads the dates from the period (`months()`) and writes the words (`duration()`, with the singular and plural from the key `dur` of each language). The CSS sets the line a little smaller.
+- `data-from="2025-11"` and `data-units="year,years,month,months"` – only on the role that is still running, the one whose period has a single date. The build counts it up to the build date, so the "1 year" in the file is the count of 28 October 2026. `site.js` recounts it from `data-from` when the page loads, with the words from `data-units` – the German page carries `Jahr,Jahre,Monat,Monate`, so the script itself contains no language. The duration never goes stale between two uploads; without JavaScript, the build's count stands.
 - `<div>` – groups everything else into the right column, so the CSS grid gets exactly two columns: date | details.
 - `<h3>` – the job title. As a heading, every role is reachable through heading navigation.
 - `<a href="https://www.e-service-check.de/">` – the company name links to its website. E+SERVICE+CHECK, Brandible and Posterlounge have links; the Liora bootcamps link through their footnotes instead, and the earlier employers have none.
 - `<p class="org">` with `<span class="place">· Laucha</span>` – employer and location; the span mutes the location. The `&nbsp;` before the span glues the dot to "GmbH", so the location can wrap to the next line but the dot never starts it (see "Non-breaking spaces and middle dots").
 - `<p class="ctx">` – one line of company context. Optional: `build.py` emits it only for roles that have a `ctx`, and the `place` span only for roles that have a place (Rapidobject has none).
 - `<ul class="tree">` – the details as an unordered list, styled like the output of the Unix `tree` command – the format of the #JobAlert posts. The branches `├──` and `└──` are not characters in the HTML but CSS borders on `::before` and `::after`. They align in any font, and screen readers do not read out box-drawing characters.
-- `<span class="k">Scope</span>` – the key. CSS sets it bold and adds the colon via `content: ":"`. Screen readers generally read such generated content, so they say "Scope: marketing, design …". On the German page the keys carry `lang="en"` – Scope, Team, Result are brand vocabulary.
-- The same three keys, in the same order, wherever there are facts for them: Team (who), Scope (what), Result (what came of it). Someone comparing two roles finds the same kind of fact in the same place. Facts that fit none of the three go into the `ctx` line – at Posterlounge, the path from SEA Manager in 2017 to Head of Marketing in 2021. For the two Liora certifications, Scope is the curriculum and Result the certificate with its capstone project.
-- Variants among the nine entries: some have no `ctx`, one has no place, some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. The last entry holds five more positions behind a disclosure.
+- `<span class="k">Scope:</span>` – the key with its colon, set bold by the CSS. The colon is text in the HTML, not CSS-generated content (`::after`): generated content is not part of the document's text, so a text extraction would read "Scope marketing, design …" without it. With the colon in the HTML, screen readers, search engines and a copy and paste all get "Scope: marketing, design …". On the German page the keys carry `lang="en"` – Scope, Team, Result are brand vocabulary.
+- The same three keys, in the same order, wherever there are facts for them: Team (who), Scope (what), Result (what came of it). Someone comparing two roles finds the same kind of fact in the same place. Facts that fit none of the three go elsewhere: the company into the `ctx` line, the job titles at Posterlounge into a disclosure (next section). For the two Liora certifications, Scope is the curriculum and Result the certificate with its capstone project.
+- Variants among the nine entries: some have no `ctx`, one has no place, some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. Two entries hold more behind a disclosure: Posterlounge its promotions, the last entry five positions.
+
+### Experience: three promotions behind a disclosure
+
+```html
+<li class="role" id="posterlounge">
+<p class="when">10/2017 – 06/2023<br><span class="dur">5 years 9 months</span></p>
+…
+<p class="ctx">Art prints online in more than 15 European countries.</p><ul class="tree">…</ul>
+<details class="more">
+<summary>Three promotions</summary>
+<ol class="tree"><li>SEA Manager <span class="muted">· 10/2017</span></li><li>Digital Marketing Manager</li><li>Senior Marketing Manager</li><li>Head of Marketing <span class="muted">· 06/2021</span></li></ol>
+</details>
+</div>
+</li>
+```
+
+The heading of the role names the last title, Head of Marketing. The way there took four titles, and each is a real job title that people search for by name. In the HTML they are text that any search engine or parser finds; behind the disclosure they stay out of the way of a reader who skims the timeline.
+
+- `<details class="more">` – the same disclosure as under 2010–2014 (next section), here with a list of titles instead of roles.
+- `<summary>Three promotions</summary>` – four titles, three steps between them. German: "Drei Beförderungen".
+- `<ol class="tree">` – ordered, because the titles are a sequence. It runs oldest first, the direction of a path, unlike the newest-first timeline around it. The class gives it the branches of the Team/Scope/Result list; it has no keys, each item is one title. The CSS adds a little space under the summary (`.more .tree`).
+- `<span class="muted">· 10/2017</span>` – a date where it is known: the first title starts with the role, the last one in 06/2021. The two titles between have none.
+- In `build.py` this is the role key `path`: a label and a list of (date or "", title) pairs. `role()` collects what goes behind a disclosure from `path` and from `more` (the five positions), so one role could carry both.
+- `site.js` treats it like every `details.more`: it redraws the minimap when the disclosure opens, and printing shows it open.
 
 ### Experience: five positions behind a disclosure
 
 ```html
 <li class="role">
-<p class="when">2010 – 2014</p>
+<p class="when">10/2010 – 08/2014<br><span class="dur">3 years 11 months</span></p>
 <div>
 <h3>Marketing, market research, export</h3>
 <p class="org">Five companies&nbsp;<span class="place">· Rome</span></p>
-<ul class="tree"><li><span class="k">Scope</span> export promotion, brand protection, competitive intelligence, web marketing</li></ul>
+<ul class="tree"><li><span class="k">Scope:</span> export promotion, brand protection, competitive intelligence, web marketing</li></ul>
 <details class="more">
 <summary>All five positions</summary>
 <ol class="roles">
 <li class="role">
-<p class="when">04/2014 – 08/2014</p>
+<p class="when">04/2014 – 08/2014<br><span class="dur">5 months</span></p>
 <div>
 <h4>Marketing Consultant</h4>
 <p class="org">SBS systems for business solutions Srl&nbsp;<span class="place">· Rome</span></p>
-<ul class="tree"><li><span class="k">Scope</span> export promotion projects for small and medium-sized companies on behalf of the German Federal Ministry for Economic Affairs</li></ul>
+<ul class="tree"><li><span class="k">Scope:</span> export promotion projects for small and medium-sized companies on behalf of the German Federal Ministry for Economic Affairs</li></ul>
 </div>
 </li>
 …
@@ -557,11 +588,11 @@ Nine entries; the first stands for all.
 </li>
 ```
 
-The years 2010 to 2014 stay one entry in the timeline: five positions in and around Rome, summed up as "Five companies" with one Scope line. The single positions are there for anyone who wants them, without making the timeline longer for everyone else.
+The years 2010 to 2014 stay one entry in the timeline: five positions in and around Rome, summed up as "Five companies" with one Scope line. The single positions are there for anyone who wants them, without making the timeline longer for everyone else. The entry's period runs from the first month of the earliest position to the last month of the latest, 10/2010 – 08/2014, with months like every other entry: a duration needs them.
 
 - `<details class="more">` – HTML's built-in disclosure widget. Closed, it shows only its `<summary>`; a click, Enter or Space opens it, and the browser announces the summary as a control that is collapsed or expanded. No JavaScript, no ARIA. The content of a closed `<details>` is not rendered, so screen readers skip it too until it is opened.
 - `<summary>All five positions</summary>` – the label of the toggle, as visible text. Browsers draw a small triangle in front of it; the CSS replaces that with a chevron that turns down when the disclosure is open. German: "Alle fünf Stationen".
-- `<ol class="roles">` – the five positions with the same markup as the timeline around them: the function `role()` in `build.py` writes one role and, for the entries under its `more` key, calls itself. Same classes, same CSS, adjusted inside `.more`. Unlike the outer list, this one is not `reversed`; with the numbers hidden, that only shows if the stylesheet fails.
+- `<ol class="roles">` – the five positions with the same markup as the timeline around them, durations included: the function `role()` in `build.py` writes one role and, for the entries under its `more` key, calls itself. Same classes, same CSS, adjusted inside `.more`. Unlike the outer list, this one is not `reversed`; with the numbers hidden, that only shows if the stylesheet fails.
 - `<h4>` – one level below the entry's `<h3>`. The outline reads: Experience (h2) → Marketing, market research, export (h3) → Marketing Consultant (h4).
 - One of the five, the corporate investigations at Inner Valor, has no tree. For a role without rows, `tree()` returns an empty string, which leaves a blank line in the HTML. Whitespace between block elements renders nothing.
 - Opening the disclosure makes the page taller, so `site.js` redraws the minimap on the `toggle` event. For printing, it opens the closed ones before and closes them again afterwards (`beforeprint`, `afterprint`), so paper shows all five; see 04-js.
@@ -596,8 +627,9 @@ The footnote reference, piece by piece:
 
 ```html
 <section class="sec" id="projects" aria-labelledby="t-projects">
-<h2 id="h-projects"><span class="no" aria-hidden="true">03</span> <span id="t-projects">Projects</span><button type="button" class="info" popovertarget="tip-projects" aria-label="Info">i</button><span class="tip" id="tip-projects" popover>Stop starting. Start finishing.</span></h2>
+<h2 id="h-projects"><span class="no" aria-hidden="true">03</span> <span id="t-projects">Projects</span><button type="button" class="info" popovertarget="tip-projects" aria-label="Info"></button></h2>
 <div class="body">
+<span class="tip" id="tip-projects" popover>Stop starting. Start finishing.</span>
 <div class="group"><h3>At E+SERVICE+CHECK</h3>
 <ul class="projects">
 <li><h4>Call and inquiry pipeline</h4><p>More than half a million calls, two phone systems, five web forms – joined with Odoo master data.</p><p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p></li>
@@ -612,8 +644,9 @@ The footnote reference, piece by piece:
 </section>
 ```
 
-- The section's slogan, "Stop starting. Start finishing.", sits in a toggletip after the heading – the same button and popover as after "People" in P⁴. The section starts straight with its first group.
-- `aria-labelledby="t-projects"` and `<span id="t-projects">Projects</span>` – with a button inside the heading, the heading's text is no longer just the title. A name taken from the whole `<h2>` would include the button's name and read "Projects Info" (the number is skipped, it is `aria-hidden`). So the section points at a span that wraps the title alone, and the region is called "Projects" in the landmark list. `section()` in `build.py` does this whenever it is given a `tip`. The heading keeps its id `h-projects`, as every section heading does.
+- The section's slogan, "Stop starting. Start finishing.", sits in a toggletip – the same empty button and popover as after "People" in P⁴. The button is the last thing in the heading; the note is the first child of `.body`, so it follows the heading in reading order and is not part of its text, which reads "03 Projects". After it, the section starts straight with its first group.
+- Why inside `.body` and not directly after the `</h2>`: the section is a grid of exactly two children, heading and body. In a browser without popovers the note is shown as a line of text; inside `.body` it stands at the top of the content column instead of becoming a third grid item. `section()` in `build.py` takes the pair from `info()` as its `tip`, puts the button into the heading and the note in front of the body.
+- `aria-labelledby="t-projects"` and `<span id="t-projects">Projects</span>` – the heading's accessible name is more than the title: a name taken from the whole `<h2>` would include the button's name and read "Projects Info" (the number is skipped, it is `aria-hidden`). So the section points at a span that wraps the title alone, and the region is called "Projects" in the landmark list. `section()` does this whenever it is given a `tip`. The heading keeps its id `h-projects`, as every section heading does.
 - `lang` – on the English page the note inherits English. On the German page the heading is German and the slogan stays English, so the note carries `lang="en"`.
 - `<div class="group">` – two groups, each with an `<h3>` and a list. The outline reads: Projects (h2) → At E+SERVICE+CHECK (h3) → Call and inquiry pipeline (h4).
 - `<ul class="projects">` – unordered: the projects are not ranked.
