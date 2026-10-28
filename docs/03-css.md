@@ -766,7 +766,7 @@ From 36rem, figures and explanations form two aligned columns.
 
 ```css
 /* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
-.ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; vertical-align: 0.5em; color: var(--accent); }
+.ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin: -1em 0 -1em 0.1em; vertical-align: 0.5em; color: var(--accent); }
 .ledger .jmp svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 ```
 
@@ -775,8 +775,8 @@ In the HTML, the company name is followed by `<span class="jmp">` with an inline
 - `.ledger .jmp`:
   - `display: inline-block;` – a box in the line that accepts width and height, like `.arr`.
   - `width: 0.6em; height: 0.6em;` – a square of 0.6 times the explanation's 18px: 10.8px (measured). In em, so it follows the text size.
-  - `margin-left: 0.1em;` – a hair of space after the name.
-  - `vertical-align: 0.5em;` – superscript. A length raises the box's baseline that far above the baseline of the surrounding text. The box holds only a block-level SVG and no line of text, and such an inline-block has its bottom edge as its baseline: the ↓ starts 0.5em (9px) above the baseline of the name. The raised box reaches 2.8px above the link's own box and makes the line 0.8px taller (measured: 27.9 → 28.7px). The toggletip's i takes such growth back with negative margins; here it is left as it is. On wide screens the larger figure in the same row sets the row's height anyway (measured: the ledger keeps its 243.7px); on phones, where figure and explanation stack, each row grows by those 0.8px.
+  - `margin: -1em 0 -1em 0.1em;` – a hair of space after the name, and negative margins above and below, as on the i of the toggletips: the line box counts an inline-block by its margin box, so the raised ↓ no longer makes the line taller. The arrow is drawn where it was; only the line ignores it (measured: 27.9px, the same as a line without ↓).
+  - `vertical-align: 0.5em;` – superscript. A length raises the box's baseline that far above the baseline of the surrounding text. The box holds only a block-level SVG and no line of text, and such an inline-block has its bottom edge as its baseline: the ↓ starts 0.5em (9px) above the baseline of the name. The raised box reaches 2.8px above the link's own box; without the negative margins it would make the line 0.8px taller (measured: 27.9 → 28.7px).
   - `color: var(--accent);` – bordeaux. Raised and in the accent colour, the ↓ looks like the footnote numbers and the i of the toggletips: on this site, that combination marks a jump within the page. The SVG draws in `currentColor`, so this one declaration colours it, while the name keeps the muted colour of the text.
 - **Why the underline stops before the ↓.** The link's underline is a text decoration. Decorations propagate to the text of the element's inline descendants, but not into atomic inline-level boxes – inline-blocks, images, inline tables. The `.jmp` is an inline-block, so the underline ends under the last letter of the name and does not run on through the margin and under the arrow. On hover the underline turns bordeaux, the colour the ↓ already has.
 - `.ledger .jmp svg` – the declarations of `.arr svg` (see Drawn arrows): a block that fills the span, a line drawing in `currentColor` with round ends, `overflow: visible` for the caps at the edge.
@@ -815,6 +815,7 @@ In the HTML, the company name is followed by `<span class="jmp">` with an inline
   margin: 0; color: var(--muted); font-size: 0.95rem;
   font-variant-numeric: tabular-nums; padding-top: 0.15rem; white-space: nowrap;
 }
+.when .dur { font-size: 0.85rem; }               /* the duration, on its own line under the dates */
 .role h3 { margin-bottom: 0.1rem; }
 .org { margin: 0 0 0.5rem; }
 .org .place { color: var(--muted); }
@@ -829,10 +830,13 @@ In the HTML, the company name is followed by `<span class="jmp">` with an inline
   - `font-variant-numeric: tabular-nums;` – 05/2025 and 11/2023 take the same width.
   - `padding-top: 0.15rem;` – lowers the smaller date text so it lines up with the larger h3 next to it.
   - `white-space: nowrap;` – a date range never wraps.
+- `.when .dur` – the length of the role, in words ("5 years 9 months"), on a line of its own under the dates. `build.py` counts it, and `site.js` recounts the running role when the page loads ([chapter 1](01-build.md), [chapter 4](04-js.md)). The line break is a `<br>` in the HTML, which also keeps dates and duration apart in plain text.
+  - `font-size: 0.85rem;` – 13.6px, a step below the 0.95rem dates. Colour, tabular digits and `nowrap` are inherited from `.when`. In rem, so the durations of the positions behind the disclosure, whose dates are 0.9rem, have the same 13.6px.
+  - `nowrap` and `<br>` do not conflict: `nowrap` removes the soft wrap opportunities, the places where the browser *may* break; a `<br>` is a forced break and still applies. The longest duration, "3 years 11 months", is 113px wide, 116px in German ("3 Jahre 11 Monate"), and fits the 152px of the 9.5rem column (measured).
 - `.role h3 { margin-bottom: 0.1rem; }` – job title close to the company line.
 - `.org` – the company line, 0.5rem above the next line. `.org .place` – the city, muted.
 - `.ctx` – a context line (industry, size), muted at 1rem, 0.6rem above the tree. Both margins apply because `:where(.body) p` is weaker than any class.
-- `.role:target > .when, .role:target > div > h3` – the three roles that the ledger links to carry an `id` (`posterlounge`, `brandible`, `e-service-check`). After a click on "· Brandible", the URL ends in `#brandible`, `:target` matches that `<li>`, and its dates and job title turn bordeaux: you see at once which entry the figure belongs to. The same idea as `.notes li:target` in the footnotes, with no JavaScript.
+- `.role:target > .when, .role:target > div > h3` – the three roles that the ledger links to carry an `id` (`posterlounge`, `brandible`, `e-service-check`). After a click on "· Brandible", the URL ends in `#brandible`, `:target` matches that `<li>`, and its dates (the duration included, which inherits the colour) and job title turn bordeaux: you see at once which entry the figure belongs to. The same idea as `.notes li:target` in the footnotes, with no JavaScript.
   - The child combinators `>` limit the colour to the role's own date (a direct child of the `<li>`) and its own title (the `h3` in its `<div>`). With descendant selectors, a targeted role would also colour the dates of any roles nested inside it, like the positions behind the disclosure below.
   - On phones, `scroll-margin-top` lets the target land below the stuck section heading (see Sections).
 
@@ -854,7 +858,7 @@ In the HTML, the company name is followed by `<span class="jmp">` with an inline
 @media (prefers-reduced-motion: no-preference) { .more summary::before { transition: transform 0.2s, margin 0.2s; } }
 ```
 
-The years 2010–2014 appear in the timeline as one entry, "Five companies". Below its tree, a `<details class="more">` holds the five single positions: its `<summary>` reads "All five positions", and a click opens it. `<details>` is the browser's built-in disclosure: it opens and closes without JavaScript, keyboard and screen readers included, and the browser sets the attribute `open` on the element while it is open. No rule shows or hides the content: a closed `<details>` renders only its `<summary>`.
+The years 2010–2014 appear in the timeline as one entry, "Five companies". Below its tree, a `<details class="more">` holds the five single positions: its `<summary>` reads "All five positions", and a click opens it. Posterlounge has a second disclosure of the same class below its tree: "Three promotions" opens the titles held there (see the next block). `<details>` is the browser's built-in disclosure: it opens and closes without JavaScript, keyboard and screen readers included, and the browser sets the attribute `open` on the element while it is open. No rule shows or hides the content: a closed `<details>` renders only its `<summary>`.
 
 - `.more { margin-top: 0.75rem; }` – space between the entry's tree and the disclosure.
 - `.more summary`:
@@ -873,15 +877,17 @@ The years 2010–2014 appear in the timeline as one entry, "Five companies". Bel
 
 ```css
 .more .roles { margin-top: 0.75rem; }
+.more .tree { margin-top: 0.5rem; }              /* Posterlounge: the titles, one per promotion */
 .more .role, .more .role + .role { display: block; padding: 0.85rem 0 0; border-top: 1px solid var(--line); }
 .more .role .when { padding-top: 0; font-size: 0.9rem; }
 .more h4 { margin: 0; font-size: 1.0625rem; line-height: 1.35; }
 .more .org { margin-bottom: 0.2rem; }
 ```
 
-Inside the disclosure is a second `<ol class="roles">` with one `.role` per position, built by the same function as the timeline (see [chapter 1](01-build.md)). The timeline rules match these elements too, so only a few corrections are needed.
+Inside the disclosure of 2010–2014 is a second `<ol class="roles">` with one `.role` per position, built by the same function as the timeline (see [chapter 1](01-build.md)). The timeline rules match these elements too, so only a few corrections are needed.
 
 - `.more .roles { margin-top: 0.75rem; }` – space below the summary. (0,2,0) beats the reset in `.roles`.
+- `.more .tree { margin-top: 0.5rem; }` – the Posterlounge disclosure holds no roles but a short list: the four titles from "SEA Manager · 10/2017" to "Head of Marketing · 06/2021", one per promotion. These titles are terms people search for; behind the disclosure they are part of the page's text without lengthening the entry. The list is an `<ol class="tree">` – ordered, because the titles follow one another – and the tree rules draw it with the same lines as the facts above it (see #JobAlert tree); `list-style: none` in `.tree` removes the numbers as it removes bullets. The rule itself only sets the space below the summary: 0.5rem (8px, measured) instead of the 0.35rem of `.tree`, which it beats at (0,2,0) against (0,1,0).
 - `.more .role, .more .role + .role { display: block; … }` – the nested positions are stacked: date above title, not the 9.5rem date column of the timeline. The disclosure itself sits in the content column of its entry, which leaves no room for a second date column. As a block, the `<li>` ignores the `grid-template-columns` of the 36rem media query.
   - `padding: 0.85rem 0 0; border-top: 1px solid var(--line);` – every position gets a line above, the first one included: it separates the list from the summary. No padding below; the next line does the separating.
   - Why two selectors: `.role + .role` sets `padding-top: 2rem` at (0,2,0). `.more .role` alone also weighs (0,2,0) and would win only because it comes later in the file; `.more .role + .role` at (0,3,0) wins by specificity, wherever the rules stand.
@@ -889,7 +895,7 @@ Inside the disclosure is a second `<ol class="roles">` with one `.role` per posi
 - `.more h4 { margin: 0; font-size: 1.0625rem; line-height: 1.35; }` – the positions are one heading level below the entry's `h3`. 1.0625rem is 17px, a step below the h3's 18px.
 - `.more .org { margin-bottom: 0.2rem; }` – the company line closer to the tree that follows. (0,2,0) beats `.org`.
 
-Opening the disclosure makes the page taller, so `site.js` redraws the minimap on every `toggle` event, and opens all disclosures before printing (see [chapter 4](04-js.md)).
+Opening a disclosure makes the page taller, so `site.js` redraws the minimap on every `toggle` event, and opens all disclosures before printing (see [chapter 4](04-js.md)).
 
 ## Projects
 
@@ -1022,7 +1028,6 @@ The Profile section opens like a dictionary entry: headword with syllable dots, 
   border-top: 1px solid var(--muted);
 }
 .tree .k { font-weight: 700; }
-.tree .k::after { content: ":"; }
 ```
 
 Each role lists its key facts as a file tree, the way the Unix `tree` command prints folders. The lines are drawn with CSS instead of the characters ├── and └──. Those characters are not in the Latin subset, so the browser would borrow them from a fallback font with different proportions. And their vertical strokes only join up from row to row when the glyphs fill the whole line height – with a line height of 1.55 they would leave gaps. Borders are drawn by the browser itself and line up in any font at any line height.
@@ -1039,8 +1044,9 @@ Each role lists its key facts as a file tree, the way the Unix `tree` command pr
   - `border-left: 1px solid var(--muted);` – the box has no width; its left border is the line.
 - `.tree li:last-child::before { bottom: auto; height: 0.8em; }` – on the last item, the vertical line stops at 0.8em, where the horizontal branch starts. That turns ├ into └.
 - `.tree li::after` – the horizontal branch: from `left: 0.3em`, `width: 0.95em`, drawn as a top border at `top: 0.8em` – about the middle of the first text line (1.55 × 18px = 27.9px line height, half of that is 0.78em). It ends 0.45em before the text.
-- `.tree .k { font-weight: 700; }` – the key ("Scope", "Result").
-- `.tree .k::after { content: ":"; }` – the colon after the key is generated. The HTML stays plain (`<span class="k">Scope</span>`), the punctuation lives in the CSS.
+- `.tree .k { font-weight: 700; }` – the key with its colon ("Scope:", "Result:").
+
+**The colon is text, not generated content.** The HTML writes it into the key: `<span class="k">Scope:</span>`. A `content` value on `::before` or `::after` is drawn, but it is not part of the document's text. It is not in the DOM, so `textContent` doesn't contain it; a selection copied to the clipboard leaves it out; and a program that reads the HTML without applying CSS – a search engine's parser, a tool that extracts a page's plain text – never sees it at all. With the colon generated in CSS, a copied line reads "Result 17 shops in 12 languages" (measured with a generated colon). Screen readers do announce generated content; the text of the page still lacks it. Punctuation that belongs to the sentence therefore goes into the HTML. Generated content suits what is decoration only – the tree lines, the chevron of the disclosures – or what should stay out of the text on purpose, like the i of the toggletips (see Toggletips).
 
 ## Drawn arrows
 
@@ -1051,13 +1057,16 @@ Each role lists its key facts as a file tree, the way the Unix `tree` command pr
 .ledger dt .arr svg { stroke-width: 2.1; }
 ```
 
-The arrow in "€6k → €240k" is a small inline SVG in `<span class="arr" role="img" aria-label="to">`; screen readers read "to". The → character is missing from the font files, so a fallback font would draw it, with its own weight and size.
+The arrow in "€6k → €240k" is a small inline SVG in `<span class="arr">`, followed inside the span by `<span class="sr-only">to</span>`; the SVG itself is `aria-hidden`. The word is real text: screen readers read "to", a copied selection reads "€6k to €240k" (measured), and so does a parser that never applies CSS. The → character is missing from the font files, so a fallback font would draw it, with its own weight and size.
 
 - `.arr`:
   - `display: inline-block;` – sits in the line of text and accepts width and height.
   - `width: 0.95em; height: 0.62em;` – in em, so the arrow scales with its text: small in the timeline, large in the ledger figures.
   - `margin: 0 0.12em;` – a little space on both sides.
   - `vertical-align: 0.06em;` – lifts the box slightly off the baseline, so the arrow's center sits at about half the height of capitals and digits.
+- **The hidden word inside the box.** `.sr-only` sets `position: absolute`, so the word is out of the flow: it takes no room in the 0.95em box and leaves the arrow's size and position as they are (measured: the same pixels as an arrow without the word). Two details depend on that:
+  - The baseline. An inline-block's baseline is the baseline of its last line of text; with no line of text inside, it is the bottom edge. The SVG is a block, and an absolutely positioned element creates no line, so `.arr` still has no line of text, and `vertical-align: 0.06em` still lifts its bottom edge. A plain "to" inside the box would form a line, move the baseline and spill out of the 0.95 × 0.62em box.
+  - The place of the 1px box. It has no `top` or `left`, so it stays at its static position – where it would have been in the flow: directly below the SVG, at the arrow's lower left corner (measured). `clip-path` cuts it down to nothing there.
 - `.arr svg`:
   - `display: block;` – an `<svg>` is inline by default and sits on the baseline with room for descenders below it. As a block it fills the span exactly.
   - `width: 100%; height: 100%;` – fills the span.
@@ -1104,10 +1113,11 @@ The Education section has footnote numbers (`<sup class="fnref">`) that link to 
   color: var(--accent); cursor: pointer;
 }
 .info::before { content: ""; position: absolute; inset: -0.9em -0.7em; }   /* a hit area larger than the letter */
+.info::after { content: "i"; }                    /* the letter itself: in CSS, so the heading's text stays its title */
 .info:hover, .info:focus-visible { text-decoration: underline; text-underline-offset: 0.15em; }
 ```
 
-Two headings carry a short note behind a raised "i": "People" in P⁴ and "Projects". The pattern is called a toggletip – a button that shows a note on click – as opposed to a tooltip, which appears on hover and is out of reach on touch screens. The HTML is a `<button class="info" popovertarget="tip-projects">` followed by a `<span class="tip" id="tip-projects" popover>` that holds the note ([chapter 2](02-html.md)). `popover` and `popovertarget` are the HTML popover API: the button opens and closes the element with the matching id, without any script. An open popover is shown in the **top layer**, a layer the browser draws above the whole page – above every `z-index` and outside every ancestor's stacking context. A click outside it or Esc closes it again ("light dismiss").
+Two headings carry a short note behind a raised "i": "People" in P⁴ and "Projects". The pattern is called a toggletip – a button that shows a note on click – as opposed to a tooltip, which appears on hover and is out of reach on touch screens. The HTML is an empty `<button class="info" popovertarget="tip-projects" aria-label="Info">` at the end of the heading and, after the heading, a `<span class="tip" id="tip-projects" popover>` that holds the note – for People directly after the h3, for Projects as the first child of the section's `.body` ([chapter 2](02-html.md)). `popover` and `popovertarget` are the HTML popover API: the button opens and closes the element with the matching id, without any script. An open popover is shown in the **top layer**, a layer the browser draws above the whole page – above every `z-index` and outside every ancestor's stacking context. A click outside it or Esc closes it again ("light dismiss").
 
 - `.info` – the button is set like a footnote number:
   - `position: relative;` – the reference box for the hit area below.
@@ -1117,6 +1127,9 @@ Two headings carry a short note behind a raised "i": "People" in P⁴ and "Proje
   - `font-size: 0.68em; font-weight: 700; line-height: 1; vertical-align: 0.6em;` – the footnote values: 68% of the heading's size, bold, raised by 0.6em of its own size. `line-height: 1` makes the box one font size tall (13.6px in an h2, measured).
   - `color: var(--accent); cursor: pointer;` – bordeaux like a footnote number, and the hand cursor that buttons don't get by default.
 - `.info::before { content: ""; position: absolute; inset: -0.9em -0.7em; }` – an empty box that reaches 0.9em above and below the button and 0.7em to each side. `inset` is the shorthand for `top`, `right`, `bottom` and `left`; with two values, the first is vertical, the second horizontal, and negative values reach outside the button. A pseudo-element belongs to its element, so a click on this box is a click on the button. The letter alone is a target of 7 × 14px (measured: 7.0 × 13.6px); with the box it is about 26 × 38px, above the 24 × 24px that WCAG 2.5.8 (Target Size, Minimum) asks for.
+- `.info::after { content: "i"; }` – the letter itself. The button is empty in the HTML; the i is generated content. The button's two pseudo-elements each have one job: `::before` is the hit area, absolutely positioned and therefore out of the flow; `::after` is the letter, the button's only content in the flow, so it sizes the button as a letter in the HTML would (measured: still 7.0 × 13.6px in the h2, the heading still 26px). It inherits font, size, weight and colour from the button, and the underline of the next rule reaches it like any text inside the button.
+  - Why the letter is in CSS: generated content is not part of the document's text – the same reason that moved the colon of the tree into the HTML moves the i out of it. The heading's text is its title and nothing else: "03 Projects" for a copied line, a search engine or a tool that lists a page's headings. With the letter and the note inside the heading, its text would be "03 ProjectsiStop starting. Start finishing." (measured on that markup).
+  - The button's name does not depend on its content: it comes from `aria-label="Info"`, which takes precedence over the content in any case. Screen readers announce "Info, button".
 - `.info:hover, .info:focus-visible` – an underline under the i on hover, as on the footnote numbers, and on keyboard focus, in addition to the accent ring of the global `button:focus-visible` rule. `text-underline-offset: 0.15em` keeps the line close to the small letter.
 
 ```css
@@ -1129,19 +1142,21 @@ Two headings carry a short note behind a raised "i": "People" in P⁴ and "Proje
   box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
 }
 .js .tip { margin: 0; inset: auto; }
+html:not(.js) .body > .tip:first-child { margin: auto; }   /* Projects: the note opens its body – keep it centred */
 ```
 
 `.tip` is the note. The browser's own stylesheet already styles every element with a `popover` attribute: hidden while closed; when open, `position: fixed` with `inset: 0`, `fit-content` width and height, `margin: auto` – which centres it on the screen – and a plain border and padding in system colours.
 
 - `max-width: min(20rem, calc(100vw - 2rem));` – `min()` returns the smaller argument: at most 20rem (320px), and on a narrow phone never wider than the screen minus 1rem on each side. A longer note wraps.
-- `margin: auto;` – repeats the browser's default: with `inset: 0`, auto margins centre the box. This is where the note appears without JavaScript (measured: centred on a 1280 × 800 window).
+- `margin: auto;` – repeats the browser's default: with `inset: 0`, auto margins centre the box. This is where the People note appears without JavaScript (measured: centred on a 1280 × 800 window). The Projects note is the first child of its `.body`, where `.body > :first-child { margin-top: 0; }` (0,2,0) would beat this rule (0,1,0) and pull the note to the top edge of the window – the last rule of this block puts the centring back.
 - `padding: 0.55rem 0.8rem; border: …; border-radius: 0.4rem;` – a small card with soft corners and the site's hairline.
 - `background: var(--paper); color: var(--ink);` – the theme's colours instead of the system colours, and opaque, unlike the header: the note must stay readable over any text.
-- `font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;` – in the HTML, the note is a child of the heading. Inheritance follows the document tree, also for an element drawn in the top layer, so without these values the note would be set like its heading: large and bold. The rule sets the text back to body values, whatever heading it follows.
+- `font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;` – the note's own text values. Inheritance follows the document tree, also for an element drawn in the top layer. The note sits after its heading, not inside it, so it inherits body text: 1.125rem, regular. `font-size` and `line-height` set it a step smaller and a little tighter (measured: 16px on 23.2px lines); the other three repeat what it inherits and keep it at body values wherever it is placed – inside a heading, it would otherwise be set large and bold like the heading.
 - `box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);` – a soft shadow 0.4rem below the card, blurred over 1.25rem, lifts it off the page. Its colour is 14% ink: a dark shadow on light paper, a faint light glow on dark paper – the same one-colour-for-both-themes idea as `.mm-view`. The list of the jump control uses the same shadow.
-- `.js .tip { margin: 0; inset: auto; }` – with JavaScript, `site.js` places the note next to its i: below it, or above it when there is no room below; it follows the i while scrolling and closes the note when the i leaves the screen ([chapter 4](04-js.md)). The script writes `left` and `top` inline. For those two values to decide the position, the centring has to go: `inset: auto` clears the four offsets the browser set to 0, `margin: 0` removes the auto margins. (0,2,0) beats `.tip`. Without JavaScript, `.js` is missing, and the note stays centred – readable, just not next to its i.
+- `.js .tip { margin: 0; inset: auto; }` – with JavaScript, `site.js` places the note next to its i: below it, or above it when there is no room below; it follows the i while scrolling and closes the note when the i leaves the screen ([chapter 4](04-js.md)). The script writes `left` and `top` inline. For those two values to decide the position, the centring has to go: `inset: auto` clears the four offsets the browser set to 0, `margin: 0` removes the auto margins. (0,2,0) beats `.tip`. Without JavaScript, `.js` is missing, and the note keeps the browser's placement (see `margin: auto` above) – readable, just not next to its i.
+- `html:not(.js) .body > .tip:first-child { margin: auto; }` – the centring again, for the one note that opens a `.body`. (0,4,1) beats the first-child rule. `html:not(.js)` limits it to pages without JavaScript, the only case in which the browser's centring is used; with JavaScript `.js .tip` keeps `margin: 0`. Measured without JavaScript: the Projects note opens in the middle of the window, like the People note.
   - `site.js` positions the note on `beforetoggle`, in the next animation frame, before the first frame in which the note is visible. It never flashes in the centre.
-  - **Why the top layer matters here.** A `backdrop-filter`, like a `transform`, makes an element the containing block for its `position: fixed` descendants. The phone heading bar has one, so a fixed note inside it would be placed relative to the bar, not to the screen. Elements in the top layer are exempt: an open popover is positioned against the viewport, whatever its ancestors do, and the screen coordinates of `site.js` are correct.
+  - **Why the top layer matters here.** A `backdrop-filter`, like a `transform`, makes an element the containing block for its `position: fixed` descendants: a fixed note inside the phone heading bar, which has such a filter, would be placed relative to the bar, not to the screen. Elements in the top layer are exempt: an open popover is positioned against the viewport, whatever its ancestors do. The notes sit after their headings, outside the bar; in the top layer their position would not depend on it either way, and the screen coordinates of `site.js` are correct wherever a note sits.
 
 ```css
 @supports not selector(:popover-open) {            /* browsers without popovers: the note stays in the text */
@@ -1151,9 +1166,9 @@ Two headings carry a short note behind a raised "i": "People" in P⁴ and "Proje
 ```
 
 - `@supports not selector(:popover-open)` – a feature query about a selector: `selector()` is true when the browser can parse the selector in it. `:popover-open`, the pseudo-class of an open popover, exists exactly in the browsers that support popovers, so the block applies to those without. Popovers reached all major engines in spring 2024 (Firefox 125 came last).
-- In such a browser, `popover` and `popovertarget` are unknown attributes: the button would do nothing, and the note would run on after the title as ordinary text, inside the heading.
-- `.info { display: none; }` – the useless button goes.
-- `.tip { display: block; … }` – the note becomes a quiet line of its own under the title: a block, a little space above, no card (no padding, border, shadow or background), in muted grey. The text values of `.tip` still apply, so it is set as body text, not as part of the heading.
+- In such a browser, `popover` and `popovertarget` are unknown attributes: the button would do nothing, and the note would always show, a small card on a line of its own between heading and text.
+- `.info { display: none; }` – the useless button goes, its generated i with it.
+- `.tip { display: block; … }` – the note becomes a quiet line between heading and text: a block, a little space above, no card (no padding, border, shadow or background), in muted grey. The text values of `.tip` still apply: 1rem, a step below the text that follows. For Projects, `.body > :first-child` (0,2,0) takes the 0.25rem above away again, so the line starts at the top of the column like any first element of a `.body`.
 
 ## Contact: online and offline
 
@@ -1291,7 +1306,7 @@ The summary holds a `<span class="cur">` followed by an icon of three lines, lik
 }
 ```
 
-The list of sections opens beside the pill. As with the disclosure in Experience, no rule shows or hides it: a closed `<details>` renders only its summary.
+The list of sections opens beside the pill. As with the disclosures in Experience, no rule shows or hides it: a closed `<details>` renders only its summary.
 
 - `position: absolute;` – the `<details>` is not positioned, so the nearest positioned ancestor, the fixed `.jump`, is the reference box.
 - `right: calc(100% + 0.5rem);` – a percentage in `right` refers to the width of the reference box. The list's right edge sits one pill width plus 0.5rem in from the pill's right edge: 0.5rem to the left of the pill.
@@ -1451,7 +1466,7 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 ```
 
 - `@media print` – applies when the page is printed or saved as PDF.
-- `.top, .minimap, .skip, .jump, .info { display: none; }` – navigation and screen-only aids don't belong on paper. The jump control matters most here: browsers typically repeat fixed elements on every printed page. The toggletip's i goes as well: on paper it cannot be clicked and would be a stray letter after the heading. The disclosure in Experience needs no rule: `site.js` opens it before printing ([chapter 4](04-js.md)).
+- `.top, .minimap, .skip, .jump, .info { display: none; }` – navigation and screen-only aids don't belong on paper. The jump control matters most here: browsers typically repeat fixed elements on every printed page. The toggletip's i goes as well: on paper it cannot be clicked and would be a stray letter after the heading. The disclosures in Experience need no rule: `site.js` opens them before printing ([chapter 4](04-js.md)).
 - `.hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }` – puts the name and its caret back in the hero. Once you have scrolled down, the name has docked: `site.js` has moved and shrunk it with an inline `transform`, and `.hero.docked` has set its opacity to 0. With the header hidden on paper, the printout would otherwise carry no name at all.
   - **Why `!important`.** An inline style beats every normal stylesheet declaration, whatever its specificity. The one way for a stylesheet to override it is `!important`: important declarations from the site outrank normal ones, inline styles included. The same flag also beats `.hero.docked`'s `opacity: 0` (0,2,1), which (0,1,1) alone could not.
   - Measured with Chromium's print emulation after scrolling: name visible, no transform.
@@ -1480,7 +1495,7 @@ Open peterstieg.com (or `site/index.html` locally) and the DevTools (F12).
 - **Subgrid** – `grid-template-columns: subgrid` makes a nested grid reuse its parent's column tracks, so content in different rows aligns.
 - **Sticky and fixed** – sticky stays in the flow and sticks at an offset while its containing block is on screen; fixed leaves the flow and is placed relative to the viewport.
 - **Stacking context** – a group of elements whose z-index values are compared only with each other. Created, for example, by a position with a z-index, `transform`, `opacity` below 1 or `backdrop-filter`.
-- **Pseudo-element** – a box CSS generates without markup: `::before`, `::after`, `::marker`, `::selection`. `::before` and `::after` need `content` to exist.
+- **Pseudo-element** – a box CSS generates without markup: `::before`, `::after`, `::marker`, `::selection`. `::before` and `::after` need `content` to exist. What `content` generates is drawn, but it is not part of the document's text: copy and paste, `textContent` and parsers leave it out.
 - **Disclosure: `<details>` and `<summary>`** – the browser's built-in open/close widget. A click on the summary toggles the `open` attribute; a closed `<details>` renders only its summary, with no CSS or script involved.
 - **Popover and top layer** – an element with the `popover` attribute opens and closes from a button with `popovertarget`, without script. While open, it is drawn in the top layer: above every z-index and stacking context, positioned against the viewport. A click outside it or Esc closes it.
 - **Transition and animation** – a transition interpolates between two values when a value changes; an animation runs keyframes on its own timeline, can repeat and needs no trigger.
