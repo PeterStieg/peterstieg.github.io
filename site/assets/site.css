@@ -285,6 +285,9 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 }
 .ledger dd { margin: 0; color: var(--muted); }
 .ledger dd a { white-space: nowrap; }
+/* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
+.ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; vertical-align: 0.5em; color: var(--accent); }
+.ledger .jmp svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 
 /* fields of work */
 .fields { display: grid; gap: 1.75rem 2.5rem; }
@@ -301,6 +304,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
   margin: 0; color: var(--muted); font-size: 0.95rem;
   font-variant-numeric: tabular-nums; padding-top: 0.15rem; white-space: nowrap;
 }
+.when .dur { font-size: 0.85rem; }               /* the duration, on its own line under the dates */
 .role h3 { margin-bottom: 0.1rem; }
 .org { margin: 0 0 0.5rem; }
 .org .place { color: var(--muted); }
@@ -324,6 +328,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 .more summary:hover { color: var(--ink); }
 @media (prefers-reduced-motion: no-preference) { .more summary::before { transition: transform 0.2s, margin 0.2s; } }
 .more .roles { margin-top: 0.75rem; }
+.more .tree { margin-top: 0.5rem; }              /* Posterlounge: the titles, one per promotion */
 .more .role, .more .role + .role { display: block; padding: 0.85rem 0 0; border-top: 1px solid var(--line); }
 .more .role .when { padding-top: 0; font-size: 0.9rem; }
 .more h4 { margin: 0; font-size: 1.0625rem; line-height: 1.35; }
@@ -387,7 +392,6 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
   border-top: 1px solid var(--muted);
 }
 .tree .k { font-weight: 700; }
-.tree .k::after { content: ":"; }
 
 /* drawn arrow: → is not part of Atkinson Hyperlegible */
 .arr { display: inline-block; width: 0.95em; height: 0.62em; margin: 0 0.12em; vertical-align: 0.06em; }
@@ -412,6 +416,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
   color: var(--accent); cursor: pointer;
 }
 .info::before { content: ""; position: absolute; inset: -0.9em -0.7em; }   /* a hit area larger than the letter */
+.info::after { content: "i"; }                    /* the letter itself: in CSS, so the heading's text stays its title */
 .info:hover, .info:focus-visible { text-decoration: underline; text-underline-offset: 0.15em; }
 .tip {
   max-width: min(20rem, calc(100vw - 2rem));
