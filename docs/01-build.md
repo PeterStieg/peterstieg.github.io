@@ -1001,17 +1001,27 @@ The jump control: a narrow vertical pill in the bottom-right corner of the windo
 
 ```python
 def role(c, ro, h="h3"):
-    """One role: dates, title, company and place, context, the tree – and, for the years before 2014,
-    the single positions behind a disclosure."""
+    """One role: dates and duration, title, company and place, context, the tree – and behind a disclosure
+    the promotions within it (Posterlounge) or the single positions it sums up (before 2014)."""
     place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
     ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
     org = f'<a href="{ro["url"]}">{e(ro["org"])}</a>' if ro.get("url") else e(ro["org"])
+    # the duration under the dates; a role that is still running carries its start, so site.js can recount it
+    start = re.search(r"(\d{2})/(\d{4})", ro["when"])
+    live = (f' data-from="{start[2]}-{start[1]}" data-units="{",".join(c["dur"])}"'
+            if len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1 else "")
+    when = f'{e(ro["when"])}<br><span class="dur"{live}>{duration(c, months(ro["when"]))}</span>'
     more = ""
+    if ro.get("path"):                                 # titles in order, dates where known
+        label, steps = ro["path"]
+        lis = "".join(f'<li>{e(title)}' + (f' <span class="muted">· {e(at)}</span>' if at else "") + '</li>'
+                      for at, title in steps)
+        more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree">{lis}</ol>\n</details>\n'
     if ro.get("more"):
         label, subs = ro["more"]
         lis = "".join(f'<li class="role">\n{role(c, sub, "h4")}</li>\n' for sub in subs)
-        more = f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="roles">\n{lis}</ol>\n</details>\n'
-    return f"""<p class="when">{e(ro['when'])}</p>
+        more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="roles">\n{lis}</ol>\n</details>\n'
+    return f"""<p class="when">{when}</p>
 <div>
 <{h}>{e(ro['title'])}</{h}>
 <p class="org">{org}{place}</p>
@@ -1020,18 +1030,42 @@ def role(c, ro, h="h3"):
 """
 ```
 
-- One entry of the Experience timeline: dates, title, company with place, context line, tree – the inside of an `<li class="role">`. The `<li>` itself is written by the caller, because only `page()` gives a role its `id` (section 24).
+- One entry of the Experience timeline: dates with duration, title, company with place, context line, tree, disclosures – the inside of an `<li class="role">`. The `<li>` itself is written by the caller, because only `page()` gives a role its `id` (section 24).
 - `place` – optional field: `ro.get("place")` returns `None` when the key is missing and `""` when it is empty (Rapidobject). Both are falsy, so no place span appears.
 - `&nbsp;` before the span – the same job as `dots()`: "· Laucha" must not start a new line. `dots()` cannot do it here, because it only matches the plain sequence ` · `, and here a `<span>` tag sits between the space and the dot. So the place line brings its own non-breaking space.
 - `ctx` – the optional context line, same pattern.
 - `org` – the company name, as a link to its website when the role has a `url` (E+SERVICE+CHECK, Brandible, Posterlounge). The name is escaped inside the link; the URL is one of your own constants and goes in as it is.
-- `more` – used by one entry only: "2010 – 2014 · Five companies" keeps the timeline at one line for those years and holds the five single positions behind a disclosure.
+
+The dates and the duration:
+
+- `start = re.search(r"(\d{2})/(\d{4})", ro["when"])` – the first date in the string, the start. `re.search` stops at the first match and returns a match object. Indexing it is short for `.group()`: `start[1]` is group 1, the month (`"11"`), `start[2]` group 2, the year (`"2025"`).
+- `live` – two extra attributes for the role that is still running, an empty string for all others:
+  - `len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1` – exactly one date in `when` means "since …": the role has no end yet. This pattern has no groups, so `findall` returns the matched strings themselves; only their number counts here.
+  - `data-from="{start[2]}-{start[1]}"` – the start, year first: `"2025-11"`. `site.js` splits it at the hyphen.
+  - `data-units="{",".join(c["dur"])}"` – the four words of `dur`, joined with commas: `"year,years,month,months"`, on the German page `"Jahr,Jahre,Monat,Monate"`. `site.js` splits them again, so the script contains no words in either language – the same idea as the jump control's `data-up` and `data-down` (section 22).
+  - With both, `site.js` counts the running role again when the page loads, by the same rule as `months()` and in the same words as `duration()` (chapter 4). With JavaScript, the page never shows a stale duration, however long ago the last build was; without, it shows the count of the build day.
+  - The leading space in `' data-from=…'` belongs to the attribute string, so every other role gets a clean `<span class="dur">` – the pattern of `rid` and `en_attr` (section 24). The outer parentheses let the expression span two lines.
+- `when` – the dates, escaped, then `<br>`, then `<span class="dur">` with the duration from `duration(c, months(…))` (section 21). Result for the running role: `since 11/2025<br><span class="dur" data-from="2025-11" data-units="year,years,month,months">1 year</span>`.
+  - The `<br>` puts the duration on a line of its own under the dates. It also keeps the two apart in text taken from the page, where a `<br>` becomes a line break: without it, the Posterlounge dates would read "10/2017 – 06/20235 years 9 months".
+  - The CSS sets `.dur` a little smaller than the dates (chapter 3).
+
+The disclosures:
+
+- `more` – up to two disclosures, collected into one string. It starts empty, and each `+=` appends one, in a fixed order: first `path`, then `more`. Today each entry has at most one of them.
+- `path` – used by Posterlounge: the four titles held within that one role, from SEA Manager (10/2017) to Head of Marketing (06/2021), behind "Three promotions". The titles are the words people search for; in the disclosure they are part of the page's text without lengthening the timeline. The context line, `ctx`, describes the company only.
+  - `label, steps = ro["path"]` – the summary text and the list of (date, title) pairs.
+  - `for at, title in steps` – the date comes first in each pair, the title first in the output. `at` is a date or `""`: the two promotions in between have no date on the page.
+  - Three strings joined with `+`: the opening `<li>` with the title, the date as ` · 10/2017` in a muted span – or nothing –, the closing `</li>`. Pitfall: the parentheses around the middle part are required. Without them, Python reads `A + B if at else "" + C` as `(A + B) if at else ("" + C)`: a title with a date loses its closing `</li>`, and a title without one shrinks to a bare `</li>`.
+  - `<ol class="tree">` – an ordered list, because the titles have an order. The class `tree` borrows the #JobAlert branch lines from the CSS, so the promotions read as a path; `.more .tree` gives it its distance from the summary (chapter 3).
+  - No headings and no recursion here: the titles are steps within one role, not roles of their own.
+  - The wrapper is the same `<details class="more">` as for the five positions below, so it looks and behaves the same, `site.js` included.
+- `more` – used by one entry: "10/2010 – 08/2014 · Five companies" keeps the timeline at one line for those years and holds the five single positions behind a disclosure.
   - `label, subs = ro["more"]` – the summary text ("All five positions") and the list of sub-roles.
   - `role(c, sub, "h4")` – the function calls itself, once per sub-role: recursion. A sub-role is a role dict like any other, so the same code renders it. The recursion ends because the sub-roles have no `"more"` of their own: those calls return without calling `role()` again.
   - `h` – the heading level, `"h3"` unless the caller says otherwise. The sub-roles sit below the `<h3>` of their summary entry and pass `"h4"`, so the outline stays correct: Experience (h2) › Marketing, market research, export (h3) › Marketing Consultant (h4).
   - The sub-roles get an `<ol class="roles">` of their own, inside `<details class="more">` – the same native disclosure as in the jump control: closed by default, opened by click or keyboard, announced as collapsed or expanded. `site.js` adds two things: it redraws the minimap when the disclosure opens, because the page just got longer, and it opens the disclosure for printing (chapter 4).
 - `<{h}>{e(ro['title'])}</{h}>` – a replacement field can produce part of a tag name: `<h3>` or `<h4>`.
-- Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly. `tree` may be an empty list (Inner Valor); `tree()` then returns `""`.
+- Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly. `tree` may be an empty list (Inner Valor); `tree()` then returns `""`. `when` must hold at least one `MM/YYYY` date, for `months()` (section 21).
 - `{ctx}{tree(c, ro['tree'])}` – context line and tree directly after each other, then the disclosure, if there is one.
 
 ---
@@ -1111,8 +1145,9 @@ def page(c):
 </div>
 """
     # each result names its company; the name leads to the role under Experience
-    led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)} · <a href="#{k}">{e(COMPANIES[k])}</a></dd></div>\n'
-                  for a, b, k in c["ledger"])
+    # ↓: superscript and in accent like the footnote numbers and the i – a link that stays on this page
+    led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)} · <a href="#{k}">{e(COMPANIES[k])}'
+                  f'<span class="jmp">{DOWN_SVG}</span></a></dd></div>\n' for a, b, k in c["ledger"])
     out.append(section(c, "profile", e(s["profile"]),
                        f'{entry}<p>{e(c["profile"])}</p>\n<dl class="ledger" aria-label="{e(c["ledger_label"])}">\n{led}</dl>\n'))
 ```
@@ -1123,8 +1158,9 @@ def page(c):
   - `( )` captures the separator as group 1; `\1` in the raw replacement string puts it back inside the span.
 - `entry` – the dictionary entry. `<dfn>` marks the term being defined – the right element for a headword. `pos` and `def` go through `e()`, `ety` through `t()` for its italics.
 - `led` – the results list as a description list: `<dt>` holds the figure (through `t()` for the arrows; "> 2×" becomes `&gt; 2×`), `<dd>` the context, a middle dot and the company. A `<div>` around each `dt`/`dd` pair is valid inside `<dl>` and gives CSS one box per row.
-  - `for a, b, k in c["ledger"]` – each entry is a 3-tuple: figure, context, company key. The generator spans two lines; inside the parentheses of `join()` Python needs no line-continuation sign.
-  - `<a href="#{k}">{e(COMPANIES[k])}</a>` – the company's name from `COMPANIES` (section 7), as a link to the role with that `id` under Experience. In the CSS, `.role:target` colors the dates and title of the role the visitor arrived at (chapter 3).
+  - `for a, b, k in c["ledger"]` – each entry is a 3-tuple: figure, context, company key. The generator spans two lines – two adjacent f-strings, joined into one; inside the parentheses of `join()` Python needs no line-continuation sign.
+  - `<a href="#{k}">{e(COMPANIES[k])}…</a>` – the company's name from `COMPANIES` (section 7), as a link to the role with that `id` under Experience. In the CSS, `.role:target` colors the dates and title of the role the visitor arrived at (chapter 3).
+  - `<span class="jmp">{DOWN_SVG}</span>` – a small ↓ after the name, inside the link. The CSS sets it superscript and in the accent color, like the footnote numbers and the i: a mark that says "this link stays on this page and leads down". An ↗ would say the opposite – by convention it marks a link that leaves the site. The SVG is `aria-hidden`, so the link's name stays the company's name. The link's underline does not run under the arrow: the span is an inline-block, and text decoration does not reach into inline-blocks (chapter 3).
   - The ` · ` before the link is glued to the context by `dots()` later.
   - Pitfalls: a key missing from `COMPANIES` raises `KeyError` – loud. A key that no role carries as its `id` is silent: the link points at nothing and does not scroll.
 - `section(…)` – heading escaped, body = entry + profile paragraph + results list with its own `aria-label`.
@@ -1136,16 +1172,17 @@ def page(c):
     p4 = []
     for i, (p, txt) in enumerate(zip(P4, c["fields"])):
         tail = f' <strong lang="en">{e(P4_TAIL[i])}</strong>' if i in P4_TAIL else ""
-        note = info(c, "people", c["people_note"], L if L != "en" else "") if p == "People" else ""
-        p4.append(f'<div><h3{en_attr}>{e(p)}{note}</h3><p>{e(txt)}{tail}</p></div>\n')
+        button, note = info(c, "people", c["people_note"], L if L != "en" else "") if p == "People" else ("", "")
+        p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}{tail}</p></div>\n')
     out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
 ```
 
 - `zip(P4, c["fields"])` pairs each heading with its text; `enumerate(…)` adds a counter. `for i, (p, txt) in …` unpacks both levels at once: the counter, then the pair.
 - `if i in P4_TAIL` – `in` on a dict checks its keys. Only index 3 (People) gets the tail, marked English.
-- `note` – the toggletip for People (section 20), an empty string for the other three fields. `p == "People"` compares with the English word from `P4`, which is the same on both pages.
-  - The language argument: the P-words are English, so on the German page the heading carries `lang="en"` and the German note needs `lang="de"` – `L` is `"de"` there. On the English page heading and note agree, and `""` adds nothing.
-  - `{e(p)}{note}` – the i follows the word without a space, like a footnote number.
+- `button, note = … if p == "People" else ("", "")` – the toggletip for People (section 20), two empty strings for the other three fields. `p == "People"` compares with the English word from `P4`, which is the same on both pages.
+  - The conditional expression yields a pair either way, and the pair is unpacked into two names. Pitfall: `else ""` would not do – unpacking an empty string into two names raises `ValueError: not enough values to unpack`.
+  - The language argument: on the German page `L` is `"de"`, so the German note gets `lang="de"`; on the English page `""` adds nothing. Since the note sits after the English `<h3>`, not inside it, it would inherit German from the page anyway: the attribute is redundant there, but harmless.
+  - `{e(p)}{button}</h3>{note}` – the i follows the word without a space, like a footnote number, inside the heading. The note follows the closing `</h3>`, between heading and text.
 - `<h3{en_attr}>` – the P-words are English on both pages.
 - The section key is `"fields"`, but `sec` has no `"fields"` heading: `title_of()` (section 22) returns the fixed markup `P<sup>4</sup>` in every language. The German anchor is `p-wie-peter`.
 
@@ -1211,7 +1248,7 @@ def page(c):
 - `for name, text, stack, links in items` – each project is a 4-tuple. A tuple with three or five values raises `ValueError`.
 - `ln` – one ` · <a …>` per (label, URL) pair: "GitHub · Demo" for the capstones. For an empty list the generator yields nothing and `"".join` returns `""`, so projects without links need no special case. The ` · ` separators get glued by `dots()` later.
 - The section body is the joined groups alone.
-- `tip=info(…)` – a keyword argument: `section()` has two optional parameters, `cls` and `tip`, and naming `tip` skips `cls`. The toggletip holds `PROJECTS_LEAD`, which is English on every page; on the German page, under the heading "Projekte", it gets `lang="en"`. `section()` then names the section by its title alone (section 21).
+- `tip=info(…)` – a keyword argument: `section()` has two optional parameters, `cls` and `tip`, and naming `tip` skips `cls`. The toggletip holds `PROJECTS_LEAD`, which is English on every page; on the German page, under the heading "Projekte", it gets `lang="en"`. `info()` returns the (button, note) pair as it is; `section()` puts the button into the heading, the note at the start of the body, and names the section by its title alone (section 21).
 - `name` is a local variable here; it does not clash with the constant `NAME` (Python is case-sensitive).
 
 ### Approach
@@ -1470,7 +1507,7 @@ The other files:
 
 The sitemap:
 
-- `today = date.today().isoformat()` – the date as `YYYY-MM-DD` (for example `2026-10-27`), the format sitemaps expect.
+- `today = date.today().isoformat()` – the date as `YYYY-MM-DD` (for example `2026-10-28`), the format sitemaps expect.
 - `alts` – one `<xhtml:link>` per language. The block is the same for every URL, since every language version lists all versions.
 - `urls` – one `<url>` per language. `for *_, slug in LANGS` puts the star first: everything except the last value goes into `_`, `slug` gets the last one.
 - The `<urlset>` declares two namespaces: the sitemap format itself and `xhtml`, which provides the `<xhtml:link>` elements for language versions.
@@ -1565,7 +1602,9 @@ Make each change in `src/build.py`, run `python3 src/build.py`, look at the resu
 - **JSON-LD** – structured data in a `<script type="application/ld+json">` block, using the schema.org vocabulary.
 - **Web app manifest** – a JSON file linked with `<link rel="manifest">` that describes a site as an installable app: name, colors, icons, display mode. Here it supplies the home-screen icons.
 - **Popover and toggletip** – a popover is an element with the `popover` attribute: hidden until a button with `popovertarget` opens it, then drawn above the whole page, closed again by a click outside or Esc. A toggletip is the pattern built from it here: a small button that shows a short note on click instead of on hover.
-- **Disclosure** – a control that shows and hides a block of content. HTML has one built in: `<details>` with its `<summary>`, used for the five early positions and the jump control's list.
+- **Disclosure** – a control that shows and hides a block of content. HTML has one built in: `<details>` with its `<summary>`, used for the Posterlounge promotions, the five early positions and the jump control's list.
+- **Generated content** – text that CSS inserts with `content` in `::before` or `::after`, such as the toggletip's i. It is drawn, but it is not part of the page's text: copy and paste, search engines and parsers do not get it. Words and punctuation that carry meaning belong in the HTML.
+- **Visually hidden text** – text that is in the HTML but shrunk out of sight by CSS (here the class `sr-only`), so screen readers and anything that reads the text still get it: the word behind each drawn arrow, the full motto in the hero.
 - **Relative vs root-absolute path** – `assets/site.css` or `../assets/site.css` resolve from the current page's folder; `/assets/site.css` resolves from the domain root.
 - **Non-breaking space** – U+00A0 or `&nbsp;`: looks like a space, but a line never breaks there.
 
