@@ -38,7 +38,7 @@ Figures marked "measured" come from Chromium. Pixel values in brackets assume th
 
 - `font-family: "Atkinson Hyperlegible";` – the family name the rest of the CSS refers to. All three blocks register the same name, so the browser sees one family with three faces.
 - `src: url(...) format("woff2");` – where the file lives. A relative URL inside a stylesheet resolves against the stylesheet's own location, so `fonts/…` means `site/assets/fonts/…` on every page, including `de/index.html`. `format("woff2")` names the format up front; a browser that cannot decode it skips the source without downloading it. WOFF2 is a compressed font container; each file here is about 17–18 KB.
-- `latin` in the file names marks a subset: each file holds only 220 characters – Latin letters, digits, punctuation, € · × – and a few more. That keeps the files small. It also means that characters outside the subset – arrows, box-drawing lines, superscript digits – are missing. Three later sections (P⁴, the #JobAlert tree, the drawn arrows) exist because of this.
+- `latin` in the file names marks a subset: each file holds only 220 characters – Latin letters, digits, punctuation, € · × – and a few more. That keeps the files small. It also means that characters outside the subset – arrows, box-drawing lines, superscript digits – are missing. Three later sections (P⁴, the #JobAlert tree, the drawn arrows) and the ↓ in the ledger exist because of this.
 - `font-weight: 400; font-style: normal;` – this file is the regular upright face. When an element asks for `font-weight: 700`, the browser's font matching picks the block that declares 700; for `font-style: italic`, the italic block.
 - `font-display: swap;` – what happens while the file is still downloading. `swap` renders text straight away in the next font of the stack (see `body`) and replaces it when the web font arrives. Trade-off: text is readable from the first frame instead of invisible, but the swap can re-wrap lines, because the fallback font has different widths. The project softens this on both ends: `index.html` preloads the 400 and 700 upright files with `<link rel="preload">`, so they are requested before the stylesheet is even parsed, and `site.js` measures the docking positions only after `document.fonts.ready`, because positions measured in the fallback font would be wrong after the swap.
 
@@ -247,7 +247,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 - `outline: 2px solid var(--accent);` – the focus ring. An outline is drawn outside the border and takes no space, so focusing never shifts the layout, which a border would. The accent reaches 9.7:1 and 6.0:1, far above the 3:1 needed for focus indicators.
 - `outline-offset: 3px;` – a gap between element and ring.
 - `border-radius: 2px;` – current browsers draw outlines along the border radius, so the ring gets soft corners. Side effect: it rounds the element itself too, and at (0,1,1) it beats any single-class rule. A round element therefore needs a rule of at least the same weight to stay round while focused. The jump control's ends have one: `.jump .up` and `.jump .down` weigh (0,2,0), beat (0,1,1), and keep their rounded ends under focus (see the jump control section). The theme buttons need nothing extra: `.themes button` is also (0,1,1), ties, and wins because it comes later.
-- `summary` – the clickable line of a `<details>` element, used twice on the home page (the jump control's number and "All five positions"). It is focusable like a button but is neither `a` nor `button`; without its own entry it would get the browser's default ring instead of the accent one.
+- `summary` – the clickable line of a `<details>` element, used three times on the home page (the jump control's number, "Three promotions" and "All five positions"). It is focusable like a button but is neither `a` nor `button`; without its own entry it would get the browser's default ring instead of the accent one.
 
 ## Skip link and visually hidden text
 
@@ -277,7 +277,7 @@ The skip link is the first focusable element on every page. Keyboard users press
 }
 ```
 
-Visually hidden, still read by screen readers. In the hero, the visible typed text `.cmd` is `aria-hidden`, because `site.js` rewrites it letter by letter; a `.sr-only` copy holds the full sentence for assistive technology.
+Visually hidden, still read by screen readers. In the hero, the visible typed text `.cmd` is `aria-hidden`, because `site.js` rewrites it letter by letter; a `.sr-only` copy holds the full sentence for assistive technology. The drawn arrows use the class for their word "to" (see Drawn arrows).
 
 - `position: absolute;` – out of the flow, so it takes no space.
 - `width: 1px; height: 1px;` – tiny but not zero: some screen readers skip elements without size.
@@ -599,7 +599,7 @@ html:not(.js) .themes { display: none; }
   - `4` – four cycles; then the animation ends, the cursor returns to its normal style and stays solid. Endless blinking distracts from reading. The number is chosen for a limit: WCAG 2.2.2 (Pause, Stop, Hide) asks for a pause control when blinking content runs longer than 5 seconds. Four cycles last 4.4 seconds and need none; six would already take 6.6.
 - The rule sits inside `prefers-reduced-motion: no-preference`, so visitors who asked for less motion see a steady cursor. (`site.js` skips the typing for them as well.)
 
-**Transitions versus animations.** A transition reacts to a change: when a property gets a new value (a class is added, `:hover` begins), the browser interpolates from the old value to the new one over the given time. It needs a trigger and runs once per change. An animation runs keyframes on its own timeline as soon as it applies; it can loop or run a fixed number of times, with no change of state needed. The cursor uses an animation; the jump control and the chevron of the "All five positions" disclosure use transitions.
+**Transitions versus animations.** A transition reacts to a change: when a property gets a new value (a class is added, `:hover` begins), the browser interpolates from the old value to the new one over the given time. It needs a trigger and runs once per change. An animation runs keyframes on its own timeline as soon as it applies; it can loop or run a fixed number of times, with no change of state needed. The cursor uses an animation; the jump control and the chevrons of the disclosures in Experience use transitions.
 
 ## Sections
 
@@ -762,7 +762,25 @@ From 36rem, figures and explanations form two aligned columns.
 - `font-variant-numeric: tabular-nums;` – Atkinson's digits are proportional by default (the 1 is much narrower than the 0). `tabular-nums` switches on the font's tabular figures (the OpenType feature `tnum`, which these files contain): every digit gets the same width, so numbers line up.
 - `white-space: nowrap;` – "€6k → €240k" stays on one line; with `max-content`, this line sets the width of the first column.
 - `.ledger dd { margin: 0; color: var(--muted); }` – `<dd>` has a 40px left margin by default; removed. Explanations in muted grey.
-- `.ledger dd a { white-space: nowrap; }` – each explanation ends with a link to the company's role under Experience ("· Posterlounge", `href="#posterlounge"`). The link keeps the underline and the muted colour of the text around it. `nowrap` keeps a company name on one line: when the row runs out of space, the whole name moves to the next line. The three current names are single words without a break opportunity, so today the rule changes nothing (measured at 320px, with and without it); it guards against a name of several words. The dot in front is bound to the preceding word by a non-breaking space in the HTML, so it never starts a line.
+- `.ledger dd a { white-space: nowrap; }` – each explanation ends with a link to the company's role under Experience ("· Posterlounge", `href="#posterlounge"`), with a raised ↓ at the end of the link (next block). The link keeps the underline and the muted colour of the text around it. `nowrap` keeps the link on one line: when the row runs out of space, the whole name moves to the next line, its ↓ with it. The three current names are single words, so at real screen widths the rule changes nothing (measured at 320 to 390px, with and without it). It guards against a name of several words, and against a ↓ alone at the start of a line: CSS puts a soft wrap opportunity before and after every inline-block, even with no space next to it. In a row squeezed to the width of the name, the ↓ wraps on its own without `nowrap`; with it, the ↓ stays next to the name (measured). The dot in front is bound to the preceding word by a non-breaking space in the HTML, so it never starts a line.
+
+```css
+/* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
+.ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; vertical-align: 0.5em; color: var(--accent); }
+.ledger .jmp svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+```
+
+In the HTML, the company name is followed by `<span class="jmp">` with an inline SVG, still inside the link: the same downward arrow as in the jump control. It says where the link goes – down the page, to the role under Experience. An arrow pointing up and to the right (↗) conventionally marks a link that leaves the site. Like →, the ↓ is not in the font subset, so it is drawn. The SVG is `aria-hidden`, so the link's name stays the company name.
+
+- `.ledger .jmp`:
+  - `display: inline-block;` – a box in the line that accepts width and height, like `.arr`.
+  - `width: 0.6em; height: 0.6em;` – a square of 0.6 times the explanation's 18px: 10.8px (measured). In em, so it follows the text size.
+  - `margin-left: 0.1em;` – a hair of space after the name.
+  - `vertical-align: 0.5em;` – superscript. A length raises the box's baseline that far above the baseline of the surrounding text. The box holds only a block-level SVG and no line of text, and such an inline-block has its bottom edge as its baseline: the ↓ starts 0.5em (9px) above the baseline of the name. The raised box reaches 2.8px above the link's own box and makes the line 0.8px taller (measured: 27.9 → 28.7px). The toggletip's i takes such growth back with negative margins; here it is left as it is. On wide screens the larger figure in the same row sets the row's height anyway (measured: the ledger keeps its 243.7px); on phones, where figure and explanation stack, each row grows by those 0.8px.
+  - `color: var(--accent);` – bordeaux. Raised and in the accent colour, the ↓ looks like the footnote numbers and the i of the toggletips: on this site, that combination marks a jump within the page. The SVG draws in `currentColor`, so this one declaration colours it, while the name keeps the muted colour of the text.
+- **Why the underline stops before the ↓.** The link's underline is a text decoration. Decorations propagate to the text of the element's inline descendants, but not into atomic inline-level boxes – inline-blocks, images, inline tables. The `.jmp` is an inline-block, so the underline ends under the last letter of the name and does not run on through the margin and under the arrow. On hover the underline turns bordeaux, the colour the ↓ already has.
+- `.ledger .jmp svg` – the declarations of `.arr svg` (see Drawn arrows): a block that fills the span, a line drawing in `currentColor` with round ends, `overflow: visible` for the caps at the edge.
+  - `stroke-width: 2.2;` – in viewBox units. The 16-unit viewBox is drawn 10.8px wide, so 2.2 units come to about 1.5px. The jump control draws the same arrow at 1.1rem with 1.8 units, about 2px; the much smaller ↓ needs more units for a visible line.
 
 ## Fields of work
 
