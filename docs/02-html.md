@@ -493,13 +493,13 @@ The toggletip after "People", piece by piece:
 
 - A toggletip is the click-to-open relative of the tooltip: a small "i" after the heading, and a note that opens on a click, a tap or Enter. Unlike a tooltip it needs no hovering, so it works on touch screens and with the keyboard. The principle "Processes fit people, not the other way round." waits behind the i instead of standing in the running text.
 - `<button type="button" class="info"></button>` – a real button: focusable, operated with Enter and Space. It sits inside the `<h3>`, right after the title; a heading may contain phrasing content such as `<button>`.
-- Empty in the HTML – the letter comes from the CSS, `.info::after { content: "i"; }`, set like a footnote number: small, raised, in the accent colour. Generated content is not part of the document's text, so the heading's text is its title alone, "People", for anything that reads the page as text – search engines, parsers, a copy and paste. With the letter in the HTML, the heading read "Peoplei".
+- Empty in the HTML – the letter comes from the CSS, `.info::after { content: "i"; }`, set like a footnote number: small, raised, in the accent colour. Generated content is not part of the document's text, so the heading's text is its title alone, "People", for anything that reads the page as text – search engines, parsers, a copy and paste. With the letter in the HTML, it would read "Peoplei".
 - `popovertarget="tip-people"` – the HTML popover API. A button with this attribute opens and closes the element with that id. It is declared in HTML; no JavaScript is involved. Browsers also report to assistive technology whether the popover is open, as an expanded or collapsed button.
 - `aria-label="Info"` – the button's name. Without it, a screen reader would announce at best the letter the CSS draws: "i, button". The value is the UI string `info` in `build.py`, "Info" in both languages.
 - `<span class="tip" id="tip-people" popover>` – the note. The bare attribute `popover` means `popover="auto"`: hidden until opened (the browser's default style is `display: none`), and once open it sits in the top layer, above everything else on the page, whatever the `z-index` or `overflow` of its ancestors. "Auto" also brings light dismiss: a click outside or Esc closes it, and opening another popover of this kind closes the first.
 - After the `</h3>` – the note follows the heading directly. The button is the last thing in the heading, so in reading order the note still comes right after the i. Inside the heading, its text would count as part of the heading's text, popover or not: a text extraction read the heading as "PeopleiProcesses fit people, not the other way round." `info()` in `build.py` therefore returns two pieces, the button and the note, and the P⁴ loop puts the first into the `<h3>` and the second after it.
 - Placement: the browser's default style centres an open popover in the window. `site.js` moves it next to the i and keeps it there while the page scrolls (see 04-js). In a browser without popover support, the CSS hides the i and shows the note as a muted line of text between the heading and the paragraph (see 03-css).
-- `lang` – on the German page the heading carries `lang="en"`, the note is German: `<span class="tip" id="tip-people" popover lang="de">Prozesse passen zu Menschen, nicht umgekehrt.</span>`. The attribute dates from the time the note sat inside the English heading; after it, the note inherits German from the page anyway, so `lang="de"` is now redundant and harmless. On the English page the note carries no `lang` and inherits English.
+- `lang` – on the German page the heading carries `lang="en"`, the note is German: `<span class="tip" id="tip-people" popover lang="de">Prozesse passen zu Menschen, nicht umgekehrt.</span>`. Inside the English heading the note needed the attribute to switch back; after the heading it inherits German from the page anyway, so `lang="de"` is redundant now and harmless. On the English page the note carries no `lang` and inherits English.
 
 ### Experience: a reversed timeline
 
@@ -647,7 +647,7 @@ The footnote reference, piece by piece:
 - The section's slogan, "Stop starting. Start finishing.", sits in a toggletip – the same empty button and popover as after "People" in P⁴. The button is the last thing in the heading; the note is the first child of `.body`, so it follows the heading in reading order and is not part of its text, which reads "03 Projects". After it, the section starts straight with its first group.
 - Why inside `.body` and not directly after the `</h2>`: the section is a grid of exactly two children, heading and body. In a browser without popovers the note is shown as a line of text; inside `.body` it stands at the top of the content column instead of becoming a third grid item. `section()` in `build.py` takes the pair from `info()` as its `tip`, puts the button into the heading and the note in front of the body.
 - `aria-labelledby="t-projects"` and `<span id="t-projects">Projects</span>` – the heading's accessible name is more than the title: a name taken from the whole `<h2>` would include the button's name and read "Projects Info" (the number is skipped, it is `aria-hidden`). So the section points at a span that wraps the title alone, and the region is called "Projects" in the landmark list. `section()` does this whenever it is given a `tip`. The heading keeps its id `h-projects`, as every section heading does.
-- `lang` – on the English page the note inherits English. On the German page the heading is German and the slogan stays English, so the note carries `lang="en"`.
+- `lang` – on the English page the note inherits English. On the German page it would inherit German, and the slogan stays English, so the note carries `lang="en"`.
 - `<div class="group">` – two groups, each with an `<h3>` and a list. The outline reads: Projects (h2) → At E+SERVICE+CHECK (h3) → Call and inquiry pipeline (h4).
 - `<ul class="projects">` – unordered: the projects are not ranked.
 - `<li><h4>…</h4><p>…</p><p class="stack">…</p></li>` – name, description, tech stack. A list item may hold headings and paragraphs; it does not have to be a single line.
@@ -777,7 +777,7 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 - `src` – an external file, so the browser can cache it between visits.
 - `defer` – download without stopping the parser, run after the whole document has been parsed, just before the `DOMContentLoaded` event; several deferred scripts run in source order. `site.js` can therefore rely on every element being present. `defer` only works on external scripts.
 - Position: a deferred script could also sit in the head, where its download would start earlier. At the end of the body, the download starts only when the parser gets there. For a 26 KB page the difference is milliseconds, and the time-critical part – the theme – already ran in the head.
-- Everything `site.js` adds is an enhancement. Without it the page is complete: the motto stands untyped, the theme follows the system, the jump control leads to the top and to every section, the toggletips open (centred on the screen) and the disclosure under 2010–2014 works.
+- Everything `site.js` adds is an enhancement. Without it the page is complete: the motto stands untyped, the theme follows the system, the jump control leads to the top and to every section, the toggletips open (centred on the screen), the two disclosures work, and the running role shows the duration counted at the build.
 
 ---
 
@@ -788,7 +788,7 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 **Middle dots never start a line.** The copy in `build.py` uses " · " as a separator. Before writing any page – the two home pages, the legal pages and the 404 page – the function `dots()` replaces every " · " after `<body>` with `&nbsp;· `. The dot is now glued to the word before it, and the only break opportunity is after it:
 
 ```html
-<dd>monthly media budget at a RoAS of 4.0&nbsp;· <a href="#posterlounge">Posterlounge</a></dd>
+<dd>monthly media budget at a RoAS of 4.0&nbsp;· <a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd>
 ```
 
 On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
@@ -804,7 +804,7 @@ The no-break space works across the tag boundary: "GmbH" and "·" stay on one li
 **German numbers stay with their units.** On the German page only, the function `nbsp()` glues "25 %", "240.000 €" and "1,7 Mio. €" together, as German typography (DIN 5008) asks. It inserts the character U+00A0 itself, not the entity `&nbsp;` – the same character for the browser, but invisible in view-source and in an editor. The German copy contains twelve of them; a search for ` ` finds them. The search also turns up two more, in the label templates of the jump control (`data-up` and `data-down`): `nbsp()` is a plain text replacement too, and in `Nach oben: %s` the space before `%s` looks to it like the space before a percent sign. Harmless for the labels; `site.js` allows for it where it removes the placeholder ([chapter 4](04-js.md)).
 
 ```html
-<dd>Mediabudget im Monat bei einer KUR von 25 %&nbsp;· <a href="#posterlounge">Posterlounge</a></dd>
+<dd>Mediabudget im Monat bei einer KUR von 25 %&nbsp;· <a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd>
 ```
 
 (The space between "25" and "%" in this line is a U+00A0.)
@@ -817,15 +817,27 @@ The no-break space works across the tag boundary: "GmbH" and "·" stay on one li
 <p class="tagline" lang="en">Performance&nbsp;Marketing&nbsp;· Data&nbsp;Science</p>
 <p class="claim" lang="en">Marketing leadership with root access</p>
 <div><h3 lang="en">Performance</h3>…
-<li><span class="k" lang="en">Scope</span> Marketing, Design und Automatisierung von Grund auf aufgebaut – …</li>
+<li><span class="k" lang="en">Scope:</span> Marketing, Design und Automatisierung von Grund auf aufgebaut – …</li>
 <li><p><strong lang="en">Facts, not fluff.</strong> Jede Zahl auf dieser Seite ist auf Nachfrage belegbar. …</p></li>
 <span class="ety">[engl. <i lang="en">marketer</i> × <i lang="en">tinkerer</i> ‚Tüftler‘]</span>
-<h2 id="h-projekte"><span class="no" aria-hidden="true">03</span> <span id="t-projekte">Projekte</span>…<span class="tip" id="tip-projects" popover lang="en">Stop starting. Start finishing.</span></h2>
+<h2 id="h-projekte"><span class="no" aria-hidden="true">03</span> <span id="t-projekte">Projekte</span>…</h2>
+<span class="tip" id="tip-projects" popover lang="en">Stop starting. Start finishing.</span>
 ```
 
 - The mechanism: a screen reader switches voice at every `lang` change. Without the attribute, a German voice would read "Built, not briefed" with German pronunciation rules – recognizable at best. Spell-checkers and hyphenation use the same attribute.
-- On the English page some of these attributes are left out: `build.py` adds them to the P⁴ headings, the tree keys and the italic words only when the page language is not English (variables `en_attr` and `lang`), and to the notes of the toggletips only where their language differs from the heading's (parameter `lang` of `info()`). Others are written into the shared template and therefore appear on both pages – tagline, claim, prompt, slogans, footer motto, Online/Offline. On the English page they are redundant and harmless.
-- The mirror case is on the 404 page: an English page with one German line, marked `lang="de"`. A smaller one sits in P⁴ on the German page: the note behind the i of the English heading "People" is German and switches back with `lang="de"`.
+- On the English page some of these attributes are left out: `build.py` adds them to the P⁴ headings, the tree keys and the italic words only when the page language is not English (variables `en_attr` and `lang`), and to the notes of the toggletips only on the German page (parameter `lang` of `info()`). Others are written into the shared template and therefore appear on both pages – tagline, claim, prompt, slogans, footer motto, Online/Offline. On the English page they are redundant and harmless.
+- The mirror case is on the 404 page: an English page with one German line, marked `lang="de"`. In P⁴ on the German page, the note behind the i of the English heading "People" is German and carries `lang="de"` – redundant since the note sits after the heading, where it inherits German from the page (see "P⁴").
+
+## The page as plain text
+
+Not every reader renders the page. A search engine indexes its text, a parser pulls names, titles and dates out of it, a visitor copies a passage into an email. All of them work with the text of the HTML, not with the screen: what the CSS generates (`::before`, `::after`) is missing, an `aria-label` is missing, and a tag separates nothing – two elements without whitespace between them run together. A plain-text extraction of the page showed four such glitches. All four are fixed in the HTML, without a visible change:
+
+- The arrows read "€6k €240k", now "€6k to €240k": the word sits in an `.sr-only` span inside the drawn arrow (see "Profile: text and results ledger").
+- The tree keys read "Scope marketing …", now "Scope: marketing …": the colon is text in the HTML (see "Experience: a reversed timeline").
+- The headings with a toggletip read "PeopleiProcesses fit people, not the other way round." and "03 ProjectsiStop starting. Start finishing.", now "People" and "03 Projects": the button is empty, the CSS draws its i, and the note follows the heading (see "P⁴" and "Projects").
+- The header read "01 Profile02 Experience03 Projects04 ContactENDE", now "01 Profile 02 Experience 03 Projects 04 Contact EN DE": whitespace between the items, which the flex containers ignore on screen (see "Navigation").
+
+The durations under the dates follow the same rule: the `<br>` keeps "10/2017 – 06/2023" and "5 years 9 months" apart. To see the result, select the ledger, copy it and paste it into a plain text editor.
 
 ---
 
@@ -850,7 +862,9 @@ The no-break space works across the tag boundary: "GmbH" and "·" stay on one li
 
 ```html
 <a class="home" href="/index.html"><svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="40 -668 1971.03 813" role="img" aria-label="Peter Stieg"><g class="still">…</g></svg></a>
-<nav class="nav" aria-label="Main"><span class="themes" role="group" aria-label="Theme">…</span></nav>
+<nav class="nav" aria-label="Main">
+
+<span class="themes" role="group" aria-label="Theme">…</span></nav>
 …
 <main id="main">
 <div class="wrap">
@@ -868,7 +882,7 @@ The no-break space works across the tag boundary: "GmbH" and "·" stay on one li
 
 - Absolute paths (`/…`) – the server answers a missing URL such as `https://peterstieg.com/de/old/page` with the content of `404.html`, but the browser still believes it is at `/de/old/page`. Relative paths resolve against that address: `assets/site.css` would become `/de/old/assets/site.css`, which does not exist, and the error page would appear unstyled. A path starting with `/` always begins at the domain root. The trade-off: opened from disk, `/assets/…` points to the root of your file system, so the 404 page only looks right on a server. `build.py` passes `root="/"` for this page alone.
 - `<meta name="robots" content="noindex">` – error pages do not belong in search results.
-- No `hreflang` alternates, no section links, no language switch (`alternates=False`, `sections=False`, `langs=False` in `build.py`): there is nothing to switch to.
+- No `hreflang` alternates, no section links, no language switch (`alternates=False`, `sections=False`, `langs=False` in `build.py`): there is nothing to switch to. The line breaks that separate the parts of the header menu stay, around empty parts, which leaves an empty line in the `<nav>`; in a flex container it renders nothing. The legal pages have the same.
 - The logo links to `/index.html`, because there is no `#top` on this page.
 - `{KeyWord:Page}` – Google Ads syntax for Dynamic Keyword Insertion: `{KeyWord:Default}` puts the searched keyword into an ad, or the default text when the keyword does not fit. The capitalization of `KeyWord` even controls the case of the inserted words. Here the "default" won – a joke for anyone who has run search campaigns. `<code>` marks it as code; the CSS keeps the regular font and sets it in the accent color.
 - `lang="de"` – the German line inside the English page.
@@ -910,9 +924,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-27</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-28</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-27</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-28</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```
@@ -1026,7 +1040,7 @@ The PS monogram: P and S from Atkinson Hyperlegible Bold, the site's own font. T
 ## Try it
 
 1. **Source vs DOM.** Open https://peterstieg.com/ and press Ctrl+U (view-source). Find the comment and the theme boot script. Then open DevTools (F12) → Elements and compare: `<html>` now has `class="js"`, one theme button has `aria-pressed="true"`, and on a wide screen `.minimap` is full of `span.mm-bar`. Click the moon and check `<html data-theme="dark">` and, under Application → Local Storage, the key `theme`; Application → Manifest shows the name and the two icons from `site.webmanifest`. Finally press Ctrl+Shift+P, run "Disable JavaScript" and reload: theme buttons gone, motto static, the jump control visible from the start with up and the section list but without down. Click the i after "People": the note still opens, centred on the screen – the popover needs no script.
-2. **Accessibility tree.** In Elements, select a `span.arr` and open the Accessibility pane: role "image", name "to". Select a theme button and click it – watch "pressed" flip. Select the footnote link "1" and find its description "Sources". Select the Projects `<section>`: its name is "Projects", while the name of the `<h2>` inside also contains the button's "Info". Scroll to 2010–2014, open "All five positions" and watch the attribute `open` appear on `<details class="more">`. Then open the Network panel, filter by "Font" and reload: the two preloaded fonts start early, the italic only after `site.css` has been read.
+2. **Accessibility tree.** In Elements, select a `span.arr` and open the Accessibility pane: the SVG is not in the tree, the only thing below the span is the text "to" from its `.sr-only` span. Select a theme button and click it – watch "pressed" flip. Select the footnote link "1" and find its description "Sources". Select the Projects `<section>`: its name is "Projects", while the name of the `<h2>` inside also contains the button's "Info". Scroll to 2010–2014, open "All five positions" and watch the attribute `open` appear on `<details class="more">`. Then open the Network panel, filter by "Font" and reload: the two preloaded fonts start early, the italic only after `site.css` has been read.
 3. **Link preview and structured data.** Paste https://peterstieg.com/ into LinkedIn's Post Inspector (https://www.linkedin.com/post-inspector/) and compare title, description and image with the `og:` tags; repeat with https://peterstieg.com/de/. The Inspector fetches fresh, which also refreshes LinkedIn's cached card. Then paste the URL into https://validator.schema.org/ and find the Person with its `sameAs` and `hasCredential` entries.
 
 ## Key terms
