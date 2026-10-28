@@ -1172,7 +1172,7 @@ def page(c):
     p4 = []
     for i, (p, txt) in enumerate(zip(P4, c["fields"])):
         tail = f' <strong lang="en">{e(P4_TAIL[i])}</strong>' if i in P4_TAIL else ""
-        button, note = info(c, "people", c["people_note"], L if L != "en" else "") if p == "People" else ("", "")
+        button, note = info(c, "people", c["people_note"]) if p == "People" else ("", "")
         p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}{tail}</p></div>\n')
     out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
 ```
@@ -1181,7 +1181,7 @@ def page(c):
 - `if i in P4_TAIL` – `in` on a dict checks its keys. Only index 3 (People) gets the tail, marked English.
 - `button, note = … if p == "People" else ("", "")` – the toggletip for People (section 20), two empty strings for the other three fields. `p == "People"` compares with the English word from `P4`, which is the same on both pages.
   - The conditional expression yields a pair either way, and the pair is unpacked into two names. Pitfall: `else ""` would not do – unpacking an empty string into two names raises `ValueError: not enough values to unpack`.
-  - The language argument: on the German page `L` is `"de"`, so the German note gets `lang="de"`; on the English page `""` adds nothing. Since the note sits after the English `<h3>`, not inside it, it would inherit German from the page anyway: the attribute is redundant there, but harmless.
+  - No language argument: the note sits after the English `<h3>`, not inside it, so it inherits the page's language – German on the German page, English on the English one. Only the Projects note needs one: the slogan stays English on the German page, so it passes `"en"` there.
   - `{e(p)}{button}</h3>{note}` – the i follows the word without a space, like a footnote number, inside the heading. The note follows the closing `</h3>`, between heading and text.
 - `<h3{en_attr}>` – the P-words are English on both pages.
 - The section key is `"fields"`, but `sec` has no `"fields"` heading: `title_of()` (section 22) returns the fixed markup `P<sup>4</sup>` in every language. The German anchor is `p-wie-peter`.

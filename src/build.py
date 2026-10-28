@@ -631,7 +631,7 @@ def page(c):
     p4 = []
     for i, (p, txt) in enumerate(zip(P4, c["fields"])):
         tail = f' <strong lang="en">{e(P4_TAIL[i])}</strong>' if i in P4_TAIL else ""
-        button, note = info(c, "people", c["people_note"], L if L != "en" else "") if p == "People" else ("", "")
+        button, note = info(c, "people", c["people_note"]) if p == "People" else ("", "")
         p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}{tail}</p></div>\n')
     out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
 
