@@ -258,8 +258,8 @@ CONTENT = {
              "tree": [("Team", "…"),
                       ("Scope", "…"),
                       ("Result", "…")],
-             "path": ("Three promotions", [("10/2017", "SEA Manager"), ("", "Digital Marketing Manager"),
-                             ("", "Senior Marketing Manager"), ("06/2021", "Head of Marketing")])},
+             "path": ("Three promotions", [("10/2017", "SEO Manager Italy"), ("11/2018", "Online Marketing Manager"),
+                                           ("10/2020", "Senior Marketing Manager"), ("09/2021", "Head of Marketing")])},
             …
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "…")],
@@ -353,7 +353,7 @@ Copy:
 | `ledger_label`, `ledger` | str, list of (figure, context, company key) | the results list in the profile; the key looks up the name in `COMPANIES` and links to the role with that `id` |
 | `fields` | list of 4 str | the P⁴ section, paired with `P4` |
 | `people_note` | str | the toggletip after the People heading in P⁴ |
-| `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`, or `"since MM/YYYY"` for the role that is still running – `months()` reads the dates), `title`, `org`, `url` (optional: the company's website), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (date or `""`, title)) – the titles within one role, behind a disclosure), `more` (optional: (label, list of sub-roles) – the single positions behind a disclosure, each a role dict of its own) |
+| `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`, or `"since MM/YYYY"` for the role that is still running – `months()` reads the dates), `title`, `org`, `url` (optional: the company's website), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (start `"MM/YYYY"`, title)) – the steps within one role, one per contract, behind a disclosure; each ends the month before the next one starts), `more` (optional: (label, list of sub-roles) – the single positions behind a disclosure, each a role dict of its own) |
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link |
 | `approach` | list of 3 str | paired with `SLOGANS` |
 | `facts` | list of (label, value, sub-line or `""`) | Education; the value is a string, or a list of strings shown one per line (the languages) |
@@ -365,7 +365,7 @@ Copy:
 - Localized, not translated: German uses KUR, English RoAS (rule 2), job titles follow German usage ("Leiter Marketing"), number formats follow each language ("6.000 → 240.000 €" vs "€6k → €240k"), and trade terms follow each language's habit – "marketing automation" (Brandible, Rapidobject) is "Marketing Automation" in German, the English term German marketing uses, capitalized as a German noun.
 - English inside German: the tree labels `"Team"`, `"Scope"` and `"Result"` stay English in the DE dict (rule 5). Every role uses the same three, in that order, wherever there is something to say – a role without a team simply has no `"Team"` row.
 - Not localized at all: the company keys at the end of each `ledger` entry and the role `id`s they point to. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates.
-- Nested lists mirror too: the five sub-roles under `"more"` and the four titles under `"path"` exist in both dicts, in the same order. Only the labels differ ("Three promotions", "Drei Beförderungen"); the titles are the same in both, because they are the titles that were held.
+- Nested lists mirror too: the five sub-roles under `"more"` and the four titles under `"path"` exist in both dicts, in the same order. Only the labels differ ("Three promotions", "Drei Beförderungen"); the titles are the same in both, because they are the titles that were held – only the market in the first one is localized: "SEO Manager Italy", "SEO Manager Italien".
 - Nothing checks parity. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A missing list item – a role or project only added in EN – is silent: the German page simply shows one entry fewer. Edit both languages in the same sitting.
 - Quick parity check from the repository root (importing does not build anything, see section 28):
 
@@ -943,6 +943,18 @@ def duration(c, n):
   - 3 → `["3 months"]` → "3 months"
 - Full words instead of "5 yrs 9 mos", as the docstring says: nothing to decode, for readers and for programs that read the text.
 
+```python
+def before(mmyyyy):
+    """The month before: "11/2018" → "10/2018", "01/2019" → "12/2018"."""
+    m, y = int(mmyyyy[:2]), int(mmyyyy[3:])
+    return f"{m - 1:02d}/{y}" if m > 1 else f"12/{y - 1}"
+```
+
+- The month before a date in `MM/YYYY` form. `role()` (section 23) uses it for the steps within a role: a step ends in the month before the next one begins.
+- `mmyyyy[:2]` and `mmyyyy[3:]` – slices: the first two characters, the month, and everything after the slash, the year. Fixed positions are enough here, because the format is fixed – two digits, a slash, four digits; `months()` needs a pattern because its dates sit inside longer text.
+- `{m - 1:02d}` – a format spec inside the f-string: `d` an integer, `02` at least two digits, padded with zeros. 11 − 1 gives "10", 10 − 1 gives "09", not "9" – and `months()` only recognizes two-digit months.
+- January has no month 0 before it: the conditional expression turns "01/2019" into "12/2018", the last month of the year before.
+
 ---
 
 ## 22 · title_of and jump
@@ -1012,10 +1024,11 @@ def role(c, ro, h="h3"):
             if len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1 else "")
     when = f'{e(ro["when"])}<br><span class="dur"{live}>{duration(c, months(ro["when"]))}</span>'
     more = ""
-    if ro.get("path"):                                 # titles in order, dates where known
+    if ro.get("path"):                                 # one step per contract: its start; it ends the month before the next
         label, steps = ro["path"]
-        lis = "".join(f'<li>{e(title)}' + (f' <span class="muted">· {e(at)}</span>' if at else "") + '</li>'
-                      for at, title in steps)
+        ends = [before(start) for start, _ in steps[1:]] + [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]]
+        lis = "".join(f'<li>{e(title)}<br><span class="at">{start} – {end} · {duration(c, months(f"{start} – {end}"))}</span></li>'
+                      for (start, title), end in zip(steps, ends))
         more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree">{lis}</ol>\n</details>\n'
     if ro.get("more"):
         label, subs = ro["more"]
@@ -1052,10 +1065,13 @@ The dates and the duration:
 The disclosures:
 
 - `more` – up to two disclosures, collected into one string. It starts empty, and each `+=` appends one, in a fixed order: first `path`, then `more`. Today each entry has at most one of them.
-- `path` – used by Posterlounge: the four titles held within that one role, from SEA Manager (10/2017) to Head of Marketing (06/2021), behind "Three promotions". The titles are the words people search for; in the disclosure they are part of the page's text without lengthening the timeline. The context line, `ctx`, describes the company only.
-  - `label, steps = ro["path"]` – the summary text and the list of (date, title) pairs.
-  - `for at, title in steps` – the date comes first in each pair, the title first in the output. `at` is a date or `""`: the two promotions in between have no date on the page.
-  - Three strings joined with `+`: the opening `<li>` with the title, the date as ` · 10/2017` in a muted span – or nothing –, the closing `</li>`. Pitfall: the parentheses around the middle part are required. Without them, Python reads `A + B if at else "" + C` as `(A + B) if at else ("" + C)`: a title with a date loses its closing `</li>`, and a title without one shrinks to a bare `</li>`.
+- `path` – used by Posterlounge: the four titles held within that one role, behind "Three promotions", each with its dates and its length. The titles are the words people search for; in the disclosure they are part of the page's text without lengthening the timeline. The context line, `ctx`, describes the company only.
+  - `label, steps = ro["path"]` – the summary text and the list of (start, title) pairs. Only the starts are stored, as the contracts give them (section 8): 10/2017, 11/2018, 10/2020, 09/2021.
+  - `ends` – one end per step. Every step but the last ends the month before the next one starts: `before(start) for start, _ in steps[1:]` takes the starts from the second step on and steps each back by a month (section 21). The underscore is the usual name for a value that is unpacked but not used, here the title. The last step ends with the role: `re.findall(…)[-1]` is the last date of its `when`, 06/2023. `+` joins the two lists: `["10/2018", "09/2020", "08/2021", "06/2023"]`.
+  - `zip(steps, ends)` – pairs the n-th step with the n-th end. `(start, title), end` unpacks each pair: the step's tuple on the left, its end on the right.
+  - Each step: the title, `<br>`, and in `<span class="at">` the range with its length, "10/2017 – 10/2018 · 1 year 1 month". The length comes from the same two functions as the role's own: `months()` reads the range built just before, `duration()` puts it into words. The four lengths add up to the role's 69 months.
+  - Storing starts instead of ranges means one date per step, each written once: a corrected start moves the end of the step before it as well.
+  - The role itself must have ended: for a role still running, `[-1]` would be its start, and the last step would end where it begins.
   - `<ol class="tree">` – an ordered list, because the titles have an order. The class `tree` borrows the #JobAlert branch lines from the CSS, so the promotions read as a path; `.more .tree` gives it its distance from the summary (chapter 3).
   - No headings and no recursion here: the titles are steps within one role, not roles of their own.
   - The wrapper is the same `<details class="more">` as for the five positions below, so it looks and behaves the same, `site.js` included.

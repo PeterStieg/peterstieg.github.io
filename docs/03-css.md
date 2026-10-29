@@ -877,7 +877,9 @@ The years 2010–2014 appear in the timeline as one entry, "Five companies". Bel
 
 ```css
 .more .roles { margin-top: 0.75rem; }
-.more .tree { margin-top: 0.5rem; }              /* Posterlounge: the titles, one per promotion */
+.more .tree { margin-top: 0.5rem; }              /* Posterlounge: one step per contract */
+.more .tree li { padding-bottom: 0.45rem; }
+.more .tree .at { color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; }   /* dates · duration */
 .more .role, .more .role + .role { display: block; padding: 0.85rem 0 0; border-top: 1px solid var(--line); }
 .more .role .when { padding-top: 0; font-size: 0.9rem; }
 .more h4 { margin: 0; font-size: 1.0625rem; line-height: 1.35; }
@@ -887,7 +889,9 @@ The years 2010–2014 appear in the timeline as one entry, "Five companies". Bel
 Inside the disclosure of 2010–2014 is a second `<ol class="roles">` with one `.role` per position, built by the same function as the timeline (see [chapter 1](01-build.md)). The timeline rules match these elements too, so only a few corrections are needed.
 
 - `.more .roles { margin-top: 0.75rem; }` – space below the summary. (0,2,0) beats the reset in `.roles`.
-- `.more .tree { margin-top: 0.5rem; }` – the Posterlounge disclosure holds no roles but a short list: the four titles from "SEA Manager · 10/2017" to "Head of Marketing · 06/2021", one per promotion. These titles are terms people search for; behind the disclosure they are part of the page's text without lengthening the entry. The list is an `<ol class="tree">` – ordered, because the titles follow one another – and the tree rules draw it with the same lines as the facts above it (see #JobAlert tree); `list-style: none` in `.tree` removes the numbers as it removes bullets. The rule itself only sets the space below the summary: 0.5rem (8px, measured) instead of the 0.35rem of `.tree`, which it beats at (0,2,0) against (0,1,0).
+- `.more .tree { margin-top: 0.5rem; }` – the Posterlounge disclosure holds no roles but a short list: the four titles from "SEO Manager Italy" to "Head of Marketing", each with a second line for its dates and length. These titles are terms people search for; behind the disclosure they are part of the page's text without lengthening the entry. The list is an `<ol class="tree">` – ordered, because the titles follow one another – and the tree rules draw it with the same lines as the facts above it (see #JobAlert tree); `list-style: none` in `.tree` removes the numbers as it removes bullets. The rule itself only sets the space below the summary: 0.5rem (8px, measured) instead of the 0.35rem of `.tree`, which it beats at (0,2,0) against (0,1,0).
+- `.more .tree li { padding-bottom: 0.45rem; }` – each step has two lines, title and dates; a little more space than the 0.2rem of `.tree li` keeps the steps apart. The branch lines follow: `::before` runs the full height of each item, padding included.
+- `.more .tree .at` – the second line of a step, set like the timeline's dates: muted, 0.95rem, digits of equal width so the ranges line up. Unlike `.when` it may wrap – on a narrow phone "10/2017 – 10/2018 · 1 year 1 month" does not always fit on one line, and `.when`'s `nowrap` would push it past the edge.
 - `.more .role, .more .role + .role { display: block; … }` – the nested positions are stacked: date above title, not the 9.5rem date column of the timeline. The disclosure itself sits in the content column of its entry, which leaves no room for a second date column. As a block, the `<li>` ignores the `grid-template-columns` of the 36rem media query.
   - `padding: 0.85rem 0 0; border-top: 1px solid var(--line);` – every position gets a line above, the first one included: it separates the list from the summary. No padding below; the next line does the separating.
   - Why two selectors: `.role + .role` sets `padding-top: 2rem` at (0,2,0). `.more .role` alone also weighs (0,2,0) and would win only because it comes later in the file; `.more .role + .role` at (0,3,0) wins by specificity, wherever the rules stand.

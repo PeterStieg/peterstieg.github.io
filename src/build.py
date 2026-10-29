@@ -138,8 +138,8 @@ CONTENT = {
              "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
                       ("Scope", "SEA, social media, marketplaces, creator relations and print partnerships"),
                       ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")],
-             "path": ("Three promotions", [("10/2017", "SEA Manager"), ("", "Digital Marketing Manager"),
-                             ("", "Senior Marketing Manager"), ("06/2021", "Head of Marketing")])},
+             "path": ("Three promotions", [("10/2017", "SEO Manager Italy"), ("11/2018", "Online Marketing Manager"),
+                                           ("10/2020", "Senior Marketing Manager"), ("09/2021", "Head of Marketing")])},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "place": "Rome",
              "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social, native, retargeting")]},
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
@@ -245,8 +245,8 @@ CONTENT = {
              "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
                       ("Scope", "SEA, Social Media, Marktplätze, Creator Relations und Print-Kooperationen"),
                       ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")],
-             "path": ("Drei Beförderungen", [("10/2017", "SEA Manager"), ("", "Digital Marketing Manager"),
-                             ("", "Senior Marketing Manager"), ("06/2021", "Head of Marketing")])},
+             "path": ("Drei Beförderungen", [("10/2017", "SEO Manager Italien"), ("11/2018", "Online Marketing Manager"),
+                                             ("10/2020", "Senior Marketing Manager"), ("09/2021", "Head of Marketing")])},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "place": "Rom",
              "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social, Native, Retargeting")]},
             {"when": "10/2010 – 08/2014", "title": "Marketing, Marktforschung, Export", "org": "Fünf Unternehmen", "place": "Rom",
@@ -527,6 +527,12 @@ def months(when):
     return (y2 - y1) * 12 + m2 - m1 + 1
 
 
+def before(mmyyyy):
+    """The month before: "11/2018" → "10/2018", "01/2019" → "12/2018"."""
+    m, y = int(mmyyyy[:2]), int(mmyyyy[3:])
+    return f"{m - 1:02d}/{y}" if m > 1 else f"12/{y - 1}"
+
+
 def duration(c, n):
     """69 → "5 years 9 months", in full words: no yrs/mos to decode."""
     year, years, month, months_ = c["dur"]
@@ -569,10 +575,11 @@ def role(c, ro, h="h3"):
             if len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1 else "")
     when = f'{e(ro["when"])}<br><span class="dur"{live}>{duration(c, months(ro["when"]))}</span>'
     more = ""
-    if ro.get("path"):                                 # titles in order, dates where known
+    if ro.get("path"):                                 # one step per contract: its start; it ends the month before the next
         label, steps = ro["path"]
-        lis = "".join(f'<li>{e(title)}' + (f' <span class="muted">· {e(at)}</span>' if at else "") + '</li>'
-                      for at, title in steps)
+        ends = [before(start) for start, _ in steps[1:]] + [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]]
+        lis = "".join(f'<li>{e(title)}<br><span class="at">{start} – {end} · {duration(c, months(f"{start} – {end}"))}</span></li>'
+                      for (start, title), end in zip(steps, ends))
         more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree">{lis}</ol>\n</details>\n'
     if ro.get("more"):
         label, subs = ro["more"]

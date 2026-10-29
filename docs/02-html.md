@@ -546,7 +546,7 @@ Nine entries; the first stands for all.
 <p class="ctx">Art prints online in more than 15 European countries.</p><ul class="tree">…</ul>
 <details class="more">
 <summary>Three promotions</summary>
-<ol class="tree"><li>SEA Manager <span class="muted">· 10/2017</span></li><li>Digital Marketing Manager</li><li>Senior Marketing Manager</li><li>Head of Marketing <span class="muted">· 06/2021</span></li></ol>
+<ol class="tree"><li>SEO Manager Italy<br><span class="at">10/2017 – 10/2018&nbsp;· 1 year 1 month</span></li><li>Online Marketing Manager<br><span class="at">11/2018 – 09/2020&nbsp;· 1 year 11 months</span></li><li>Senior Marketing Manager<br><span class="at">10/2020 – 08/2021&nbsp;· 11 months</span></li><li>Head of Marketing<br><span class="at">09/2021 – 06/2023&nbsp;· 1 year 10 months</span></li></ol>
 </details>
 </div>
 </li>
@@ -557,8 +557,8 @@ The heading of the role names the last title, Head of Marketing. The way there t
 - `<details class="more">` – the same disclosure as under 2010–2014 (next section), here with a list of titles instead of roles.
 - `<summary>Three promotions</summary>` – four titles, three steps between them. German: "Drei Beförderungen".
 - `<ol class="tree">` – ordered, because the titles are a sequence. It runs oldest first, the direction of a path, unlike the newest-first timeline around it. The class gives it the branches of the Team/Scope/Result list; it has no keys, each item is one title. The CSS adds a little space under the summary (`.more .tree`).
-- `<span class="muted">· 10/2017</span>` – a date where it is known: the first title starts with the role, the last one in 06/2021. The two titles between have none.
-- In `build.py` this is the role key `path`: a label and a list of (date or "", title) pairs. `role()` collects what goes behind a disclosure from `path` and from `more` (the five positions), so one role could carry both.
+- Each step: the title, a `<br>`, and in `<span class="at">` its dates and length – the same pattern as the role's own dates with their duration. The dates come from the contracts; the four lengths add up to the role's 5 years 9 months. German: "SEO Manager Italien", "1 Jahr 1 Monat".
+- In `build.py` this is the role key `path`: a label and a list of (start, title) pairs; every step ends the month before the next one starts, the last with the role. `role()` collects what goes behind a disclosure from `path` and from `more` (the five positions), so one role could carry both.
 - `site.js` treats it like every `details.more`: it redraws the minimap when the disclosure opens, and printing shows it open.
 
 ### Experience: five positions behind a disclosure
@@ -924,9 +924,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-28</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-29</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-28</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-29</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```
