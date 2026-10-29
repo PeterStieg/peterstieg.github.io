@@ -829,7 +829,7 @@ def offsite(c, url, text, attrs=""):
 
 The `rel` attribute:
 
-- `rel = "" if "rel=" in attrs else ' rel="noopener"'` – the default, unless the caller brings its own. `in` on two strings is a substring test. An attribute may appear only once per tag – with two, the browser keeps the first and ignores the second – so a caller's `rel` replaces the default instead of joining it. That is why Contact passes `' rel="me noopener"'`: `rel` takes a list of words separated by spaces, it keeps `me` (section 25) and has to name `noopener` itself.
+- `rel = "" if "rel=" in attrs else ' rel="noopener"'` – the default, unless the caller brings its own. `in` on two strings is a substring test. An attribute may appear only once per tag – with two, the browser keeps the first and ignores the second – so a caller's `rel` replaces the default instead of joining it. That is why Contact passes `' rel="me noopener"'`: `rel` takes a list of words separated by spaces, so the one attribute keeps `me` (section 25) and names `noopener` itself.
 - `noopener` – `target="_blank"` opens the URL in a new tab. Without `noopener`, the new page used to get `window.opener`, a reference back to the tab that opened it, and could send that tab to another address – "reverse tabnabbing": the visitor returns to the old tab and finds a lookalike page in place of peterstieg.com. `noopener` cuts the reference: `window.opener` is `null`. Current browsers apply it to every `target="_blank"` by default; the attribute covers older ones and states the intent in the markup.
   - Not `noreferrer`: the target site still learns where the visitor came from, as far as the browser's referrer policy allows.
 - Pitfall: a substring test is blunt. `' hreflang="en"'` passes safely ("ref" is not "rel"), but any attribute that contains `rel=` – `data-rel="…"`, a `title` that mentions it – drops the default without a word, and the link loses its `noopener`.
@@ -839,13 +839,13 @@ The text and its marker:
 - `head, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 28) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
   - `head` is a local name here and hides the function `head()` inside `offsite()`. Harmless, because `offsite()` does not call it – but it is the trap `dots()` avoids with `head_part` (section 28).
 - `<span class="nw">{last}…</span>` – the last word and the marker share one span, which the CSS sets to `white-space: nowrap` (chapter 3). The line may still break before the last word, never between it and the ↗. Without the span, the ↗ wrapped onto a line of its own at widths of 320 to 390 pixels: the marker is an inline-block, and an inline-block is a break opportunity on both sides. A word joiner (U+2060) between word and arrow did not stop the break in Chromium – measured.
-- `<span class="ext">{OUT_SVG}…</span>` – the ↗ (section 11). The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). Fifteen markers per page could clutter it. The vocabulary: accent superscripts – the footnote numbers, the i, the ↓ – stay on the page; the muted ↗ leaves it.
+- `<span class="ext">{OUT_SVG}…</span>` – the ↗ (section 11). The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With fifteen per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers, the i, the ↓ – stay on the page; the muted ↗ leaves it.
 - `<span class="sr-only"> ({e(c["new_tab"])})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge GmbH (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
+- Pitfall: `rpartition` sees characters, not markup. A `text` with a tag that has a space in it (`<i lang="en">`) would be split inside the tag, and the span would cut it in two. All link texts today are plain escaped copy.
 
 The name:
 
 - Why not `out()`: `page()` collects its HTML in a local list called `out` (section 25). Inside `page()`, that name means the list, so a call `out(c, url, text)` there would raise `TypeError: 'list' object is not callable`. Projects, Contact and Sources call the helper from inside `page()`. Hence `offsite` – the trap of `t` in `topbar()` (section 17), avoided before it happens.
-- Pitfall: `rpartition` sees characters, not markup. A `text` with a tag that has a space in it (`<i lang="en">`) would be split inside the tag, and the span would cut it in two. All link texts today are plain escaped copy.
 
 ---
 
@@ -915,7 +915,7 @@ def section(c, key, title_html, body, cls="body"):
 - `cls="body"` – a default parameter: used when the caller passes nothing. No caller currently passes another value.
 - `i = sid(c, key)` – the localized anchor.
 - `aria-labelledby="h-{i}"` – points at the heading's id: the text of the `<h2>` becomes the section's name, and a named `<section>` is exposed as a landmark that screen-reader users can jump between. The heading holds the number, hidden from screen readers (section 21), and the title, nothing else – so each section is called by its title: "Projects".
-- The footnote references point at the Sources heading by the same id (section 25).
+- The footnote references use the same id: their `aria-describedby` points at the Sources heading, `h-quellen` on the German page (section 25).
 - `{chapter_no(key)}{title_html}` – number, then title (section 21).
 - `title_html` – the name says it: raw HTML, inserted unescaped. Callers pass `e(s["profile"])` and so on, or `title_of()` for P⁴ (section 23), which returns markup. Pitfall: pass plain copy here without `e()` and the first `&` breaks the markup.
 - `{body}</div>` – every caller's body ends with `\n`, so `</div>` lands on its own line.
@@ -1678,7 +1678,8 @@ Make each change in `src/build.py`, run `python3 src/build.py`, look at the resu
 - **Popover and toggletip** – a popover is an element with the `popover` attribute: hidden until a button with `popovertarget` opens it, then drawn above the whole page, closed again by a click outside or Esc. A toggletip is the pattern built from it here: a small button that shows a short note on click instead of on hover.
 - **Disclosure** – a control that shows and hides a block of content. HTML has one built in: `<details>` with its `<summary>`, used for the Posterlounge promotions and the five early positions (both written by `steps()`) and for the jump control's list.
 - **Generated content** – text that CSS inserts with `content` in `::before` or `::after`, such as the toggletip's i. It is drawn, but it is not part of the page's text: copy and paste, search engines and parsers do not get it. Words and punctuation that carry meaning belong in the HTML.
-- **Visually hidden text** – text that is in the HTML but shrunk out of sight by CSS (here the class `sr-only`), so screen readers and anything that reads the text still get it: the word behind each drawn arrow, the full motto in the hero.
+- **Visually hidden text** – text that is in the HTML but shrunk out of sight by CSS (here the class `sr-only`), so screen readers and anything that reads the text still get it: the word behind each drawn arrow, the full motto in the hero, the "(opens in a new tab)" after each link that leaves the site.
+- **`target="_blank"` and `noopener`** – `target="_blank"` opens a link in a new tab; `rel="noopener"` keeps the new page from reaching back to the one that opened it through `window.opener`. Here both come from `offsite()`, for every link that leaves the site.
 - **Relative vs root-absolute path** – `assets/site.css` or `../assets/site.css` resolve from the current page's folder; `/assets/site.css` resolves from the domain root.
 - **Non-breaking space** – U+00A0 or `&nbsp;`: looks like a space, but a line never breaks there.
 
