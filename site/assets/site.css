@@ -312,7 +312,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 /* reached from the ledger: dates and title in accent */
 .role:target > .when, .role:target > div > h3 { color: var(--accent); }
 
-/* the years before 2014: one entry in the timeline, the single positions behind a disclosure */
+/* behind a disclosure: the promotions within one role (Posterlounge), the positions one entry sums up (2010–2014) */
 .more { margin-top: 0.75rem; }
 .more summary {
   display: inline-flex; align-items: center; gap: 0.5em;
@@ -327,14 +327,9 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 .more[open] summary::before { transform: rotate(45deg); margin-top: -0.3em; }
 .more summary:hover { color: var(--ink); }
 @media (prefers-reduced-motion: no-preference) { .more summary::before { transition: transform 0.2s, margin 0.2s; } }
-.more .roles { margin-top: 0.75rem; }
-.more .tree { margin-top: 0.5rem; }              /* Posterlounge: one step per contract */
+.more .tree { margin-top: 0.5rem; }              /* the steps inside one entry, newest first */
 .more .tree li { padding-bottom: 0.45rem; }
 .more .tree .at { color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; }   /* dates · duration */
-.more .role, .more .role + .role { display: block; padding: 0.85rem 0 0; border-top: 1px solid var(--line); }
-.more .role .when { padding-top: 0; font-size: 0.9rem; }
-.more h4 { margin: 0; font-size: 1.0625rem; line-height: 1.35; }
-.more .org { margin-bottom: 0.2rem; }
 
 /* projects */
 .group + .group { margin-top: 2.5rem; }

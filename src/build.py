@@ -97,10 +97,10 @@ CONTENT = {
         "profile": "Leadership roles at four companies, with interdisciplinary teams of up to six people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer – Liora, in partnership with Université Paris 1 Panthéon-Sorbonne.",
         "ledger_label": "Selected results",
         "ledger": [
+            ("> 2×", "inbound inquiries year over year", "e-service-check"),
+            ("RoAS 7.6 → 7.8", "on a €1.7m media budget, while spend grew", "brandible"),
             ("€6k → €240k", "monthly media budget at a RoAS of 4.0", "posterlounge"),
             ("17 shops", "in 12 languages across Europe", "posterlounge"),
-            ("RoAS 7.6 → 7.8", "on a €1.7m media budget, while spend grew", "brandible"),
-            ("> 2×", "inbound inquiries year over year", "e-service-check"),
         ],
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO and marketplaces. Steered by cost per inquiry, quote and order.",
@@ -115,14 +115,14 @@ CONTENT = {
              "tree": [("Team", "functional lead for content, marketing and project management"),
                       ("Scope", "marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding"),
                       ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark")]},
-            {"when": "05/2025 – 07/2025", "title": "MLOps Engineer (full-time)",
+            {"when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "containers, orchestration, tracking, APIs and monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "certified MLOps Engineer; capstone: the Rakuten model as a production pipeline – training, tracking, serving, monitoring")]},
             {"when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject GmbH", "place": "",
              "tree": [("Scope", "UI concepts, usability tests, support for the marketing automation migration from ActiveCampaign to Salesforce"),
                       ("Result", "Salesforce dashboards, built into the sales process")]},
-            {"when": "02/2025 – 05/2025", "title": "Data Scientist (full-time)",
+            {"when": "02/2025 – 05/2025", "title": "Data Scientist training (full-time)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "machine learning and deep learning with Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "certified Data Scientist; capstone: multimodal classification of e-commerce products with NLP and computer vision")]},
@@ -138,22 +138,18 @@ CONTENT = {
              "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
                       ("Scope", "SEA, social media, marketplaces, creator relations and print partnerships"),
                       ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")],
-             "path": ("Three promotions", [("10/2017", "SEO Manager Italy"), ("11/2018", "Online Marketing Manager"),
-                                           ("10/2020", "Senior Marketing Manager"), ("09/2021", "Head of Marketing")])},
+             "path": ("Three promotions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
+                                           ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy")])},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "place": "Rome",
              "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social, native, retargeting")]},
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "export promotion, brand protection, competitive intelligence, web marketing")],
-             "more": ("All five positions", [
-                 {"when": "04/2014 – 08/2014", "title": "Marketing Consultant", "org": "SBS systems for business solutions Srl", "place": "Rome",
-                  "tree": [("Scope", "export promotion projects for small and medium-sized companies on behalf of the German Federal Ministry for Economic Affairs")]},
-                 {"when": "06/2013 – 05/2014", "title": "Corporate investigations", "org": "Inner Valor Srl", "place": "Rome", "tree": []},
-                 {"when": "06/2013 – 12/2013", "title": "Marketing & export DACH", "org": "Fontebona Srl", "place": "Rome",
-                  "tree": [("Scope", "market entry in Germany, Austria and Switzerland – packaging, trade fairs")]},
-                 {"when": "04/2012 – 05/2013", "title": "Market research", "org": "Proactive Europe Srl", "place": "Rome",
-                  "tree": [("Scope", "brand protection and competitive intelligence")]},
-                 {"when": "10/2010 – 09/2011", "title": "Web Marketing Manager", "org": "PaesiOnLine Srl", "place": "Rocca di Papa",
-                  "tree": [("Scope", "web marketing for the German and Spanish markets of a travel portal")]},
+             "positions": ("All five positions", [
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl"),
+                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl"),
+                 ("06/2013 – 12/2013", "Marketing & export DACH", "Fontebona Srl"),
+                 ("04/2012 – 05/2013", "Market research", "Proactive Europe Srl"),
+                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl"),
              ])},
         ],
         "groups": [
@@ -204,10 +200,10 @@ CONTENT = {
         "profile": "Führungsverantwortung in vier Unternehmen, für interdisziplinäre Teams mit bis zu sechs Personen in E-Commerce und B2B. Zertifiziert als Data Scientist und MLOps Engineer – Liora in Partnerschaft mit der Université Paris 1 Panthéon-Sorbonne.",
         "ledger_label": "Ausgewählte Ergebnisse",
         "ledger": [
+            ("> 2×", "Anfragen im Jahresvergleich", "e-service-check"),
+            ("KUR 13,2 → 12,8 %", "bei ausgebautem Mediabudget von 1,7 Mio. €", "brandible"),
             ("6.000 → 240.000 €", "Mediabudget im Monat bei einer KUR von 25 %", "posterlounge"),
             ("17 Shops", "in 12 Sprachen in ganz Europa", "posterlounge"),
-            ("KUR 13,2 → 12,8 %", "bei ausgebautem Mediabudget von 1,7 Mio. €", "brandible"),
-            ("> 2×", "Anfragen im Jahresvergleich", "e-service-check"),
         ],
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO und Marktplätze. Gesteuert über Kosten je Anfrage, Angebot und Auftrag.",
@@ -222,14 +218,14 @@ CONTENT = {
              "tree": [("Team", "fachliche Führung in Content, Marketing und Projektmanagement"),
                       ("Scope", "Marketing, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, CRM, Events, Employer Branding"),
                       ("Result", "Anfragen im Jahresvergleich mehr als verdoppelt; neue Corporate Identity samt Grundlage der EUIPO-Markenanmeldung")]},
-            {"when": "05/2025 – 07/2025", "title": "MLOps Engineer (Vollzeit)",
+            {"when": "05/2025 – 07/2025", "title": "Weiterbildung MLOps Engineer (Vollzeit)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "zertifizierter MLOps Engineer; Abschlussprojekt: das Rakuten-Modell als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
             {"when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject GmbH", "place": "",
              "tree": [("Scope", "UI-Konzeption, Usability-Tests, Begleitung der Migration der Marketing Automation von ActiveCampaign zu Salesforce"),
                       ("Result", "Salesforce-Dashboards, eingebunden in den Vertriebsprozess")]},
-            {"when": "02/2025 – 05/2025", "title": "Data Scientist (Vollzeit)",
+            {"when": "02/2025 – 05/2025", "title": "Weiterbildung Data Scientist (Vollzeit)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Machine Learning und Deep Learning mit Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "zertifizierter Data Scientist; Abschlussprojekt: multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
@@ -245,22 +241,18 @@ CONTENT = {
              "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
                       ("Scope", "SEA, Social Media, Marktplätze, Creator Relations und Print-Kooperationen"),
                       ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")],
-             "path": ("Drei Beförderungen", [("10/2017", "SEO Manager Italien"), ("11/2018", "Online Marketing Manager"),
-                                             ("10/2020", "Senior Marketing Manager"), ("09/2021", "Head of Marketing")])},
+             "path": ("Drei Beförderungen", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
+                                             ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italien")])},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "place": "Rom",
              "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social, Native, Retargeting")]},
             {"when": "10/2010 – 08/2014", "title": "Marketing, Marktforschung, Export", "org": "Fünf Unternehmen", "place": "Rom",
              "tree": [("Scope", "Exportförderung, Brand Protection, Competitive Intelligence, Web Marketing")],
-             "more": ("Alle fünf Stationen", [
-                 {"when": "04/2014 – 08/2014", "title": "Marketing Consultant", "org": "SBS systems for business solutions Srl", "place": "Rom",
-                  "tree": [("Scope", "Exportförderprojekte für kleine und mittlere Unternehmen im Auftrag des Bundeswirtschaftsministeriums")]},
-                 {"when": "06/2013 – 05/2014", "title": "Corporate Investigations", "org": "Inner Valor Srl", "place": "Rom", "tree": []},
-                 {"when": "06/2013 – 12/2013", "title": "Marketing & Export DACH", "org": "Fontebona Srl", "place": "Rom",
-                  "tree": [("Scope", "Markteintritt in Deutschland, Österreich und der Schweiz – Verpackung, Fachmessen")]},
-                 {"when": "04/2012 – 05/2013", "title": "Marktforschung", "org": "Proactive Europe Srl", "place": "Rom",
-                  "tree": [("Scope", "Brand Protection und Competitive Intelligence")]},
-                 {"when": "10/2010 – 09/2011", "title": "Web Marketing Manager", "org": "PaesiOnLine Srl", "place": "Rocca di Papa",
-                  "tree": [("Scope", "Web Marketing für die Märkte DE und ES eines Reiseportals")]},
+             "positions": ("Alle fünf Stationen", [
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl"),
+                 ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor Srl"),
+                 ("06/2013 – 12/2013", "Marketing & Export DACH", "Fontebona Srl"),
+                 ("04/2012 – 05/2013", "Marktforschung", "Proactive Europe Srl"),
+                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl"),
              ])},
         ],
         "groups": [
@@ -563,7 +555,15 @@ def jump(c):
 """
 
 
-def role(c, ro, h="h3"):
+def steps(c, label, rows):
+    """A disclosure with the steps inside one timeline entry, newest first like the timeline itself: title (and company,
+    where it changes), then dates and length. reversed: the list counts down, as the timeline does."""
+    lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {e(org)}</span>' if org else "")
+                  + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span in rows)
+    return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n</details>\n'
+
+
+def role(c, ro):
     """One role: dates and duration, title, company and place, context, the tree – and behind a disclosure
     the promotions within it (Posterlounge) or the single positions it sums up (before 2014)."""
     place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
@@ -575,19 +575,16 @@ def role(c, ro, h="h3"):
             if len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1 else "")
     when = f'{e(ro["when"])}<br><span class="dur"{live}>{duration(c, months(ro["when"]))}</span>'
     more = ""
-    if ro.get("path"):                                 # one step per contract: its start; it ends the month before the next
-        label, steps = ro["path"]
-        ends = [before(start) for start, _ in steps[1:]] + [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]]
-        lis = "".join(f'<li>{e(title)}<br><span class="at">{start} – {end} · {duration(c, months(f"{start} – {end}"))}</span></li>'
-                      for (start, title), end in zip(steps, ends))
-        more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree">{lis}</ol>\n</details>\n'
-    if ro.get("more"):
-        label, subs = ro["more"]
-        lis = "".join(f'<li class="role">\n{role(c, sub, "h4")}</li>\n' for sub in subs)
-        more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="roles">\n{lis}</ol>\n</details>\n'
+    if ro.get("path"):                                 # promotions, one per contract: its start; it ends the month before the next
+        label, path = ro["path"]
+        ends = [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]] + [before(start) for start, _ in path[:-1]]
+        more += steps(c, label, [(title, "", f"{start} – {end}") for (start, title), end in zip(path, ends)])
+    if ro.get("positions"):                            # the positions it sums up, each at its own company
+        label, positions = ro["positions"]
+        more += steps(c, label, [(title, org_, when_) for when_, title, org_ in positions])
     return f"""<p class="when">{when}</p>
 <div>
-<{h}>{e(ro['title'])}</{h}>
+<h3>{e(ro['title'])}</h3>
 <p class="org">{org}{place}</p>
 {ctx}{tree(c, ro['tree'])}
 {more}</div>
