@@ -547,7 +547,7 @@ Nine entries; the first stands for all.
 <p class="ctx">Art prints online in more than 15 European countries.</p><ul class="tree">…</ul>
 <details class="more">
 <summary>Three promotions</summary>
-<ol class="tree"><li>SEO Manager Italy<br><span class="at">10/2017 – 10/2018&nbsp;· 1 year 1 month</span></li><li>Online Marketing Manager<br><span class="at">11/2018 – 09/2020&nbsp;· 1 year 11 months</span></li><li>Senior Marketing Manager<br><span class="at">10/2020 – 08/2021&nbsp;· 11 months</span></li><li>Head of Marketing<br><span class="at">09/2021 – 06/2023&nbsp;· 1 year 10 months</span></li></ol>
+<ol class="tree" reversed><li>Head of Marketing<br><span class="at">09/2021 – 06/2023&nbsp;· 1 year 10 months</span></li><li>Senior Marketing Manager<br><span class="at">10/2020 – 08/2021&nbsp;· 11 months</span></li><li>Online Marketing Manager<br><span class="at">11/2018 – 09/2020&nbsp;· 1 year 11 months</span></li><li>SEO Manager Italy<br><span class="at">10/2017 – 10/2018&nbsp;· 1 year 1 month</span></li></ol>
 </details>
 </div>
 </li>
@@ -555,11 +555,11 @@ Nine entries; the first stands for all.
 
 The heading of the role names the last title, Head of Marketing. The way there took four titles, and each is a real job title that people search for by name. In the HTML they are text that any search engine or parser finds; behind the disclosure they stay out of the way of a reader who skims the timeline.
 
-- `<details class="more">` – the same disclosure as under 2010–2014 (next section), here with a list of titles instead of roles.
+- `<details class="more">` – the same disclosure as under 2010–2014 (next section), with the same kind of list inside: one item per step.
 - `<summary>Three promotions</summary>` – four titles, three steps between them. German: "Drei Beförderungen".
-- `<ol class="tree">` – ordered, because the titles are a sequence. It runs oldest first, the direction of a path, unlike the newest-first timeline around it. The class gives it the branches of the Team/Scope/Result list; it has no keys, each item is one title. The CSS adds a little space under the summary (`.more .tree`).
+- `<ol class="tree" reversed>` – ordered, because the titles are a sequence. It runs newest first, like the timeline around it: Head of Marketing on top, the title the role's heading names, SEO Manager Italy at the bottom. `reversed` counts it down, as on the timeline (see "Experience: a reversed timeline"): Head of Marketing is number 4, SEO Manager Italy number 1. The class gives it the branches of the Team/Scope/Result list; it has no keys, each item is one title. The CSS adds a little space under the summary (`.more .tree`).
 - Each step: the title, a `<br>`, and in `<span class="at">` its dates and length – the same pattern as the role's own dates with their duration. The dates come from the contracts; the four lengths add up to the role's 5 years 9 months. German: "SEO Manager Italien", "1 Jahr 1 Monat".
-- In `build.py` this is the role key `path`: a label and a list of (start, title) pairs; every step ends the month before the next one starts, the last with the role. `role()` collects what goes behind a disclosure from `path` and from `more` (the five positions), so one role could carry both.
+- In `build.py` this is the role key `path`: a label and a list of (start, title) pairs, newest first. `role()` computes the ends: the newest step ends with the role, every earlier one the month before the step above it starts. It then hands the rows to the function `steps()`, which writes the disclosure; the five positions in the next section go through the same function.
 - `site.js` treats it like every `details.more`: it redraws the minimap when the disclosure opens, and printing shows it open.
 
 ### Experience: five positions behind a disclosure
@@ -573,17 +573,7 @@ The heading of the role names the last title, Head of Marketing. The way there t
 <ul class="tree"><li><span class="k">Scope:</span> export promotion, brand protection, competitive intelligence, web marketing</li></ul>
 <details class="more">
 <summary>All five positions</summary>
-<ol class="roles">
-<li class="role">
-<p class="when">04/2014 – 08/2014<br><span class="dur">5 months</span></p>
-<div>
-<h4>Marketing Consultant</h4>
-<p class="org">SBS systems for business solutions Srl&nbsp;<span class="place">· Rome</span></p>
-<ul class="tree"><li><span class="k">Scope:</span> export promotion projects for small and medium-sized companies on behalf of the German Federal Ministry for Economic Affairs</li></ul>
-</div>
-</li>
-…
-</ol>
+<ol class="tree" reversed><li>Marketing Consultant&nbsp;<span class="muted">· SBS systems for business solutions Srl</span><br><span class="at">04/2014 – 08/2014&nbsp;· 5 months</span></li><li>Corporate investigations&nbsp;<span class="muted">· Inner Valor Srl</span><br><span class="at">06/2013 – 05/2014&nbsp;· 1 year</span></li>…</ol>
 </details>
 </div>
 </li>
@@ -593,9 +583,11 @@ The years 2010 to 2014 stay one entry in the timeline: five positions in and aro
 
 - `<details class="more">` – HTML's built-in disclosure widget. Closed, it shows only its `<summary>`; a click, Enter or Space opens it, and the browser announces the summary as a control that is collapsed or expanded. No JavaScript, no ARIA. The content of a closed `<details>` is not rendered, so screen readers skip it too until it is opened.
 - `<summary>All five positions</summary>` – the label of the toggle, as visible text. Browsers draw a small triangle in front of it; the CSS replaces that with a chevron that turns down when the disclosure is open. German: "Alle fünf Stationen".
-- `<ol class="roles">` – the five positions with the same markup as the timeline around them, durations included: the function `role()` in `build.py` writes one role and, for the entries under its `more` key, calls itself. Same classes, same CSS, adjusted inside `.more`. Unlike the outer list, this one is not `reversed`; with the numbers hidden, that only shows if the stylesheet fails.
-- `<h4>` – one level below the entry's `<h3>`. The outline reads: Experience (h2) → Marketing, market research, export (h3) → Marketing Consultant (h4).
-- One of the five, the corporate investigations at Inner Valor, has no tree. For a role without rows, `tree()` returns an empty string, which leaves a blank line in the HTML. Whitespace between block elements renders nothing.
+- `<ol class="tree" reversed>` – the same list as the promotions, written by the same function, `steps()`: one item per position, newest first, counted down like the timeline. Each item is the title, the company, a `<br>`, and in `<span class="at">` the dates and length.
+- `&nbsp;<span class="muted">· Inner Valor Srl</span>` – the company, in grey like the issuers under Education. The promotions have no such span: all four steps were at one company, named in the role's own line, and `steps()` writes the company only where a row has one. The `&nbsp;` before the span glues the dot to the title, as in the employer line, where a tag sits between space and dot too (see "Non-breaking spaces and middle dots").
+- No place and no Scope per position: the entry's own lines sum them up, "Five companies · Rome" and the Scope above the disclosure.
+- No heading per position: each title is a list item, not an `<h4>`. Under Experience the outline ends at the entries' `<h3>`.
+- In `build.py` the entry's key `positions` holds the label and one (period, title, company) row per position, newest first. Unlike the promotions, each row carries its full period: the positions overlap and leave gaps, so no end can be derived from the next start.
 - Opening the disclosure makes the page taller, so `site.js` redraws the minimap on the `toggle` event. For printing, it opens the closed ones before and closes them again afterwards (`beforeprint`, `afterprint`), so paper shows all five; see 04-js.
 
 ### Education and footnote references
@@ -794,7 +786,7 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 
 On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
 
-`dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag:
+`dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag – and `steps()` does the same before the company of each position behind "All five positions":
 
 ```html
 <p class="org"><a href="https://posterlounge.com/shop">Posterlounge GmbH</a>&nbsp;<span class="place">· Leipzig</span></p>
