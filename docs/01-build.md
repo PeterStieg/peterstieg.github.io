@@ -901,7 +901,7 @@ def tree(c, rows):
 - `lang` – labels such as "Scope" stay English and are marked as such on the German page.
 - `for k, v in rows` – each row is a (label, text) pair, unpacked in the generator.
 - The label goes through `e()`, the text through `t()` – so arrows and italics work in the text.
-- `if rows else ""` – a role with nothing to list (one of the five early positions) gets no list at all. An empty `<ul></ul>` would be valid HTML, but a screen reader may still announce "list, 0 items", and the list's margin would leave a gap.
+- `if rows else ""` – a role with nothing to list gets no list at all. Every role has at least one row today; the check keeps a `"tree": []` harmless. An empty `<ul></ul>` would be valid HTML, but a screen reader may still announce "list, 0 items", and the list's margin would leave a gap.
 - `{e(k)}:` – the colon after the label is part of the text, inside the bold span. It could come from the CSS (`content: ":"`), but generated content is not part of the page's text: copied or extracted, the line would read "Scope SEA, social media …" with nothing between label and text. The CSS only draws the branch lines, with `::before` and `::after` on each `<li>` – lines are presentation, the colon is punctuation.
 
 ```python
@@ -953,7 +953,7 @@ def before(mmyyyy):
     return f"{m - 1:02d}/{y}" if m > 1 else f"12/{y - 1}"
 ```
 
-- The month before a date in `MM/YYYY` form. `role()` (section 23) uses it for the steps within a role: a step ends in the month before the next one begins.
+- The month before a date in `MM/YYYY` form. `role()` (section 23) uses it for the promotions within a role: each ends in the month before the one that followed it begins.
 - `mmyyyy[:2]` and `mmyyyy[3:]` – slices: the first two characters, the month, and everything after the slash, the year. Fixed positions are enough here, because the format is fixed – two digits, a slash, four digits; `months()` needs a pattern because its dates sit inside longer text.
 - `{m - 1:02d}` – a format spec inside the f-string: `d` an integer, `02` at least two digits, padded with zeros. 11 − 1 gives "10", 10 − 1 gives "09", not "9" – and `months()` only recognizes two-digit months.
 - January has no month 0 before it: the conditional expression turns "01/2019" into "12/2018", the last month of the year before.
@@ -1012,10 +1012,37 @@ The jump control: a narrow vertical pill in the bottom-right corner of the windo
 
 ---
 
-## 23 · role
+## 23 · steps and role
+
+`steps()` writes the disclosures inside a timeline entry; `role()`, right below it in the file, writes the entry itself and calls `steps()` for them.
 
 ```python
-def role(c, ro, h="h3"):
+def steps(c, label, rows):
+    """A disclosure with the steps inside one timeline entry, newest first like the timeline itself: title (and company,
+    where it changes), then dates and length. reversed: the list counts down, as the timeline does."""
+    lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {e(org)}</span>' if org else "")
+                  + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span in rows)
+    return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n</details>\n'
+```
+
+- One disclosure: a summary line and, behind it, the steps inside one timeline entry. Two entries have one – Posterlounge's promotions and the five positions before 2014. Both come from this function, so they look and behave the same.
+- `label` – the summary text: "Three promotions", "All five positions".
+- `rows` – a list of (title, company, range) triples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names.
+- `lis` – one `<li>` per row, three f-strings joined with `+`:
+  - `<li>{e(title)}` – the title, escaped.
+  - `(… if org else "")` – the company, only where there is one. The parentheses are needed: `+` binds more tightly than a conditional expression, so without them the `if … else` would take the whole sum as its two branches – a row with a company would lose its dates, a row without one its title.
+  - `&nbsp;<span class="muted">· {e(org)}</span>` – the company after a middle dot, set lighter by the class `muted` (chapter 3). The `&nbsp;` does what `dots()` cannot, as in the place line of `role()` below: a `<span>` tag sits between the space and the dot, so the plain sequence ` · ` never occurs, and the line brings its own non-breaking space.
+  - `<br><span class="at">{span} · {duration(c, months(span))}</span>` – a line break, then the range and its length: "04/2014 – 08/2014 · 5 months". `months()` counts the range, `duration()` puts the count into words (section 21) – the same two functions as for the role's own dates. This ` · ` is plain, so `dots()` glues it later.
+  - `span` is the one value inserted without `e()`: digits, slashes and an en dash, nothing HTML reads as markup. A range with `&` or `<` in it would need `e(span)`.
+  - `for title, org, span in rows` – unpacks each triple. The generator spans two lines inside the parentheses of `join()`.
+- `<details class="more">` with `<summary>` – the native disclosure, as in the jump control (section 22): closed by default, opened by click or keyboard, announced as collapsed or expanded. `site.js` adds two things: it redraws the minimap when a disclosure opens, because the page just got longer, and it opens the disclosures for printing (chapter 4).
+- `<ol class="tree" reversed>` – an ordered list, because the steps have an order.
+  - `reversed` – the list counts down, like the timeline's `<ol class="roles" reversed>` (section 24): the newest step at the top carries the highest number. The numbers are not shown; `reversed` only keeps the list's semantics in line with its order, for assistive technology and anything else that reads the list's numbering. Nothing changes on screen.
+  - The class `tree` borrows the #JobAlert branch lines from the CSS, so the steps read as a path. `.more .tree` gives the list its distance from the summary; `.more .tree li` and `.more .tree .at` serve both lists (chapter 3).
+- No headings: a step is a line in a list, not a role of its own.
+
+```python
+def role(c, ro):
     """One role: dates and duration, title, company and place, context, the tree – and behind a disclosure
     the promotions within it (Posterlounge) or the single positions it sums up (before 2014)."""
     place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
@@ -1027,19 +1054,16 @@ def role(c, ro, h="h3"):
             if len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1 else "")
     when = f'{e(ro["when"])}<br><span class="dur"{live}>{duration(c, months(ro["when"]))}</span>'
     more = ""
-    if ro.get("path"):                                 # one step per contract: its start; it ends the month before the next
-        label, steps = ro["path"]
-        ends = [before(start) for start, _ in steps[1:]] + [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]]
-        lis = "".join(f'<li>{e(title)}<br><span class="at">{start} – {end} · {duration(c, months(f"{start} – {end}"))}</span></li>'
-                      for (start, title), end in zip(steps, ends))
-        more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree">{lis}</ol>\n</details>\n'
-    if ro.get("more"):
-        label, subs = ro["more"]
-        lis = "".join(f'<li class="role">\n{role(c, sub, "h4")}</li>\n' for sub in subs)
-        more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="roles">\n{lis}</ol>\n</details>\n'
+    if ro.get("path"):                                 # promotions, one per contract: its start; it ends the month before the next
+        label, path = ro["path"]
+        ends = [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]] + [before(start) for start, _ in path[:-1]]
+        more += steps(c, label, [(title, "", f"{start} – {end}") for (start, title), end in zip(path, ends)])
+    if ro.get("positions"):                            # the positions it sums up, each at its own company
+        label, positions = ro["positions"]
+        more += steps(c, label, [(title, org_, when_) for when_, title, org_ in positions])
     return f"""<p class="when">{when}</p>
 <div>
-<{h}>{e(ro['title'])}</{h}>
+<h3>{e(ro['title'])}</h3>
 <p class="org">{org}{place}</p>
 {ctx}{tree(c, ro['tree'])}
 {more}</div>
