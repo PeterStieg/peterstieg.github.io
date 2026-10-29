@@ -9,8 +9,8 @@ Why the site looks and reads the way it does. Newest first within each topic; ch
 - **Localized, not translated:** each language follows its own conventions – the dictionary entry in Merriam-Webster style (EN) and Duden style (DE), Trient instead of Trento in German, KUR in German and RoAS in English.
 - **Current employer:** no internal cost figures, absolute values rounded ("more than doubled", "more than half a million").
 - **No first-person monologue.** Telegram style, facts instead of adjectives.
-- **Slogans:** "Facts, not fluff." · "Built, not briefed." · "Prompted, not pasted." – AI is named once as a principle, never as a label on single projects. "Everything human:e." closes the People P.
-- **Principles behind an i:** "Processes fit people, not the other way round." (People) and "Stop starting. Start finishing." (Projects) sit behind a superscript *i* after their heading instead of in the text – there when asked for, out of the way otherwise.
+- **Four coined elements, no more:** the claim, the motto, *marketinkerer* and P⁴. Ten were too many (feedback, 29.10.2026); cut were "Everything human:e.", the footer line "Admiring complexity. Loving simplicity.", "Stop starting. Start finishing." and the Approach slogans "Facts, not fluff." · "Built, not briefed." · "Prompted, not pasted." – their sentences stay. AI is named once as a principle, in Approach, never as a label on single projects.
+- **A principle behind an i:** "Processes fit people, not the other way round." sits behind a superscript *i* after People instead of in the text – there when asked for, out of the way otherwise.
 - **P⁴:** four fields without an intro line ("P as in Peter" dropped). Pixels names the tools that are used (Inkscape, Canva, Python), not Figma.
 - **Order:** newest first everywhere – the timeline, the steps inside an entry, the ledger, Education, Projects. One direction, so nothing reads as reversed.
 - **Ledger:** four results, newest first, each naming its company; the name links to the role under Experience, marked with a superscript ↓ in the accent colour – like the footnote numbers and the *i*, it says "more on this page" (↗ would mean "leaves the site"). "17 shops in 12 languages across Europe", not "European Economic Area": the shops included Switzerland and the UK.
@@ -36,6 +36,7 @@ Why the site looks and reads the way it does. Newest first within each topic; ch
 - **Four chapters, like the parts of a slide deck:** 01 Profile (with P⁴), 02 Experience (with Education), 03 Projects (with Approach), 04 Contact (with Sources). The number stands in front of the chapter's heading, in the accent colour and regular weight; the sections inside a chapter carry the same number invisibly, so all titles line up like an outline. Education moved up behind Experience for this.
 - **Menu numbers:** the four menu links are the four chapters, numbered like their headings – no gaps. Below 56rem the numbers drop so the header fits.
 - **You are here:** while scrolling, the menu link of the chapter being read looks like its heading – number in the accent colour, label in ink and bold – also in the sections that belong to it; at the very bottom, Contact. The bold width is reserved, so the menu never shifts.
+- **Links that leave the site** open in a new tab, so the page stays open behind them. A muted ↗ marks them, in accent on hover – quieter than the accent ↓, so fifteen of them do not clutter the page; screen readers hear "opens in a new tab". Mail, menu, language switch and legal pages stay in the same tab.
 - **Arrows and tree lines are drawn**, because the typeface has no → glyph and box-drawing characters depend on the font.
 
 ## Tech
