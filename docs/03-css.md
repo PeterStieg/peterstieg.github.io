@@ -712,7 +712,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 ```
 
 - `h3` – a type selector at (0,0,1): the base for every h3, easy to override (`.fields h3`, `.role h3` and `.group > h3` do). No top margin, a small one below, size, leading and weight.
-- `.muted` – a utility class for secondary text, used for the university names in Education and the earlier cities in Contact.
+- `.muted` – a utility class for secondary text, used for the university names in Education, the earlier cities in Contact and the companies in the list behind "All five positions" (see Experience timeline).
 
 ## Ledger of results
 
@@ -832,17 +832,17 @@ In the HTML, the company name is followed by `<span class="jmp">` with an inline
   - `padding-top: 0.15rem;` – lowers the smaller date text so it lines up with the larger h3 next to it.
   - `white-space: nowrap;` – a date range never wraps.
 - `.when .dur` – the length of the role, in words ("5 years 9 months"), on a line of its own under the dates. `build.py` counts it, and `site.js` recounts the running role when the page loads ([chapter 1](01-build.md), [chapter 4](04-js.md)). The line break is a `<br>` in the HTML, which also keeps dates and duration apart in plain text.
-  - `font-size: 0.85rem;` – 13.6px, a step below the 0.95rem dates. Colour, tabular digits and `nowrap` are inherited from `.when`. In rem, so the durations of the positions behind the disclosure, whose dates are 0.9rem, have the same 13.6px.
+  - `font-size: 0.85rem;` – 13.6px, a step below the 0.95rem dates. Colour, tabular digits and `nowrap` are inherited from `.when`. In rem, so the size does not depend on the 0.95rem of `.when` around it.
   - `nowrap` and `<br>` do not conflict: `nowrap` removes the soft wrap opportunities, the places where the browser *may* break; a `<br>` is a forced break and still applies. The longest duration, "3 years 11 months", is 113px wide, 116px in German ("3 Jahre 11 Monate"), and fits the 152px of the 9.5rem column (measured).
 - `.role h3 { margin-bottom: 0.1rem; }` – job title close to the company line.
 - `.org` – the company line, 0.5rem above the next line. `.org .place` – the city, muted.
 - `.ctx` – a context line (industry, size), muted at 1rem, 0.6rem above the tree. Both margins apply because `:where(.body) p` is weaker than any class.
 - `.role:target > .when, .role:target > div > h3` – the three roles that the ledger links to carry an `id` (`posterlounge`, `brandible`, `e-service-check`). After a click on "· Brandible", the URL ends in `#brandible`, `:target` matches that `<li>`, and its dates (the duration included, which inherits the colour) and job title turn bordeaux: you see at once which entry the figure belongs to. The same idea as `.notes li:target` in the footnotes, with no JavaScript.
-  - The child combinators `>` limit the colour to the role's own date (a direct child of the `<li>`) and its own title (the `h3` in its `<div>`). With descendant selectors, a targeted role would also colour the dates of any roles nested inside it, like the positions behind the disclosure below.
+  - The child combinators `>` limit the colour to the role's own date (a direct child of the `<li>`) and its own title (the `h3` in its `<div>`). No role holds another `.when` or `h3` – the steps behind a disclosure below are tree items with their own classes – so descendant selectors would colour the same elements today; the `>` names exactly the two that are meant.
   - On phones, `scroll-margin-top` lets the target land below the stuck section heading (see Sections).
 
 ```css
-/* the years before 2014: one entry in the timeline, the single positions behind a disclosure */
+/* behind a disclosure: the promotions within one role (Posterlounge), the positions one entry sums up (2010–2014) */
 .more { margin-top: 0.75rem; }
 .more summary {
   display: inline-flex; align-items: center; gap: 0.5em;
@@ -859,7 +859,7 @@ In the HTML, the company name is followed by `<span class="jmp">` with an inline
 @media (prefers-reduced-motion: no-preference) { .more summary::before { transition: transform 0.2s, margin 0.2s; } }
 ```
 
-The years 2010–2014 appear in the timeline as one entry, "Five companies". Below its tree, a `<details class="more">` holds the five single positions: its `<summary>` reads "All five positions", and a click opens it. Posterlounge has a second disclosure of the same class below its tree: "Three promotions" opens the titles held there (see the next block). `<details>` is the browser's built-in disclosure: it opens and closes without JavaScript, keyboard and screen readers included, and the browser sets the attribute `open` on the element while it is open. No rule shows or hides the content: a closed `<details>` renders only its `<summary>`.
+Two entries in the timeline hold more than their tree shows. Posterlounge is one role with four titles: below its tree, a `<details class="more">` whose `<summary>` reads "Three promotions" opens them. The years 2010–2014 appear as one entry, "Five companies · Rome"; its disclosure, "All five positions", opens the single positions. A click opens either; both hold the same kind of list (see the next block). `<details>` is the browser's built-in disclosure: it opens and closes without JavaScript, keyboard and screen readers included, and the browser sets the attribute `open` on the element while it is open. No rule shows or hides the content: a closed `<details>` renders only its `<summary>`.
 
 - `.more { margin-top: 0.75rem; }` – space between the entry's tree and the disclosure.
 - `.more summary`:
@@ -877,28 +877,17 @@ The years 2010–2014 appear in the timeline as one entry, "Five companies". Bel
 - `@media (prefers-reduced-motion: no-preference) { … }` – the turn is animated only for visitors who have not asked for less motion: the browser interpolates between the two rotations (and margins) in 0.2s. Everyone else gets the instant switch. This is the pattern of `scroll-behavior` in the base rules – motion added only under `no-preference` – while the jump control uses the opposite one: transitions by default, removed under `reduce`. Both work; adding motion only under `no-preference` also leaves browsers that don't know the media feature without it.
 
 ```css
-.more .roles { margin-top: 0.75rem; }
-.more .tree { margin-top: 0.5rem; }              /* Posterlounge: one step per contract */
+.more .tree { margin-top: 0.5rem; }              /* the steps inside one entry, newest first */
 .more .tree li { padding-bottom: 0.45rem; }
 .more .tree .at { color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; }   /* dates · duration */
-.more .role, .more .role + .role { display: block; padding: 0.85rem 0 0; border-top: 1px solid var(--line); }
-.more .role .when { padding-top: 0; font-size: 0.9rem; }
-.more h4 { margin: 0; font-size: 1.0625rem; line-height: 1.35; }
-.more .org { margin-bottom: 0.2rem; }
 ```
 
-Inside the disclosure of 2010–2014 is a second `<ol class="roles">` with one `.role` per position, built by the same function as the timeline (see [chapter 1](01-build.md)). The timeline rules match these elements too, so only a few corrections are needed.
+Both disclosures hold one list, built by the same function in `build.py` (see [chapter 1](01-build.md)): an `<ol class="tree" reversed>` with one `<li>` per step – its title, for the positions followed by the company, and on a second line its dates and length. The steps run newest first, like the timeline: from "Head of Marketing" down to "SEO Manager Italy", from the position of 2014 back to 2010. `reversed` makes the list count down, as the timeline's `<ol class="roles" reversed>` does. The numbers are never shown, so nothing changes on screen; the attribute keeps the list's numbering in line with its order for anything that reads it, such as a screen reader. The three rules serve both lists.
 
-- `.more .roles { margin-top: 0.75rem; }` – space below the summary. (0,2,0) beats the reset in `.roles`.
-- `.more .tree { margin-top: 0.5rem; }` – the Posterlounge disclosure holds no roles but a short list: the four titles from "SEO Manager Italy" to "Head of Marketing", each with a second line for its dates and length. These titles are terms people search for; behind the disclosure they are part of the page's text without lengthening the entry. The list is an `<ol class="tree">` – ordered, because the titles follow one another – and the tree rules draw it with the same lines as the facts above it (see #JobAlert tree); `list-style: none` in `.tree` removes the numbers as it removes bullets. The rule itself only sets the space below the summary: 0.5rem (8px, measured) instead of the 0.35rem of `.tree`, which it beats at (0,2,0) against (0,1,0).
+- `.more .tree { margin-top: 0.5rem; }` – job titles are terms people search for; behind the disclosure they are part of the page's text without lengthening the entry. The list is ordered because the steps follow one another, and the tree rules draw it with the same lines as the facts above it (see #JobAlert tree); `list-style: none` in `.tree` removes the numbers as it removes bullets. The rule itself only sets the space below the summary: 0.5rem (8px, measured) instead of the 0.35rem of `.tree`, which it beats at (0,2,0) against (0,1,0).
 - `.more .tree li { padding-bottom: 0.45rem; }` – each step has two lines, title and dates; a little more space than the 0.2rem of `.tree li` keeps the steps apart. The branch lines follow: `::before` runs the full height of each item, padding included.
 - `.more .tree .at` – the second line of a step, set like the timeline's dates: muted, 0.95rem, digits of equal width so the ranges line up. Unlike `.when` it may wrap – on a narrow phone "10/2017 – 10/2018 · 1 year 1 month" does not always fit on one line, and `.when`'s `nowrap` would push it past the edge.
-- `.more .role, .more .role + .role { display: block; … }` – the nested positions are stacked: date above title, not the 9.5rem date column of the timeline. The disclosure itself sits in the content column of its entry, which leaves no room for a second date column. As a block, the `<li>` ignores the `grid-template-columns` of the 36rem media query.
-  - `padding: 0.85rem 0 0; border-top: 1px solid var(--line);` – every position gets a line above, the first one included: it separates the list from the summary. No padding below; the next line does the separating.
-  - Why two selectors: `.role + .role` sets `padding-top: 2rem` at (0,2,0). `.more .role` alone also weighs (0,2,0) and would win only because it comes later in the file; `.more .role + .role` at (0,3,0) wins by specificity, wherever the rules stand.
-- `.more .role .when { padding-top: 0; font-size: 0.9rem; }` – the 0.15rem that lowers a date to the line of a title next to it has no purpose when nothing stands next to it. A little smaller than the timeline dates.
-- `.more h4 { margin: 0; font-size: 1.0625rem; line-height: 1.35; }` – the positions are one heading level below the entry's `h3`. 1.0625rem is 17px, a step below the h3's 18px.
-- `.more .org { margin-bottom: 0.2rem; }` – the company line closer to the tree that follows. (0,2,0) beats `.org`.
+- The company after a position's title needs no rule of its own: it sits in `<span class="muted">`, the utility class for secondary text (see Sections). A `&nbsp;` before the span keeps its dot on the line of the title, as in the company line of a role (`.org .place`). The promotions stay within one company and show none.
 
 Opening a disclosure makes the page taller, so `site.js` redraws the minimap on every `toggle` event, and opens all disclosures before printing (see [chapter 4](04-js.md)).
 
