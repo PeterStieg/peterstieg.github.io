@@ -307,7 +307,7 @@ CONTENT = {
 
 `CONTENT` is a dict with one entry per language. Each entry is itself a dict that `page()` receives as its parameter `c` – that is why nearly every function in the file takes `c` as its first argument.
 
-- Every list with a time order runs newest first: the ledger (E+SERVICE+CHECK, Brandible, then the two Posterlounge results), the roles, the steps inside a role (`path`, `positions`), the facts in Education and the project groups. One direction throughout, so nothing reads as reversed. The trade-off is accepted: the largest figure, "€6k → €240k", now stands third in the ledger.
+- Every list with a time order runs newest first: the ledger (E+SERVICE+CHECK, Brandible, then the two Posterlounge results), the roles, the steps inside a role (`path`, `positions`), the dated facts in Education and the project groups. One direction throughout, so nothing reads as reversed. The trade-off, accepted for that consistency: the largest figure, "€6k → €240k", stands third in the ledger.
 - No code sorts anything. The order in the dict is the order on the page, and `role()` even relies on it to compute the ends of the promotions (section 23). A new entry goes where it belongs in time.
 - The two Liora courses stand in `roles` as well: full-time from 02 to 07/2025, between Brandible (until 12/2024) and E+SERVICE+CHECK (from 11/2025), they show what that stretch was. Their titles say what they were, "MLOps Engineer training (full-time)" and "Data Scientist training (full-time)", so they do not read as jobs.
 
@@ -1091,25 +1091,24 @@ The dates and the duration:
 
 The disclosures:
 
-- `more` – up to two disclosures, collected into one string. It starts empty, and each `+=` appends one, in a fixed order: first `path`, then `more`. Today each entry has at most one of them.
+- `more` – up to two disclosures, collected into one string. It starts empty, and each `+=` appends one, in a fixed order: first `path`, then `positions`. Today each entry has at most one of them. Both branches only build the (title, company, range) rows; `steps()` writes the HTML.
 - `path` – used by Posterlounge: the four titles held within that one role, behind "Three promotions", each with its dates and its length. The titles are the words people search for; in the disclosure they are part of the page's text without lengthening the timeline. The context line, `ctx`, describes the company only.
-  - `label, steps = ro["path"]` – the summary text and the list of (start, title) pairs. Only the starts are stored, as the contracts give them (section 8): 10/2017, 11/2018, 10/2020, 09/2021.
-  - `ends` – one end per step. Every step but the last ends the month before the next one starts: `before(start) for start, _ in steps[1:]` takes the starts from the second step on and steps each back by a month (section 21). The underscore is the usual name for a value that is unpacked but not used, here the title. The last step ends with the role: `re.findall(…)[-1]` is the last date of its `when`, 06/2023. `+` joins the two lists: `["10/2018", "09/2020", "08/2021", "06/2023"]`.
-  - `zip(steps, ends)` – pairs the n-th step with the n-th end. `(start, title), end` unpacks each pair: the step's tuple on the left, its end on the right.
-  - Each step: the title, `<br>`, and in `<span class="at">` the range with its length, "10/2017 – 10/2018 · 1 year 1 month". The length comes from the same two functions as the role's own: `months()` reads the range built just before, `duration()` puts it into words. The four lengths add up to the role's 69 months.
-  - Storing starts instead of ranges means one date per step, each written once: a corrected start moves the end of the step before it as well.
-  - The role itself must have ended: for a role still running, `[-1]` would be its start, and the last step would end where it begins.
-  - `<ol class="tree">` – an ordered list, because the titles have an order. The class `tree` borrows the #JobAlert branch lines from the CSS, so the promotions read as a path; `.more .tree` gives it its distance from the summary (chapter 3).
-  - No headings and no recursion here: the titles are steps within one role, not roles of their own.
-  - The wrapper is the same `<details class="more">` as for the five positions below, so it looks and behaves the same, `site.js` included.
-- `more` – used by one entry: "10/2010 – 08/2014 · Five companies" keeps the timeline at one line for those years and holds the five single positions behind a disclosure.
-  - `label, subs = ro["more"]` – the summary text ("All five positions") and the list of sub-roles.
-  - `role(c, sub, "h4")` – the function calls itself, once per sub-role: recursion. A sub-role is a role dict like any other, so the same code renders it. The recursion ends because the sub-roles have no `"more"` of their own: those calls return without calling `role()` again.
-  - `h` – the heading level, `"h3"` unless the caller says otherwise. The sub-roles sit below the `<h3>` of their summary entry and pass `"h4"`, so the outline stays correct: Experience (h2) › Marketing, market research, export (h3) › Marketing Consultant (h4).
-  - The sub-roles get an `<ol class="roles">` of their own, inside `<details class="more">` – the same native disclosure as in the jump control: closed by default, opened by click or keyboard, announced as collapsed or expanded. `site.js` adds two things: it redraws the minimap when the disclosure opens, because the page just got longer, and it opens the disclosure for printing (chapter 4).
-- `<{h}>{e(ro['title'])}</{h}>` – a replacement field can produce part of a tag name: `<h3>` or `<h4>`.
-- Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly. `tree` may be an empty list (Inner Valor); `tree()` then returns `""`. `when` must hold at least one `MM/YYYY` date, for `months()` (section 21).
-- `{ctx}{tree(c, ro['tree'])}` – context line and tree directly after each other, then the disclosure, if there is one.
+  - `label, path = ro["path"]` – the summary text and the list of (start, title) pairs, newest first. Only the starts are stored, as the contracts give them (section 8): 09/2021, 10/2020, 11/2018, 10/2017.
+  - `ends` – one end per step, in the same order as the steps. The newest step ends with the role: `re.findall(…)[-1]` is the last date of its `when`, 06/2023, in a list of its own. Every other step ends the month before the step above it in the list starts – the one that followed it in time: `before(start) for start, _ in path[:-1]` takes the starts of all steps but the oldest and steps each back by a month (section 21). `[:-1]` is a slice without the last item: the oldest start, 10/2017, is where the role begins, and no step ends before it. The underscore is the usual name for a value that is unpacked but not used, here the title. `+` joins the two lists: `["06/2023", "08/2021", "09/2020", "10/2018"]`.
+  - `zip(path, ends)` – pairs the n-th step with the n-th end. `(start, title), end` unpacks each pair: the step's tuple on the left, its end on the right. Head of Marketing gets 06/2023; Senior Marketing Manager gets 08/2021, the month before Head of Marketing began.
+  - `(title, "", f"{start} – {end}")` – one row for `steps()`: the title, no company, and the range as text, "10/2017 – 10/2018". `steps()` adds the length; the four lengths add up to the role's 69 months.
+  - Storing starts instead of ranges means one date per step, each written once: a corrected start moves the end of the step below it, the older one, as well.
+  - The computation depends on the order. Stored oldest first, every step but the first would end before it starts – no error, only wrong ranges and lengths on the page.
+  - The role itself must have ended: for a role still running, `[-1]` would be its start, and the newest step would end where the role begins.
+- `positions` – used by one entry: "10/2010 – 08/2014 · Five companies" keeps the timeline at one line for those years and holds the five single positions behind "All five positions".
+  - `label, positions = ro["positions"]` – the summary text and the list of (range, title, company) triples, newest first. Here every position carries its full range: the positions overlap (06/2013 – 05/2014 and 06/2013 – 12/2013) and leave gaps, so no end follows from the next start.
+  - `[(title, org_, when_) for when_, title, org_ in positions]` – a list comprehension that reorders each triple from the stored order (range, title, company) into the order `steps()` takes (title, company, range).
+  - The trailing underscores: `org` and `when` are already local variables of `role()` – the company line and the dates line built above, both used again in the `return`. Python 3 gives a comprehension its own scope, so plain names would not overwrite them, but one function would then mean two things by each name, a few lines apart. The underscore is the usual way around a name that is taken, as with `months_` in `duration()` (section 21).
+  - The `path` branch does reuse a name: in its comprehensions, `start` is a step's start, while the `start` above is the match object of the role's dates. The comprehension scope keeps the two apart, and the match is no longer needed by then.
+  - Each position: title, company, range and length – "Marketing Consultant · SBS systems for business solutions Srl", "04/2014 – 08/2014 · 5 months". No place and no tree per position: the entry's own Scope line sums them up, and its company line says "Five companies · Rome".
+- `<h3>{e(ro['title'])}</h3>` – every role gets a heading of the same level under the `<h2>` of Experience. The steps behind a disclosure are list items, not headings, so the outline stays flat: Experience (h2) › each role (h3).
+- Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly. `tree` may be an empty list; `tree()` then returns `""`. `when` must hold at least one `MM/YYYY` date, for `months()` (section 21).
+- `{ctx}{tree(c, ro['tree'])}` – context line and tree directly after each other, then the disclosures, if there are any.
 
 ---
 
@@ -1243,7 +1242,7 @@ def page(c):
 - `role(c, ro)` renders the inside of each entry (section 23); the loop only adds the `<li>` around it.
 - `rid` – the anchor the ledger links to, for the three roles that carry an `id`. The leading space belongs to the attribute string, so a role without an id gets a clean `<li class="role">` – the same pattern as `en_attr`.
 - On phones, where the section heading sticks under the header, the CSS gives `.role` a `scroll-margin-top`: a role reached from the ledger stops below the stuck heading instead of under it (chapter 3).
-- `<ol class="roles" reversed>` – an ordered list, because sequence matters; `reversed` makes the numbering count down, so the newest role at the top carries the highest number. It is a boolean attribute: present means true.
+- `<ol class="roles" reversed>` – an ordered list, because sequence matters; `reversed` makes the numbering count down, so the newest role at the top carries the highest number. It is a boolean attribute: present means true. The step lists inside the entries count down the same way (`steps()`, section 23).
 
 ### Education – where the footnotes are created
 
@@ -1550,7 +1549,7 @@ The other files:
 
 The sitemap:
 
-- `today = date.today().isoformat()` – the date as `YYYY-MM-DD` (for example `2026-10-28`), the format sitemaps expect.
+- `today = date.today().isoformat()` – the date as `YYYY-MM-DD` (for example `2026-10-29`), the format sitemaps expect.
 - `alts` – one `<xhtml:link>` per language. The block is the same for every URL, since every language version lists all versions.
 - `urls` – one `<url>` per language. `for *_, slug in LANGS` puts the star first: everything except the last value goes into `_`, `slug` gets the last one.
 - The `<urlset>` declares two namespaces: the sitemap format itself and `xhtml`, which provides the `<xhtml:link>` elements for language versions.
@@ -1640,12 +1639,11 @@ Make each change in `src/build.py`, run `python3 src/build.py`, look at the resu
 - **f-string** – a string literal with an `f` prefix whose `{expressions}` are evaluated at runtime; `{{` and `}}` produce literal braces.
 - **Generator expression** – `(expr for x in items if condition)`: produces values one at a time; used here inside `"".join()` and `next()`.
 - **Closure** – a function defined inside another function that uses the outer function's variables, like `fn()` with `order`.
-- **Recursion** – a function that calls itself for a part of its input, like `role()` for each sub-role. It ends where the input offers nothing more to recurse into.
 - **Canonical and hreflang** – link annotations that tell search engines the preferred URL of a page and which language versions exist.
 - **JSON-LD** – structured data in a `<script type="application/ld+json">` block, using the schema.org vocabulary.
 - **Web app manifest** – a JSON file linked with `<link rel="manifest">` that describes a site as an installable app: name, colors, icons, display mode. Here it supplies the home-screen icons.
 - **Popover and toggletip** – a popover is an element with the `popover` attribute: hidden until a button with `popovertarget` opens it, then drawn above the whole page, closed again by a click outside or Esc. A toggletip is the pattern built from it here: a small button that shows a short note on click instead of on hover.
-- **Disclosure** – a control that shows and hides a block of content. HTML has one built in: `<details>` with its `<summary>`, used for the Posterlounge promotions, the five early positions and the jump control's list.
+- **Disclosure** – a control that shows and hides a block of content. HTML has one built in: `<details>` with its `<summary>`, used for the Posterlounge promotions and the five early positions (both written by `steps()`) and for the jump control's list.
 - **Generated content** – text that CSS inserts with `content` in `::before` or `::after`, such as the toggletip's i. It is drawn, but it is not part of the page's text: copy and paste, search engines and parsers do not get it. Words and punctuation that carry meaning belong in the HTML.
 - **Visually hidden text** – text that is in the HTML but shrunk out of sight by CSS (here the class `sr-only`), so screen readers and anything that reads the text still get it: the word behind each drawn arrow, the full motto in the hero.
 - **Relative vs root-absolute path** – `assets/site.css` or `../assets/site.css` resolve from the current page's folder; `/assets/site.css` resolves from the domain root.
