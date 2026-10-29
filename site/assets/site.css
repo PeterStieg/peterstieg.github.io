@@ -288,10 +288,10 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 /* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
 .ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--accent); }
 /* ↗ after a link that leaves the site: it opens in a new tab. Quieter than the ↓ – muted, in accent on hover */
-.ext { display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--muted); }
-a:hover .ext, a:focus-visible .ext { color: var(--accent); }
+.newtab { display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--muted); }
+a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 .nw { white-space: nowrap; }                     /* the last word and its ↗ stay together */
-.ledger .jmp svg, .ext svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.ledger .jmp svg, .newtab svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 
 /* fields of work */
 .fields { display: grid; gap: 1.75rem 2.5rem; }

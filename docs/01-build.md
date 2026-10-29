@@ -27,12 +27,13 @@ Editorial rules this file follows:
     13.2 → 12.8 % = 7.6 → 7.8; 10.1 % = 9.9). The direction flips: KUR falls, RoAS rises.
  3. No first-person monologue. Telegram style, facts instead of adjectives.
  4. En dash with spaces ( – ), middle dot ( · ) as separator.
- 5. Brand elements stay English in every language: claim, tagline, motto, the four Ps,
-    the slogans and the tree labels (as in #JobAlert: Scope, Team, Result).
+ 5. Brand elements stay English in every language: claim, tagline, motto, the four Ps
+    and the tree labels (as in #JobAlert: Scope, Team, Result).
     Everything else is localized, not translated.
  6. Google Cloud is a tool, Azure only the platform of single projects. AI is named once
-    as a principle ("Prompted, not pasted."), never as a label on single projects.
+    as a principle (in Approach), never as a label on single projects.
  7. No wordplay that isn't Pete's own or doesn't follow his patterns.
+ 8. Four coined elements and no more: claim, motto, marketinkerer, P⁴.
 """
 ```
 
@@ -46,9 +47,10 @@ Editorial rules this file follows:
 | 2 · KUR in German, RoAS in English | The two dictionaries carry different numbers on purpose. RoAS = 1 ÷ KUR: 25 % ↔ 4.0 · 13.2 % ↔ 7.6 · 12.8 % ↔ 7.8 · 10.1 % ↔ 9.9. A better result is a falling KUR and a rising RoAS. Changing a figure means converting it, not translating it. |
 | 3 · Telegram style | Copy only. |
 | 4 · En dash, middle dot | Written into the strings. `dots()` keeps a ` · ` from starting a line, `nbsp()` keeps German numbers and units together. |
-| 5 · Brand elements stay English | They live outside `CONTENT` (`TAGLINE`, `CLAIM`, `MOTTO`, `P4`) or appear unchanged in both dictionaries (tree labels such as `"Scope"`). On the German page the code marks them with `lang="en"`. The slogans the rule still lists are no longer on the page. |
-| 6 · Google Cloud, Azure, AI | Copy only: Google Cloud in `STACK_DS` and the Pipelines text, Azure only in project entries, AI only in the third approach sentence ("AI is part of the toolbox – … Nothing goes out unchecked."). The slogan the rule quotes, "Prompted, not pasted.", is no longer on the page; the sentence carries the principle alone. |
+| 5 · Brand elements stay English | They live outside `CONTENT` (`TAGLINE`, `CLAIM`, `MOTTO`, `P4`) or appear unchanged in both dictionaries (tree labels such as `"Scope"`). On the German page the code marks them with `lang="en"`. |
+| 6 · Google Cloud, Azure, AI | Copy only: Google Cloud in `STACK_DS` and the Pipelines text, Azure only in project entries, AI only in the third approach sentence ("AI is part of the toolbox – … Nothing goes out unchecked."). |
 | 7 · No foreign wordplay | Copy only. |
+| 8 · Four coined elements | Claim, motto, *marketinkerer*, P⁴ – nothing else on the page is a slogan. Ten were too many; the rest were cut, among them the three Approach slogans and the footer line. Copy only: a new slogan would break the rule, not the build. |
 
 ---
 
@@ -815,8 +817,8 @@ def offsite(c, url, text, attrs=""):
     "(opens in a new tab)" for screen readers. The last word and the ↗ share a no-wrap span: the arrow never starts a
     line on its own. attrs: extra attributes, written as they are (' hreflang="en"', ' rel="me noopener"')."""
     rel = "" if "rel=" in attrs else ' rel="noopener"'
-    head, space, last = text.rpartition(" ")
-    return (f'<a href="{url}" target="_blank"{rel}{attrs}>{head}{space}<span class="nw">{last}<span class="ext">{OUT_SVG}'
+    lead, space, last = text.rpartition(" ")
+    return (f'<a href="{url}" target="_blank"{rel}{attrs}>{lead}{space}<span class="nw">{last}<span class="newtab">{OUT_SVG}'
             f'<span class="sr-only"> ({e(c["new_tab"])})</span></span></span></a>')
 ```
 
@@ -836,10 +838,10 @@ The `rel` attribute:
 
 The text and its marker:
 
-- `head, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 28) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
-  - `head` is a local name here and hides the function `head()` inside `offsite()`. Harmless, because `offsite()` does not call it – but it is the trap `dots()` avoids with `head_part` (section 28).
+- `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 28) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
+  - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 28).
 - `<span class="nw">{last}…</span>` – the last word and the marker share one span, which the CSS sets to `white-space: nowrap` (chapter 3). The line may still break before the last word, never between it and the ↗. Without the span, the ↗ wrapped onto a line of its own at widths of 320 to 390 pixels: the marker is an inline-block, and an inline-block is a break opportunity on both sides. A word joiner (U+2060) between word and arrow did not stop the break in Chromium – measured.
-- `<span class="ext">{OUT_SVG}…</span>` – the ↗ (section 11). The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With fifteen per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers, the i, the ↓ – stay on the page; the muted ↗ leaves it.
+- `<span class="newtab">{OUT_SVG}…</span>` – the ↗ (section 11). The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With fifteen per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers, the i, the ↓ – stay on the page; the muted ↗ leaves it.
 - `<span class="sr-only"> ({e(c["new_tab"])})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge GmbH (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
 - Pitfall: `rpartition` sees characters, not markup. A `text` with a tag that has a space in it (`<i lang="en">`) would be split inside the tag, and the span would cut it in two. All link texts today are plain escaped copy.
 
@@ -1322,13 +1324,13 @@ def page(c):
 ### Approach
 
 ```python
-    # approach – three of a kind: X, not Y
+    # approach – how the work is done, in three sentences
     pr = "".join(f'<li><p>{e(a)}</p></li>\n' for a in c["approach"])
     out.append(section(c, "approach", e(s["approach"]), f'<ul class="principles">\n{pr}</ul>\n'))
 ```
 
 - One `<li>` per sentence, escaped. The sentences are localized copy, so they need no `lang` attribute.
-- The comment still names the pattern of the slogans that once led each sentence ("X, not Y"); the code writes the sentences alone. The third one carries the AI principle (rule 6).
+- The sentences stand alone, without the slogans that once led them (rule 8). The third one carries the AI principle (rule 6).
 
 ### Contact
 

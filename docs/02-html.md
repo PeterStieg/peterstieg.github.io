@@ -507,7 +507,7 @@ The toggletip after "People", piece by piece:
 <p class="when">since 11/2025<br><span class="dur" data-from="2025-11" data-units="year,years,month,months">1 year</span></p>
 <div>
 <h3>Head of Marketing</h3>
-<p class="org"><a href="https://www.e-service-check.de/" target="_blank" rel="noopener">E+SERVICE+CHECK <span class="nw">GmbH<span class="ext">…</span></span></a>&nbsp;<span class="place">· Laucha</span></p>
+<p class="org"><a href="https://www.e-service-check.de/" target="_blank" rel="noopener">E+SERVICE+CHECK <span class="nw">GmbH<span class="newtab">…</span></span></a>&nbsp;<span class="place">· Laucha</span></p>
 <p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team:</span> functional lead for content, marketing and project management</li><li><span class="k">Scope:</span> marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result:</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
 </div>
 </li>
@@ -539,14 +539,14 @@ Nine entries; the first stands for all.
 ### Links that leave the site
 
 ```html
-<a href="https://www.e-service-check.de/" target="_blank" rel="noopener">E+SERVICE+CHECK <span class="nw">GmbH<span class="ext"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>
+<a href="https://www.e-service-check.de/" target="_blank" rel="noopener">E+SERVICE+CHECK <span class="nw">GmbH<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>
 ```
 
 The company name is the first of 15 links on each page that lead to another website: the three company websites here, GitHub and Demo under Projects, LinkedIn and GitHub under Contact, "Verify credential" and "Course page" under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
 
 - `target="_blank"` – opens the target in a new tab (some browser settings make it a new window). peterstieg.com stays open in the tab behind it, at the same scroll position: a visitor checks a company or a credential and comes back to the place they left. The price: the new tab has no history to go back to, and the link no longer leaves the choice of tab to the visitor. That is why it announces itself, to the eye and to the ear (the next points).
 - `rel="noopener"` – a page opened in a new tab normally receives a reference to the page that opened it, `window.opener`, and can use it to send that tab to another address – for example to a copy of a login page while the visitor reads the new tab, known as reverse tabnabbing. `noopener` withholds the reference. Current browsers already treat every `target="_blank"` link this way (Chrome since version 88, Firefox 79, Safari 12.1); the attribute states it explicitly and covers older browsers. `noreferrer` is not set, so the target still learns which site the visitor came from.
-- `<span class="ext">` – the marker for the eye: a small ↗, an arrow pointing out of the page, drawn as an SVG (the constant `OUT_SVG` in `build.py`) and `aria-hidden` like every icon here. Its path `M4 12 12.5 3.5M6 3.5h6.5V10` draws the shaft from bottom left to top right, then the head as one corner: along the top to the tip, and down. WCAG recommends warning before a link opens a new window (technique G201), and the ↗ is the common sign for it. It is the counterpart of the ↓ in the ledger and built the same way – raised, an `inline-block`, so the link's underline does not run under it – but quieter: muted instead of the accent colour, a little smaller, in the accent only on hover and keyboard focus. The accent marks belong to what stays on the page – footnote numbers, the i, the ↓; the muted ↗ leaves it. The details are in 03-css.
+- `<span class="newtab">` – the marker for the eye: a small ↗, an arrow pointing out of the page, drawn as an SVG (the constant `OUT_SVG` in `build.py`) and `aria-hidden` like every icon here. Its path `M4 12 12.5 3.5M6 3.5h6.5V10` draws the shaft from bottom left to top right, then the head as one corner: along the top to the tip, and down. WCAG recommends warning before a link opens a new window (technique G201), and the ↗ is the common sign for it. It is the counterpart of the ↓ in the ledger and built the same way – raised, an `inline-block`, so the link's underline does not run under it – but quieter: muted instead of the accent colour, a little smaller, in the accent only on hover and keyboard focus. The accent marks belong to what stays on the page – footnote numbers, the i, the ↓; the muted ↗ leaves it. The details are in 03-css.
 - `<span class="sr-only"> (opens in a new tab)</span>` – the same notice for screen readers, as text: hidden on screen by the `.sr-only` class from the hero, present in the accessibility tree. It sits inside the link, so it becomes part of the link's accessible name, "E+SERVICE+CHECK GmbH (opens in a new tab)" – also when a screen-reader user tabs from link to link or calls up a list of all links, where the text around a link is not read. After the `</a>` it would be ordinary text that only reading on reaches. The leading space keeps it apart from the last word. German: "öffnet in neuem Tab", the UI string `new_tab`.
 - `<span class="nw">GmbH…</span>` – the last word of the link text and the ↗ share a span with `white-space: nowrap`. An `inline-block` is a break opportunity on both sides, so without the span the ↗ could wrap onto a line of its own – on phones 320 to 390 px wide it did. Inside the span, it moves to the next line together with "GmbH". `offsite()` splits the text at its last space (`rpartition(" ")`): "Verify credential" keeps "Verify " outside the span, a one-word text such as "LinkedIn" goes in whole. A word joiner (U+2060) between word and arrow, the usual way to forbid a break, did not stop it in Chromium.
 - `offsite(c, url, text, attrs="")` – extra attributes come in `attrs` and are written as they are: `hreflang="en"` for the course pages, `rel="me noopener"` for the two profiles under Contact. If `attrs` contains a `rel`, the default `rel="noopener"` is left out, so the profile links keep their `me` (see "Contact").
@@ -642,7 +642,7 @@ The footnote reference, piece by piece:
 </ul></div>
 <div class="group"><h3>Certification capstones</h3>
 <ul class="projects">
-<li><h4>Rakuten product classification</h4><p>Around 85,000 e-commerce products classified from text and images.</p><p class="stack">Python&nbsp;· Keras&nbsp;· PyTorch&nbsp;· Google Cloud&nbsp;· <a href="https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products" target="_blank" rel="noopener"><span class="nw">GitHub<span class="ext">…</span></span></a>&nbsp;· <a href="https://feb25-bds-rakuten.streamlit.app/" target="_blank" rel="noopener"><span class="nw">Demo<span class="ext">…</span></span></a></p></li>
+<li><h4>Rakuten product classification</h4><p>Around 85,000 e-commerce products classified from text and images.</p><p class="stack">Python&nbsp;· Keras&nbsp;· PyTorch&nbsp;· Google Cloud&nbsp;· <a href="https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products" target="_blank" rel="noopener"><span class="nw">GitHub<span class="newtab">…</span></span></a>&nbsp;· <a href="https://feb25-bds-rakuten.streamlit.app/" target="_blank" rel="noopener"><span class="nw">Demo<span class="newtab">…</span></span></a></p></li>
 …
 </ul></div>
 </div>
@@ -672,7 +672,7 @@ The footnote reference, piece by piece:
 ```html
 <p class="hello">Hallo&nbsp;· Hi&nbsp;· Ciao</p>
 <dl class="reach">
-<div><dt lang="en">Online</dt><dd><a class="mail" href="mailto:info@peterstieg.com">info@peterstieg.com</a>&nbsp;· <a href="https://www.linkedin.com/in/peterstieg/" target="_blank" rel="me noopener"><span class="nw">LinkedIn<span class="ext"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>&nbsp;· <a href="https://github.com/PeterStieg" target="_blank" rel="me noopener"><span class="nw">GitHub<span class="ext">…</span></span></a></dd></div>
+<div><dt lang="en">Online</dt><dd><a class="mail" href="mailto:info@peterstieg.com">info@peterstieg.com</a>&nbsp;· <a href="https://www.linkedin.com/in/peterstieg/" target="_blank" rel="me noopener"><span class="nw">LinkedIn<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>&nbsp;· <a href="https://github.com/PeterStieg" target="_blank" rel="me noopener"><span class="nw">GitHub<span class="newtab">…</span></span></a></dd></div>
 <div><dt lang="en">Offline</dt><dd>Leipzig. <span class="muted">Before: Rome, Trento, Jinotega (Nicaragua), Orem (Utah).</span></dd></div>
 </dl>
 ```
@@ -689,9 +689,9 @@ The footnote reference, piece by piece:
 <h2 id="h-notes"><span class="no ghost" aria-hidden="true">04</span> Sources</h2>
 <div class="body">
 <ol class="notes">
-<li id="fn-ds"><a class="back" href="#ref-ds" aria-label="Back to text">^</a> Data Scientist&nbsp;· issued 10 June 2025&nbsp;· <a href="https://document-factory.datascientest.com/verify/3225d69a-a3b6-4bd2-bafe-df9381eff729" target="_blank" rel="noopener">Verify <span class="nw">credential<span class="ext">…</span></span></a>&nbsp;· <a href="https://liora.io/en/courses/data-ai/data-scientist" target="_blank" rel="noopener" hreflang="en">Course <span class="nw">page<span class="ext">…</span></span></a></li>
+<li id="fn-ds"><a class="back" href="#ref-ds" aria-label="Back to text">^</a> Data Scientist&nbsp;· issued 10 June 2025&nbsp;· <a href="https://document-factory.datascientest.com/verify/3225d69a-a3b6-4bd2-bafe-df9381eff729" target="_blank" rel="noopener">Verify <span class="nw">credential<span class="newtab">…</span></span></a>&nbsp;· <a href="https://liora.io/en/courses/data-ai/data-scientist" target="_blank" rel="noopener" hreflang="en">Course <span class="nw">page<span class="newtab">…</span></span></a></li>
 <li id="fn-mlops">…</li>
-<li id="fn-ihk"><a class="back" href="#ref-ihk" aria-label="Back to text">^</a> Agile project management specialist (IHK)&nbsp;· completed 16 February 2023&nbsp;· <a href="https://www.thekey.career/zertifikat/ac-2023-bfbe9c/" target="_blank" rel="noopener">Verify <span class="nw">credential<span class="ext">…</span></span></a></li>
+<li id="fn-ihk"><a class="back" href="#ref-ihk" aria-label="Back to text">^</a> Agile project management specialist (IHK)&nbsp;· completed 16 February 2023&nbsp;· <a href="https://www.thekey.career/zertifikat/ac-2023-bfbe9c/" target="_blank" rel="noopener">Verify <span class="nw">credential<span class="newtab">…</span></span></a></li>
 <li id="fn-edx">…</li>
 </ol>
 </div>
@@ -796,7 +796,7 @@ On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never
 `dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag – and `steps()` does the same before the company of each position behind "All five positions":
 
 ```html
-<p class="org"><a href="https://posterlounge.com/shop" target="_blank" rel="noopener">Posterlounge <span class="nw">GmbH<span class="ext">…</span></span></a>&nbsp;<span class="place">· Leipzig</span></p>
+<p class="org"><a href="https://posterlounge.com/shop" target="_blank" rel="noopener">Posterlounge <span class="nw">GmbH<span class="newtab">…</span></span></a>&nbsp;<span class="place">· Leipzig</span></p>
 ```
 
 The no-break space works across the tag boundaries: "GmbH", its ↗ (held to the word by the `nw` span, see "Links that leave the site") and "·" stay on one line, and the break opportunity is the space after the dot, inside the span.

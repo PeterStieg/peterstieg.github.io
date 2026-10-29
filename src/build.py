@@ -11,12 +11,13 @@ Editorial rules this file follows:
     13.2 → 12.8 % = 7.6 → 7.8; 10.1 % = 9.9). The direction flips: KUR falls, RoAS rises.
  3. No first-person monologue. Telegram style, facts instead of adjectives.
  4. En dash with spaces ( – ), middle dot ( · ) as separator.
- 5. Brand elements stay English in every language: claim, tagline, motto, the four Ps,
-    the slogans and the tree labels (as in #JobAlert: Scope, Team, Result).
+ 5. Brand elements stay English in every language: claim, tagline, motto, the four Ps
+    and the tree labels (as in #JobAlert: Scope, Team, Result).
     Everything else is localized, not translated.
  6. Google Cloud is a tool, Azure only the platform of single projects. AI is named once
-    as a principle ("Prompted, not pasted."), never as a label on single projects.
+    as a principle (in Approach), never as a label on single projects.
  7. No wordplay that isn't Pete's own or doesn't follow his patterns.
+ 8. Four coined elements and no more: claim, motto, marketinkerer, P⁴.
 """
 from datetime import date
 from html import escape as e
@@ -477,8 +478,8 @@ def offsite(c, url, text, attrs=""):
     "(opens in a new tab)" for screen readers. The last word and the ↗ share a no-wrap span: the arrow never starts a
     line on its own. attrs: extra attributes, written as they are (' hreflang="en"', ' rel="me noopener"')."""
     rel = "" if "rel=" in attrs else ' rel="noopener"'
-    head, space, last = text.rpartition(" ")
-    return (f'<a href="{url}" target="_blank"{rel}{attrs}>{head}{space}<span class="nw">{last}<span class="ext">{OUT_SVG}'
+    lead, space, last = text.rpartition(" ")
+    return (f'<a href="{url}" target="_blank"{rel}{attrs}>{lead}{space}<span class="nw">{last}<span class="newtab">{OUT_SVG}'
             f'<span class="sr-only"> ({e(c["new_tab"])})</span></span></span></a>')
 
 
@@ -671,7 +672,7 @@ def page(c):
         groups.append(f'<div class="group"><h3>{e(gt)}</h3>\n<ul class="projects">\n{"".join(lis)}</ul></div>\n')
     out.append(section(c, "projects", e(s["projects"]), "".join(groups)))
 
-    # approach – three of a kind: X, not Y
+    # approach – how the work is done, in three sentences
     pr = "".join(f'<li><p>{e(a)}</p></li>\n' for a in c["approach"])
     out.append(section(c, "approach", e(s["approach"]), f'<ul class="principles">\n{pr}</ul>\n'))
 
