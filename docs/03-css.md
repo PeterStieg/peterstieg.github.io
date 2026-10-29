@@ -12,7 +12,7 @@ Figures marked "measured" come from Chromium. Pixel values in brackets assume th
 /* peterstieg.com · Admiring complexity. Loving simplicity. */
 ```
 
-- Everything between `/*` and `*/` is a comment. The browser skips it, but it is still downloaded, so anyone who opens the file sees the motto.
+- Everything between `/*` and `*/` is a comment. The browser skips it, but it is still downloaded, so anyone who opens the file reads the line. The page itself does not show it.
 
 ## Fonts: @font-face
 
@@ -38,7 +38,7 @@ Figures marked "measured" come from Chromium. Pixel values in brackets assume th
 
 - `font-family: "Atkinson Hyperlegible";` – the family name the rest of the CSS refers to. All three blocks register the same name, so the browser sees one family with three faces.
 - `src: url(...) format("woff2");` – where the file lives. A relative URL inside a stylesheet resolves against the stylesheet's own location, so `fonts/…` means `site/assets/fonts/…` on every page, including `de/index.html`. `format("woff2")` names the format up front; a browser that cannot decode it skips the source without downloading it. WOFF2 is a compressed font container; each file here is about 17–18 KB.
-- `latin` in the file names marks a subset: each file holds only 220 characters – Latin letters, digits, punctuation, € · × – and a few more. That keeps the files small. It also means that characters outside the subset – arrows, box-drawing lines, superscript digits – are missing. Three later sections (P⁴, the #JobAlert tree, the drawn arrows) and the ↓ in the ledger exist because of this.
+- `latin` in the file names marks a subset: each file holds only 220 characters – Latin letters, digits, punctuation, € · × – and a few more. That keeps the files small. It also means that characters outside the subset – arrows, box-drawing lines, superscript digits – are missing. Three later sections (P⁴, the #JobAlert tree, the drawn arrows), the ↓ in the ledger and the ↗ after links that leave the site exist because of this.
 - `font-weight: 400; font-style: normal;` – this file is the regular upright face. When an element asks for `font-weight: 700`, the browser's font matching picks the block that declares 700; for `font-style: italic`, the italic block.
 - `font-display: swap;` – what happens while the file is still downloading. `swap` renders text straight away in the next font of the stack (see `body`) and replaces it when the web font arrives. Trade-off: text is readable from the first frame instead of invisible, but the swap can re-wrap lines, because the fallback font has different widths. The project softens this on both ends: `index.html` preloads the 400 and 700 upright files with `<link rel="preload">`, so they are requested before the stylesheet is even parsed, and `site.js` measures the docking positions only after `document.fonts.ready`, because positions measured in the fallback font would be wrong after the swap.
 
@@ -277,7 +277,7 @@ The skip link is the first focusable element on every page. Keyboard users press
 }
 ```
 
-Visually hidden, still read by screen readers. In the hero, the visible typed text `.cmd` is `aria-hidden`, because `site.js` rewrites it letter by letter; a `.sr-only` copy holds the full sentence for assistive technology. The drawn arrows use the class for their word "to" (see Drawn arrows).
+Visually hidden, still read by screen readers. In the hero, the visible typed text `.cmd` is `aria-hidden`, because `site.js` rewrites it letter by letter; a `.sr-only` copy holds the full sentence for assistive technology. The drawn arrows use the class for their word "to" (see Drawn arrows), the ↗ for "(opens in a new tab)" (see Links that leave the site).
 
 - `position: absolute;` – out of the flow, so it takes no space.
 - `width: 1px; height: 1px;` – tiny but not zero: some screen readers skip elements without size.
@@ -767,10 +767,9 @@ From 36rem, figures and explanations form two aligned columns.
 ```css
 /* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
 .ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--accent); }
-.ledger .jmp svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 ```
 
-In the HTML, the company name is followed by `<span class="jmp">` with an inline SVG, still inside the link: the same downward arrow as in the jump control. It says where the link goes – down the page, to the role under Experience. An arrow pointing up and to the right (↗) conventionally marks a link that leaves the site. Like →, the ↓ is not in the font subset, so it is drawn. The SVG is `aria-hidden`, so the link's name stays the company name.
+In the HTML, the company name is followed by `<span class="jmp">` with an inline SVG, still inside the link: the same downward arrow as in the jump control. It says where the link goes – down the page, to the role under Experience. Links that leave the site carry the conventional sign for that instead, an arrow pointing up and to the right (↗, next section). Like →, the ↓ is not in the font subset, so it is drawn. The SVG is `aria-hidden`, so the link's name stays the company name.
 
 - `.ledger .jmp`:
   - `display: inline-block;` – a box in the line that accepts width and height, like `.arr`.
