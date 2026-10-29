@@ -766,7 +766,7 @@ From 36rem, figures and explanations form two aligned columns.
 
 ```css
 /* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
-.ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin: -1em 0 -1em 0.1em; vertical-align: 0.5em; color: var(--accent); }
+.ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--accent); }
 .ledger .jmp svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 ```
 
@@ -775,8 +775,9 @@ In the HTML, the company name is followed by `<span class="jmp">` with an inline
 - `.ledger .jmp`:
   - `display: inline-block;` – a box in the line that accepts width and height, like `.arr`.
   - `width: 0.6em; height: 0.6em;` – a square of 0.6 times the explanation's 18px: 10.8px (measured). In em, so it follows the text size.
-  - `margin: -1em 0 -1em 0.1em;` – a hair of space after the name, and negative margins above and below, as on the i of the toggletips: the line box counts an inline-block by its margin box, so the raised ↓ no longer makes the line taller. The arrow is drawn where it was; only the line ignores it (measured: 27.9px, the same as a line without ↓).
-  - `vertical-align: 0.5em;` – superscript. A length raises the box's baseline that far above the baseline of the surrounding text. The box holds only a block-level SVG and no line of text, and such an inline-block has its bottom edge as its baseline: the ↓ starts 0.5em (9px) above the baseline of the name. The raised box reaches 2.8px above the link's own box; without the negative margins it would make the line 0.8px taller (measured: 27.9 → 28.7px).
+  - `margin-left: 0.1em;` – a hair of space after the name.
+  - `position: relative; top: -0.5em;` – superscript. The box keeps its place in the line – an inline-block with no text inside sits with its bottom edge on the baseline, and its 0.6em fit within the line – and `top: -0.5em` draws it 0.5em (9px) higher. Relative positioning moves only the drawing, never the layout: the line keeps its height (measured: 27.9px, as without ↓), and the arrow's bottom edge ends up 9px above the baseline of the name.
+  - Why not `vertical-align: 0.5em`, the usual way to raise a box: it moves the box in the layout, so the line grows to make room – the ↓ reached 2.8px above the link's box and made each line 0.8px taller (measured: 27.9 → 28.7px). Negative margins, which keep the toggletip's i from doing the same, do not help here: an inline-block that holds no text has its *bottom margin edge* as baseline, so a negative bottom margin lifts that baseline into the box and the arrow drops below the text. The i holds a letter, so its baseline is that letter's and margins leave it alone.
   - `color: var(--accent);` – bordeaux. Raised and in the accent colour, the ↓ looks like the footnote numbers and the i of the toggletips: on this site, that combination marks a jump within the page. The SVG draws in `currentColor`, so this one declaration colours it, while the name keeps the muted colour of the text.
 - **Why the underline stops before the ↓.** The link's underline is a text decoration. Decorations propagate to the text of the element's inline descendants, but not into atomic inline-level boxes – inline-blocks, images, inline tables. The `.jmp` is an inline-block, so the underline ends under the last letter of the name and does not run on through the margin and under the arrow. On hover the underline turns bordeaux, the colour the ↓ already has.
 - `.ledger .jmp svg` – the declarations of `.arr svg` (see Drawn arrows): a block that fills the span, a line drawing in `currentColor` with round ends, `overflow: visible` for the caps at the edge.

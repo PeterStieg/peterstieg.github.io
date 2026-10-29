@@ -286,7 +286,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 .ledger dd { margin: 0; color: var(--muted); }
 .ledger dd a { white-space: nowrap; }
 /* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
-.ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin: -1em 0 -1em 0.1em; vertical-align: 0.5em; color: var(--accent); }
+.ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--accent); }
 .ledger .jmp svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 
 /* fields of work */
