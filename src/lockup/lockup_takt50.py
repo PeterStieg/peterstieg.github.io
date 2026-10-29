@@ -4,6 +4,8 @@ Every number comes from Atkinson Hyperlegible Bold (the woff2 that peterstieg.co
   > to _   50   the font's own distance (> ink ends at 533, _ ink starts at 573 + 10)
   _ to P   50   same beat: the P's stem starts 50 after the _ ends
   P to S   50   the monogram's gap, measured square to the slash (68.66 deg, the font's "/")
+Vertically, ">_" is raised as one unit until the "_"'s bottom edge sits on the lowest point of the
+P's foot (v2, 29.10.2026). The offset is measured from the outlines, not typed in: 8.63.
 The monogram itself is the locked "one-bar step": S one stem (158) under the bowl, gap 50
 centred where it takes the same ink from P and S, S one bar (133) down the slash, the P's stem
 extended to the line of the S's lower terminal (19.86 deg).
@@ -80,13 +82,19 @@ def bounds(path):
 if __name__ == '__main__':
     P, S, (f0, f1) = monogram()
     mark = op(shifted(P, P_X), shifted(S, P_X), U)
-    prompt = op(glyph('>'), glyph('_', 573), U)
+    # v2: raise ">_" so the "_"'s bottom edge sits on the foot's lowest point (the P's lowest point)
+    RAISE = bounds(P)[1] - bounds(glyph('_'))[1]     # -119.37 - (-128) = 8.63
+    prompt = op(glyph('>', 0, RAISE), glyph('_', 573, RAISE), U)
     mb, pb = bounds(mark), bounds(prompt)
     x0, y0, x1, y1 = min(mb[0], pb[0]), min(mb[1], pb[1]), max(mb[2], pb[2]), max(mb[3], pb[3])
     W, H = x1 - x0, y1 - y0
     print('monogram %.1f x %.1f   foot %.1f .. %.1f' % (mb[2] - mb[0], mb[3] - mb[1], f0, f1))
     print('lockup   %.1f x %.1f   ratio %.3f' % (W, H, W / H))
     print('beats    > to _: %.1f   _ to P: %.1f' % (573 + 10 - 533, (P_X + 44) - US_R))
+    gb, ub = bounds(glyph('>', 0, RAISE)), bounds(glyph('_', 573, RAISE))
+    print('raise    %.10f   _ bottom %.4f   foot lowest %.4f' % (RAISE, ub[1], bounds(P)[1]))
+    print('>        x %g..%g   y %.4f..%.4f (SVG y %.4f..%.4f)' % (gb[0], gb[2], gb[1], gb[3], -gb[3], -gb[1]))
+    print('_        x %g..%g   y %.4f..%.4f (SVG y %.4f..%.4f)' % (ub[0], ub[2], ub[1], ub[3], -ub[3], -ub[1]))
     vb = '%g %g %g %g' % (x0, -y1, W, H)
     out = HERE / 'out'; out.mkdir(exist_ok=True)
     pd, md = svg_d(prompt), svg_d(mark)

@@ -163,6 +163,7 @@
   const GAP_C = 350, GAP_H = 25;                                   // the gap: centre and half width, square to the /
   const S_SLOT = 626 - 158;                                        // the S one stem under the bowl
   const STEP = [-133 * 261 / 668, -133];                           // one bar (133) down the slash
+  const RAISE = 128 - 119.3735;                                    // >_ up until the _ ends on the foot (lockup v2): 8.63
   const KT = 52 / 144;                                             // slope of the S's lower end, 19.86°
   const SLASH_REL = 626 + LS, S_REL = SLASH_REL + 15 + 261 + HW + 15 + LS;   // "P/S" as text, relative to P
   const S_WORD = WORD[6][1] - P_TXT;                               // the S of STIEG, relative to P
@@ -221,14 +222,14 @@
     const a = clamp01(v / 0.25);                                   // 0–25 %: the other letters fade out
     const b = ease(clamp01((v - 0.2) / 0.3));                      // 20–50 %: the S closes up, the / appears – P/S
     const u = ease(clamp01((v - 0.45) / 0.4));                     // 45–85 %: Enter – P/S slide together
-    const w = sine(clamp01((v - 0.8) / 0.2));                      // 80–100 %: the S steps down, the foot grows
+    const w = sine(clamp01((v - 0.8) / 0.2));                      // 80–100 %: the S steps down, the foot grows, >_ rises
     const z = ease(clamp01((v - 0.4) / 0.6));                      // 40–100 %: from 16 px text to the 28 px lockup
     const px = lerp(P_TXT, P_END, u);
     const sRel = lerp(lerp(S_WORD, S_REL, b), S_SLOT, u);
     const sl = SL_TXT.map((p, i) => [lerp(p[0], SL_END[i][0], u) + px, lerp(p[1], SL_END[i][1], u)]);
     const k = 1 - clamp01((u - 0.55) / 0.35);                      // the / fades into the gap
     const use = (id, x, y, extra = "") => `<use href="#lk-${id}" x="${x.toFixed(1)}" y="${y.toFixed(1)}"${extra}/>`;
-    let s = `<g class="acc">${use("gt", 0, 0)}${use("us", 573, 0)}</g><g class="ink">`;
+    let s = `<g class="acc">${use("gt", 0, RAISE * w)}${use("us", 573, RAISE * w)}</g><g class="ink">`;
     s += `<clipPath id="lk-cp" clipPathUnits="userSpaceOnUse"><polygon points="${halfPlane(sl[0], sl[1], -1)}"/></clipPath>`;
     s += `<clipPath id="lk-cs" clipPathUnits="userSpaceOnUse"><polygon points="${halfPlane(sl[3], sl[2], 1)}"/></clipPath>`;
     s += `<g clip-path="url(#lk-cp)">${use("P", px, 0)}</g>`;
