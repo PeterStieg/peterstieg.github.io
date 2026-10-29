@@ -45,9 +45,6 @@ LANGS = [("en", "EN", "English", "index.html", ""),
 
 # P as in Peter – English in every language, like M³ and F³.
 P4 = ["Performance", "Pipelines", "Pixels", "People"]
-P4_TAIL = {3: "Everything human:e."}
-SLOGANS = ["Facts, not fluff.", "Built, not briefed.", "Prompted, not pasted."]
-PROJECTS_LEAD = "Stop starting. Start finishing."
 # four chapters, like the parts of a slide deck: the first section of each is numbered and linked in the menu,
 # the sections after it belong to it – P⁴ to Profile, Education to Experience, Approach to Projects, Sources to Contact
 CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": ["approach"], "contact": ["notes"]}
@@ -84,7 +81,7 @@ CONTENT = {
     "en": {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
-        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info",
+        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab",
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, self-built tools.",
@@ -185,7 +182,7 @@ CONTENT = {
     "de": {
         "lang": "de", "path": "de/index.html", "root": "../", "locale": "de_DE",
         "aria_main": "Hauptnavigation", "aria_legal": "Rechtliches", "aria_lang": "Sprache",
-        "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info",
+        "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info", "new_tab": "öffnet in neuem Tab",
         "dur": ("Jahr", "Jahre", "Monat", "Monate"),
         "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
         "desc": "Marketinkerer aus Leipzig: Performance Marketing, Leadgenerierung und Data Science. Führungsverantwortung in vier Unternehmen, Werkzeuge selbst gebaut.",
@@ -312,6 +309,9 @@ UP_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
           '<path d="M8 13.5V2.8M3.4 7.2 8 2.6l4.6 4.6"/></svg>')
 DOWN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
             '<path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg>')
+# ↗ after a link that leaves the site – the counterpart of the ledger's ↓
+OUT_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+           '<path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg>')
 # three code lines, as in the minimap: the section menu before a chapter is reached, and without JavaScript
 LINES_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
              '<path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg>')
@@ -439,7 +439,6 @@ def footer(c):
     r = c["root"]
     return f"""<footer class="foot">
 <div class="wrap">
-<p lang="en">Admiring complexity. Loving simplicity.</p>
 <nav aria-label="{e(c['aria_legal'])}">
 <a href="{r}impressum.html" hreflang="de">{e(c['imprint'])}</a>
 <a href="{r}datenschutz.html" hreflang="de">{e(c['privacy'])}</a>
@@ -473,6 +472,16 @@ def jsonld(c):
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>\n"
 
 
+def offsite(c, url, text, attrs=""):
+    """A link that leaves the site: opens in a new tab, so the page stays open behind it. Marked with ↗ for the eye and
+    "(opens in a new tab)" for screen readers. The last word and the ↗ share a no-wrap span: the arrow never starts a
+    line on its own. attrs: extra attributes, written as they are (' hreflang="en"', ' rel="me noopener"')."""
+    rel = "" if "rel=" in attrs else ' rel="noopener"'
+    head, space, last = text.rpartition(" ")
+    return (f'<a href="{url}" target="_blank"{rel}{attrs}>{head}{space}<span class="nw">{last}<span class="ext">{OUT_SVG}'
+            f'<span class="sr-only"> ({e(c["new_tab"])})</span></span></span></a>')
+
+
 def chapter_no(key):
     """The number before a section title: visible if the section opens a chapter, invisible (.ghost) for the rest,
     so the titles line up."""
@@ -491,13 +500,9 @@ def info(c, key, text, lang=""):
             f'<span class="tip" id="{tip}" popover{lang_attr}>{e(text)}</span>')
 
 
-def section(c, key, title_html, body, cls="body", tip=None):
+def section(c, key, title_html, body, cls="body"):
     i = sid(c, key)
-    label = f"h-{i}"
-    if tip:                                            # the section is named by its title, not by the i
-        button, note = tip
-        title_html, label, body = f'<span id="t-{i}">{title_html}</span>{button}', f"t-{i}", note + "\n" + body
-    return f"""<section class="sec" id="{i}" aria-labelledby="{label}">
+    return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
 <h2 id="h-{i}">{chapter_no(key)}{title_html}</h2>
 <div class="{cls}">
 {body}</div>
@@ -568,7 +573,7 @@ def role(c, ro):
     the promotions within it (Posterlounge) or the single positions it sums up (before 2014)."""
     place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
     ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
-    org = f'<a href="{ro["url"]}">{e(ro["org"])}</a>' if ro.get("url") else e(ro["org"])
+    org = offsite(c, ro["url"], e(ro["org"])) if ro.get("url") else e(ro["org"])
     # the duration under the dates; a role that is still running carries its start, so site.js can recount it
     start = re.search(r"(\d{2})/(\d{4})", ro["when"])
     live = (f' data-from="{start[2]}-{start[1]}" data-units="{",".join(c["dur"])}"'
@@ -633,10 +638,9 @@ def page(c):
 
     # P⁴ – four fields, each a P; People carries its principle as a note behind the i
     p4 = []
-    for i, (p, txt) in enumerate(zip(P4, c["fields"])):
-        tail = f' <strong lang="en">{e(P4_TAIL[i])}</strong>' if i in P4_TAIL else ""
+    for p, txt in zip(P4, c["fields"]):
         button, note = info(c, "people", c["people_note"]) if p == "People" else ("", "")
-        p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}{tail}</p></div>\n')
+        p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}</p></div>\n')
     out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
 
     # experience – each role as a #JobAlert-style tree
@@ -662,21 +666,20 @@ def page(c):
     for gt, items in c["groups"]:
         lis = []
         for name, text, stack, links in items:
-            ln = "".join(f' · <a href="{url}">{e(label)}</a>' for label, url in links)
+            ln = "".join(f' · {offsite(c, url, e(label))}' for label, url in links)
             lis.append(f'<li><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
         groups.append(f'<div class="group"><h3>{e(gt)}</h3>\n<ul class="projects">\n{"".join(lis)}</ul></div>\n')
-    out.append(section(c, "projects", e(s["projects"]), "".join(groups),
-                       tip=info(c, "projects", PROJECTS_LEAD, "en" if L != "en" else "")))
+    out.append(section(c, "projects", e(s["projects"]), "".join(groups)))
 
     # approach – three of a kind: X, not Y
-    pr = "".join(f'<li><p><strong lang="en">{e(a)}</strong> {e(b)}</p></li>\n' for a, b in zip(SLOGANS, c["approach"]))
+    pr = "".join(f'<li><p>{e(a)}</p></li>\n' for a in c["approach"])
     out.append(section(c, "approach", e(s["approach"]), f'<ul class="principles">\n{pr}</ul>\n'))
 
     # contact – a nod to the 2016 claim: Work online | Live offline
     here, before = c["offline"]
     contact = f"""<p class="hello">Hallo · Hi · Ciao</p>
 <dl class="reach">
-<div><dt lang="en">Online</dt><dd><a class="mail" href="mailto:{EMAIL}">{EMAIL}</a> · <a href="{LINKEDIN}" rel="me">LinkedIn</a> · <a href="{GITHUB}" rel="me">GitHub</a></dd></div>
+<div><dt lang="en">Online</dt><dd><a class="mail" href="mailto:{EMAIL}">{EMAIL}</a> · {offsite(c, LINKEDIN, "LinkedIn", ' rel="me noopener"')} · {offsite(c, GITHUB, "GitHub", ' rel="me noopener"')}</dd></div>
 <div><dt lang="en">Offline</dt><dd>{e(here)} <span class="muted">{e(before)}</span></dd></div>
 </dl>
 """
@@ -687,10 +690,11 @@ def page(c):
     notes = []
     for key in order:
         n = NOTES[key]
-        course = f' · <a href="{n["course"]}" hreflang="en">{e(nl["course"])}</a>' if n.get("course") else ""
+        en = ' hreflang="en"'                          # the course pages are English
+        course = f' · {offsite(c, n["course"], e(nl["course"]), en)}' if n.get("course") else ""
         notes.append(f'<li id="fn-{key}"><a class="back" href="#ref-{key}" aria-label="{e(nl["back"])}">^</a> '
                      f'{e(note_title(c, n))} · {e(nl[n.get("when", "issued")])} {e(n["date"][L])} · '
-                     f'<a href="{n["verify"]}">{e(nl["verify"])}</a>{course}</li>\n')
+                     f'{offsite(c, n["verify"], e(nl["verify"]))}{course}</li>\n')
     out.append(section(c, "notes", e(s["notes"]), f'<ol class="notes">\n{"".join(notes)}</ol>\n'))
 
     out.append("</div>\n</main>\n")

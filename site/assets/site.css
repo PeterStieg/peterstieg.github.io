@@ -287,7 +287,11 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 .ledger dd a { white-space: nowrap; }
 /* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
 .ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--accent); }
-.ledger .jmp svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+/* ↗ after a link that leaves the site: it opens in a new tab. Quieter than the ↓ – muted, in accent on hover */
+.ext { display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--muted); }
+a:hover .ext, a:focus-visible .ext { color: var(--accent); }
+.nw { white-space: nowrap; }                     /* the last word and its ↗ stay together */
+.ledger .jmp svg, .ext svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 
 /* fields of work */
 .fields { display: grid; gap: 1.75rem 2.5rem; }
@@ -342,7 +346,6 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 /* approach */
 .principles { margin: 0; padding: 0; list-style: none; display: grid; gap: 1.4rem; }
 .principles p { margin: 0; }
-.principles strong { font-weight: 700; }
 
 /* education */
 .facts { margin: 0; }
@@ -424,7 +427,6 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
   box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
 }
 .js .tip { margin: 0; inset: auto; }
-html:not(.js) .body > .tip:first-child { margin: auto; }   /* Projects: the note opens its body – keep it centred */
 @supports not selector(:popover-open) {            /* browsers without popovers: the note stays in the text */
   .info { display: none; }
   .tip { display: block; margin: 0.25rem 0 0; padding: 0; border: 0; box-shadow: none; background: none; color: var(--muted); }
@@ -500,7 +502,6 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 /* footer */
 .foot { border-top: 1px solid var(--line); padding-block: 2rem 2.5rem; color: var(--muted); font-size: 0.95rem; }
 .foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.75rem 2rem; }
-.foot p { margin: 0; }
 .foot nav { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
 .foot a { color: inherit; }
 
