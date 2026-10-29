@@ -85,6 +85,7 @@ CONTENT = {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
         "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info",
+        "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, self-built tools.",
         "skip": "Skip to content",
@@ -119,7 +120,7 @@ CONTENT = {
              "tree": [("Scope", "containers, orchestration, tracking, APIs and monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "certified MLOps Engineer; capstone: the Rakuten model as a production pipeline – training, tracking, serving, monitoring")]},
             {"when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject GmbH", "place": "",
-             "tree": [("Scope", "UI concepts, usability tests, support for the migration from ActiveCampaign to Salesforce"),
+             "tree": [("Scope", "UI concepts, usability tests, support for the marketing automation migration from ActiveCampaign to Salesforce"),
                       ("Result", "Salesforce dashboards, built into the sales process")]},
             {"when": "02/2025 – 05/2025", "title": "Data Scientist (full-time)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
@@ -128,18 +129,20 @@ CONTENT = {
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B promotional products for Germany, Austria and Switzerland.",
              "tree": [("Team", "five – marketing, graphic design, project management"),
-                      ("Scope", "SEO, performance marketing and lead generation – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM and newsletters"),
+                      ("Scope", "SEO, performance marketing and lead generation – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM, newsletters and marketing automation"),
                       ("Result", "RoAS 7.6 → 7.8 while spend grew; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
             {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar GmbH", "place": "Leipzig",
              "tree": [("Scope", "e-commerce operations for discounted sporting goods, email automation, WhatsApp and Telegram")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
-             "ctx": "Art prints online in more than 15 European countries. From SEA Manager in 2017 to Head of Marketing in 2021, with three promotions.",
+             "ctx": "Art prints online in more than 15 European countries.",
              "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
                       ("Scope", "SEA, social media, marketplaces, creator relations and print partnerships"),
-                      ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")]},
+                      ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")],
+             "path": ("Three promotions", [("10/2017", "SEA Manager"), ("", "Digital Marketing Manager"),
+                             ("", "Senior Marketing Manager"), ("06/2021", "Head of Marketing")])},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "place": "Rome",
              "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social, native, retargeting")]},
-            {"when": "2010 – 2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
+            {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "export promotion, brand protection, competitive intelligence, web marketing")],
              "more": ("All five positions", [
                  {"when": "04/2014 – 08/2014", "title": "Marketing Consultant", "org": "SBS systems for business solutions Srl", "place": "Rome",
@@ -187,6 +190,7 @@ CONTENT = {
         "lang": "de", "path": "de/index.html", "root": "../", "locale": "de_DE",
         "aria_main": "Hauptnavigation", "aria_legal": "Rechtliches", "aria_lang": "Sprache",
         "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info",
+        "dur": ("Jahr", "Jahre", "Monat", "Monate"),
         "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
         "desc": "Marketinkerer aus Leipzig: Performance Marketing, Leadgenerierung und Data Science. Führungsverantwortung in vier Unternehmen, Werkzeuge selbst gebaut.",
         "skip": "Zum Inhalt springen",
@@ -223,7 +227,7 @@ CONTENT = {
              "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "zertifizierter MLOps Engineer; Abschlussprojekt: das Rakuten-Modell als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
             {"when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject GmbH", "place": "",
-             "tree": [("Scope", "UI-Konzeption, Usability-Tests, Begleitung der Migration von ActiveCampaign zu Salesforce"),
+             "tree": [("Scope", "UI-Konzeption, Usability-Tests, Begleitung der Migration der Marketing Automation von ActiveCampaign zu Salesforce"),
                       ("Result", "Salesforce-Dashboards, eingebunden in den Vertriebsprozess")]},
             {"when": "02/2025 – 05/2025", "title": "Data Scientist (Vollzeit)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
@@ -232,18 +236,20 @@ CONTENT = {
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B-Werbeartikel für Deutschland, Österreich und die Schweiz.",
              "tree": [("Team", "fünf Personen – Marketing, Grafik, Projektmanagement"),
-                      ("Scope", "SEO, Performance Marketing und Leadgenerierung – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM und Newsletter"),
+                      ("Scope", "SEO, Performance Marketing und Leadgenerierung – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM, Newsletter und Marketing Automation"),
                       ("Result", "KUR 13,2 → 12,8 % bei ausgebautem Budget; Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %")]},
             {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar GmbH", "place": "Leipzig",
              "tree": [("Scope", "E-Commerce-Betrieb für Sportartikel im Rabattsegment, E-Mail-Automatisierung, WhatsApp und Telegram")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
-             "ctx": "Kunstdrucke online in über 15 europäischen Ländern. Vom SEA Manager 2017 zum Head of Marketing 2021, mit drei Beförderungen.",
+             "ctx": "Kunstdrucke online in über 15 europäischen Ländern.",
              "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
                       ("Scope", "SEA, Social Media, Marktplätze, Creator Relations und Print-Kooperationen"),
-                      ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")]},
+                      ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")],
+             "path": ("Drei Beförderungen", [("10/2017", "SEA Manager"), ("", "Digital Marketing Manager"),
+                             ("", "Senior Marketing Manager"), ("06/2021", "Head of Marketing")])},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "place": "Rom",
              "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social, Native, Retargeting")]},
-            {"when": "2010 – 2014", "title": "Marketing, Marktforschung, Export", "org": "Fünf Unternehmen", "place": "Rom",
+            {"when": "10/2010 – 08/2014", "title": "Marketing, Marktforschung, Export", "org": "Fünf Unternehmen", "place": "Rom",
              "tree": [("Scope", "Exportförderung, Brand Protection, Competitive Intelligence, Web Marketing")],
              "more": ("Alle fünf Stationen", [
                  {"when": "04/2014 – 08/2014", "title": "Marketing Consultant", "org": "SBS systems for business solutions Srl", "place": "Rom",
@@ -348,7 +354,7 @@ def num(key):
 
 def t(c, text):
     """Escape, draw arrows, set *words* in italics (words cited as words, as in a dictionary)."""
-    html = e(text).replace("→", f'<span class="arr" role="img" aria-label="{e(c["arrow"])}">{ARROW_SVG}</span>')
+    html = e(text).replace("→", f'<span class="arr">{ARROW_SVG}<span class="sr-only">{e(c["arrow"])}</span></span>')
     lang = ' lang="en"' if c["lang"] != "en" else ""
     return re.sub(r"\*([^*]+)\*", rf"<i{lang}>\1</i>", html)
 
@@ -405,7 +411,7 @@ def lang_switch(c):
             items.append(f'<span aria-current="page" title="{name}">{label}</span>')
         else:
             items.append(f'<a href="{r}{path}" hreflang="{code}" lang="{code}" title="{name}">{label}</a>')
-    return f'<span class="langs" role="group" aria-label="{e(c["aria_lang"])}">{"".join(items)}</span>'
+    return f'<span class="langs" role="group" aria-label="{e(c["aria_lang"])}">{" ".join(items)}</span>'
 
 
 def theme_switch(c):
@@ -420,8 +426,8 @@ def topbar(c, sections=True, langs=True):
     r = c["root"]
     keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
-    links = "".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
-                    f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
+    links = "\n".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
+                     f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
     switch = lang_switch(c) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
     word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if sections else ""
@@ -429,7 +435,9 @@ def topbar(c, sections=True, langs=True):
 <header class="top">
 <div class="wrap">
 <a class="home" href="{'#top' if sections else r + c['path']}">{word}{LOCKUP}</a>
-<nav class="nav" aria-label="{e(c['aria_main'])}">{links}{switch}{theme_switch(c)}</nav>
+<nav class="nav" aria-label="{e(c['aria_main'])}">{links}
+{switch}
+{theme_switch(c)}</nav>
 </div>
 </header>
 """
@@ -482,18 +490,21 @@ def chapter_no(key):
 
 def info(c, key, text, lang=""):
     """Toggletip: a superscript i after a heading, the note opens next to it as a popover – no JavaScript needed.
-    lang: the note's language where it differs from the heading's."""
+    Returns the button (it goes into the heading; its i is drawn by CSS) and the note (it goes after the heading) – so the
+    heading's text stays its title for anything that reads the page as text. lang: the note's language where it differs
+    from the page's."""
     tip = f"tip-{key}"
     lang_attr = f' lang="{lang}"' if lang else ""
-    return (f'<button type="button" class="info" popovertarget="{tip}" aria-label="{e(c["info"])}">i</button>'
+    return (f'<button type="button" class="info" popovertarget="{tip}" aria-label="{e(c["info"])}"></button>',
             f'<span class="tip" id="{tip}" popover{lang_attr}>{e(text)}</span>')
 
 
-def section(c, key, title_html, body, cls="body", tip=""):
+def section(c, key, title_html, body, cls="body", tip=None):
     i = sid(c, key)
     label = f"h-{i}"
     if tip:                                            # the section is named by its title, not by the i
-        title_html, label = f'<span id="t-{i}">{title_html}</span>{tip}', f"t-{i}"
+        button, note = tip
+        title_html, label, body = f'<span id="t-{i}">{title_html}</span>{button}', f"t-{i}", note + "\n" + body
     return f"""<section class="sec" id="{i}" aria-labelledby="{label}">
 <h2 id="h-{i}">{chapter_no(key)}{title_html}</h2>
 <div class="{cls}">
@@ -504,8 +515,23 @@ def section(c, key, title_html, body, cls="body", tip=""):
 
 def tree(c, rows):
     lang = ' lang="en"' if c["lang"] != "en" else ""
-    items = "".join(f'<li><span class="k"{lang}>{e(k)}</span> {t(c, v)}</li>' for k, v in rows)
+    items = "".join(f'<li><span class="k"{lang}>{e(k)}:</span> {t(c, v)}</li>' for k, v in rows)
     return f'<ul class="tree">{items}</ul>' if rows else ""
+
+
+def months(when):
+    """Length of a role in months, counted like LinkedIn: first and last month included (10/2017 – 06/2023: 69).
+    "since 11/2025" runs to the build date; site.js recounts it when the page loads."""
+    dates = [(int(y), int(m)) for m, y in re.findall(r"(\d{2})/(\d{4})", when)]
+    (y1, m1), (y2, m2) = dates[0], dates[1] if len(dates) > 1 else (date.today().year, date.today().month)
+    return (y2 - y1) * 12 + m2 - m1 + 1
+
+
+def duration(c, n):
+    """69 → "5 years 9 months", in full words: no yrs/mos to decode."""
+    year, years, month, months_ = c["dur"]
+    y, m = divmod(n, 12)
+    return " ".join(([f"{y} {year if y == 1 else years}"] if y else []) + ([f"{m} {month if m == 1 else months_}"] if m else []))
 
 
 def title_of(c, key):
@@ -532,17 +558,27 @@ def jump(c):
 
 
 def role(c, ro, h="h3"):
-    """One role: dates, title, company and place, context, the tree – and, for the years before 2014,
-    the single positions behind a disclosure."""
+    """One role: dates and duration, title, company and place, context, the tree – and behind a disclosure
+    the promotions within it (Posterlounge) or the single positions it sums up (before 2014)."""
     place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
     ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
     org = f'<a href="{ro["url"]}">{e(ro["org"])}</a>' if ro.get("url") else e(ro["org"])
+    # the duration under the dates; a role that is still running carries its start, so site.js can recount it
+    start = re.search(r"(\d{2})/(\d{4})", ro["when"])
+    live = (f' data-from="{start[2]}-{start[1]}" data-units="{",".join(c["dur"])}"'
+            if len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1 else "")
+    when = f'{e(ro["when"])}<br><span class="dur"{live}>{duration(c, months(ro["when"]))}</span>'
     more = ""
+    if ro.get("path"):                                 # titles in order, dates where known
+        label, steps = ro["path"]
+        lis = "".join(f'<li>{e(title)}' + (f' <span class="muted">· {e(at)}</span>' if at else "") + '</li>'
+                      for at, title in steps)
+        more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree">{lis}</ol>\n</details>\n'
     if ro.get("more"):
         label, subs = ro["more"]
         lis = "".join(f'<li class="role">\n{role(c, sub, "h4")}</li>\n' for sub in subs)
-        more = f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="roles">\n{lis}</ol>\n</details>\n'
-    return f"""<p class="when">{e(ro['when'])}</p>
+        more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="roles">\n{lis}</ol>\n</details>\n'
+    return f"""<p class="when">{when}</p>
 <div>
 <{h}>{e(ro['title'])}</{h}>
 <p class="org">{org}{place}</p>
@@ -585,8 +621,9 @@ def page(c):
 </div>
 """
     # each result names its company; the name leads to the role under Experience
-    led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)} · <a href="#{k}">{e(COMPANIES[k])}</a></dd></div>\n'
-                  for a, b, k in c["ledger"])
+    # ↓: superscript and in accent like the footnote numbers and the i – a link that stays on this page
+    led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)} · <a href="#{k}">{e(COMPANIES[k])}'
+                  f'<span class="jmp">{DOWN_SVG}</span></a></dd></div>\n' for a, b, k in c["ledger"])
     out.append(section(c, "profile", e(s["profile"]),
                        f'{entry}<p>{e(c["profile"])}</p>\n<dl class="ledger" aria-label="{e(c["ledger_label"])}">\n{led}</dl>\n'))
 
@@ -594,8 +631,8 @@ def page(c):
     p4 = []
     for i, (p, txt) in enumerate(zip(P4, c["fields"])):
         tail = f' <strong lang="en">{e(P4_TAIL[i])}</strong>' if i in P4_TAIL else ""
-        note = info(c, "people", c["people_note"], L if L != "en" else "") if p == "People" else ""
-        p4.append(f'<div><h3{en_attr}>{e(p)}{note}</h3><p>{e(txt)}{tail}</p></div>\n')
+        button, note = info(c, "people", c["people_note"]) if p == "People" else ("", "")
+        p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}{tail}</p></div>\n')
     out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
 
     # experience – each role as a #JobAlert-style tree

@@ -47,6 +47,17 @@
     }
   }
 
+  /* ---------- Duration of the role that is still running: counted when the page loads, so it never goes stale
+     between uploads. Same rule as build.py: first and current month included. */
+  document.querySelectorAll(".dur[data-from]").forEach((el) => {
+    const [y, m] = el.dataset.from.split("-").map(Number), now = new Date();
+    const n = (now.getFullYear() - y) * 12 + now.getMonth() + 1 - m + 1;
+    const [year, years, month, months] = el.dataset.units.split(",");
+    const a = Math.floor(n / 12), b = n % 12;
+    el.textContent = [a ? `${a} ${a === 1 ? year : years}` : "", b ? `${b} ${b === 1 ? month : months}` : ""]
+      .filter(Boolean).join(" ");
+  });
+
   /* ---------- Header hairline once the page scrolls. */
   const top = document.querySelector(".top");
   const onScrollTop = () => top && top.classList.toggle("scrolled", window.scrollY > 8);
