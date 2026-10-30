@@ -11,12 +11,13 @@ Editorial rules this file follows:
     13.2 → 12.8 % = 7.6 → 7.8; 10.1 % = 9.9). The direction flips: KUR falls, RoAS rises.
  3. No first-person monologue. Telegram style, facts instead of adjectives.
  4. En dash with spaces ( – ), middle dot ( · ) as separator.
- 5. Brand elements stay English in every language: claim, tagline, motto, the four Ps,
-    the slogans and the tree labels (as in #JobAlert: Scope, Team, Result).
+ 5. Brand elements stay English in every language: claim, tagline, motto, the four Ps
+    and the tree labels (as in #JobAlert: Scope, Team, Result).
     Everything else is localized, not translated.
  6. Google Cloud is a tool, Azure only the platform of single projects. AI is named once
-    as a principle ("Prompted, not pasted."), never as a label on single projects.
+    as a principle (in Approach), never as a label on single projects.
  7. No wordplay that isn't Pete's own or doesn't follow his patterns.
+ 8. Four coined elements and no more: claim, motto, marketinkerer, P⁴.
 """
 from datetime import date
 from html import escape as e
@@ -45,9 +46,6 @@ LANGS = [("en", "EN", "English", "index.html", ""),
 
 # P as in Peter – English in every language, like M³ and F³.
 P4 = ["Performance", "Pipelines", "Pixels", "People"]
-P4_TAIL = {3: "Everything human:e."}
-SLOGANS = ["Facts, not fluff.", "Built, not briefed.", "Prompted, not pasted."]
-PROJECTS_LEAD = "Stop starting. Start finishing."
 # four chapters, like the parts of a slide deck: the first section of each is numbered and linked in the menu,
 # the sections after it belong to it – P⁴ to Profile, Education to Experience, Approach to Projects, Sources to Contact
 CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": ["approach"], "contact": ["notes"]}
@@ -84,7 +82,7 @@ CONTENT = {
     "en": {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
-        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info",
+        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab",
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, self-built tools.",
@@ -97,10 +95,10 @@ CONTENT = {
         "profile": "Leadership roles at four companies, with interdisciplinary teams of up to six people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer – Liora, in partnership with Université Paris 1 Panthéon-Sorbonne.",
         "ledger_label": "Selected results",
         "ledger": [
+            ("> 2×", "inbound inquiries year over year", "e-service-check"),
+            ("RoAS 7.6 → 7.8", "on a €1.7m media budget, while spend grew", "brandible"),
             ("€6k → €240k", "monthly media budget at a RoAS of 4.0", "posterlounge"),
             ("17 shops", "in 12 languages across Europe", "posterlounge"),
-            ("RoAS 7.6 → 7.8", "on a €1.7m media budget, while spend grew", "brandible"),
-            ("> 2×", "inbound inquiries year over year", "e-service-check"),
         ],
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO and marketplaces. Steered by cost per inquiry, quote and order.",
@@ -115,14 +113,14 @@ CONTENT = {
              "tree": [("Team", "functional lead for content, marketing and project management"),
                       ("Scope", "marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding"),
                       ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark")]},
-            {"when": "05/2025 – 07/2025", "title": "MLOps Engineer (full-time)",
+            {"when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "containers, orchestration, tracking, APIs and monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "certified MLOps Engineer; capstone: the Rakuten model as a production pipeline – training, tracking, serving, monitoring")]},
             {"when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject GmbH", "place": "",
              "tree": [("Scope", "UI concepts, usability tests, support for the marketing automation migration from ActiveCampaign to Salesforce"),
                       ("Result", "Salesforce dashboards, built into the sales process")]},
-            {"when": "02/2025 – 05/2025", "title": "Data Scientist (full-time)",
+            {"when": "02/2025 – 05/2025", "title": "Data Scientist training (full-time)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "machine learning and deep learning with Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "certified Data Scientist; capstone: multimodal classification of e-commerce products with NLP and computer vision")]},
@@ -138,22 +136,18 @@ CONTENT = {
              "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
                       ("Scope", "SEA, social media, marketplaces, creator relations and print partnerships"),
                       ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")],
-             "path": ("Three promotions", [("10/2017", "SEA Manager"), ("", "Digital Marketing Manager"),
-                             ("", "Senior Marketing Manager"), ("06/2021", "Head of Marketing")])},
+             "path": ("Three promotions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
+                                           ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy")])},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "place": "Rome",
              "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social, native, retargeting")]},
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "export promotion, brand protection, competitive intelligence, web marketing")],
-             "more": ("All five positions", [
-                 {"when": "04/2014 – 08/2014", "title": "Marketing Consultant", "org": "SBS systems for business solutions Srl", "place": "Rome",
-                  "tree": [("Scope", "export promotion projects for small and medium-sized companies on behalf of the German Federal Ministry for Economic Affairs")]},
-                 {"when": "06/2013 – 05/2014", "title": "Corporate investigations", "org": "Inner Valor Srl", "place": "Rome", "tree": []},
-                 {"when": "06/2013 – 12/2013", "title": "Marketing & export DACH", "org": "Fontebona Srl", "place": "Rome",
-                  "tree": [("Scope", "market entry in Germany, Austria and Switzerland – packaging, trade fairs")]},
-                 {"when": "04/2012 – 05/2013", "title": "Market research", "org": "Proactive Europe Srl", "place": "Rome",
-                  "tree": [("Scope", "brand protection and competitive intelligence")]},
-                 {"when": "10/2010 – 09/2011", "title": "Web Marketing Manager", "org": "PaesiOnLine Srl", "place": "Rocca di Papa",
-                  "tree": [("Scope", "web marketing for the German and Spanish markets of a travel portal")]},
+             "positions": ("All five positions", [
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl"),
+                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl"),
+                 ("06/2013 – 12/2013", "Marketing & export DACH", "Fontebona Srl"),
+                 ("04/2012 – 05/2013", "Market research", "Proactive Europe Srl"),
+                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl"),
              ])},
         ],
         "groups": [
@@ -189,7 +183,7 @@ CONTENT = {
     "de": {
         "lang": "de", "path": "de/index.html", "root": "../", "locale": "de_DE",
         "aria_main": "Hauptnavigation", "aria_legal": "Rechtliches", "aria_lang": "Sprache",
-        "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info",
+        "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info", "new_tab": "öffnet in neuem Tab",
         "dur": ("Jahr", "Jahre", "Monat", "Monate"),
         "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
         "desc": "Marketinkerer aus Leipzig: Performance Marketing, Leadgenerierung und Data Science. Führungsverantwortung in vier Unternehmen, Werkzeuge selbst gebaut.",
@@ -204,10 +198,10 @@ CONTENT = {
         "profile": "Führungsverantwortung in vier Unternehmen, für interdisziplinäre Teams mit bis zu sechs Personen in E-Commerce und B2B. Zertifiziert als Data Scientist und MLOps Engineer – Liora in Partnerschaft mit der Université Paris 1 Panthéon-Sorbonne.",
         "ledger_label": "Ausgewählte Ergebnisse",
         "ledger": [
+            ("> 2×", "Anfragen im Jahresvergleich", "e-service-check"),
+            ("KUR 13,2 → 12,8 %", "bei ausgebautem Mediabudget von 1,7 Mio. €", "brandible"),
             ("6.000 → 240.000 €", "Mediabudget im Monat bei einer KUR von 25 %", "posterlounge"),
             ("17 Shops", "in 12 Sprachen in ganz Europa", "posterlounge"),
-            ("KUR 13,2 → 12,8 %", "bei ausgebautem Mediabudget von 1,7 Mio. €", "brandible"),
-            ("> 2×", "Anfragen im Jahresvergleich", "e-service-check"),
         ],
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO und Marktplätze. Gesteuert über Kosten je Anfrage, Angebot und Auftrag.",
@@ -222,14 +216,14 @@ CONTENT = {
              "tree": [("Team", "fachliche Führung in Content, Marketing und Projektmanagement"),
                       ("Scope", "Marketing, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, CRM, Events, Employer Branding"),
                       ("Result", "Anfragen im Jahresvergleich mehr als verdoppelt; neue Corporate Identity samt Grundlage der EUIPO-Markenanmeldung")]},
-            {"when": "05/2025 – 07/2025", "title": "MLOps Engineer (Vollzeit)",
+            {"when": "05/2025 – 07/2025", "title": "Weiterbildung MLOps Engineer (Vollzeit)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "zertifizierter MLOps Engineer; Abschlussprojekt: das Rakuten-Modell als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
             {"when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject GmbH", "place": "",
              "tree": [("Scope", "UI-Konzeption, Usability-Tests, Begleitung der Migration der Marketing Automation von ActiveCampaign zu Salesforce"),
                       ("Result", "Salesforce-Dashboards, eingebunden in den Vertriebsprozess")]},
-            {"when": "02/2025 – 05/2025", "title": "Data Scientist (Vollzeit)",
+            {"when": "02/2025 – 05/2025", "title": "Weiterbildung Data Scientist (Vollzeit)",
              "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Machine Learning und Deep Learning mit Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "zertifizierter Data Scientist; Abschlussprojekt: multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
@@ -245,22 +239,18 @@ CONTENT = {
              "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
                       ("Scope", "SEA, Social Media, Marktplätze, Creator Relations und Print-Kooperationen"),
                       ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")],
-             "path": ("Drei Beförderungen", [("10/2017", "SEA Manager"), ("", "Digital Marketing Manager"),
-                             ("", "Senior Marketing Manager"), ("06/2021", "Head of Marketing")])},
+             "path": ("Drei Beförderungen", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
+                                             ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italien")])},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "place": "Rom",
              "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social, Native, Retargeting")]},
             {"when": "10/2010 – 08/2014", "title": "Marketing, Marktforschung, Export", "org": "Fünf Unternehmen", "place": "Rom",
              "tree": [("Scope", "Exportförderung, Brand Protection, Competitive Intelligence, Web Marketing")],
-             "more": ("Alle fünf Stationen", [
-                 {"when": "04/2014 – 08/2014", "title": "Marketing Consultant", "org": "SBS systems for business solutions Srl", "place": "Rom",
-                  "tree": [("Scope", "Exportförderprojekte für kleine und mittlere Unternehmen im Auftrag des Bundeswirtschaftsministeriums")]},
-                 {"when": "06/2013 – 05/2014", "title": "Corporate Investigations", "org": "Inner Valor Srl", "place": "Rom", "tree": []},
-                 {"when": "06/2013 – 12/2013", "title": "Marketing & Export DACH", "org": "Fontebona Srl", "place": "Rom",
-                  "tree": [("Scope", "Markteintritt in Deutschland, Österreich und der Schweiz – Verpackung, Fachmessen")]},
-                 {"when": "04/2012 – 05/2013", "title": "Marktforschung", "org": "Proactive Europe Srl", "place": "Rom",
-                  "tree": [("Scope", "Brand Protection und Competitive Intelligence")]},
-                 {"when": "10/2010 – 09/2011", "title": "Web Marketing Manager", "org": "PaesiOnLine Srl", "place": "Rocca di Papa",
-                  "tree": [("Scope", "Web Marketing für die Märkte DE und ES eines Reiseportals")]},
+             "positions": ("Alle fünf Stationen", [
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl"),
+                 ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor Srl"),
+                 ("06/2013 – 12/2013", "Marketing & Export DACH", "Fontebona Srl"),
+                 ("04/2012 – 05/2013", "Marktforschung", "Proactive Europe Srl"),
+                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl"),
              ])},
         ],
         "groups": [
@@ -320,6 +310,9 @@ UP_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
           '<path d="M8 13.5V2.8M3.4 7.2 8 2.6l4.6 4.6"/></svg>')
 DOWN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
             '<path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg>')
+# ↗ after a link that leaves the site – the counterpart of the ledger's ↓
+OUT_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+           '<path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg>')
 # three code lines, as in the minimap: the section menu before a chapter is reached, and without JavaScript
 LINES_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
              '<path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg>')
@@ -447,7 +440,6 @@ def footer(c):
     r = c["root"]
     return f"""<footer class="foot">
 <div class="wrap">
-<p lang="en">Admiring complexity. Loving simplicity.</p>
 <nav aria-label="{e(c['aria_legal'])}">
 <a href="{r}impressum.html" hreflang="de">{e(c['imprint'])}</a>
 <a href="{r}datenschutz.html" hreflang="de">{e(c['privacy'])}</a>
@@ -481,6 +473,16 @@ def jsonld(c):
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>\n"
 
 
+def offsite(c, url, text, attrs=""):
+    """A link that leaves the site: opens in a new tab, so the page stays open behind it. Marked with ↗ for the eye and
+    "(opens in a new tab)" for screen readers. The last word and the ↗ share a no-wrap span: the arrow never starts a
+    line on its own. attrs: extra attributes, written as they are (' hreflang="en"', ' rel="me noopener"')."""
+    rel = "" if "rel=" in attrs else ' rel="noopener"'
+    lead, space, last = text.rpartition(" ")
+    return (f'<a href="{url}" target="_blank"{rel}{attrs}>{lead}{space}<span class="nw">{last}<span class="newtab">{OUT_SVG}'
+            f'<span class="sr-only"> ({e(c["new_tab"])})</span></span></span></a>')
+
+
 def chapter_no(key):
     """The number before a section title: visible if the section opens a chapter, invisible (.ghost) for the rest,
     so the titles line up."""
@@ -499,13 +501,9 @@ def info(c, key, text, lang=""):
             f'<span class="tip" id="{tip}" popover{lang_attr}>{e(text)}</span>')
 
 
-def section(c, key, title_html, body, cls="body", tip=None):
+def section(c, key, title_html, body, cls="body"):
     i = sid(c, key)
-    label = f"h-{i}"
-    if tip:                                            # the section is named by its title, not by the i
-        button, note = tip
-        title_html, label, body = f'<span id="t-{i}">{title_html}</span>{button}', f"t-{i}", note + "\n" + body
-    return f"""<section class="sec" id="{i}" aria-labelledby="{label}">
+    return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
 <h2 id="h-{i}">{chapter_no(key)}{title_html}</h2>
 <div class="{cls}">
 {body}</div>
@@ -525,6 +523,12 @@ def months(when):
     dates = [(int(y), int(m)) for m, y in re.findall(r"(\d{2})/(\d{4})", when)]
     (y1, m1), (y2, m2) = dates[0], dates[1] if len(dates) > 1 else (date.today().year, date.today().month)
     return (y2 - y1) * 12 + m2 - m1 + 1
+
+
+def before(mmyyyy):
+    """The month before: "11/2018" → "10/2018", "01/2019" → "12/2018"."""
+    m, y = int(mmyyyy[:2]), int(mmyyyy[3:])
+    return f"{m - 1:02d}/{y}" if m > 1 else f"12/{y - 1}"
 
 
 def duration(c, n):
@@ -557,30 +561,36 @@ def jump(c):
 """
 
 
-def role(c, ro, h="h3"):
+def steps(c, label, rows):
+    """A disclosure with the steps inside one timeline entry, newest first like the timeline itself: title (and company,
+    where it changes), then dates and length. reversed: the list counts down, as the timeline does."""
+    lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {e(org)}</span>' if org else "")
+                  + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span in rows)
+    return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n</details>\n'
+
+
+def role(c, ro):
     """One role: dates and duration, title, company and place, context, the tree – and behind a disclosure
     the promotions within it (Posterlounge) or the single positions it sums up (before 2014)."""
     place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
     ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
-    org = f'<a href="{ro["url"]}">{e(ro["org"])}</a>' if ro.get("url") else e(ro["org"])
+    org = offsite(c, ro["url"], e(ro["org"])) if ro.get("url") else e(ro["org"])
     # the duration under the dates; a role that is still running carries its start, so site.js can recount it
     start = re.search(r"(\d{2})/(\d{4})", ro["when"])
     live = (f' data-from="{start[2]}-{start[1]}" data-units="{",".join(c["dur"])}"'
             if len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1 else "")
     when = f'{e(ro["when"])}<br><span class="dur"{live}>{duration(c, months(ro["when"]))}</span>'
     more = ""
-    if ro.get("path"):                                 # titles in order, dates where known
-        label, steps = ro["path"]
-        lis = "".join(f'<li>{e(title)}' + (f' <span class="muted">· {e(at)}</span>' if at else "") + '</li>'
-                      for at, title in steps)
-        more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree">{lis}</ol>\n</details>\n'
-    if ro.get("more"):
-        label, subs = ro["more"]
-        lis = "".join(f'<li class="role">\n{role(c, sub, "h4")}</li>\n' for sub in subs)
-        more += f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="roles">\n{lis}</ol>\n</details>\n'
+    if ro.get("path"):                                 # promotions, one per contract: its start; it ends the month before the next
+        label, path = ro["path"]
+        ends = [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]] + [before(start) for start, _ in path[:-1]]
+        more += steps(c, label, [(title, "", f"{start} – {end}") for (start, title), end in zip(path, ends)])
+    if ro.get("positions"):                            # the positions it sums up, each at its own company
+        label, positions = ro["positions"]
+        more += steps(c, label, [(title, org_, when_) for when_, title, org_ in positions])
     return f"""<p class="when">{when}</p>
 <div>
-<{h}>{e(ro['title'])}</{h}>
+<h3>{e(ro['title'])}</h3>
 <p class="org">{org}{place}</p>
 {ctx}{tree(c, ro['tree'])}
 {more}</div>
@@ -629,10 +639,9 @@ def page(c):
 
     # P⁴ – four fields, each a P; People carries its principle as a note behind the i
     p4 = []
-    for i, (p, txt) in enumerate(zip(P4, c["fields"])):
-        tail = f' <strong lang="en">{e(P4_TAIL[i])}</strong>' if i in P4_TAIL else ""
+    for p, txt in zip(P4, c["fields"]):
         button, note = info(c, "people", c["people_note"]) if p == "People" else ("", "")
-        p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}{tail}</p></div>\n')
+        p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}</p></div>\n')
     out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
 
     # experience – each role as a #JobAlert-style tree
@@ -658,21 +667,20 @@ def page(c):
     for gt, items in c["groups"]:
         lis = []
         for name, text, stack, links in items:
-            ln = "".join(f' · <a href="{url}">{e(label)}</a>' for label, url in links)
+            ln = "".join(f' · {offsite(c, url, e(label))}' for label, url in links)
             lis.append(f'<li><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
         groups.append(f'<div class="group"><h3>{e(gt)}</h3>\n<ul class="projects">\n{"".join(lis)}</ul></div>\n')
-    out.append(section(c, "projects", e(s["projects"]), "".join(groups),
-                       tip=info(c, "projects", PROJECTS_LEAD, "en" if L != "en" else "")))
+    out.append(section(c, "projects", e(s["projects"]), "".join(groups)))
 
-    # approach – three of a kind: X, not Y
-    pr = "".join(f'<li><p><strong lang="en">{e(a)}</strong> {e(b)}</p></li>\n' for a, b in zip(SLOGANS, c["approach"]))
+    # approach – how the work is done, in three sentences
+    pr = "".join(f'<li><p>{e(a)}</p></li>\n' for a in c["approach"])
     out.append(section(c, "approach", e(s["approach"]), f'<ul class="principles">\n{pr}</ul>\n'))
 
     # contact – a nod to the 2016 claim: Work online | Live offline
     here, before = c["offline"]
     contact = f"""<p class="hello">Hallo · Hi · Ciao</p>
 <dl class="reach">
-<div><dt lang="en">Online</dt><dd><a class="mail" href="mailto:{EMAIL}">{EMAIL}</a> · <a href="{LINKEDIN}" rel="me">LinkedIn</a> · <a href="{GITHUB}" rel="me">GitHub</a></dd></div>
+<div><dt lang="en">Online</dt><dd><a class="mail" href="mailto:{EMAIL}">{EMAIL}</a> · {offsite(c, LINKEDIN, "LinkedIn", ' rel="me noopener"')} · {offsite(c, GITHUB, "GitHub", ' rel="me noopener"')}</dd></div>
 <div><dt lang="en">Offline</dt><dd>{e(here)} <span class="muted">{e(before)}</span></dd></div>
 </dl>
 """
@@ -683,10 +691,11 @@ def page(c):
     notes = []
     for key in order:
         n = NOTES[key]
-        course = f' · <a href="{n["course"]}" hreflang="en">{e(nl["course"])}</a>' if n.get("course") else ""
+        en = ' hreflang="en"'                          # the course pages are English
+        course = f' · {offsite(c, n["course"], e(nl["course"]), en)}' if n.get("course") else ""
         notes.append(f'<li id="fn-{key}"><a class="back" href="#ref-{key}" aria-label="{e(nl["back"])}">^</a> '
                      f'{e(note_title(c, n))} · {e(nl[n.get("when", "issued")])} {e(n["date"][L])} · '
-                     f'<a href="{n["verify"]}">{e(nl["verify"])}</a>{course}</li>\n')
+                     f'{offsite(c, n["verify"], e(nl["verify"]))}{course}</li>\n')
     out.append(section(c, "notes", e(s["notes"]), f'<ol class="notes">\n{"".join(notes)}</ol>\n'))
 
     out.append("</div>\n</main>\n")

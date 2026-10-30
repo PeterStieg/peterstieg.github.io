@@ -321,6 +321,9 @@ tr.hit td.deg { color: var(--accent); font-weight: 700; }
     return [[44, top], [202, top], [202, yr], [44, yl]];
   }
   const FOOT_END = foot(1);
+  // v2 (29.10.2026): ">_" rises until the "_"'s bottom edge sits on the foot's lowest point
+  const US_Y = -128;                                 // the "_"'s bottom edge in the font
+  const RAISE = FOOT_END[3][1] - US_Y;               // foot's lowest point (−119.37) minus that: 8.63
 
   // ---- "Ein Takt": the P's stem starts 50 after the "_" ends, like > to _ and P to S ------
   const US_R = GAP_X + 420;                          // right end of the "_": 993
@@ -376,7 +379,9 @@ tr.hit td.deg { color: var(--accent); font-weight: 700; }
 
   function markup(t, id, opt) {
     const ed = editor(t);
-    let s = use(">", 0, 0, "acc");                         // the prompt never moves
+    // the prompt only moves in the Enter step: it rises with the foot (same timing), so they meet at the end
+    const lift = t < T.design ? 0 : RAISE * sine(prog(t, T.stepA, T.stepB));
+    let s = use(">", 0, lift, "acc");
     const L = layout(ed.chars);
     const xAt = i => i < ed.chars.length ? L.xs[i] : L.end;
     if (t < T.design) {
@@ -403,7 +408,7 @@ tr.hit td.deg { color: var(--accent); font-weight: 700; }
     }
     if (blinkOn(t, ed.last) || t >= T.end - 0.01) {
       const i = ed.caret, x0 = xAt(i), cw = i < ed.chars.length ? adv(ed.chars[i]) : 430;
-      s += `<rect class="acc" x="${x0 + 10}" y="-128" width="${cw - 20}" height="128"/>`;
+      s += `<rect class="acc" x="${x0 + 10}" y="${(US_Y + lift).toFixed(4)}" width="${cw - 20}" height="128"/>`;
     }
     return s;
   }
