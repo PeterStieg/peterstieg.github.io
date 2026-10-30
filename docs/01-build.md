@@ -601,8 +601,7 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 <meta property="profile:first_name" content="Peter">
 <meta property="profile:last_name" content="Stieg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="{r}favicon.ico" sizes="48x48">
-<link rel="icon" href="{r}favicon.svg" type="image/svg+xml">
+<link rel="icon" href="{r}favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="apple-touch-icon" href="{r}apple-touch-icon.png">
 <link rel="manifest" href="{r}site.webmanifest">
 <link rel="preload" href="{r}assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -642,10 +641,10 @@ The returned document head, top to bottom:
 - `og:*` – Open Graph: what LinkedIn, Slack, WhatsApp and others show when the link is shared. `og:image` must be an absolute URL, because crawlers do not resolve relative paths. `width` and `height` let the platform lay out the preview before the image arrives.
 - `profile:first_name`, `profile:last_name` – Open Graph fields for the `profile` type.
 - `twitter:card` – asks X for a large image preview; title, description and image fall back to the `og:*` values.
-- Four icon lines, all with `{r}` – relative to where the page lives. All four files are drawn from the "PS" monogram; they are made in `src/monogram/`, not here (section 30).
-  - `favicon.ico` with `sizes="48x48"` – the classic format: one file that holds several bitmaps, here 16, 32 and 48 pixels. Why it still exists next to the SVG: not every browser takes an SVG favicon (Safari did not for a long time), and some programs ask for `/favicon.ico` directly without reading the page at all – feed readers, bookmark services, older browsers. On top of that, the 16 and 32 pixel versions are drawn by hand on the pixel grid, which stays sharper in a browser tab than any automatic downscaling of the vector. `sizes` names the largest bitmap in the file: a fixed size marks the ICO as the bitmap fallback, so a browser that understands SVG prefers the vector, which fits any size.
-  - `favicon.svg` – the vector mark. It carries its own `prefers-color-scheme` rule and switches to the lighter accent in dark mode. `type="image/svg+xml"` lets a browser that cannot use SVG icons skip the file.
-  - `apple-touch-icon` – the icon iOS shows when someone adds the page to the home screen: a 180 × 180 pixel PNG, because iOS takes neither the SVG nor the ICO here.
+- Three icon lines, all with `{r}` – relative to where the page lives. All three files are drawn from the "PS" monogram – paper letters on a bordeaux disc – and made in `src/monogram/`, not here (section 30).
+  - `favicon.ico` with `sizes="16x16 32x32 48x48"` – the classic format: one file that holds several bitmaps, here 16, 32 and 48 pixels; `sizes` names all three. The 16 and 32 pixel versions are drawn by hand on the pixel grid, which stays sharper in a browser tab than any automatic downscaling of the vector. Every browser takes an ICO, and some programs ask for `/favicon.ico` directly without reading the page at all – feed readers, bookmark services.
+  - No link to `favicon.svg`: a browser that supports SVG favicons prefers the SVG whenever both are linked, and at 16 pixels the vector comes out soft. Without the link, Chrome and Firefox use the hand-drawn pixels – 16 in a tab on an ordinary screen, 32 on a high-density one. The SVG stays in `site/` as the vector version of the icon.
+  - `apple-touch-icon` – the icon iOS shows when someone adds the page to the home screen: a 180 × 180 pixel PNG, because iOS takes neither the SVG nor the ICO here. The paper PS on a full-bleed bordeaux square; iOS rounds the corners itself.
   - `manifest` – `site.webmanifest`, a small JSON file that describes the site as a web app: its name, a short name, the colors, and two more icons (192 and 512 pixels). Android and Chrome take their home-screen and install icons from it. Its `"display": "browser"` keeps the site an ordinary page in a browser tab even when opened from the home screen – the manifest is here for the icons, not to turn the site into an app.
 - `rel="preload"` for two font files – starts the download immediately instead of after the CSS has been parsed and the fonts discovered there. `crossorigin` is required: fonts are always fetched in CORS mode, and a preload without it does not match the real request, so the font would download twice. The italic file is not preloaded; it is only needed for a few words.
 - `<link rel="stylesheet">` – the CSS, deliberately after `THEME_BOOT`.
@@ -1638,7 +1637,7 @@ What it writes (and overwrites):
 What it never touches: `site/assets/site.css`, `site/assets/site.js`, `site/assets/fonts/`, `favicon.ico`, `favicon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest`, `og-image.png`. Those are hand-made: the CSS and JavaScript are edited directly in `site/`; the icons, the manifest and the preview image come from `src/monogram/`, the source of the "PS" monogram:
 
 - `src/monogram/README.md` – the mark's construction, colors, sizes and the full file list.
-- `src/monogram/source/` – the generator (`ps_monogram.py`) and the hand-drawn pixel grids for the 16 and 32 pixel favicons (`favicons.py`). The generator writes the favicon set to `out/final/favicon/`; from there the files are copied to `site/` by hand.
+- `src/monogram/source/` – the generator (`ps_monogram.py`) and the hand-drawn pixel grids for the 16 and 32 pixel favicons (`favicons.py`). The generator writes the favicon set to `out/final/favicon/` (`python3 ps_monogram.py --favicons` writes only that set, to `out/`, and draws a preview sheet with `favicon_preview.py`); from there the files are copied to `site/` by hand.
 - `src/monogram/og/og.html` – the source of `og-image.png`: a 1200 × 630 page with the hero text and the monogram on the right. Open it at exactly that size and take a screenshot; the comment at the top of the file shows how.
 
 `head()` only links these files. Changing an icon means regenerating it there, not editing `build.py`.

@@ -385,8 +385,7 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 <meta property="profile:first_name" content="Peter">
 <meta property="profile:last_name" content="Stieg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="{r}favicon.ico" sizes="48x48">
-<link rel="icon" href="{r}favicon.svg" type="image/svg+xml">
+<link rel="icon" href="{r}favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="apple-touch-icon" href="{r}apple-touch-icon.png">
 <link rel="manifest" href="{r}site.webmanifest">
 <link rel="preload" href="{r}assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
