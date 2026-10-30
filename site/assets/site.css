@@ -356,15 +356,6 @@ a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 .facts dd { margin: 0; }
 .lines { list-style: none; margin: 0; padding: 0; }    /* languages: one per line */
 
-/* contact */
-.hello {
-  margin: 0 0 1rem;
-  font-size: clamp(1.9rem, 5vw, 3rem);
-  line-height: 1.1;
-  font-weight: 700;
-}
-.mail { font-size: 1.25rem; font-weight: 700; }
-
 /* dictionary entry: the word on GitHub, defined like Merriam-Webster, Duden or Treccani would */
 .entry { margin: 0 0 1.75rem; }
 .hw { margin: 0 0 0.4rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 0.8rem; }
@@ -431,12 +422,6 @@ a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
   .info { display: none; }
   .tip { display: block; margin: 0.25rem 0 0; padding: 0; border: 0; box-shadow: none; background: none; color: var(--muted); }
 }
-
-/* contact: Work online | Live offline */
-.reach { margin: 0; display: grid; gap: 0.5rem; }
-.reach div { display: grid; grid-template-columns: 5.5rem 1fr; gap: 0 1rem; align-items: baseline; }
-.reach dt { color: var(--muted); font-size: 0.95rem; }
-.reach dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 
 /* 404 */
 .lost { padding-block: clamp(3.5rem, 13vh, 8.5rem) clamp(3rem, 9vh, 6rem); }
@@ -537,6 +522,7 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 .mm-bar.h { background: var(--bar-lit); }
 .mm-bar.lit { background: var(--bar-lit); }
 .mm-bar.h.lit { background: var(--ink); }
+.mm-bar.ch, .mm-bar.ch.lit { background: var(--accent); }   /* the four chapters, like the numbers in their headings */
 .mm-view {
   position: absolute; left: -0.5rem; right: -0.5rem;
   border-radius: 3px;

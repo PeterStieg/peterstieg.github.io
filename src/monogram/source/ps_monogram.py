@@ -951,6 +951,149 @@ def square_svg(parts, fill, fill_dark=None, margin=0.03, ground=None, scale=1.0)
             f'aria-label="PS">\n' + style + g + body + '\n</svg>\n')
 
 
+# ---------------------------------------------------------------- favicons v2: paper PS on a bordeaux disc (30.10.2026)
+# The disc carries its own ground, so the icon reads on light and dark tab strips alike. One version for both
+# colour schemes. 16 and 32 px are drawn by hand on the pixel grid (FAVICONS_DISC in favicons.py); the disc edge
+# is antialiased by coverage into the alpha channel, so it blends with whatever the tab colour is.
+FAVICONS_DISC = {}        # full-canvas grids, '#' = paper; filled from favicons.py
+FAV_FRAC = 0.69           # the mark's width as a share of the disc: what the hand-drawn grids use (11/16, 22/32)
+SAFE = 0.40               # maskable icons: everything inside a circle of 40 % of the side (the 80 % safe zone)
+
+
+def _rgb(h):
+    return tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def disc_alpha(size, ss=16):
+    """Coverage of a full-bleed disc per pixel (0..1), by supersampling."""
+    r = c = size / 2
+    out = []
+    for y in range(size):
+        row = []
+        for x in range(size):
+            n = sum(1 for j in range(ss) for i in range(ss)
+                    if (x + (i + 0.5) / ss - c) ** 2 + (y + (j + 0.5) / ss - c) ** 2 <= r * r)
+            row.append(n / (ss * ss))
+        out.append(row)
+    return out
+
+
+def disc_png(rows, size, ground=LIGHT['accent'], ink=LIGHT['ground']):
+    """A hand-drawn grid on the disc: '#' pixels in paper, hard; the rest bordeaux with the disc's coverage as alpha."""
+    from PIL import Image
+    a = disc_alpha(size)
+    im = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    g, k = _rgb(ground), _rgb(ink)
+    for y, r in enumerate(rows):
+        for x, ch in enumerate(r):
+            if ch == '#':
+                assert a[y][x] > 0.999, f'paper pixel {x},{y} on the disc edge'
+                im.putpixel((x, y), k + (255,))
+            elif a[y][x] > 0:
+                im.putpixel((x, y), g + (round(a[y][x] * 255),))
+    return im
+
+
+def disc_svg(parts, frac=FAV_FRAC, ground=LIGHT['accent'], ink=LIGHT['ground'], title='PS'):
+    """favicon.svg: the same disc as a vector, one version for both colour schemes."""
+    x0, y0, x1, y1 = bbox([p for _, p in parts])
+    D = (x1 - x0) / frac
+    cx, cy = (x0 + x1) / 2, -(y0 + y1) / 2
+    r = D / 2
+    body = ''.join(f'<path d="{path_d(p)}"/>' for _, p in parts)
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{cx - r:.1f} {cy - r:.1f} {D:.1f} {D:.1f}" role="img" '
+            f'aria-label="{title}">\n<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:.1f}" fill="{ground}"/>\n'
+            f'<g fill="{ink}">{body}</g>\n</svg>\n')
+
+
+def disc_auto_png(parts, size, frac=FAV_FRAC, ground=LIGHT['accent'], ink=LIGHT['ground'], ss=8):
+    """Larger sizes (48 px): the vector disc, with the P's stem and top moved onto whole pixels."""
+    import resvg_py
+    from PIL import Image
+    x0, y0, x1, y1 = bbox([p for _, p in parts])
+    u = (x1 - x0) / (frac * size)                       # font units per pixel
+    left = round(size / 2 - (x1 - x0) / u / 2)          # P's stem on a pixel edge
+    top = round(size / 2 - (y1 - y0) / u / 2)           # P's top on a pixel edge
+    vx, vy = x0 - left * u, -y1 - top * u
+    body = ''.join(f'<path d="{path_d(p)}"/>' for _, p in parts)
+    c = size * u / 2
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{vx:.3f} {vy:.3f} {size * u:.3f} {size * u:.3f}" '
+           f'width="{size * ss}" height="{size * ss}"><circle cx="{vx + c:.3f}" cy="{vy + c:.3f}" r="{c:.3f}" fill="{ground}"/>'
+           f'<g fill="{ink}">{body}</g></svg>')
+    big = Image.open(io.BytesIO(bytes(resvg_py.svg_to_bytes(svg_string=svg)))).convert('RGBA')
+    return big.resize((size, size), Image.BOX)
+
+
+def mark_radius(parts):
+    """The mark's farthest outline point from its bbox centre, in font units."""
+    x0, y0, x1, y1 = bbox([p for _, p in parts])
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    far = 0.0
+    for _, p in parts:
+        rec = RecordingPen()
+        p.draw(rec)
+        cur = None
+        for v, args in rec.value:
+            pts = list(args)
+            if v in ('qCurveTo', 'curveTo') and cur is not None:
+                ctrl = [cur] + pts
+                for k in range(1, 33):          # sample the quadratic pieces
+                    t = k / 32
+                    if len(ctrl) == 3:
+                        q = [(1 - t) ** 2 * ctrl[0][i] + 2 * (1 - t) * t * ctrl[1][i] + t * t * ctrl[2][i] for i in (0, 1)]
+                        far = max(far, math.hypot(q[0] - cx, q[1] - cy))
+            for q in pts:
+                if q:
+                    far = max(far, math.hypot(q[0] - cx, q[1] - cy))
+            if pts and pts[-1]:
+                cur = pts[-1]
+    return far
+
+
+def tile_svg(parts, ground=LIGHT['accent'], ink=LIGHT['ground'], safe=SAFE, cushion=0.95):
+    """Touch and manifest icons: full-bleed bordeaux square, the PS inside the maskable safe circle."""
+    x0, y0, x1, y1 = bbox([p for _, p in parts])
+    side = mark_radius(parts) / (safe * cushion)
+    cx, cy = (x0 + x1) / 2, -(y0 + y1) / 2
+    vx, vy = cx - side / 2, cy - side / 2
+    body = ''.join(f'<path d="{path_d(p)}"/>' for _, p in parts)
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{vx:.1f} {vy:.1f} {side:.1f} {side:.1f}" role="img" aria-label="PS">\n'
+            f'<rect x="{vx:.1f}" y="{vy:.1f}" width="{side:.1f}" height="{side:.1f}" fill="{ground}"/>\n'
+            f'<g fill="{ink}">{body}</g>\n</svg>\n')
+
+
+def export_favicons(F, M, fav):
+    """favicon.ico (16 and 32 hand-hinted, 48 aligned), PNGs, favicon.svg, touch and manifest icons, head tags."""
+    from PIL import Image
+    os.makedirs(fav, exist_ok=True)
+    parts = MARKS[FINAL](F, M)['parts']
+    for old in ('favicon-16-hinted.svg', 'favicon-32-hinted.svg'):        # v1 only
+        if os.path.exists(os.path.join(fav, old)):
+            os.remove(os.path.join(fav, old))
+    open(os.path.join(fav, 'favicon.svg'), 'w').write(disc_svg(parts))
+    ims = {s: disc_png(FAVICONS_DISC[s], s) for s in (16, 32)}
+    ims[48] = disc_auto_png(parts, 48)
+    for s, im in ims.items():
+        im.save(os.path.join(fav, f'favicon-{s}.png'))
+    ims[48].save(os.path.join(fav, 'favicon.ico'), sizes=[(16, 16), (32, 32), (48, 48)], append_images=[ims[16], ims[32]])
+    tile = tile_svg(parts)
+    _png(tile, os.path.join(fav, 'apple-touch-icon.png'), width=180)
+    for s in (192, 512):
+        _png(tile, os.path.join(fav, f'icon-{s}.png'), width=s)
+    json.dump({'name': 'Peter Stieg', 'short_name': 'PS',
+               'icons': [{'src': f'icon-{s}.png', 'sizes': f'{s}x{s}', 'type': 'image/png', 'purpose': 'any maskable'}
+                         for s in (192, 512)],
+               'theme_color': LIGHT['ground'], 'background_color': LIGHT['ground'], 'display': 'browser'},
+              open(os.path.join(fav, 'site.webmanifest'), 'w'), indent=2)
+    # favicon.svg is in the set but not linked: browsers that support SVG favicons prefer it over the ICO, and at
+    # 16 px the vector comes out soft. Without it, Chrome and Firefox use the hand-hinted ICO (16 at 1x, 32 at 2x).
+    open(os.path.join(fav, 'head.html'), 'w').write(
+        '<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">\n'
+        '<link rel="apple-touch-icon" href="apple-touch-icon.png">\n'
+        '<link rel="manifest" href="site.webmanifest">\n')
+    return ims
+
+
 def clearspace_svg(F, R, parts, T=LIGHT):
     """The mark, its clear space (one stem on every side) and the minimum sizes."""
     ink, acc = T['ink'], T['accent']
@@ -994,32 +1137,8 @@ def export_final(F, M, out):
         svg = avatar_svg(parts, g, f, title=title)
         open(os.path.join(d['avatar'], f'avatar-{k}.svg'), 'w').write(svg)
         _png(svg, os.path.join(d['avatar'], f'avatar-{k}-1024.png'), width=1024)
-    # favicons: vector for modern browsers, hand-hinted pixels in the .ico, touch and manifest icons
-    fav = d['favicon']
-    open(os.path.join(fav, 'favicon.svg'), 'w').write(square_svg(parts, LIGHT['accent'], DARK['accent']))
-    rows = {s: grid_rows(FAVICONS[FINAL][s]) for s in (16, 32)}
-    for s in (16, 32):
-        open(os.path.join(fav, f'favicon-{s}-hinted.svg'), 'w').write(favicon_svg(rows[s], s, LIGHT['accent'], DARK['accent']))
-        favicon_png(rows[s], s, LIGHT['accent']).save(os.path.join(fav, f'favicon-{s}.png'))
-    _png(square_svg(parts, LIGHT['accent']), os.path.join(fav, 'favicon-48.png'), width=48)
-    i16 = Image.open(os.path.join(fav, 'favicon-16.png'))
-    i32 = Image.open(os.path.join(fav, 'favicon-32.png'))
-    i48 = Image.open(os.path.join(fav, 'favicon-48.png'))
-    i48.save(os.path.join(fav, 'favicon.ico'), sizes=[(16, 16), (32, 32), (48, 48)], append_images=[i16, i32])
-    tile = square_svg(parts, LIGHT['accent'], margin=0.0, ground=LIGHT['ground'], scale=0.62)
-    _png(tile, os.path.join(fav, 'apple-touch-icon.png'), width=180)
-    for s in (192, 512):
-        _png(tile, os.path.join(fav, f'icon-{s}.png'), width=s)
-    json.dump({'name': 'Peter Stieg', 'short_name': 'PS',
-               'icons': [{'src': f'icon-{s}.png', 'sizes': f'{s}x{s}', 'type': 'image/png', 'purpose': 'any maskable'}
-                         for s in (192, 512)],
-               'theme_color': LIGHT['ground'], 'background_color': LIGHT['ground'], 'display': 'browser'},
-              open(os.path.join(fav, 'site.webmanifest'), 'w'), indent=2)
-    open(os.path.join(fav, 'head.html'), 'w').write(
-        '<link rel="icon" href="favicon.ico" sizes="48x48">\n'
-        '<link rel="icon" href="favicon.svg" type="image/svg+xml">\n'
-        '<link rel="apple-touch-icon" href="apple-touch-icon.png">\n'
-        '<link rel="manifest" href="site.webmanifest">\n')
+    # favicons v2: paper PS on a bordeaux disc
+    export_favicons(F, M, d['favicon'])
     # lockups: transparent, mark centred as a whole on the wordmark's cap
     for k, T in (('light', LIGHT), ('dark', DARK)):
         svg = lockup_svg(F, parts, T, centre='box', ground=False)
@@ -1126,12 +1245,23 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--font', default=os.path.join(HERE, 'fonts', 'AtkinsonHyperlegible-Bold.ttf'))
     ap.add_argument('--out', default=os.path.join(HERE, 'out'))
+    ap.add_argument('--favicons', action='store_true', help='write only the favicon set to --out and the preview sheet')
     a = ap.parse_args()
     try:
         from favicons import FAVICONS as _F
         FAVICONS.update(_F)
+        from favicons import FAVICONS_DISC as _D
+        FAVICONS_DISC.update({s: grid_rows(g) for s, g in _D.items()})
     except ImportError:
         pass
+    if a.favicons:
+        F = Font(a.font)
+        M = measure(F)
+        export_favicons(F, M, a.out)
+        import favicon_preview
+        favicon_preview.sheet(F, M, os.path.join(HERE, 'preview', 'favicon-preview.png'))
+        print('favicons written to', a.out)
+        raise SystemExit
     _, M, _, meta = build(a.font, a.out)
     print(json.dumps({k: v.get('dx') for k, v in meta['marks'].items()}), 'terminal %.2f slash %.2f prompt %.2f touch %.1f' %
           (M['terminal_angle'], M['slash_angle'], M['prompt_angle'], M['touch_dx']))

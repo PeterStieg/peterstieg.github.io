@@ -21,7 +21,7 @@ Every HTML page in `site/` is generated: `src/build.py` writes them, together wi
 ```
 
 - `<!doctype html>` – switches the browser to standards mode. Without it, browsers fall back to quirks mode, which imitates the rendering bugs of late-1990s browsers (for example in how heights and table cells are calculated). This short form is all HTML needs; upper or lower case does not matter.
-- `<!-- … -->` – a comment. The parser keeps it in the document (DevTools shows it above `<html>`), but nothing renders. It is an easter egg for anyone who opens view-source: the greeting repeats the contact section, "root access" picks up the claim, the tree imitates the Unix `tree` command, and the last line is the motto from the hero. `build.py` keeps the text in the constant `SOURCE_NOTE` and puts it on every page. `site.js` prints a similar message to the browser console.
+- `<!-- … -->` – a comment. The parser keeps it in the document (DevTools shows it above `<html>`), but nothing renders. It is an easter egg for anyone who opens view-source: the greeting is German, English and Italian, "root access" picks up the claim, the tree imitates the Unix `tree` command, and the last line is the motto from the hero. `build.py` keeps the text in the constant `SOURCE_NOTE` and puts it on every page. `site.js` prints a similar message to the browser console.
 - The comment sits before `<meta charset>`. That is fine as long as it stays short: browsers look for the charset declaration within the first 1024 bytes of the file. Here the declaration starts at byte 232.
 - The comment keeps ordinary spaces around its middle dot. The function `dots()` in `build.py`, which makes middle dots non-breaking, only touches what comes after `<body>` (see "Non-breaking spaces and middle dots").
 
@@ -160,20 +160,20 @@ LinkedIn's preview is built from `og:title`, `og:description`, `og:image` and `o
 ### Icons
 
 ```html
-<link rel="icon" href="favicon.ico" sizes="48x48">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 ```
 
-Four lines for four kinds of reader. All of them show the same mark, the PS monogram (see `favicon.svg` at the end of this chapter).
+Three lines for three kinds of reader. All of them show the same mark: the PS monogram in paper on bordeaux (see `favicon.svg` at the end of this chapter).
 
-- `rel="icon"` with `favicon.ico` – the classic format: one file that holds several bitmaps, here 16, 32 and 48 px. It serves browsers that cannot use an SVG icon – Safari before version 26, older browsers – and tools that ask for `/favicon.ico` without reading the HTML at all, such as some feed readers. Its 16 and 32 px images are drawn by hand on the pixel grid, so the small sizes stay crisp instead of blurring.
-- `sizes="48x48"` – the largest image in the file. The attribute also steers the choice between the two icons: Chrome, given an ICO marked `sizes="any"` (an older recommendation), takes it over the SVG. With a concrete size, the scalable SVG is the better match.
-- `rel="icon"` with `favicon.svg` – the vector icon for Chrome, Edge, Firefox and Safari from version 26. It stays sharp at every size and on every screen density, and it switches colour in dark mode. `type="image/svg+xml"` lets a browser that cannot use SVG icons skip the file without downloading it.
-- `rel="apple-touch-icon"` – the icon iOS and iPadOS show when someone adds the page to the home screen. iOS does not take SVG here, so it is a 180 × 180 px PNG: the monogram on an opaque, paper-coloured square. iOS rounds the corners itself.
+- `rel="icon"` with `favicon.ico` – the classic format: one file that holds several bitmaps, here 16, 32 and 48 px. Every browser takes it, and so do tools that ask for `/favicon.ico` without reading the HTML at all, such as some feed readers. Its 16 and 32 px images are drawn by hand on the pixel grid, so the small sizes stay crisp instead of blurring. Chrome and Firefox show the 16 px image in a tab on an ordinary screen and the 32 px image on a high-density one.
+- `sizes="16x16 32x32 48x48"` – the three images in the file, separated by spaces. A browser can pick the one that fits from the HTML alone.
+- **Why no SVG icon.** A browser that supports SVG favicons prefers the SVG whenever both are linked. At 16 px a vector lands its edges between pixels, and the browser smooths them into blur: the disc's rim, the P's counter and the one-pixel channel between P and S go soft. So the pages link only the ICO. `favicon.svg` stays on the server as the vector version, unlinked.
+- **Why a disc.** Until October 2026 the icon was the bare bordeaux mark on a transparent ground. On a dark tab strip – Chrome `#35363A`, Firefox `#2B2A33` – that reached 1.2 : 1 and nearly disappeared. The disc brings its own ground: on a light tab the disc carries the shape (10.4 : 1 on white), on a dark tab the paper letters do (11.2 : 1 on Chrome's dark tab), and inside the disc it is always paper on bordeaux, 9.7 : 1. One version works for both colour schemes. The old SVG switched colour with `prefers-color-scheme`, but that query follows the operating system, not the colour of the browser's tab strip.
+- `rel="apple-touch-icon"` – the icon iOS and iPadOS show when someone adds the page to the home screen. iOS does not take SVG here, so it is a 180 × 180 px PNG: the paper PS on a full-bleed bordeaux square. iOS rounds the corners itself; a disc inside that rounded square would be a second shape with a ring around it.
 - `rel="manifest"` – the web app manifest, a small JSON file with the site's name and two larger icons. Android reads it when someone adds the page to the home screen (see `site.webmanifest` under "The other files").
-- Relative paths – `favicon.svg` resolves against the page's own address. The German page, one folder deeper, writes `../favicon.ico`, `../favicon.svg`, `../apple-touch-icon.png` and `../site.webmanifest`. `build.py` handles this with the value `root` per language (`""` or `"../"`). Relative paths make the site work anywhere: on the domain, in a subfolder, or opened straight from disk. The 404 page is the exception, for reasons explained there.
+- Relative paths – `favicon.ico` resolves against the page's own address. The German page, one folder deeper, writes `../favicon.ico`, `../apple-touch-icon.png` and `../site.webmanifest`. `build.py` handles this with the value `root` per language (`""` or `"../"`). Relative paths make the site work anywhere: on the domain, in a subfolder, or opened straight from disk. The 404 page is the exception, for reasons explained there.
 
 ### Font preload and stylesheet
 
@@ -670,17 +670,20 @@ The footnote reference, piece by piece:
 ### Contact
 
 ```html
-<p class="hello">Hallo&nbsp;· Hi&nbsp;· Ciao</p>
-<dl class="reach">
-<div><dt lang="en">Online</dt><dd><a class="mail" href="mailto:info@peterstieg.com">info@peterstieg.com</a>&nbsp;· <a href="https://www.linkedin.com/in/peterstieg/" target="_blank" rel="me noopener"><span class="nw">LinkedIn<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>&nbsp;· <a href="https://github.com/PeterStieg" target="_blank" rel="me noopener"><span class="nw">GitHub<span class="newtab">…</span></span></a></dd></div>
-<div><dt lang="en">Offline</dt><dd>Leipzig. <span class="muted">Before: Rome, Trento, Jinotega (Nicaragua), Orem (Utah).</span></dd></div>
+<dl class="facts">
+<div><dt>Email</dt><dd><a href="mailto:info@peterstieg.com">info@peterstieg.com</a></dd></div>
+<div><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/peterstieg/" target="_blank" rel="me noopener"><span class="nw">linkedin.com/in/peterstieg<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a></dd></div>
+<div><dt>GitHub</dt><dd><a href="https://github.com/PeterStieg" target="_blank" rel="me noopener"><span class="nw">github.com/PeterStieg<span class="newtab">…</span></span></a></dd></div>
+<div><dt>Based in</dt><dd>Leipzig</dd></div>
 </dl>
 ```
 
-- `<p class="hello">` – a greeting in German, English and Italian. The words carry no `lang`, so a screen reader says all three in the page's voice.
-- `<dl class="reach">` – Online and Offline as terms, a nod to an older claim ("Work online | Live offline", according to a comment in `build.py`). `lang="en"` on the `<dt>` keeps them English on the German page.
+- `<dl class="facts">` – the same pattern as Education: a label in the `<dt>`, the value in the `<dd>`, each pair in a `<div>`. Four rows: Email, LinkedIn, GitHub, Based in. Like a table, but without `<table>`: there are no columns to compare, just labels and their values, which is what a description list is for. A screen reader announces the pairs as term and description.
+- The link texts are the addresses themselves – `linkedin.com/in/peterstieg`, `github.com/PeterStieg` – without `https://`, `www.` and the closing slash. They can be read off a printout or a screenshot and typed, and a parser that reads only the text still finds the profiles.
 - `href="mailto:…"` – opens the visitor's mail program with the address filled in. The address is in clear text here and in the JSON-LD: convenient for people, readable for address harvesters. The site accepts that trade-off. The link has no `target`: it opens no page, so there is no tab to keep.
 - `rel="me noopener"` – `rel` holds a list of link types, separated by spaces, and each applies. `me` says "the linked page represents the same person as this one". Services that verify profile links – Mastodon is the best known – check for `rel="me"` in both directions. Together with `sameAs` in the JSON-LD, it ties the site to the LinkedIn and GitHub profiles. That is why the two links hand `offsite()` a `rel` of their own: `me`, plus the `noopener` that every link to another site carries. Given a `rel`, the function writes no default: two `rel` attributes on one element are an error, and the HTML parser keeps only the first.
+- The address has no space, so the whole of it sits in the `<span class="nw">` with the ↗: if the line is too narrow, the address moves to the next line in one piece, arrow included.
+- German page: "E-Mail" and "Wohnort" as labels, LinkedIn and GitHub as they are.
 
 ### Sources
 
@@ -848,8 +851,7 @@ One addition goes the other way. The notice behind each ↗ is real text, like t
 <title>404 – Peter Stieg</title>
 <meta name="description" content="Page not found.">
 …
-<link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -923,9 +925,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-29</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-30</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-29</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-30</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```
@@ -1004,35 +1006,34 @@ Deutschland</address>
 A web app manifest: JSON that tells the browser what the site is called and which icons it has, for the moment someone adds the page to a home screen. Android reads it; iOS takes the `apple-touch-icon` instead. Like the icons, the file is not written by `build.py`; it comes with the favicon set from `src/monogram/` (see `favicon.svg` below).
 
 - `name`, `short_name` – the full name, and a short one for places with little room, such as the label under a home-screen icon.
-- `icons` – two PNGs, 192 and 512 px, the pair of sizes Android and Chrome ask for: the smaller one for the home screen, the larger one for bigger surfaces such as a splash screen. Both show the monogram at about 62 % of an opaque, paper-coloured square.
+- `icons` – two PNGs, 192 and 512 px, the pair of sizes Android and Chrome ask for: the smaller one for the home screen, the larger one for bigger surfaces such as a splash screen. Both show the paper PS on a full-bleed bordeaux square, inside the central circle that survives any mask.
 - `src` – resolved against the manifest's own URL, not the page's. `icon-192.png` therefore points to the site root for the German page as well, although that page sits one folder deeper.
-- `"purpose": "any maskable"` – "any": the icon may be shown as it is. "maskable": it has enough margin that the platform may cut it to its own shape, a circle or a rounded square, without cutting into the letters. One file for both is a compromise: Chrome's DevTools advise against combining the two values, because an icon padded for masking looks small where it is shown unmasked. Here the paper-coloured margin is part of the icon either way.
-- `theme_color`, `background_color` – both the paper white `#F7F6F3`, `--paper` in light mode. The first tints the browser frame of a page opened from the home screen, the second fills the screen while it starts. A manifest has no media queries, so both stay light; for the browser frame, the `theme-color` tags in the head handle dark mode.
+- `"purpose": "any maskable"` – "any": the icon may be shown as it is. "maskable": it has enough margin that the platform may cut it to its own shape, a circle or a rounded square, without cutting into the letters. One file for both is a compromise: Chrome's DevTools advise against combining the two values, because an icon padded for masking looks small where it is shown unmasked. Here the bordeaux ground fills the whole square and the letters stay inside the safe zone – a circle of 80 % of the side, which every mask keeps – so the icon works masked and unmasked alike.
+- `theme_color`, `background_color` – both the paper white `#F7F6F3`, `--paper` in light mode. The first tints the browser frame of a page opened from the home screen, the second fills the screen while it starts. A manifest has no media queries, so both stay light; for the browser frame, the `theme-color` tags in the head handle dark mode, and they take precedence over the manifest. Bordeaux would match the icons but tint the whole browser bar.
 - `"display": "browser"` – the icon opens the site in an ordinary browser tab, with its address bar, as a bookmark would. The site is a page to read, not an app; the manifest is there for the name and the icons.
 - No `start_url` – without one, the start URL is the page that linked the manifest. An icon added from `/de/` opens the German page.
 
 ### `favicon.svg`
 
 ```svg
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="15.0 -774.7 1026.3 1026.3" role="img" aria-label="PS">
-<style>path{fill:#7A1A2C}@media (prefers-color-scheme: dark){path{fill:#C98593}}</style>
-<path d="M44 119.4 202 62.4V-232H301Q381.3 -232 445.9 -247.4L573 -573.8Q569 -579.7 564.5 -585Q525 -632 456.5 -650Q388 -668 301 -668H44V119.4ZM202 -363V-535H306Q343 -535 372.5 -528.5Q402 -522 419.5 -503.5Q437 -485 437 -450Q437 -415 419.5 -396Q402 -377 372.5 -370Q343 -363 306 -363Z"/>
-<path d="M730.2 145Q782.2 145 832.2 130.5…L490.6 -224.4…Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-173.5 -963.1 1403.2 1403.2" role="img" aria-label="PS">
+<circle cx="528.1" cy="-261.5" r="701.6" fill="#7A1A2C"/>
+<g fill="#F7F6F3"><path d="M44 119.4 202 62.4V-232H301Q381.3 -232 445.9 -247.4L573 -573.8Q569 -579.7 564.5 -585Q525 -632 456.5 -650Q388 -668 301 -668H44V119.4ZM202 -363V-535H306Q343 -535 372.5 -528.5Q402 -522 419.5 -503.5Q437 -485 437 -450Q437 -415 419.5 -396Q402 -377 372.5 -370Q343 -363 306 -363Z"/><path d="M730.2 145Q782.2 145 832.2 130.5…L490.6 -224.4…Z"/></g>
 </svg>
 ```
 
-The PS monogram: P and S from Atkinson Hyperlegible Bold, the site's own font. The outlines are read from the font file, not redrawn. The S slides under the P's bowl, a slash at the angle of the font's own `/` divides the two, the S steps down by one bar, and the P's stem ends in a slanted cut. `src/monogram/README.md` documents the construction with all its measurements; the header logo `>_ P/S` uses the same P and S. The file is not written by `build.py`: the generator `src/monogram/source/ps_monogram.py` makes the whole favicon set – this SVG, `favicon.ico`, the touch and manifest icons and `site.webmanifest`.
+The PS monogram: P and S from Atkinson Hyperlegible Bold, the site's own font. The outlines are read from the font file, not redrawn. The S slides under the P's bowl, a slash at the angle of the font's own `/` divides the two, the S steps down by one bar, and the P's stem ends in a slanted cut. `src/monogram/README.md` documents the construction with all its measurements; the header logo `>_ P/S` uses the same P and S. As an icon, the mark stands in paper on a bordeaux disc. The file is not written by `build.py`: the generator `src/monogram/source/ps_monogram.py` makes the whole favicon set – this SVG, `favicon.ico`, the touch and manifest icons and `site.webmanifest`. No page links this file (see "Icons" above); it is the vector version of what `favicon.ico` shows in pixels.
 
 - `xmlns="http://www.w3.org/2000/svg"` – required in a standalone SVG file. Inline SVG inside HTML gets the namespace from the HTML parser, which is why the icons in the page do without it.
-- `viewBox="15.0 -774.7 1026.3 1026.3"` – coordinates in font units, as in the header logo: 1000 units to the em, the P 668 units tall (the font's cap height), negative y above the baseline because SVG's y axis points down. The mark itself is 968 × 813 units; the viewBox is a square of 1026.3 units with the mark in its centre. Favicons are square – Google Search, which shows them next to its results, asks for a 1 : 1 icon – and the square puts the margin into the file: 29 units left and right, more above and below, because the mark is wider than it is tall.
-- `role="img"` and `aria-label="PS"` – name the drawing for assistive technology wherever the SVG is shown as a document of its own, for instance when the file is opened directly. As a favicon, nothing reads it out.
-- `<style>` – CSS inside the SVG, valid only for this drawing. `path{fill:#7A1A2C}` fills both letters in Bordeaux; `@media (prefers-color-scheme: dark)` switches them to the lighter rose `#C98593`. Both values equal `--accent` in `site.css`, and the whole mark takes one colour, as the README prescribes.
-- The query sees the system or browser setting; the favicon is a separate document and knows nothing about the page's `data-theme`, so it does not follow the theme buttons. Support for media queries inside favicons varies between browsers.
+- `viewBox="-173.5 -963.1 1403.2 1403.2"` – coordinates in font units, as in the header logo: 1000 units to the em, the P 668 units tall (the font's cap height), negative y above the baseline because SVG's y axis points down. The viewBox is the square around the disc, so the disc touches all four edges.
+- `<circle cx="528.1" cy="-261.5" r="701.6" fill="#7A1A2C"/>` – the disc in Bordeaux, `--accent` in light mode. Its centre is the centre of the mark's bounding box. The mark is 968 units wide and takes 69 % of the disc's width: 968 ÷ 0.69 = 1403, the diameter. The avatar uses 60 %; at 16 px every pixel of letter counts more than the margin.
+- `role="img"` and `aria-label="PS"` – name the drawing for assistive technology wherever the SVG is shown as a document of its own, for instance when the file is opened directly.
+- `<g fill="#F7F6F3">` – a group that passes its fill to both letters: the paper colour, `--paper` in light mode. The letters are drawn on the disc, not cut out of it – cut out, a dark tab would show through and the letters would vanish again. No `prefers-color-scheme` rule: the disc brings its own ground, so one version reads on light and dark tab strips.
 - Two `<path>` elements: the P and the S. Their commands: `M` move, `L` line, `H` and `V` horizontal and vertical lines, `Q` a quadratic Bézier curve, `Z` close the shape. `Q` is the curve type TrueType fonts store, so the font's points carry over one to one.
 - `M44 119.4 202 62.4` – the P begins at its foot: a straight cut across the stem, 158 units wide (one stem) and rising 57 – about 20°, close to the angle of the `>` in the prompt.
 - `L573 -573.8` – the right edge of the P's bowl, cut along the slash at 68.7°. In the S, `L490.6 -224.4` is the slash's other edge: parallel, 50 units away. That gap divides the two letters; 50 units is also the space the font itself leaves between P and S.
-- `M202 -363V-535H306…Z` – a second outline inside the first path: the counter, the hole in the P's bowl. It runs the other way round from the outer outline, so the default fill rule (`nonzero`) leaves it empty – the way fonts mark their holes.
-- Small sizes: a vector drawing scaled to 16 px lands its edges between pixels, and the browser smooths them into grey. That is why `favicon.ico` exists alongside it. Its 16 and 32 px images are drawn by hand on the pixel grid (`src/monogram/source/favicons.py`): stems of whole pixels, and a clear one-pixel channel where the slash divides P and S. Its 48 px image is the outline drawing scaled down. Which of the two files a browser shows in its tab is the browser's choice; browsers with SVG support generally take the vector.
+- `M202 -363V-535H306…Z` – a second outline inside the first path: the counter, the hole in the P's bowl. It runs the other way round from the outer outline, so the default fill rule (`nonzero`) leaves it empty – the way fonts mark their holes. On the disc, the counter shows the bordeaux beneath.
+- Small sizes: a vector drawing scaled to 16 px lands its edges between pixels, and the browser smooths them into grey. That is why the pages link `favicon.ico` instead. Its 16 and 32 px images are drawn by hand on the pixel grid (`src/monogram/source/favicons.py`, `FAVICONS_DISC`): stems and bars of whole pixels, a clear one-pixel channel where the slash divides P and S, and the disc's rim antialiased into the alpha channel so it blends with any tab colour. At 16 px the mark is 11 × 10 pixels. The 48 px image is the vector drawing, with the P's stem and top moved onto whole pixels.
 
 ---
 
