@@ -21,7 +21,7 @@ Every HTML page in `site/` is generated: `src/build.py` writes them, together wi
 ```
 
 - `<!doctype html>` – switches the browser to standards mode. Without it, browsers fall back to quirks mode, which imitates the rendering bugs of late-1990s browsers (for example in how heights and table cells are calculated). This short form is all HTML needs; upper or lower case does not matter.
-- `<!-- … -->` – a comment. The parser keeps it in the document (DevTools shows it above `<html>`), but nothing renders. It is an easter egg for anyone who opens view-source: the greeting repeats the contact section, "root access" picks up the claim, the tree imitates the Unix `tree` command, and the last line is the motto from the hero. `build.py` keeps the text in the constant `SOURCE_NOTE` and puts it on every page. `site.js` prints a similar message to the browser console.
+- `<!-- … -->` – a comment. The parser keeps it in the document (DevTools shows it above `<html>`), but nothing renders. It is an easter egg for anyone who opens view-source: the greeting is German, English and Italian, "root access" picks up the claim, the tree imitates the Unix `tree` command, and the last line is the motto from the hero. `build.py` keeps the text in the constant `SOURCE_NOTE` and puts it on every page. `site.js` prints a similar message to the browser console.
 - The comment sits before `<meta charset>`. That is fine as long as it stays short: browsers look for the charset declaration within the first 1024 bytes of the file. Here the declaration starts at byte 232.
 - The comment keeps ordinary spaces around its middle dot. The function `dots()` in `build.py`, which makes middle dots non-breaking, only touches what comes after `<body>` (see "Non-breaking spaces and middle dots").
 
@@ -670,17 +670,20 @@ The footnote reference, piece by piece:
 ### Contact
 
 ```html
-<p class="hello">Hallo&nbsp;· Hi&nbsp;· Ciao</p>
-<dl class="reach">
-<div><dt lang="en">Online</dt><dd><a class="mail" href="mailto:info@peterstieg.com">info@peterstieg.com</a>&nbsp;· <a href="https://www.linkedin.com/in/peterstieg/" target="_blank" rel="me noopener"><span class="nw">LinkedIn<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>&nbsp;· <a href="https://github.com/PeterStieg" target="_blank" rel="me noopener"><span class="nw">GitHub<span class="newtab">…</span></span></a></dd></div>
-<div><dt lang="en">Offline</dt><dd>Leipzig. <span class="muted">Before: Rome, Trento, Jinotega (Nicaragua), Orem (Utah).</span></dd></div>
+<dl class="facts">
+<div><dt>Email</dt><dd><a href="mailto:info@peterstieg.com">info@peterstieg.com</a></dd></div>
+<div><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/peterstieg/" target="_blank" rel="me noopener"><span class="nw">linkedin.com/in/peterstieg<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a></dd></div>
+<div><dt>GitHub</dt><dd><a href="https://github.com/PeterStieg" target="_blank" rel="me noopener"><span class="nw">github.com/PeterStieg<span class="newtab">…</span></span></a></dd></div>
+<div><dt>Based in</dt><dd>Leipzig</dd></div>
 </dl>
 ```
 
-- `<p class="hello">` – a greeting in German, English and Italian. The words carry no `lang`, so a screen reader says all three in the page's voice.
-- `<dl class="reach">` – Online and Offline as terms, a nod to an older claim ("Work online | Live offline", according to a comment in `build.py`). `lang="en"` on the `<dt>` keeps them English on the German page.
+- `<dl class="facts">` – the same pattern as Education: a label in the `<dt>`, the value in the `<dd>`, each pair in a `<div>`. Four rows: Email, LinkedIn, GitHub, Based in. Like a table, but without `<table>`: there are no columns to compare, just labels and their values, which is what a description list is for. A screen reader announces the pairs as term and description.
+- The link texts are the addresses themselves – `linkedin.com/in/peterstieg`, `github.com/PeterStieg` – without `https://`, `www.` and the closing slash. They can be read off a printout or a screenshot and typed, and a parser that reads only the text still finds the profiles.
 - `href="mailto:…"` – opens the visitor's mail program with the address filled in. The address is in clear text here and in the JSON-LD: convenient for people, readable for address harvesters. The site accepts that trade-off. The link has no `target`: it opens no page, so there is no tab to keep.
 - `rel="me noopener"` – `rel` holds a list of link types, separated by spaces, and each applies. `me` says "the linked page represents the same person as this one". Services that verify profile links – Mastodon is the best known – check for `rel="me"` in both directions. Together with `sameAs` in the JSON-LD, it ties the site to the LinkedIn and GitHub profiles. That is why the two links hand `offsite()` a `rel` of their own: `me`, plus the `noopener` that every link to another site carries. Given a `rel`, the function writes no default: two `rel` attributes on one element are an error, and the HTML parser keeps only the first.
+- The address has no space, so the whole of it sits in the `<span class="nw">` with the ↗: if the line is too narrow, the address moves to the next line in one piece, arrow included.
+- German page: "E-Mail" and "Wohnort" as labels, LinkedIn and GitHub as they are.
 
 ### Sources
 
@@ -923,9 +926,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-29</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-30</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-29</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-30</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```

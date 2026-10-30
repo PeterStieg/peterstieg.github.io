@@ -174,7 +174,7 @@ CONTENT = {
             ("2010", "Bachelor’s degree in economics", "Università degli Studi di Trento"),
             ("Languages", ["German (native)", "English C2", "Italian C2", "Spanish B1", "French A2"], ""),
         ],
-        "offline": ("Leipzig.", "Before: Rome, Trento, Jinotega (Nicaragua), Orem (Utah)."),
+        "reach": ("Email", "Based in", "Leipzig"),
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
         "imprint": "Legal notice", "privacy": "Privacy",
         "jobtitle": "Head of Marketing",
@@ -277,7 +277,7 @@ CONTENT = {
             ("2010", "Bachelor in Wirtschaftswissenschaften", "Università degli Studi di Trento"),
             ("Sprachen", ["Deutsch (Muttersprache)", "Englisch C2", "Italienisch C2", "Spanisch B1", "Französisch A2"], ""),
         ],
-        "offline": ("Leipzig.", "Davor: Rom, Trient, Jinotega (Nicaragua), Orem (Utah)."),
+        "reach": ("E-Mail", "Wohnort", "Leipzig"),
         "notes": {"issued": "ausgestellt am", "completed": "abgeschlossen am", "verify": "Nachweis prüfen", "course": "Kursseite", "back": "Zurück zum Text"},
         "imprint": "Impressum", "privacy": "Datenschutz",
         "jobtitle": "Leiter Marketing",
@@ -676,14 +676,14 @@ def page(c):
     pr = "".join(f'<li><p>{e(a)}</p></li>\n' for a in c["approach"])
     out.append(section(c, "approach", e(s["approach"]), f'<ul class="principles">\n{pr}</ul>\n'))
 
-    # contact – a nod to the 2016 claim: Work online | Live offline
-    here, before = c["offline"]
-    contact = f"""<p class="hello">Hallo · Hi · Ciao</p>
-<dl class="reach">
-<div><dt lang="en">Online</dt><dd><a class="mail" href="mailto:{EMAIL}">{EMAIL}</a> · {offsite(c, LINKEDIN, "LinkedIn", ' rel="me noopener"')} · {offsite(c, GITHUB, "GitHub", ' rel="me noopener"')}</dd></div>
-<div><dt lang="en">Offline</dt><dd>{e(here)} <span class="muted">{e(before)}</span></dd></div>
-</dl>
-"""
+    # contact – one row per way to get in touch, laid out like Education
+    mail, based, city = c["reach"]
+    rows = [(e(mail), f'<a href="mailto:{EMAIL}">{EMAIL}</a>')]
+    for name, url in (("LinkedIn", LINKEDIN), ("GitHub", GITHUB)):
+        address = re.sub(r"^https://(www\.)?|/$", "", url)               # the address is the link text
+        rows.append((name, offsite(c, url, address, ' rel="me noopener"')))  # both profiles are Pete's own
+    rows.append((e(based), e(city)))
+    contact = '<dl class="facts">\n' + "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>\n" for k, v in rows) + "</dl>\n"
     out.append(section(c, "contact", e(s["contact"]), contact))
 
     # sources – footnotes in order of appearance, each with a way back
