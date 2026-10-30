@@ -285,7 +285,7 @@ CONTENT = {
             …
             ("Languages", ["German (native)", "English C2", "Italian C2", "Spanish B1", "French A2"], ""),
         ],
-        "offline": ("Leipzig.", "Before: Rome, Trento, Jinotega (Nicaragua), Orem (Utah)."),
+        "reach": ("Email", "Based in", "Leipzig"),
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
         "imprint": "Legal notice", "privacy": "Privacy",
         "jobtitle": "Head of Marketing",
@@ -357,7 +357,7 @@ Copy:
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link; each link opens in a new tab |
 | `approach` | list of 3 str | Approach, one list item per sentence |
 | `facts` | list of (label, value, sub-line or `""`) | Education; the value is a string, or a list of strings shown one per line (the languages) |
-| `offline` | 2-tuple | Contact: current city, earlier places |
+| `reach` | 3-tuple | Contact: the label for the mail row, the label for the place row, the place – in German "E-Mail", "Wohnort" |
 
 ### How EN and DE mirror each other
 
@@ -1335,23 +1335,26 @@ def page(c):
 ### Contact
 
 ```python
-    # contact – a nod to the 2016 claim: Work online | Live offline
-    here, before = c["offline"]
-    contact = f"""<p class="hello">Hallo · Hi · Ciao</p>
-<dl class="reach">
-<div><dt lang="en">Online</dt><dd><a class="mail" href="mailto:{EMAIL}">{EMAIL}</a> · {offsite(c, LINKEDIN, "LinkedIn", ' rel="me noopener"')} · {offsite(c, GITHUB, "GitHub", ' rel="me noopener"')}</dd></div>
-<div><dt lang="en">Offline</dt><dd>{e(here)} <span class="muted">{e(before)}</span></dd></div>
-</dl>
-"""
+    # contact – one row per way to get in touch, laid out like Education
+    mail, based, city = c["reach"]
+    rows = [(e(mail), f'<a href="mailto:{EMAIL}">{EMAIL}</a>')]
+    for name, url in (("LinkedIn", LINKEDIN), ("GitHub", GITHUB)):
+        address = re.sub(r"^https://(www\.)?|/$", "", url)               # the address is the link text
+        rows.append((name, offsite(c, url, address, ' rel="me noopener"')))  # both profiles are Pete's own
+    rows.append((e(based), e(city)))
+    contact = '<dl class="facts">\n' + "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>\n" for k, v in rows) + "</dl>\n"
     out.append(section(c, "contact", e(s["contact"]), contact))
 ```
 
-- `here, before = c["offline"]` – unpacks the 2-tuple.
-- "Hallo · Hi · Ciao", "Online" and "Offline" are the same in both languages; the labels are marked `lang="en"`.
-- `mailto:` – opens the visitor's mail program. A plain `<a>`: no page opens, so there is no tab to choose.
-- LinkedIn and GitHub leave the site and go through `offsite()` (section 20). The texts are constants without special characters, so they go in without `e()`.
+- Four rows – Email, LinkedIn, GitHub, Based in – in the same `<dl class="facts">` as Education: label on the left, value on the right, a line between the rows. The CSS already exists, so Contact needs none of its own.
+- `mail, based, city = c["reach"]` – unpacks the 3-tuple: the two labels that change with the language, and the place.
+- `rows` – a list of (label, value) pairs, both already HTML. The loop at the end turns each pair into `<div><dt>…</dt><dd>…</dd></div>`.
+- `mailto:` – opens the visitor's mail program. A plain `<a>`: no page opens, so there is no tab to choose. The address is a constant without special characters, so it goes in without `e()`.
+- `for name, url in (("LinkedIn", LINKEDIN), ("GitHub", GITHUB))` – the two profiles, built the same way. "LinkedIn" and "GitHub" are names, the same in both languages.
+- `re.sub(r"^https://(www\.)?|/$", "", url)` – the link text is the address itself, without the parts nobody types: `https://`, a leading `www.` and a closing `/`. `|` joins two patterns, `^` anchors the first at the start, `$` the second at the end; each match is replaced by nothing. Result: `linkedin.com/in/peterstieg`, `github.com/PeterStieg`. A visible address can be read off a printout or typed from a screen, and a parser finds the profile even without the link.
+- `offsite()` (section 20) writes the new-tab link. The address has no space, so the whole of it shares the no-wrap span with the ↗.
 - `' rel="me noopener"'` – the `attrs` argument. `rel="me"` declares "this profile is also me"; some platforms (Mastodon, for example) use it to verify identity in both directions. Because `attrs` brings a `rel`, `offsite()` leaves out its default, so `noopener` has to be in the list as well.
-- Quotes: the attribute string is single-quoted with double quotes inside, and it can stand right in the replacement field because the f-string around it is triple-double-quoted – neither kind of quote ends it. Sources cannot do the same (below).
+- The place is plain text, the city alone. The places before Leipzig and the greeting "Hallo · Hi · Ciao" in large type were dropped (decisions.md).
 
 ### Sources
 
@@ -1377,7 +1380,7 @@ def page(c):
 - Both links of a note leave the site – the verification pages at DataScientest, thekey.career and edX, the course pages at Liora – so `offsite()` writes them (section 20). "Verify credential" splits at its last space: "credential" and the ↗ share the no-wrap span. The way back, `^`, stays on the page.
 - `course` – the course link, or nothing when the note has no course page.
 - `en = ' hreflang="en"'` – the course pages are in English, and `hreflang` says so before the click. It goes in as `attrs`, with the leading space of the convention; it contains no `rel=`, so the tag gets the default as well: `target="_blank" rel="noopener" hreflang="en"`.
-  - Why a variable: the f-string around the call is single-quoted, and before Python 3.12 an expression inside an f-string cannot contain the outer quote character (section 13). Written inline, `' hreflang="en"'` would end the f-string on Python 3.11. Contact can write its attribute string inline because its f-string is triple-double-quoted.
+  - Why a variable: the f-string around the call is single-quoted, and before Python 3.12 an expression inside an f-string cannot contain the outer quote character (section 13). Written inline, `' hreflang="en"'` would end the f-string on Python 3.11. Contact can write its attribute string inline because the call there is not inside an f-string.
   - The assignment sits in the loop, next to its one use; its value is the same in every round.
 - Three adjacent f-strings inside the `append(…)` parentheses form one string.
 

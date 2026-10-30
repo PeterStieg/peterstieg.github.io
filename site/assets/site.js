@@ -286,13 +286,14 @@
         else lines.push({ top: r.top, left: r.left, right: r.right, h: r.height });
       }
       const isHead = /^H[12]$/.test(el.tagName);
+      const opens = el.tagName === "H2" && !!el.querySelector(".no:not(.ghost)");   // a chapter's first heading
       for (const l of lines) {
         const x = Math.max(0, ((l.left - box.left) / box.width) * W);
         const w = Math.max(3, ((l.right - l.left) / box.width) * W);
         const y = (l.top + window.scrollY + l.h / 2) * scale;
         const thick = Math.max(2, Math.min(isHead ? 7 : 3, l.h * scale * 0.55));
         const b = document.createElement("span");
-        b.className = "mm-bar" + (isHead ? " h" : "");
+        b.className = "mm-bar" + (isHead ? " h" : "") + (opens ? " ch" : "");
         b.style.cssText = `top:${(y - thick / 2).toFixed(1)}px;left:${x.toFixed(1)}px;width:${Math.min(W - x, w).toFixed(1)}px;height:${thick.toFixed(1)}px`;
         frag.appendChild(b);
         bars.push({ el: b, y });
