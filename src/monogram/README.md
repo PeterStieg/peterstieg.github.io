@@ -45,14 +45,14 @@ One colour per use. No gradients, outlines or shadows.
 |---|---|
 | `mark/` | `ps-monogram.svg` (`currentColor`), `-ink`, `-paper`, `-bordeaux`, `-bordeaux-dark`, transparent |
 | `avatar/` | circle crops `light`, `dark`, `bordeaux` |
-| `site/` (repository root) | `favicon.svg` (vector, follows light/dark), `favicon.ico` (16 and 32 px hand-hinted, 48 px), `apple-touch-icon.png`, `icon-192/512.png`, `site.webmanifest` |
+| `site/` (repository root) | `favicon.ico` (paper PS on a bordeaux disc: 16 and 32 px hand-hinted, 48 px), `favicon.svg` (the disc as a vector, not linked), `apple-touch-icon.png`, `icon-192/512.png` (full-bleed bordeaux, the PS inside the maskable safe zone), `site.webmanifest` |
 | `lockup/` | mark and wordmark, `light` and `dark`, transparent |
 | `spec/` | `construction.svg`, `clearspace.svg`, `parts.svg` (P, S, slash, foot and line as named elements) |
-| `source/` | `ps_monogram.py`, `favicons.py` (the hinted pixels), Atkinson Hyperlegible TTF and OFL |
+| `source/` | `ps_monogram.py`, `favicons.py` (the hinted pixels; v2 in `FAVICONS_DISC`), `favicon_preview.py` (the preview sheet), Atkinson Hyperlegible TTF and OFL |
 
 ## On peterstieg.com
 
-The favicon set lives in `site/`: `favicon.ico`, `favicon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest`. `build.py` writes the four `<link>` lines into every page's `<head>` (with `../` on the German pages, `/` on the 404 page). The header logo `>_ P/S` in `src/lockup/` uses the same P and S.
+The favicon set lives in `site/`: `favicon.ico`, `favicon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest`. Since v2 (30.10.2026, see `CHANGELOG.md`) the icon is the PS in paper on a bordeaux disc – the disc brings its own ground, so it reads on light and dark tab strips alike. `build.py` writes three `<link>` lines into every page's `<head>` – the ICO, the touch icon and the manifest (with `../` on the German pages, `/` on the 404 page). The SVG is not linked: browsers prefer it over the ICO, and at 16 px the hand-drawn pixels are sharper. The header logo `>_ P/S` in `src/lockup/` uses the same P and S.
 
 In this repository: the SVGs and the generator. The PNG exports (mark, avatar, lockup) and the hinted favicon sources are not checked in – `ps_monogram.py` writes them.
 
@@ -62,6 +62,7 @@ In this repository: the SVGs and the generator. The PNG exports (mark, avatar, l
 cd source
 pip install fonttools skia-pathops resvg-py pillow
 python3 ps_monogram.py          # writes out/final/ (and the exploration files in out/)
+python3 ps_monogram.py --favicons   # only the favicon set, to out/, plus preview/favicon-preview.png
 ```
 
 Fonts: Atkinson Hyperlegible, SIL Open Font License (`source/fonts/OFL.txt`).

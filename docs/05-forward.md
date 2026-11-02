@@ -62,11 +62,11 @@ Both files are identical below their first comment. Change one, change both.
 
 ```html
 <link rel="preconnect" href="https://peterstieg.com">
-<link rel="icon" href="https://peterstieg.com/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="https://peterstieg.com/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="preload" href="/forward/fonts/atkinson-hyperlegible-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 ```
 
-- `preconnect` opens the connection to peterstieg.com while the scene plays, so the jump at the end starts faster. The favicon comes from there anyway.
+- `preconnect` opens the connection to peterstieg.com while the scene plays, so the jump at the end starts faster. The favicon comes from there anyway – the same hand-drawn ICO the site itself links.
 - `preload` fetches both font files right away instead of waiting until the CSS asks for them. Fonts are always fetched in CORS mode, so a font preload needs `crossorigin` – even on the same server – or the browser downloads the file twice.
 - **Absolute paths** (`/forward/…`, starting with a slash) are a must here. `404.html` answers at any depth: for `/site/de/`, a relative `forward/forward.css` would resolve to `/site/de/forward/forward.css`, which does not exist.
 

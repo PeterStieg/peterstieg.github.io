@@ -60,7 +60,7 @@ Specificity counts the parts of a selector in three columns, written (a,b,c): a 
 | `:root` | (0,1,0) |
 | `:root[data-theme="dark"]` | (0,2,0) |
 | `:root:not([data-theme="light"])` | (0,2,0) – `:not()` counts as its argument |
-| `.hello` | (0,1,0) |
+| `.hw` | (0,1,0) |
 | `:where(.body) p` | (0,0,1) – `:where()` counts as nothing |
 | `.js .top.dock .home` | (0,4,0) |
 
@@ -701,7 +701,7 @@ On wide screens the heading column keeps the current heading in view. On phones 
 
 **`:where()` and why the default must be weak.** `:where()` is a pseudo-class that takes a list of selectors and matches whatever any of them matches – but it always adds zero specificity, whatever is inside. So `:where(.body) p` weighs (0,0,1), the same as a bare `p`.
 
-This rule is a default: "paragraphs in the content column get a bottom margin unless something more specific says otherwise". A default must lose against every class rule written for a particular paragraph. Written as `.body p`, it would weigh (0,1,1) – one class plus one element – and beat any single-class rule such as `.hello` (0,1,0), wherever that rule stands in the file. The margins of six paragraph classes would then be silently ignored: `.hello`, `.hw`, `.def`, `.when`, `.org` and `.ctx` (`.hello` would get 48px below instead of 16px). With `:where()`, every one of them wins by specificity, and the margins they declare are the ones you see (measured). Rules such as `.fields p` (0,1,1) win by specificity as well, wherever they stand in the file, and `.body > :first-child` and `.body > :last-child` (0,2,0) still trim the ends.
+This rule is a default: "paragraphs in the content column get a bottom margin unless something more specific says otherwise". A default must lose against every class rule written for a particular paragraph. Written as `.body p`, it would weigh (0,1,1) – one class plus one element – and beat any single-class rule such as `.hw` (0,1,0), wherever that rule stands in the file. The margins of five paragraph classes would then be silently ignored: `.hw`, `.def`, `.when`, `.org` and `.ctx` (`.def` would get 20px below instead of none, `.hw` 18px instead of 6.4px). With `:where()`, every one of them wins by specificity, and the margins they declare are the ones you see (measured). Rules such as `.fields p` (0,1,1) win by specificity as well, wherever they stand in the file, and `.body > :first-child` and `.body > :last-child` (0,2,0) still trim the ends.
 
 `:where()` works in all major browsers since early 2021. A browser that doesn't know it drops the whole rule, as with any selector it cannot parse, and paragraphs fall back to the browser's default margins.
 
@@ -955,29 +955,13 @@ Opening a disclosure makes the page taller, so `site.js` redraws the minimap on 
 .lines { list-style: none; margin: 0; padding: 0; }    /* languages: one per line */
 ```
 
-- `.facts` – another `<dl>` with div-wrapped pairs.
+- `.facts` – another `<dl>` with div-wrapped pairs. Contact uses the same list – Email, LinkedIn, GitHub, Based in – so it needs no rules of its own, and the two sections share one look: a label column, a value column, a line between the rows.
 - `.facts div` – each row a grid, ruled with a line above.
 - `.facts div:first-child` – no line and no top padding on the first row, so the list starts flush with the section heading.
 - From 36rem, `9.5rem 1fr` – the same column width as the experience dates, so the years in Education line up with the dates in Experience.
-- `.facts dt` – the year: muted, smaller, tabular digits, lowered 0.15rem like `.when`.
+- `.facts dt` – the year or label: muted, smaller, tabular digits, lowered 0.15rem like `.when`.
 - `.facts dd { margin: 0; }` – removes the default indent.
 - `.lines` – the languages, one per line: the value of that row is a `<ul class="lines">` inside the `<dd>`. A list rather than lines separated by `<br>`, because the five languages are a list: the markup says what they are, the CSS decides how they look. Bullets, margins and the 40px indent are removed, so the list looks like plain lines of text that start where the other values start.
-
-## Contact: greeting and e-mail
-
-```css
-/* contact */
-.hello {
-  margin: 0 0 1rem;
-  font-size: clamp(1.9rem, 5vw, 3rem);
-  line-height: 1.1;
-  font-weight: 700;
-}
-.mail { font-size: 1.25rem; font-weight: 700; }
-```
-
-- `.hello` – "Hallo · Hi · Ciao" as a display line: fluid between 1.9rem and 3rem, tight line height 1.1, bold. `margin: 0 0 1rem` – a fixed 16px below. In rem on purpose: the paragraph default of 1em would scale with the greeting's large size and reach 48px.
-- `.mail` – the e-mail link, larger and bold: the main call to action.
 
 ## Dictionary entry
 
@@ -1180,24 +1164,6 @@ One heading carries a short note behind a raised "i": "People" in P⁴. The patt
 - In such a browser, `popover` and `popovertarget` are unknown attributes: the button would do nothing, and the note would always show, a small card on a line of its own between heading and text.
 - `.info { display: none; }` – the useless button goes, its generated i with it.
 - `.tip { display: block; … }` – the note becomes a quiet line between heading and text: a block, a little space above, no card (no padding, border, shadow or background), in muted grey. The text values of `.tip` still apply: 1rem, a step below the text that follows.
-
-## Contact: online and offline
-
-```css
-/* contact: Work online | Live offline */
-.reach { margin: 0; display: grid; gap: 0.5rem; }
-.reach div { display: grid; grid-template-columns: 5.5rem 1fr; gap: 0 1rem; align-items: baseline; }
-.reach dt { color: var(--muted); font-size: 0.95rem; }
-.reach dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
-```
-
-- `.reach` – the contact list; its rows are spaced by a grid gap.
-- `.reach div` – each row a two-column grid at every width: a 5.5rem label column ("Online", "Offline") and the rest. `align-items: baseline` aligns the small label with the 1.25rem e-mail link.
-- `.reach dt` – muted, smaller label.
-- `.reach dd`:
-  - `margin: 0;` – no default indent.
-  - `min-width: 0;` – grid items default to `min-width: auto`, which keeps them at least as wide as their longest unbreakable word. On a narrow phone, the e-mail address could then push the row wider than the screen.
-  - `overflow-wrap: anywhere;` – allows a line break at any character when a word doesn't fit. Together, the two let the address break instead of overflowing.
 
 ## 404 page
 
@@ -1437,6 +1403,7 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 .mm-bar.h { background: var(--bar-lit); }
 .mm-bar.lit { background: var(--bar-lit); }
 .mm-bar.h.lit { background: var(--ink); }
+.mm-bar.ch, .mm-bar.ch.lit { background: var(--accent); }   /* the four chapters, like the numbers in their headings */
 ```
 
 - `.mm-bar` – one bar:
@@ -1446,6 +1413,9 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 - `.mm-bar.h` – bars for h1 and h2 headings are darker.
 - `.mm-bar.lit` – bars inside the current viewport; `site.js` toggles the class on scroll.
 - `.mm-bar.h.lit` – a heading inside the viewport gets full ink. (0,3,0) beats both two-class rules, whatever their order.
+- `.mm-bar.ch` – the bar of a heading that opens a chapter (01 Profile, 02 Experience, 03 Projects, 04 Contact), in the accent colour. On the map, the four chapters stand out like the numbers in front of their headings, and the page's outline is readable at a glance. `site.js` adds the class.
+  - Why two selectors: a chapter bar is also `.h`, so it carries `.mm-bar.h.ch` or `.mm-bar.h.ch.lit`. `.mm-bar.ch` (0,2,0) ties with `.mm-bar.h` and wins by coming later; `.mm-bar.ch.lit` (0,3,0) ties with `.mm-bar.h.lit` and wins the same way. So a chapter bar stays in the accent in and out of the viewport.
+  - Contrast: the bordeaux bar reaches 9.7:1 on the paper, the rose one in dark mode 6.0:1 – against 3:1 for graphics. The colour adds no meaning a reader needs: the bars are a map, not text, and the map is `aria-hidden`.
 
 ```css
 .mm-view {
