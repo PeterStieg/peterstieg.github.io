@@ -429,28 +429,27 @@ The section opens with the word "marketinkerer", set like an entry in a dictiona
 ### Profile: text and results ledger
 
 ```html
-<p>Leadership roles at four companies, … Université Paris 1 Panthéon-Sorbonne.</p>
+<p>Leadership roles at four companies, with interdisciplinary marketing and design teams of up to six people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer. Working languages: German, English, Italian.</p>
 <dl class="ledger" aria-label="Selected results">
-<div><dt>&gt; 2×</dt><dd>inbound inquiries year over year&nbsp;· <a href="#e-service-check">E+SERVICE+CHECK<span class="jmp"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg></span></a></dd></div>
-<div><dt>RoAS 7.6 <span class="arr"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg><span class="sr-only">to</span></span> 7.8</dt><dd>on a €1.7m media budget, while spend grew&nbsp;· <a href="#brandible">Brandible<span class="jmp">…</span></a></dd></div>
-<div><dt>€6k <span class="arr">…<span class="sr-only">to</span></span> €240k</dt><dd>monthly media budget at a RoAS of 4.0&nbsp;· <a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd></div>
-<div><dt>17 shops</dt><dd>in 12 languages across Europe&nbsp;· <a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd></div>
+<div><dt>Leads &gt; 2×</dt><dd>inbound inquiries year over year<br><a href="#e-service-check">E+SERVICE+CHECK<span class="jmp"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg></span></a></dd></div>
+<div><dt>RoAS 7.6 <span class="arr"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg><span class="sr-only">to</span></span> 7.8</dt><dd>on a €1.7m budget, while spend grew<br><a href="#brandible">Brandible<span class="jmp">…</span></a></dd></div>
+<div><dt>Media budget €6k <span class="arr">…<span class="sr-only">to</span></span> €240k</dt><dd>per month, at a RoAS of 4.0<br><a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd></div>
 </dl>
 ```
 
-- `<p>` – a plain paragraph.
-- `<dl>` – a description list: pairs of a term (`<dt>`) and its description (`<dd>`). The classic use is a glossary, but any name–value pairing qualifies – here figure → context. A table would claim rows and columns that are not there; a `<ul>` would lose the pairing.
+- `<p>` – a plain paragraph. It names the certificates without the school; the school and its partner university stand in Experience and Education, where they are dated.
+- `<dl>` – a description list: pairs of a term (`<dt>`) and its description (`<dd>`). The classic use is a glossary, but any name–value pairing qualifies – here result → context. A table would claim rows and columns that are not there; a `<ul>` would lose the pairing.
 - `aria-label="Selected results"` – a name for the list. Screen readers differ in whether they announce a name on a `<dl>`, so it is a bonus; the section heading carries the context anyway.
-- `<div>` around each `<dt>`/`<dd>` pair – allowed inside `<dl>`, but only `<div>` and only around complete groups. It gives CSS one box per row for the grid and the dividing lines.
-- `<dt>&gt; 2×</dt>` – the figure: the escaped `>`, then the multiplication sign, "more than twice". `<dd>` – what it means and where.
-- The rows run newest first, in the order of the timeline they link into: E+SERVICE+CHECK, Brandible, then Posterlounge twice. That puts the strongest figure, €6k → €240k, in third place; one order throughout the page weighed more.
-- `&nbsp;·` – the middle dot glued to the word before it (see "Non-breaking spaces and middle dots").
+- `<div>` around each `<dt>`/`<dd>` pair – allowed inside `<dl>`, but only `<div>` and only around complete groups. It gives CSS one box per row for the dividing lines.
+- `<dt>Leads &gt; 2×</dt>` – what was measured, then the figure: the escaped `>` and the multiplication sign, "more than twice". All three results open this way – Leads, RoAS, Media budget –, so the word a recruiter scans for stands first.
+- `<dd>` – one line of context, then `<br>` and the company. The three contexts are about equally long, so every result takes the same two lines under its figure. The `<br>` also separates them in plain text.
+- The rows run newest first, in the order of the timeline they link into: E+SERVICE+CHECK, Brandible, Posterlounge. That puts the strongest figure, the media budget, last; one order throughout the page weighed more.
 
 The company link:
 
 - `<a href="#posterlounge">Posterlounge…</a>` – every result ends with its company, and the name leads to that company's role under Experience, `<li class="role" id="posterlounge">`. The figure makes the claim; one click further are the team, the scope and the years behind it.
 - `<span class="jmp">` – a small ↓ after the name, inside the link: the down arrow of the jump control (the constant `DOWN_SVG` in `build.py`), its SVG `aria-hidden` as there. The CSS raises it and sets it in the accent colour, like the footnote numbers and the i after "People". It says "this link stays on the page and leads further down"; its counterpart is the muted ↗ after every link that leaves the site (see "Links that leave the site"). Inside the link it is part of the click target, but the link's underline does not run under it: the span is an `inline-block`, and text decoration does not propagate into inline-blocks. The link's name stays "Posterlounge", and as text the row ends with the company name and nothing else.
-- In `build.py` a ledger row is a tuple of figure, text and company key; the map `COMPANIES` turns the key into the name shown (see 01-build). Two rows name Posterlounge and lead to the same role: same link text, same target.
+- In `build.py` a ledger row is a tuple of figure, text and company key; the map `COMPANIES` turns the key into the name shown (see 01-build).
 - The ids are the same on both pages: unlike the section ids, `#posterlounge` is not translated, because a company has one name in every language.
 - After the jump, the CSS sets the dates and the title of the targeted role in the accent colour (`.role:target`), so you see where you landed – the same idea as the highlighted footnote under Sources.
 
@@ -474,9 +473,9 @@ The drawn arrow:
 <h2 id="h-fields"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
 <div class="fields">
-<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO and marketplaces. Steered by cost per inquiry, quote and order.</p></div>
+<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. Optimized for RoAS and cost per inquiry, quote and order.</p></div>
 …
-<div><h3>People<button type="button" class="info" popovertarget="tip-people" aria-label="Info"></button></h3><span class="tip" id="tip-people" popover>Processes fit people, not the other way round.</span><p>Teams of up to six, … and data analysis.</p></div>
+<div><h3>People<button type="button" class="info" popovertarget="tip-people" aria-label="Info"></button></h3><span class="tip" id="tip-people" popover>Processes fit people, not the other way round.</span><p>Teams of up to six, from SEA to graphic design, including career changers.</p></div>
 </div>
 </div>
 </section>
@@ -504,7 +503,7 @@ The toggletip after "People", piece by piece:
 ```html
 <ol class="roles" reversed>
 <li class="role" id="e-service-check">
-<p class="when">since 11/2025<br><span class="dur" data-from="2025-11" data-units="year,years,month,months">1 year</span></p>
+<p class="when">since 11/2025<br><span class="dur" data-from="2025-11" data-units="year,years,month,months">1 year 1 month</span></p>
 <div>
 <h3>Head of Marketing</h3>
 <p class="org"><a href="https://www.e-service-check.de/" target="_blank" rel="noopener">E+SERVICE+CHECK <span class="nw">GmbH<span class="newtab">…</span></span></a>&nbsp;<span class="place">· Laucha</span></p>
@@ -659,12 +658,12 @@ The footnote reference, piece by piece:
 
 ```html
 <ul class="principles">
-<li><p>Every figure on this page can be backed up on request. Growth only counts when efficiency keeps pace.</p></li>
+<li><p>Every figure on this page is documented.</p></li>
 …
 </ul>
 ```
 
-- Three principles as a list, each in two plain sentences in the page's language, so none of them needs a `lang` of its own. The third covers AI: "AI is part of the toolbox – for code, copy and graphics. Nothing goes out unchecked."
+- Three principles as a list, one short sentence each, in the page's language, so none of them needs a `lang` of its own. The third covers AI: "AI for code, copy and graphics – nothing goes out unchecked."
 - `<li><p>…</p></li>` – the paragraph inside the item adds no meaning but gives CSS one consistent block per principle.
 
 ### Contact
@@ -791,10 +790,10 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 **Middle dots never start a line.** The copy in `build.py` uses " · " as a separator. Before writing any page – the two home pages, the legal pages and the 404 page – the function `dots()` replaces every " · " after `<body>` with `&nbsp;· `. The dot is now glued to the word before it, and the only break opportunity is after it:
 
 ```html
-<dd>monthly media budget at a RoAS of 4.0&nbsp;· <a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd>
+<p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p>
 ```
 
-On a narrow screen this breaks as "…RoAS of 4.0 ·" / "Posterlounge" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
+On a narrow screen a list like this breaks as "Python · BigQuery ·" / "Data Studio" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
 
 `dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag – and `steps()` does the same before the company of each position behind "All five positions":
 
@@ -807,7 +806,7 @@ The no-break space works across the tag boundaries: "GmbH", its ↗ (held to the
 **German numbers stay with their units.** On the German page only, the function `nbsp()` glues "25 %", "240.000 €" and "1,7 Mio. €" together, as German typography (DIN 5008) asks. It inserts the character U+00A0 itself, not the entity `&nbsp;` – the same character for the browser, but invisible in view-source and in an editor. The German copy contains twelve of them; a search for ` ` finds them. The search also turns up two more, in the label templates of the jump control (`data-up` and `data-down`): `nbsp()` is a plain text replacement too, and in `Nach oben: %s` the space before `%s` looks to it like the space before a percent sign. Harmless for the labels; `site.js` allows for it where it removes the placeholder ([chapter 4](04-js.md)).
 
 ```html
-<dd>Mediabudget im Monat bei einer KUR von 25 %&nbsp;· <a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd>
+<dd>im Monat, bei einer KUR von 25 %<br><a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd>
 ```
 
 (The space between "25" and "%" in this line is a U+00A0.)
@@ -825,7 +824,7 @@ The no-break space works across the tag boundaries: "GmbH", its ↗ (held to the
 ```
 
 - The mechanism: a screen reader switches voice at every `lang` change. Without the attribute, a German voice would read "Marketing leadership with root access" with German pronunciation rules – recognizable at best. Spell-checkers and hyphenation use the same attribute.
-- On the English page some of these attributes are left out: `build.py` adds them to the P⁴ headings, the tree keys and the italic words only when the page language is not English (variables `en_attr` and `lang`). Others are written into the shared template and therefore appear on both pages – tagline, claim, prompt, Online/Offline. On the English page they are redundant and harmless.
+- On the English page some of these attributes are left out: `build.py` adds them to the P⁴ headings, the tree keys and the italic words only when the page language is not English (variables `en_attr` and `lang`). Others are written into the shared template and therefore appear on both pages – tagline, claim and prompt. On the English page they are redundant and harmless.
 - The mirror case is on the 404 page: an English page with one German line, marked `lang="de"`. In P⁴ on the German page, the note behind the i of the English heading "People" is German without saying so: it sits after the heading and inherits German from the page (see "P⁴").
 
 ## The page as plain text
@@ -925,9 +924,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-10-30</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-11-02</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-10-30</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-11-02</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```

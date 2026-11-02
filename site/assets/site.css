@@ -273,18 +273,13 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
   padding-block: 0.9rem;
   border-top: 1px solid var(--line);
 }
-.ledger div:last-child { border-bottom: 1px solid var(--line); }
-@media (min-width: 36rem) {
-  .ledger { display: grid; grid-template-columns: max-content 1fr; column-gap: 1.5rem; }
-  .ledger div { grid-column: 1 / -1; grid-template-columns: subgrid; align-items: baseline; }
-  @supports not (grid-template-columns: subgrid) { .ledger div { grid-template-columns: 15.5rem 1fr; } }
-}
 .ledger dt {
   font-size: 1.5rem; font-weight: 700; line-height: 1.2;
   font-variant-numeric: tabular-nums; white-space: nowrap;
 }
 .ledger dd { margin: 0; color: var(--muted); }
 .ledger dd a { white-space: nowrap; }
+@media (max-width: 22rem) { .ledger dt { font-size: 1.3rem; } }   /* the longest result still fits a 320px screen */
 /* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
 .ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--accent); }
 /* ↗ after a link that leaves the site: it opens in a new tab. Quieter than the ↓ – muted, in accent on hover */

@@ -92,19 +92,18 @@ CONTENT = {
                 "education": "Education", "contact": "Contact", "notes": "Sources"},
         "entry": {"hw": "mar·ke·tin·ker·er", "pos": "noun", "ety": "[*marketer* × *tinkerer*]",
                   "def": "A marketing leader who builds the tools behind the campaigns."},
-        "profile": "Leadership roles at four companies, with interdisciplinary teams of up to six people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer – Liora, in partnership with Université Paris 1 Panthéon-Sorbonne.",
+        "profile": "Leadership roles at four companies, with interdisciplinary marketing and design teams of up to six people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer. Working languages: German, English, Italian.",
         "ledger_label": "Selected results",
         "ledger": [
-            ("> 2×", "inbound inquiries year over year", "e-service-check"),
-            ("RoAS 7.6 → 7.8", "on a €1.7m media budget, while spend grew", "brandible"),
-            ("€6k → €240k", "monthly media budget at a RoAS of 4.0", "posterlounge"),
-            ("17 shops", "in 12 languages across Europe", "posterlounge"),
+            ("Leads > 2×", "inbound inquiries year over year", "e-service-check"),
+            ("RoAS 7.6 → 7.8", "on a €1.7m budget, while spend grew", "brandible"),
+            ("Media budget €6k → €240k", "per month, at a RoAS of 4.0", "posterlounge"),
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO and marketplaces. Steered by cost per inquiry, quote and order.",
+            "Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. Optimized for RoAS and cost per inquiry, quote and order.",
             "Tracking with Google Tag Manager and Consent Mode v2, then Python, SQL, BigQuery and Data Studio on Google Cloud. Internal web apps in Streamlit.",
-            "Corporate identity from claim to logo, websites, templates and employer branding. Inkscape, Canva – and Python wherever pixels can be generated.",
-            "Teams of up to six, from SEA to graphic design, trained in performance marketing and data analysis.",
+            "Corporate identity from claim to logo, websites, templates and employer branding. Mockups, vector graphics and videos. Inkscape, Canva – and Python wherever pixels can be generated.",
+            "Teams of up to six, from SEA to graphic design, including career changers.",
         ],
         "people_note": "Processes fit people, not the other way round.",
         "roles": [
@@ -114,14 +113,14 @@ CONTENT = {
                       ("Scope", "marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding"),
                       ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark")]},
             {"when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
-             "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
+             "org": "Liora (formerly DataScientest) · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "containers, orchestration, tracking, APIs and monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "certified MLOps Engineer; capstone: the Rakuten model as a production pipeline – training, tracking, serving, monitoring")]},
             {"when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject GmbH", "place": "",
              "tree": [("Scope", "UI concepts, usability tests, support for the marketing automation migration from ActiveCampaign to Salesforce"),
                       ("Result", "Salesforce dashboards, built into the sales process")]},
             {"when": "02/2025 – 05/2025", "title": "Data Scientist training (full-time)",
-             "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
+             "org": "Liora (formerly DataScientest) · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "machine learning and deep learning with Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "certified Data Scientist; capstone: multimodal classification of e-commerce products with NLP and computer vision")]},
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
@@ -163,9 +162,9 @@ CONTENT = {
             ]),
         ],
         "approach": [
-            "Every figure on this page can be backed up on request. Growth only counts when efficiency keeps pace.",
-            "Knowing the systems underneath makes agencies easier to steer. And less necessary.",
-            "AI is part of the toolbox – for code, copy and graphics. Nothing goes out unchecked.",
+            "Every figure on this page is documented.",
+            "Agencies get their briefs from someone who knows the systems.",
+            "AI for code, copy and graphics – nothing goes out unchecked.",
         ],
         "facts": [
             ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in partnership with Université Paris 1 Panthéon-Sorbonne"),
@@ -195,19 +194,18 @@ CONTENT = {
                 "approach": "arbeitsweise", "education": "ausbildung", "contact": "kontakt", "notes": "quellen"},
         "entry": {"hw": "Mar|ke|tin|ke|rer", "pos": "der; -s, -", "ety": "[engl. *marketer* × *tinkerer* ‚Tüftler‘]",
                   "def": "Marketingleiter, der die Werkzeuge hinter seinen Kampagnen selbst baut."},
-        "profile": "Führungsverantwortung in vier Unternehmen, für interdisziplinäre Teams mit bis zu sechs Personen in E-Commerce und B2B. Zertifiziert als Data Scientist und MLOps Engineer – Liora in Partnerschaft mit der Université Paris 1 Panthéon-Sorbonne.",
+        "profile": "Führungsverantwortung in vier Unternehmen, für interdisziplinäre Teams aus Marketing und Design mit bis zu sechs Personen in E-Commerce und B2B. Zertifiziert als Data Scientist und MLOps Engineer. Arbeitssprachen: Deutsch, Englisch, Italienisch.",
         "ledger_label": "Ausgewählte Ergebnisse",
         "ledger": [
-            ("> 2×", "Anfragen im Jahresvergleich", "e-service-check"),
-            ("KUR 13,2 → 12,8 %", "bei ausgebautem Mediabudget von 1,7 Mio. €", "brandible"),
-            ("6.000 → 240.000 €", "Mediabudget im Monat bei einer KUR von 25 %", "posterlounge"),
-            ("17 Shops", "in 12 Sprachen in ganz Europa", "posterlounge"),
+            ("Leads > 2×", "Anfragen im Jahresvergleich", "e-service-check"),
+            ("KUR 13,2 → 12,8 %", "bei ausgebautem Budget von 1,7 Mio. €", "brandible"),
+            ("Budget 6.000 → 240.000 €", "im Monat, bei einer KUR von 25 %", "posterlounge"),
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO und Marktplätze. Gesteuert über Kosten je Anfrage, Angebot und Auftrag.",
+            "Google Ads, Microsoft Advertising, Meta, LinkedIn und Marktplätze. Gesteuert über KUR und Kosten je Anfrage, Angebot und Auftrag.",
             "Tracking mit Google Tag Manager und Consent Mode v2, danach Python, SQL, BigQuery und Data Studio auf Google Cloud. Interne Web-Apps mit Streamlit.",
-            "Corporate Identity vom Claim bis zum Logo, Websites, Vorlagen und Employer Branding. Inkscape, Canva – und Python, wo sich Pixel generieren lassen.",
-            "Teams mit bis zu sechs Personen, von SEA bis Grafik, geschult in Performance Marketing und Datenanalyse.",
+            "Corporate Identity vom Claim bis zum Logo, Websites, Vorlagen und Employer Branding. Mockups, Vektorgrafiken und Videos. Inkscape, Canva – und Python, wo sich Pixel generieren lassen.",
+            "Teams mit bis zu sechs Personen, von SEA bis Grafik, darunter Quereinsteiger.",
         ],
         "people_note": "Prozesse passen zu Menschen, nicht umgekehrt.",
         "roles": [
@@ -217,14 +215,14 @@ CONTENT = {
                       ("Scope", "Marketing, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, CRM, Events, Employer Branding"),
                       ("Result", "Anfragen im Jahresvergleich mehr als verdoppelt; neue Corporate Identity samt Grundlage der EUIPO-Markenanmeldung")]},
             {"when": "05/2025 – 07/2025", "title": "Weiterbildung MLOps Engineer (Vollzeit)",
-             "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
+             "org": "Liora (ehemals DataScientest) · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "zertifizierter MLOps Engineer; Abschlussprojekt: das Rakuten-Modell als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
             {"when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject GmbH", "place": "",
              "tree": [("Scope", "UI-Konzeption, Usability-Tests, Begleitung der Migration der Marketing Automation von ActiveCampaign zu Salesforce"),
                       ("Result", "Salesforce-Dashboards, eingebunden in den Vertriebsprozess")]},
             {"when": "02/2025 – 05/2025", "title": "Weiterbildung Data Scientist (Vollzeit)",
-             "org": "Liora · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
+             "org": "Liora (ehemals DataScientest) · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Machine Learning und Deep Learning mit Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "zertifizierter Data Scientist; Abschlussprojekt: multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
@@ -266,9 +264,9 @@ CONTENT = {
             ]),
         ],
         "approach": [
-            "Jede Zahl auf dieser Seite ist auf Nachfrage belegbar. Wachstum zählt nur, wenn die Effizienz mithält.",
-            "Wer die Systeme darunter kennt, steuert Agenturen besser. Und braucht weniger davon.",
-            "KI gehört zum Werkzeugkasten – für Code, Text und Grafik. Nichts geht ungeprüft raus.",
+            "Jede Zahl auf dieser Seite ist belegt.",
+            "Agenturen bekommen ihre Briefings von jemandem, der die Systeme kennt.",
+            "KI für Code, Text und Grafik – nichts geht ungeprüft raus.",
         ],
         "facts": [
             ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in Partnerschaft mit der Université Paris 1 Panthéon-Sorbonne"),
@@ -631,7 +629,7 @@ def page(c):
 """
     # each result names its company; the name leads to the role under Experience
     # ↓: superscript and in accent like the footnote numbers and the i – a link that stays on this page
-    led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)} · <a href="#{k}">{e(COMPANIES[k])}'
+    led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)}<br><a href="#{k}">{e(COMPANIES[k])}'
                   f'<span class="jmp">{DOWN_SVG}</span></a></dd></div>\n' for a, b, k in c["ledger"])
     out.append(section(c, "profile", e(s["profile"]),
                        f'{entry}<p>{e(c["profile"])}</p>\n<dl class="ledger" aria-label="{e(c["ledger_label"])}">\n{led}</dl>\n'))
