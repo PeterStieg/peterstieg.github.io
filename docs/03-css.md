@@ -724,30 +724,14 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
   padding-block: 0.9rem;
   border-top: 1px solid var(--line);
 }
-.ledger div:last-child { border-bottom: 1px solid var(--line); }
 ```
 
-The ledger in the Profile section is a `<dl>`: a big figure (`<dt>`) with its explanation (`<dd>`), each pair wrapped in a `<div>` – which HTML allows inside `<dl>`.
+The ledger in the Profile section is a `<dl>`: a big result (`<dt>`) with its context and company (`<dd>`), each pair wrapped in a `<div>` – which HTML allows inside `<dl>`.
 
 - `.ledger { margin: 2rem 0 0; padding: 0; }` – space above, browser defaults removed.
-- `.ledger div` – each row: a grid (on phones a single column, figure above text), vertical padding and a line above, like a ruled table.
-- `.ledger div:last-child` – a closing line under the last row.
-
-```css
-@media (min-width: 36rem) {
-  .ledger { display: grid; grid-template-columns: max-content 1fr; column-gap: 1.5rem; }
-  .ledger div { grid-column: 1 / -1; grid-template-columns: subgrid; align-items: baseline; }
-  @supports not (grid-template-columns: subgrid) { .ledger div { grid-template-columns: 15.5rem 1fr; } }
-}
-```
-
-From 36rem, figures and explanations form two aligned columns.
-
-- `.ledger { display: grid; grid-template-columns: max-content 1fr; column-gap: 1.5rem; }` – the list itself becomes the grid that owns the columns. `max-content` makes the first column exactly as wide as the widest figure, without wrapping.
-- `grid-column: 1 / -1;` – each row div spans from the first grid line to the last. Negative line numbers count from the end, so `-1` is always the last line.
-- `grid-template-columns: subgrid;` – the row div is a grid as well, but instead of defining its own columns it *uses its parent's*. All four `<dt>`s sit in the same parent column, so the `max-content` width is computed from all figures together, and every explanation starts at the same x position (measured: all four at 545px). Without subgrid, each div would be an independent grid with its own column widths, and each explanation would start wherever its own figure ends.
-- `align-items: baseline;` – the 1.5rem bold figure and the body-size explanation share their first baseline and read as one line.
-- `@supports not (grid-template-columns: subgrid) { … }` – a feature query: the rule inside applies only where the browser does *not* understand `subgrid`. Such a browser drops the `subgrid` declaration as invalid, and the row would fall back to a single column. The fallback gives every row the same fixed first column of 15.5rem – aligned too, just not sized to the content. Subgrid reached all major engines only in 2023 (Chrome 117 came last), which is why the fallback exists. `@supports` may be nested inside `@media`.
+- `.ledger div` – each row: a single-column grid at every width, the result above its context, vertical padding and a line above, like a ruled table.
+- No line under the last row: the next section starts with a line of its own (`.sec { border-top }`), and a closing line here would draw a second one 3rem above it – two rules with nothing between them.
+- Why one column everywhere: until November 2026, from 36rem the figures and explanations stood side by side, in two columns aligned by `subgrid`. The results now open with a label – "Leads > 2×", "Media budget €6k → €240k" – and the widest one would take half of a 768px screen's text column, leaving too little for the context next to it. Stacked, every result reads the same on every screen: result, one line of context, the company.
 
 ```css
 .ledger dt {
@@ -756,13 +740,15 @@ From 36rem, figures and explanations form two aligned columns.
 }
 .ledger dd { margin: 0; color: var(--muted); }
 .ledger dd a { white-space: nowrap; }
+@media (max-width: 22rem) { .ledger dt { font-size: 1.3rem; } }   /* the longest result still fits a 320px screen */
 ```
 
 - `font-size: 1.5rem; font-weight: 700; line-height: 1.2;` – the figure as the visual anchor.
 - `font-variant-numeric: tabular-nums;` – Atkinson's digits are proportional by default (the 1 is much narrower than the 0). `tabular-nums` switches on the font's tabular figures (the OpenType feature `tnum`, which these files contain): every digit gets the same width, so numbers line up.
-- `white-space: nowrap;` – "€6k → €240k" stays on one line; with `max-content`, this line sets the width of the first column.
+- `white-space: nowrap;` – "Media budget €6k → €240k" stays on one line instead of breaking at the arrow.
 - `.ledger dd { margin: 0; color: var(--muted); }` – `<dd>` has a 40px left margin by default; removed. Explanations in muted grey.
-- `.ledger dd a { white-space: nowrap; }` – each explanation ends with a link to the company's role under Experience ("· Posterlounge", `href="#posterlounge"`), with a raised ↓ at the end of the link (next block). The link keeps the underline and the muted colour of the text around it. `nowrap` keeps the link on one line: when the row runs out of space, the whole name moves to the next line, its ↓ with it. The three current names are single words, so at real screen widths the rule changes nothing (measured at 320 to 390px, with and without it). It guards against a name of several words, and against a ↓ alone at the start of a line: CSS puts a soft wrap opportunity before and after every inline-block, even with no space next to it. In a row squeezed to the width of the name, the ↓ wraps on its own without `nowrap`; with it, the ↓ stays next to the name (measured). The dot in front is bound to the preceding word by a non-breaking space in the HTML, so it never starts a line.
+- `@media (max-width: 22rem)` – below 352px the results shrink from 1.5rem to 1.3rem. The longest, "Media budget €6k → €240k", is 322px wide at 1.5rem; a 320px screen leaves 288px of text column, and `nowrap` would push the line past the edge (measured: 284px at 1.3rem). From 360px up, the full size fits.
+- `.ledger dd a { white-space: nowrap; }` – each context is followed, on a line of its own, by a link to the company's role under Experience ("Posterlounge", `href="#posterlounge"`), with a raised ↓ at the end of the link (next block). The link keeps the underline and the muted colour of the text around it. `nowrap` keeps the link on one line: when the row runs out of space, the whole name moves to the next line, its ↓ with it. The three current names are single words, so at real screen widths the rule changes nothing (measured at 320 to 390px, with and without it). It guards against a name of several words, and against a ↓ alone at the start of a line: CSS puts a soft wrap opportunity before and after every inline-block, even with no space next to it. In a row squeezed to the width of the name, the ↓ wraps on its own without `nowrap`; with it, the ↓ stays next to the name (measured). A `<br>` in the HTML puts the name on its own line.
 
 ```css
 /* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */

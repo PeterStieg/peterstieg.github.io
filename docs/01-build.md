@@ -234,11 +234,11 @@ CONTENT = {
         "profile": "Leadership roles at four companies, …",
         "ledger_label": "Selected results",
         "ledger": [
-            ("> 2×", "inbound inquiries year over year", "e-service-check"),
+            ("Leads > 2×", "inbound inquiries year over year", "e-service-check"),
             …
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Meta, LinkedIn, SEO and marketplaces. …",
+            "Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. …",
             …
         ],
         "people_note": "Processes fit people, not the other way round.",
@@ -276,7 +276,7 @@ CONTENT = {
             ]),
         ],
         "approach": [
-            "Every figure on this page can be backed up on request. …",
+            "Every figure on this page is documented.",
             …
         ],
         "facts": [
@@ -303,7 +303,7 @@ CONTENT = {
 
 `CONTENT` is a dict with one entry per language. Each entry is itself a dict that `page()` receives as its parameter `c` – that is why nearly every function in the file takes `c` as its first argument.
 
-- Every list with a time order runs newest first: the ledger (E+SERVICE+CHECK, Brandible, then the two Posterlounge results), the roles, the steps inside a role (`path`, `positions`), the dated facts in Education and the project groups. One direction throughout, so nothing reads as reversed. The trade-off, accepted for that consistency: the largest figure, "€6k → €240k", stands third in the ledger.
+- Every list with a time order runs newest first: the ledger (E+SERVICE+CHECK, Brandible, Posterlounge), the roles, the steps inside a role (`path`, `positions`), the dated facts in Education and the project groups. One direction throughout, so nothing reads as reversed. The trade-off, accepted for that consistency: the largest figure, the media budget from €6k to €240k, stands last in the ledger.
 - No code sorts anything. The order in the dict is the order on the page, and `role()` even relies on it to compute the ends of the promotions (section 24). A new entry goes where it belongs in time.
 - The two Liora courses stand in `roles` as well: full-time from 02 to 07/2025, between Brandible (until 12/2024) and E+SERVICE+CHECK (from 11/2025), they show what that stretch was. Their titles say what they were, "MLOps Engineer training (full-time)" and "Data Scientist training (full-time)", so they do not read as jobs.
 
@@ -1219,7 +1219,7 @@ def page(c):
 """
     # each result names its company; the name leads to the role under Experience
     # ↓: superscript and in accent like the footnote numbers and the i – a link that stays on this page
-    led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)} · <a href="#{k}">{e(COMPANIES[k])}'
+    led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)}<br><a href="#{k}">{e(COMPANIES[k])}'
                   f'<span class="jmp">{DOWN_SVG}</span></a></dd></div>\n' for a, b, k in c["ledger"])
     out.append(section(c, "profile", e(s["profile"]),
                        f'{entry}<p>{e(c["profile"])}</p>\n<dl class="ledger" aria-label="{e(c["ledger_label"])}">\n{led}</dl>\n'))
@@ -1230,11 +1230,11 @@ def page(c):
   - `[·|]` is a character class: one character that is either the middle dot (English dictionary style: mar·ke·tin·ker·er) or the pipe (Duden style: Mar|ke|tin|ke|rer). Inside square brackets `|` is a literal character, not "or".
   - `( )` captures the separator as group 1; `\1` in the raw replacement string puts it back inside the span.
 - `entry` – the dictionary entry. `<dfn>` marks the term being defined – the right element for a headword. `pos` and `def` go through `e()`, `ety` through `t()` for its italics.
-- `led` – the results list as a description list: `<dt>` holds the figure (through `t()` for the arrows; "> 2×" becomes `&gt; 2×`), `<dd>` the context, a middle dot and the company. A `<div>` around each `dt`/`dd` pair is valid inside `<dl>` and gives CSS one box per row.
+- `led` – the results list as a description list: `<dt>` holds the label and the figure (through `t()` for the arrows; "Leads > 2×" becomes `Leads &gt; 2×`), `<dd>` the context and, after a `<br>`, the company. Every result reads the same way: label and figure on the first line – Leads, RoAS, Media budget –, one line of context, the company on a line of its own. A `<div>` around each `dt`/`dd` pair is valid inside `<dl>` and gives CSS one box per row.
   - `for a, b, k in c["ledger"]` – each entry is a 3-tuple: figure, context, company key. The generator spans two lines – two adjacent f-strings, joined into one; inside the parentheses of `join()` Python needs no line-continuation sign.
   - `<a href="#{k}">{e(COMPANIES[k])}…</a>` – the company's name from `COMPANIES` (section 7), as a link to the role with that `id` under Experience. In the CSS, `.role:target` colors the dates and title of the role the visitor arrived at (chapter 3).
   - `<span class="jmp">{DOWN_SVG}</span>` – a small ↓ after the name, inside the link. The CSS sets it superscript and in the accent color, like the footnote numbers and the i: a mark that says "this link stays on this page and leads down". The ↗ says the opposite – by convention it marks a link that leaves the site, and the page uses it that way, muted, after every such link (section 20). The SVG is `aria-hidden`, so the link's name stays the company's name. The link's underline does not run under the arrow: the span is an inline-block, and text decoration does not reach into inline-blocks (chapter 3).
-  - The ` · ` before the link is glued to the context by `dots()` later.
+  - `<br>` instead of a separator: the company always starts its own line, so all three results are equally long – two lines under the figure on every screen from 360px up. In plain text the `<br>` becomes a line break, so a parser still gets context and company apart.
   - Pitfalls: a key missing from `COMPANIES` raises `KeyError` – loud. A key that no role carries as its `id` is silent: the link points at nothing and does not scroll.
 - `section(…)` – heading escaped, body = entry + profile paragraph + results list with its own `aria-label`.
 
