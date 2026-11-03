@@ -84,6 +84,7 @@ URL = "https://peterstieg.com/"
 EMAIL = "info@peterstieg.com"
 LINKEDIN = "https://www.linkedin.com/in/peterstieg/"
 GITHUB = "https://github.com/PeterStieg"
+MAP = "https://www.openstreetmap.org/#map=12/51.3403/12.3747"   # the city, centred on the Markt – no pin, no street
 REPO_DS = "https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products"
 REPO_MLOPS = "https://github.com/PeterStieg/may25_bmlops_classification-of-rakuten-e-commerce-products"
 DEMO_DS = "https://feb25-bds-rakuten.streamlit.app/"       # Streamlit Community Cloud: sleeps when idle, wakes on request
@@ -97,7 +98,8 @@ DEMO_MLOPS = "https://may25-bds-rakuten.streamlit.app/"
   - `/ "site"` appends the folder name. Result: the script writes to the right place no matter which directory you start it from.
 - `URL` ends with a slash. Every use concatenates (`URL + slug`, `f"{URL}og-image.png"`), so the trailing slash must stay and the parts appended to it must not start with one.
 - `DEMO_*` – the two capstone apps on Streamlit Community Cloud. An app that nobody has opened for a while goes to sleep; the first visitor sees a wake-up button and waits about a minute.
-- `EMAIL`, `LINKEDIN`, `GITHUB`, `REPO_*`, `DEMO_*` – each defined once and used in several places (contact section, JSON-LD, legal pages, project links). Change once, rebuild, done.
+- `MAP` – the place under Contact as a map: OpenStreetMap at zoom 12, centred on the Markt. Only the part after `#` positions the map – zoom, latitude, longitude – so the address names no street and sets no pin; the map shows the city, not a house. OpenStreetMap rather than Google Maps: it opens without a consent page first.
+- `EMAIL`, `LINKEDIN`, `GITHUB`, `MAP`, `REPO_*`, `DEMO_*` – each defined once and used in several places (contact section, JSON-LD, legal pages, project links). Change once, rebuild, done.
 - UPPER_CASE names mark constants. Python does not enforce this – it is a convention that says "set once, never reassigned".
 
 ---
@@ -221,7 +223,7 @@ CONTENT = {
     "en": {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
-        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab",
+        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab", "map": "map",
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: …",
@@ -267,7 +269,7 @@ CONTENT = {
         ],
         "groups": [
             ("At E+SERVICE+CHECK", [
-                ("Call and inquiry pipeline", "…", "Python · BigQuery · Data Studio", []),
+                ("Call and inquiry pipeline", "…", "Python · BigQuery · Looker Studio", []),
                 …
             ]),
             ("Certification capstones", [
@@ -329,6 +331,7 @@ Interface labels:
 | `to_top` | str | label of the jump control's up link while it leads to the top of the page (`"Back to top"` / `"Nach oben"`) |
 | `info` | str | spoken name of the superscript i that opens a toggletip |
 | `new_tab` | str | what screen readers hear after every link that leaves the site: `"opens in a new tab"` / `"öffnet in neuem Tab"`, in parentheses, as visually hidden text (`offsite()`, section 20) |
+| `map` | str | read out before `new_tab` on the place under Contact, which opens a map: "map, opens in a new tab" / "Karte, öffnet in neuem Tab" |
 | `dur` | 4-tuple | the words for the durations under the role dates: year, years, month, months (`duration()`, section 22). Joined by commas, they also go to `site.js`, which recounts the running role |
 | `jump` | dict | the jump control: `label` names its `<nav>`, `menu` the button that opens the section list, `up` and `down` are templates in which `%s` stands for a section name (`"Up: %s"` → "Up: Experience") |
 | `skip` | str | text of the skip link |
@@ -382,7 +385,7 @@ Copy:
 | `→` | `"€6k → €240k"` | a drawn SVG arrow, its word kept as visually hidden text | `t()` |
 | `*word*` | `"[*marketer* × *tinkerer*]"` | `<i>word</i>` – words cited as words, like in a dictionary | `t()` |
 | `[[key]]` | `"Data Scientist[[ds]]"` | a numbered footnote reference to `NOTES[key]` | regex in `page()`, education section |
-| ` · ` | `"Python · BigQuery · Data Studio"` | a middle dot glued to the word before it | `dots()` |
+| ` · ` | `"Python · BigQuery · Looker Studio"` | a middle dot glued to the word before it | `dots()` |
 
 Pitfall: the markers only work where the code runs the text through the matching function. `t()` handles `entry["ety"]`, the first item of each `ledger` entry and the values in each role's `tree`. The `[[…]]` regex runs only on the middle value of each `facts` tuple, and only when that value is a string – the items of a list go through `e()` alone. Everywhere else – `profile`, `fields`, `people_note`, `ctx`, `path`, `positions`, `groups`, `approach` – the text only goes through `e()`: asterisks stay visible and `→` stays a plain character in a fallback font.
 
@@ -458,6 +461,11 @@ DOWN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
 # ↗ after a link that leaves the site – the counterpart of the ledger's ↓
 OUT_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
            '<path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg>')
+# the marks of the two Contact links that are not web pages: the address opens the mail program, the city a map
+MAIL_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+            '<path d="M1.8 3.6h12.4v8.8H1.8zM2.2 4 8 8.8 13.8 4"/></svg>')
+PIN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+           '<path d="M8 14.8C5.2 11.9 3.3 9.3 3.3 6.5a4.7 4.7 0 0 1 9.4 0c0 2.8-1.9 5.4-4.7 8.3z"/><circle cx="8" cy="6.5" r="1.6"/></svg>')
 # three code lines, as in the minimap: the section menu before a chapter is reached, and without JavaScript
 LINES_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
              '<path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg>')
@@ -477,6 +485,7 @@ LOCKUP = re.sub(r"<svg ([^>]*)>(.*)</svg>",
 - Why draw the arrow: the site font, Atkinson Hyperlegible, has no → glyph. The browser would borrow it from a fallback font with a different weight and baseline. Sun, moon, the two jump arrows and the three lines have no font equivalent anyway.
 - `UP_SVG` and `DOWN_SVG` – the two ends of the jump control (section 23). `DOWN_SVG` also follows each company name in the results ledger, as a small superscript ↓ (section 25). It is `UP_SVG` mirrored: the shaft runs from y = 2.5 down to 13.2 (`v10.7` – a vertical line, relative), the head points down.
 - `OUT_SVG` – the ↗ after every link that leaves the site (`offsite()`, section 20). `M4 12 12.5 3.5` draws the diagonal shaft from bottom left to top right; `M6 3.5h6.5V10` draws the head as a corner: along the top to the tip, then straight down. `V` is a vertical line to an absolute y, here 10. The comment calls it the counterpart of the ledger's ↓: the ↓ leads down the same page, the ↗ off it.
+- `MAIL_SVG`, `PIN_SVG` – the marks of the other two Contact links, in the ↗'s place (section 25): an envelope after the address (it opens the mail program) and a pin after the city (it opens a map). The envelope is one path: `M1.8 3.6h12.4v8.8H1.8z` the outline – right, down, back left, `z` closes it – then `M2.2 4 8 8.8 13.8 4` the flap, a V from corner to corner. The pin is a drop – two cubic curves (`C`, `c`) down to the point at the bottom and an arc (`a4.7 4.7 0 0 1 9.4 0`) over the top – with a circle inside.
 - `LINES_SVG` – three horizontal strokes of different lengths (`h11`, `h9`, `h7`), the second one indented: lines of code, like the bars of the minimap. It sits in the middle of the jump control as long as there is no chapter number to show – at the top of the page and without JavaScript.
 - `viewBox="0 0 16 10"` – the internal coordinate system (16 × 10 units). The real size comes from CSS (`.arr` is 0.95em × 0.62em), so the icon scales with the text.
 - `<path d="…">` – drawing commands. In the arrow: `M1 5` moves the pen to (1, 5), `h13.5` draws a horizontal line 13.5 units to the right (the shaft), `M10 1.2` jumps to the top of the head, `14 5` draws to the tip (coordinate pairs after an `M` count as line commands), `l-4 3.8` draws relative to the tip down to the bottom of the head. Uppercase = absolute coordinates, lowercase = relative.
@@ -811,22 +820,26 @@ def jsonld(c):
 ## 20 · offsite – links that leave the site
 
 ```python
-def offsite(c, url, text, attrs=""):
+def offsite(c, url, text, attrs="", mark=OUT_SVG, kind=""):
     """A link that leaves the site: opens in a new tab, so the page stays open behind it. Marked with ↗ for the eye and
     "(opens in a new tab)" for screen readers. The last word and the ↗ share a no-wrap span: the arrow never starts a
-    line on its own. attrs: extra attributes, written as they are (' hreflang="en"', ' rel="me noopener"')."""
+    line on its own. attrs: extra attributes, written as they are (' hreflang="en"', ' rel="me noopener"').
+    mark, kind: another mark in place of the ↗ and what it stands for, read out first ("map, opens in a new tab")."""
     rel = "" if "rel=" in attrs else ' rel="noopener"'
     lead, space, last = text.rpartition(" ")
-    return (f'<a href="{url}" target="_blank"{rel}{attrs}>{lead}{space}<span class="nw">{last}<span class="newtab">{OUT_SVG}'
-            f'<span class="sr-only"> ({e(c["new_tab"])})</span></span></span></a>')
+    said = f"{e(kind)}, {e(c['new_tab'])}" if kind else e(c["new_tab"])
+    sym = " sym" if kind else ""                      # a drawn symbol, larger than the ↗ to stay legible
+    return (f'<a href="{url}" target="_blank"{rel}{attrs}>{lead}{space}<span class="nw">{last}<span class="newtab{sym}">{mark}'
+            f'<span class="sr-only"> ({said})</span></span></span></a>')
 ```
 
-- Every link that leaves the site goes through this function – 15 per page: the three company websites in Experience (section 24), GitHub and Demo for the two capstones in Projects, LinkedIn and GitHub in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
+- Every link that leaves the site goes through this function – 16 per page: the three company websites in Experience (section 24), GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
 - Why a new tab: whoever checks a certificate or a company website keeps the page open behind it and returns to the same spot. The marker announces the new tab before the click, for the eye (↗) and for screen readers (the hidden words).
 - The parameters:
   - `url` – inserted as it is. Every URL is one of your own constants.
   - `text` – HTML, not plain copy, like `title_html` in `section()` (section 22): callers pass `e(…)`, or a constant without special characters such as `"LinkedIn"`.
   - `attrs` – further attributes as one string with a leading space, written into the tag as they are – the convention of `rid` and `en_attr` (section 25). Empty by default.
+  - `mark`, `kind` – a different mark in place of the ↗, and the word for what it stands for. Only the map under Contact passes them: `mark=PIN_SVG, kind=c["map"]`. Keyword arguments with defaults, so the fifteen other calls stay as they are.
 
 The `rel` attribute:
 
@@ -840,8 +853,10 @@ The text and its marker:
 - `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 28) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
   - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 28).
 - `<span class="nw">{last}…</span>` – the last word and the marker share one span, which the CSS sets to `white-space: nowrap` (chapter 3). The line may still break before the last word, never between it and the ↗. Without the span, the ↗ wrapped onto a line of its own at widths of 320 to 390 pixels: the marker is an inline-block, and an inline-block is a break opportunity on both sides. A word joiner (U+2060) between word and arrow did not stop the break in Chromium – measured.
-- `<span class="newtab">{OUT_SVG}…</span>` – the ↗ (section 11). The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With fifteen per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers, the i, the ↓ – stay on the page; the muted ↗ leaves it.
-- `<span class="sr-only"> ({e(c["new_tab"])})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge GmbH (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
+- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With fifteen per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers, the i, the ↓ – stay on the page; the muted ↗ leaves it.
+- `said` – what screen readers hear: `new_tab` alone, or `kind` in front of it – "Leipzig (map, opens in a new tab)". Both escaped, because both are copy.
+- `sym` – the class `sym` next to `newtab` when a symbol stands in for the ↗. The CSS draws a symbol larger, with a thinner line, so its detail stays legible at the size of a superscript and its strokes look as heavy as the arrow's (chapter 3). In `{mark}` the f-string inserts the SVG unescaped – it is markup, a constant.
+- `<span class="sr-only"> ({said})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge GmbH (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
 - Pitfall: `rpartition` sees characters, not markup. A `text` with a tag that has a space in it (`<i lang="en">`) would be split inside the tag, and the span would cut it in two. All link texts today are plain escaped copy.
 
 The name:
@@ -1334,13 +1349,14 @@ def page(c):
 ### Contact
 
 ```python
-    # contact – one row per way to get in touch, laid out like Education
+    # contact – one row per way to get in touch, laid out like Education; every link carries a mark like the ↗:
+    # an envelope for the mail program, ↗ for the two profiles, a pin for the map
     mail, based, city = c["reach"]
-    rows = [(e(mail), f'<a href="mailto:{EMAIL}">{EMAIL}</a>')]
+    rows = [(e(mail), f'<a href="mailto:{EMAIL}"><span class="nw">{EMAIL}<span class="newtab sym">{MAIL_SVG}</span></span></a>')]
     for name, url in (("LinkedIn", LINKEDIN), ("GitHub", GITHUB)):
         address = re.sub(r"^https://(www\.)?|/$", "", url)               # the address is the link text
         rows.append((name, offsite(c, url, address, ' rel="me noopener"')))  # both profiles are Pete's own
-    rows.append((e(based), e(city)))
+    rows.append((e(based), offsite(c, MAP, e(city), mark=PIN_SVG, kind=c["map"])))
     contact = '<dl class="facts">\n' + "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>\n" for k, v in rows) + "</dl>\n"
     out.append(section(c, "contact", e(s["contact"]), contact))
 ```
@@ -1348,12 +1364,13 @@ def page(c):
 - Four rows – Email, LinkedIn, GitHub, Based in – in the same `<dl class="facts">` as Education: label on the left, value on the right, a line between the rows. The CSS already exists, so Contact needs none of its own.
 - `mail, based, city = c["reach"]` – unpacks the 3-tuple: the two labels that change with the language, and the place.
 - `rows` – a list of (label, value) pairs, both already HTML. The loop at the end turns each pair into `<div><dt>…</dt><dd>…</dd></div>`.
-- `mailto:` – opens the visitor's mail program. A plain `<a>`: no page opens, so there is no tab to choose. The address is a constant without special characters, so it goes in without `e()`.
+- Every value is a link, and every link carries a superscript mark in the ↗'s place, so the four rows read alike: an envelope after the address, ↗ after the two profiles, a pin after the city (section 11). Each says what the click does – mail program, another site, a map.
+- `mailto:` – opens the visitor's mail program. A plain `<a>`: no page opens, so there is no tab to choose. The address is a constant without special characters, so it goes in without `e()`. The envelope shares a no-wrap span with the address, built like the one in `offsite()` (section 20). It needs no hidden words: the row's label already says "Email".
 - `for name, url in (("LinkedIn", LINKEDIN), ("GitHub", GITHUB))` – the two profiles, built the same way. "LinkedIn" and "GitHub" are names, the same in both languages.
 - `re.sub(r"^https://(www\.)?|/$", "", url)` – the link text is the address itself, without the parts nobody types: `https://`, a leading `www.` and a closing `/`. `|` joins two patterns, `^` anchors the first at the start, `$` the second at the end; each match is replaced by nothing. Result: `linkedin.com/in/peterstieg`, `github.com/PeterStieg`. A visible address can be read off a printout or typed from a screen, and a parser finds the profile even without the link.
 - `offsite()` (section 20) writes the new-tab link. The address has no space, so the whole of it shares the no-wrap span with the ↗.
 - `' rel="me noopener"'` – the `attrs` argument. `rel="me"` declares "this profile is also me"; some platforms (Mastodon, for example) use it to verify identity in both directions. Because `attrs` brings a `rel`, `offsite()` leaves out its default, so `noopener` has to be in the list as well.
-- The place is plain text, the city alone. The places before Leipzig and the greeting "Hallo · Hi · Ciao" in large type were dropped (decisions.md).
+- The place is the city alone, linked to a map (`MAP`, section 3) through `offsite()` with the pin as its mark and "map" as its spoken kind. The places before Leipzig and the greeting "Hallo · Hi · Ciao" in large type were dropped (decisions.md).
 
 ### Sources
 
@@ -1422,7 +1439,7 @@ IMPRESSUM = f"""<h1>Impressum</h1>
 """
 
 DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
-<p class="muted">Stand: Oktober 2026</p>
+<p class="muted">Stand: November 2026</p>
 <h2>Verantwortlicher</h2>
 <address>{ADDRESS}<br>E-Mail: <a href="mailto:{EMAIL}">{EMAIL}</a></address>
 <h2>Kurz gesagt</h2>
@@ -1435,7 +1452,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 <h2>Kontakt per E-Mail</h2>
 <p>Wenn Sie eine E-Mail schreiben, werden Ihre Angaben verarbeitet, um die Anfrage zu beantworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Die Daten werden gelöscht, sobald sie dafür nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
 <h2>Links zu anderen Plattformen</h2>
-<p>Die Seite verlinkt auf LinkedIn, GitHub, die Kursseiten von Liora, die Nachweisseiten von DataScientest, thekey.career und edX, die Demos der Abschlussprojekte bei Streamlit sowie die Websites früherer und heutiger Arbeitgeber. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
+<p>Die Seite verlinkt auf LinkedIn, GitHub, eine Karte bei OpenStreetMap, die Kursseiten von Liora, die Nachweisseiten von DataScientest, thekey.career und edX, die Demos der Abschlussprojekte bei Streamlit sowie die Websites früherer und heutiger Arbeitgeber. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
 <h2>Ihre Rechte</h2>
 <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Einer Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO können Sie widersprechen (Art. 21). Außerdem können Sie sich bei einer Datenschutz-Aufsichtsbehörde beschweren, etwa bei der zuständigen Behörde Ihres Bundeslandes.</p>
 """
@@ -1446,7 +1463,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 - The privacy notice also names the hosting provider with its address, because the server logs are processed on its behalf (Art. 28 DSGVO). Change hosts and this line has to change too.
 - Trade-off: the address in `ADDRESS` stays in the git history for good, even if you change it later. If the repository is public, so is the address – which the Impressum publishes anyway.
 - `IMPRESSUM`, `DATENSCHUTZ` – f-strings that insert `ADDRESS` and `EMAIL`. They are HTML, inserted unescaped by `legal()`; a literal `&` in a new sentence must be written `&amp;`.
-- `Stand: Oktober 2026` is typed by hand – update it when the text changes.
+- `Stand: November 2026` is typed by hand – update it when the text changes.
 - The privacy text describes what the code does: no cookies, no tracking, fonts and scripts on the same server, `localStorage` only for the theme choice. Code and text are coupled: anything that loads third-party content (a web font service, analytics, an embedded video) requires a change to this text as well.
 
 ```python

@@ -91,12 +91,12 @@ Why inline, and why exactly here:
 
 ```html
 <title>Peter Stieg – Performance Marketing · Data Science</title>
-<meta name="description" content="Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, self-built tools.">
+<meta name="description" content="Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, certified Data Scientist.">
 <meta name="author" content="Peter Stieg">
 ```
 
 - `<title>` – the text in the browser tab, in bookmarks and history, and usually the headline of the search result (Google may rewrite it). Both languages use the same title, because the tagline is a brand element that stays English.
-- `<meta name="description">` – the snippet search engines may show under the headline. It is not a ranking factor; its job is to earn the click. At 138 characters it is short enough to avoid truncation. The German page has its own German text.
+- `<meta name="description">` – the snippet search engines may show under the headline. It is not a ranking factor; its job is to earn the click. At 146 characters (about 910 pixels in the 14-pixel Arial of a search result) it fits the roughly 920 pixels Google shows on a desktop before cutting with "…". It opens with the coined word and the place, then the three fields, then the two facts behind them: leadership roles and the certificate. The German page has its own text, "Führungsrollen in vier Unternehmen, zertifizierter Data Scientist" – the same facts, 150 characters.
 - `<meta name="author">` – the author's name. Search engines do not use it for ranking; it is metadata for tools that look for an author.
 
 ### Canonical URL and language alternates
@@ -209,7 +209,7 @@ The content of the block, indented for reading (in the file it is one line):
   "url": "https://peterstieg.com/",
   "image": "https://peterstieg.com/og-image.png",
   "jobTitle": "Head of Marketing",
-  "description": "Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, self-built tools.",
+  "description": "Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, certified Data Scientist.",
   "address": {"@type": "PostalAddress", "addressLocality": "Leipzig", "addressCountry": "DE"},
   "email": "mailto:info@peterstieg.com",
   "sameAs": ["https://www.linkedin.com/in/peterstieg/", "https://github.com/PeterStieg"],
@@ -541,14 +541,14 @@ Nine entries; the first stands for all.
 <a href="https://www.e-service-check.de/" target="_blank" rel="noopener">E+SERVICE+CHECK <span class="nw">GmbH<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>
 ```
 
-The company name is the first of 15 links on each page that lead to another website: the three company websites here, GitHub and Demo under Projects, LinkedIn and GitHub under Contact, "Verify credential" and "Course page" under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
+The company name is the first of 16 links on each page that lead to another website: the three company websites here, GitHub and Demo under Projects, LinkedIn, GitHub and the map under Contact, "Verify credential" and "Course page" under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
 
 - `target="_blank"` – opens the target in a new tab (some browser settings make it a new window). peterstieg.com stays open in the tab behind it, at the same scroll position: a visitor checks a company or a credential and comes back to the place they left. The price: the new tab has no history to go back to, and the link no longer leaves the choice of tab to the visitor. That is why it announces itself, to the eye and to the ear (the next points).
 - `rel="noopener"` – a page opened in a new tab normally receives a reference to the page that opened it, `window.opener`, and can use it to send that tab to another address – for example to a copy of a login page while the visitor reads the new tab, known as reverse tabnabbing. `noopener` withholds the reference. Current browsers already treat every `target="_blank"` link this way (Chrome since version 88, Firefox 79, Safari 12.1); the attribute states it explicitly and covers older browsers. `noreferrer` is not set, so the target still learns which site the visitor came from.
 - `<span class="newtab">` – the marker for the eye: a small ↗, an arrow pointing out of the page, drawn as an SVG (the constant `OUT_SVG` in `build.py`) and `aria-hidden` like every icon here. Its path `M4 12 12.5 3.5M6 3.5h6.5V10` draws the shaft from bottom left to top right, then the head as one corner: along the top to the tip, and down. WCAG recommends warning before a link opens a new window (technique G201), and the ↗ is the common sign for it. It is the counterpart of the ↓ in the ledger and built the same way – raised, an `inline-block`, so the link's underline does not run under it – but quieter: muted instead of the accent colour, a little smaller, in the accent only on hover and keyboard focus. The accent marks belong to what stays on the page – footnote numbers, the i, the ↓; the muted ↗ leaves it. The details are in 03-css.
 - `<span class="sr-only"> (opens in a new tab)</span>` – the same notice for screen readers, as text: hidden on screen by the `.sr-only` class from the hero, present in the accessibility tree. It sits inside the link, so it becomes part of the link's accessible name, "E+SERVICE+CHECK GmbH (opens in a new tab)" – also when a screen-reader user tabs from link to link or calls up a list of all links, where the text around a link is not read. After the `</a>` it would be ordinary text that only reading on reaches. The leading space keeps it apart from the last word. German: "öffnet in neuem Tab", the UI string `new_tab`.
 - `<span class="nw">GmbH…</span>` – the last word of the link text and the ↗ share a span with `white-space: nowrap`. An `inline-block` is a break opportunity on both sides, so without the span the ↗ could wrap onto a line of its own – on phones 320 to 390 px wide it did. Inside the span, it moves to the next line together with "GmbH". `offsite()` splits the text at its last space (`rpartition(" ")`): "Verify credential" keeps "Verify " outside the span, a one-word text such as "LinkedIn" goes in whole. A word joiner (U+2060) between word and arrow, the usual way to forbid a break, did not stop it in Chromium.
-- `offsite(c, url, text, attrs="")` – extra attributes come in `attrs` and are written as they are: `hreflang="en"` for the course pages, `rel="me noopener"` for the two profiles under Contact. If `attrs` contains a `rel`, the default `rel="noopener"` is left out, so the profile links keep their `me` (see "Contact").
+- `offsite(c, url, text, attrs="", mark=OUT_SVG, kind="")` – extra attributes come in `attrs` and are written as they are: `hreflang="en"` for the course pages, `rel="me noopener"` for the two profiles under Contact. If `attrs` contains a `rel`, the default `rel="noopener"` is left out, so the profile links keep their `me` (see "Contact").
 
 ### Experience: three promotions behind a disclosure
 
@@ -636,7 +636,7 @@ The footnote reference, piece by piece:
 <div class="body">
 <div class="group"><h3>At E+SERVICE+CHECK</h3>
 <ul class="projects">
-<li><h4>Call and inquiry pipeline</h4><p>More than half a million calls, two phone systems, five web forms – joined with Odoo master data.</p><p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p></li>
+<li><h4>Call and inquiry pipeline</h4><p>More than half a million calls, two phone systems, five web forms – joined with Odoo master data.</p><p class="stack">Python&nbsp;· BigQuery&nbsp;· Looker Studio</p></li>
 …
 </ul></div>
 <div class="group"><h3>Certification capstones</h3>
@@ -670,10 +670,10 @@ The footnote reference, piece by piece:
 
 ```html
 <dl class="facts">
-<div><dt>Email</dt><dd><a href="mailto:info@peterstieg.com">info@peterstieg.com</a></dd></div>
+<div><dt>Email</dt><dd><a href="mailto:info@peterstieg.com"><span class="nw">info@peterstieg.com<span class="newtab sym"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.8 3.6h12.4v8.8H1.8zM2.2 4 8 8.8 13.8 4"/></svg></span></span></a></dd></div>
 <div><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/peterstieg/" target="_blank" rel="me noopener"><span class="nw">linkedin.com/in/peterstieg<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a></dd></div>
 <div><dt>GitHub</dt><dd><a href="https://github.com/PeterStieg" target="_blank" rel="me noopener"><span class="nw">github.com/PeterStieg<span class="newtab">…</span></span></a></dd></div>
-<div><dt>Based in</dt><dd>Leipzig</dd></div>
+<div><dt>Based in</dt><dd><a href="https://www.openstreetmap.org/#map=12/51.3403/12.3747" target="_blank" rel="noopener"><span class="nw">Leipzig<span class="newtab sym"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 14.8C5.2 11.9 3.3 9.3 3.3 6.5a4.7 4.7 0 0 1 9.4 0c0 2.8-1.9 5.4-4.7 8.3z"/><circle cx="8" cy="6.5" r="1.6"/></svg><span class="sr-only"> (map, opens in a new tab)</span></span></span></a></dd></div>
 </dl>
 ```
 
@@ -682,6 +682,9 @@ The footnote reference, piece by piece:
 - `href="mailto:…"` – opens the visitor's mail program with the address filled in. The address is in clear text here and in the JSON-LD: convenient for people, readable for address harvesters. The site accepts that trade-off. The link has no `target`: it opens no page, so there is no tab to keep.
 - `rel="me noopener"` – `rel` holds a list of link types, separated by spaces, and each applies. `me` says "the linked page represents the same person as this one". Services that verify profile links – Mastodon is the best known – check for `rel="me"` in both directions. Together with `sameAs` in the JSON-LD, it ties the site to the LinkedIn and GitHub profiles. That is why the two links hand `offsite()` a `rel` of their own: `me`, plus the `noopener` that every link to another site carries. Given a `rel`, the function writes no default: two `rel` attributes on one element are an error, and the HTML parser keeps only the first.
 - The address has no space, so the whole of it sits in the `<span class="nw">` with the ↗: if the line is too narrow, the address moves to the next line in one piece, arrow included.
+- Every value carries a raised mark in the ↗'s place, so the four rows read alike, and each mark says what the click does: an envelope – the mail program; ↗ – another website; a pin – a map. Envelope and pin carry the extra class `sym`: drawn symbols have more detail than an arrow, so the CSS draws them larger and with a thinner line (03-css).
+- The envelope needs no hidden words: the row is labelled "Email", and screen readers announce a link anyway. The pin does: `(map, opens in a new tab)` – the map opens in a new tab like every other page outside the site.
+- `https://www.openstreetmap.org/#map=12/51.3403/12.3747` – the map's position lives after the `#`: zoom 12, latitude, longitude – the Markt in the centre of Leipzig. No street, no pin: the link shows the city. OpenStreetMap opens without the consent page that Google Maps shows visitors in the EU first.
 - German page: "E-Mail" and "Wohnort" as labels, LinkedIn and GitHub as they are.
 
 ### Sources
@@ -790,10 +793,10 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 **Middle dots never start a line.** The copy in `build.py` uses " · " as a separator. Before writing any page – the two home pages, the legal pages and the 404 page – the function `dots()` replaces every " · " after `<body>` with `&nbsp;· `. The dot is now glued to the word before it, and the only break opportunity is after it:
 
 ```html
-<p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p>
+<p class="stack">Python&nbsp;· BigQuery&nbsp;· Looker Studio</p>
 ```
 
-On a narrow screen a list like this breaks as "Python · BigQuery ·" / "Data Studio" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
+On a narrow screen a list like this breaks as "Python · BigQuery ·" / "Looker Studio" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
 
 `dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag – and `steps()` does the same before the company of each position behind "All five positions":
 
@@ -924,9 +927,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-11-02</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>2026-11-03</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-11-02</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-11-03</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```
