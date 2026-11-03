@@ -32,6 +32,11 @@ Figures marked "measured" come from Chromium. Pixel values in brackets assume th
   src: url("fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
   font-weight: 700; font-style: normal; font-display: swap;
 }
+@font-face {                                          /* the torch's code and the keys card – loaded on first use */
+  font-family: "Atkinson Hyperlegible Mono";
+  src: url("fonts/atkinson-hyperlegible-mono-latin-400-normal.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
 ```
 
 `@font-face` styles nothing. It registers a font face – "if text asks for this family at this weight and style, here is the file" – and the `font-family` declaration on `body` later puts the family to use. The lines inside are descriptors that describe the file, not properties applied to elements.
@@ -44,7 +49,9 @@ Figures marked "measured" come from Chromium. Pixel values in brackets assume th
 
 **Why italic and bold need their own files.** A font file contains one design. Bold is not the regular drawn thicker, and a true italic has its own letterforms. If no matching face is registered, the browser synthesizes one: fake bold smears the regular outlines, fake italic slants the upright letters. With real faces registered, nothing is faked. Browsers download a face only when text on the page actually uses it – the italic file is fetched because `.pos` and `.ety i` set italic. There is no bold-italic file; the site never combines the two.
 
-**The license file.** Atkinson Hyperlegible is published by the Braille Institute of America under the SIL Open Font License 1.1. Self-hosting means redistributing the font files, which the OFL allows as long as the copyright notice and the license travel with them; `assets/fonts/OFL.txt` takes care of that. The OFL also permits embedding in web pages and forbids selling the fonts on their own. Self-hosting has a second effect: no request goes to a third-party font service, which keeps the site's no-tracking promise.
+**The monospace face.** The fourth block registers a second family, Atkinson Hyperlegible Mono, regular only, 10 KB. Code is set in it: the torch's boxes, the keys card, the "sudo" next to the cursor (see Torch). Nothing on the page asks for it until one of these appears, so a visitor who never switches the torch on never downloads it – registering a face costs nothing, using it does. The forward page on peterstieg.github.io uses the same family (chapter 5).
+
+**The license file.** Atkinson Hyperlegible is published by the Braille Institute of America under the SIL Open Font License 1.1. Self-hosting means redistributing the font files, which the OFL allows as long as the copyright notice and the license travel with them; `assets/fonts/OFL.txt` takes care of that; the monospace family has its own copyright line and travels with `OFL-mono.txt`. The OFL also permits embedding in web pages and forbids selling the fonts on their own. Self-hosting has a second effect: no request goes to a third-party font service, which keeps the site's no-tracking promise.
 
 ## Design tokens and the theme system
 
@@ -78,6 +85,7 @@ Media queries and `@supports` add nothing to specificity; they only decide wheth
   --accent-soft: #E8C3CA;
   --bar: #C4C6C9;
   --bar-lit: #6E7378;
+  --lit: #FFFFFF;                                     /* the paper under the torch's light */
   color-scheme: light;
 }
 ```
@@ -94,6 +102,7 @@ Media queries and `@supports` add nothing to specificity; they only decide wheth
   - `--accent` – the bordeaux: prompt caret, cursor block, focus ring, hover underline, footnote numbers.
   - `--accent-soft` – the text-selection highlight.
   - `--bar`, `--bar-lit` – minimap bars, normal and highlighted.
+  - `--lit` – the paper where the torch's light falls: white on the light page, a lighter grey (#25282C) on the dark one. A light makes the paper brighter in both themes.
 - `color-scheme: light;` – a real property, not a variable. It tells the browser which scheme the page is drawn in, so the parts the browser draws itself match: the default canvas color, scrollbars, form controls and system colors.
 
 Below this point the stylesheet contains no hex color at all – every color is a `var()` or `transparent`. That is why three small blocks are enough to re-theme the whole site.
@@ -111,6 +120,7 @@ Below this point the stylesheet contains no hex color at all – every color is 
     --accent-soft: #4E0E1B;
     --bar: #3A3F44;
     --bar-lit: #8E949A;
+    --lit: #25282C;
     color-scheme: dark;
   }
 }
@@ -118,7 +128,7 @@ Below this point the stylesheet contains no hex color at all – every color is 
 
 - `@media (prefers-color-scheme: dark)` – a media feature for a user preference: true when the operating system or browser is set to a dark appearance. While it is false, the rules inside are ignored. When the visitor flips the OS setting, the page follows live.
 - `:root:not([data-theme="light"])` – the root element, unless it carries `data-theme="light"`. The `:not()` is what lets an explicit light choice beat a dark OS.
-- The eight values: dark paper, light ink, a lighter accent. `color-scheme: dark` switches scrollbars and other browser-drawn parts to dark.
+- The nine values: dark paper, light ink, a lighter accent. `color-scheme: dark` switches scrollbars and other browser-drawn parts to dark.
 
 ### Dark by explicit choice
 
@@ -132,6 +142,7 @@ Below this point the stylesheet contains no hex color at all – every color is 
   --accent-soft: #4E0E1B;
   --bar: #3A3F44;
   --bar-lit: #8E949A;
+  --lit: #25282C;
   color-scheme: dark;
 }
 ```
@@ -489,6 +500,18 @@ These rules continue the header after the docking block.
 .themes svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .themes button[aria-pressed="true"] svg { stroke-width: 2; }
 html:not(.js) .themes { display: none; }
+/* </> – the torch (site.js): next to the pill and as tall, on screens with a mouse only */
+.nav .code {
+  display: none; place-items: center;
+  width: 2.1rem; height: calc(1.7rem + 2px); padding: 0; margin: 0 0 0 -0.75rem;
+  border: 1px solid var(--line); border-radius: 999px; background: none;
+  color: var(--muted); cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) { .js .nav .code { display: inline-grid; } }
+.nav .code:hover, .nav .code[data-level="1"] { color: var(--ink); }
+.nav .code[data-level="2"] { color: var(--accent); border-color: var(--accent); }
+.nav .code svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.nav .code:not([data-level="0"]) svg { stroke-width: 2; }
 @media (max-width: 47.99rem) { .nav .sect { display: none; } }
 @media (max-width: 55.99rem) { .nav .sect .no { display: none; } }  /* narrow desktops: labels only, so the header fits */
 ```
@@ -509,6 +532,12 @@ html:not(.js) .themes { display: none; }
   - `stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;` – line weight in viewBox units (the icons use a 16 × 16 viewBox), with rounded ends and corners to match the rounded letterforms.
 - `.themes button[aria-pressed="true"] svg { stroke-width: 2; }` – the active theme's icon is drawn heavier. Muted versus ink alone is a subtle difference; a change in shape keeps the state recognizable without relying on color.
 - `html:not(.js) .themes { display: none; }` – without JavaScript the buttons cannot work, so they are removed. The system preference still applies through the media query.
+- `.nav .code` – the torch's button `</>` (chapter 4), a pill of its own next to the theme pill:
+  - `display: none;` – hidden by default. `@media (hover: hover) and (pointer: fine)` shows it: `hover: hover` – the main input device can hover; `pointer: fine` – and it points precisely. A mouse or trackpad meets both; a touchscreen meets neither. A light that follows the pointer needs one. `.js` in front: without JavaScript the button would do nothing.
+  - `width: 2.1rem; height: calc(1.7rem + 2px);` – as tall as the theme pill: its button (1.5rem) plus its padding (2 × 0.1rem) plus its border (2 × 1px). `calc()` adds the two units; the browser works it out per element.
+  - `margin: 0 0 0 -0.75rem;` – a negative left margin pulls it towards the pill: the nav's `gap` of 1.25rem shrinks to 0.5rem here, so the two pills read as neighbours. On phones the button does not exist, so the smaller phone gap never meets it.
+  - `[data-level="1"]`, `[data-level="2"]` – `site.js` writes the torch's level into `data-level`. Level 1 (HTML): ink, like a pressed theme button. Level 2 (build.py): the accent, border included – one step deeper, one step louder. `:not([data-level="0"]) svg` draws the icon heavier at both levels, like the active theme.
+  - Measured with the button: the English and German headers fit from 768 px up, at every width where the section links show.
 - `@media (max-width: 47.99rem) { .nav .sect { display: none; } }` – on narrow screens the four section links disappear; logo, language pill and theme pill stay. The rule belongs to the navigation and only sits here by placement.
 - `@media (max-width: 55.99rem) { .nav .sect .no { display: none; } }` – between 48 and 56rem the links stay, but without numbers. With numbers, the English header needs a window about 800 px wide and overflows at 768 px (measured); without them, it fits with room to spare. The space between number and label disappears with the number: at the start of a line, white space is dropped.
 
@@ -570,6 +599,7 @@ html:not(.js) .themes { display: none; }
 ```css
 .prompt .caret { display: inline-block; color: var(--accent); font-weight: 700; margin-right: 0.45em; }
 .cursor {
+  position: relative;                                 /* holds the ? and the hover label */
   display: inline-block; width: 0.55em; height: 1.05em;
   margin-left: 0.12em; vertical-align: -0.16em;
   background: var(--accent);
@@ -583,10 +613,11 @@ html:not(.js) .themes { display: none; }
   - `margin-left: 0.12em;` – a small gap after the last letter.
   - `vertical-align: -0.16em;` – an inline-block sits on the text baseline by default. Lowering it by 0.16em lets it reach into the descender zone, like a terminal cursor that fills a whole character cell.
   - `background: var(--accent);` – a solid bordeaux block.
+  - `position: relative;` – makes the cursor the reference box for its two pseudo-elements below: the `?` and the "sudo" label are positioned against it.
 
 ```css
 @media (prefers-reduced-motion: no-preference) {
-  .typed .cursor { animation: blink 1.1s steps(2, start) 4; }
+  .typed .cursor { animation: blink 1.1s steps(2, start) 3; }
 }
 @keyframes blink { to { visibility: hidden; } }
 ```
@@ -596,8 +627,57 @@ html:not(.js) .themes { display: none; }
 - `animation: blink 1.1s steps(2, start) 4;` – shorthand for name, length of one cycle, timing function and number of cycles.
   - `visibility` cannot fade. Between `visible` and `hidden` it stays `visible` at any progress strictly between 0 and 1 and becomes `hidden` only at the end. With a smooth timing function, the cursor would be visible almost all the time.
   - `steps(2, start)` cuts each cycle into two jumps and takes the first jump immediately: progress is 0.5 in the first half (visible) and 1 in the second (hidden) – 0.55s on, 0.55s off (measured). With `steps(2, end)` the values would be 0 and 0.5, both visible, and the cursor would never blink.
-  - `4` – four cycles; then the animation ends, the cursor returns to its normal style and stays solid. Endless blinking distracts from reading. The number is chosen for a limit: WCAG 2.2.2 (Pause, Stop, Hide) asks for a pause control when blinking content runs longer than 5 seconds. Four cycles last 4.4 seconds and need none; six would already take 6.6.
+  - `3` – three cycles; then the animation ends, the cursor returns to its normal style and stays solid. Endless blinking distracts from reading. The number stays under a limit: WCAG 2.2.2 (Pause, Stop, Hide) asks for a pause control when blinking content runs longer than 5 seconds. Three cycles last 3.3 seconds. (Until November 2026 it was four, 4.4 seconds.)
 - The rule sits inside `prefers-reduced-motion: no-preference`, so visitors who asked for less motion see a steady cursor. (`site.js` skips the typing for them as well.)
+
+With a mouse, the cursor says more: the torch can be switched on there (chapter 4), and the cursor is one of its switches.
+
+```css
+/* with a mouse: the torch can be switched on, so the third blink shows a ? in outline – there is more to find */
+.cursor::after {
+  content: "?"; position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-weight: 700; line-height: 1; color: transparent;
+  -webkit-text-stroke: 0.06em var(--accent);
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .js.typed .cursor { animation: blink3 3.85s step-end; }
+  .js.typed .cursor::after { animation: ask 3.85s step-end; }
+}
+@keyframes blink3 {                                   /* on 0.55 s · off 0.55 s, twice; on 0.55 s · ? 1.1 s */
+  0%, 28.57%, 57.14% { background: var(--accent); }
+  14.29%, 42.86%, 71.43% { background: transparent; }
+}
+@keyframes ask { 0% { visibility: hidden; } 71.43%, 100% { visibility: visible; } }
+@media (hover: hover) and (pointer: fine) {
+  .js .hero .cursor { cursor: pointer; }
+  .js .hero .cursor:hover { background: transparent; }
+  .js .hero .cursor:hover::after { visibility: visible; }
+  .js .hero .cursor::before {                         /* what to type, while the pointer rests on it */
+    content: "sudo"; position: absolute; left: calc(100% + 0.5em); bottom: 0.08em;
+    font: 400 0.75em/1 "Atkinson Hyperlegible Mono", ui-monospace, monospace; color: var(--muted);
+    white-space: nowrap; pointer-events: none; opacity: 0;
+  }
+  .js .hero .cursor:hover::before { opacity: 1; }
+}
+```
+
+- `.cursor::after` – a `?` that the cursor carries all the time, hidden. `content: "?"` creates the pseudo-element; without `content`, `::after` does not exist.
+  - `position: absolute; inset: 0;` – laid over the cursor's box exactly: `inset: 0` is `top`, `right`, `bottom` and `left` at 0. `display: grid; place-items: center;` centres the character in it.
+  - `color: transparent; -webkit-text-stroke: 0.06em var(--accent);` – the character in outline: no fill, a stroke along its edges. `-webkit-text-stroke` carries a vendor prefix in its name but works in Chrome, Safari and Firefox alike – the prefixed name is the standard one in practice. `0.06em` scales with the prompt.
+  - `font-weight: 700;` – the bold face, so the outline has room inside it.
+  - `visibility: hidden;` – there, but not drawn, until an animation or the hover shows it.
+  - The cursor is `aria-hidden`, so screen readers never meet the `?`; nor does copied text – generated content is not part of the document's text.
+- `.js.typed .cursor { animation: blink3 3.85s step-end; }` – with a mouse and JavaScript, `blink3` replaces `blink`: (0,3,0) against (0,2,0). Three blinks again, but the third one shows the `?`:
+  - `blink3` switches the background, not the visibility: with `visibility: hidden` on the cursor, the `?` inside it would be hidden too.
+  - The keyframes: 0.55 s on, 0.55 s off, twice; then 0.55 s on and 1.1 s off – the `?`'s time. 3.85 s in all, still under WCAG's 5 seconds. Percentages of 3.85 s: 0.55 s is 14.29 %, 1.1 s 28.57 %, and so on.
+  - `step-end` – each keyframe's value holds until the next keyframe, with no interpolation in between. `background` could fade; a terminal cursor does not.
+  - The `?` stands 1.1 s, twice as long as one blink's off-phase: long enough to be read, not only noticed.
+- `.js.typed .cursor::after { animation: ask 3.85s step-end; }` – the same timeline for the `?`: hidden until 71.43 % – the third off-phase –, visible to the end. When the animation ends, the cursor is solid again and the `?` hidden.
+- Not on phones: the media query also asks for `(hover: hover) and (pointer: fine)`. There the cursor blinks three times without a `?` – it would point to a torch that does not exist there.
+- `.js .hero .cursor:hover` – resting the pointer on the cursor shows the `?` and the word to type, `sudo`, in the monospace face next to it (`::before`, shown with `opacity`). `cursor: pointer` – the hand: the cursor can be clicked. `pointer-events: none` on the label: it must not catch the pointer and keep itself visible.
+  - `.hero` in the selector: the 404 page has a prompt too, but no cursor to click.
 
 **Transitions versus animations.** A transition reacts to a change: when a property gets a new value (a class is added, `:hover` begins), the browser interpolates from the old value to the new one over the given time. It needs a trigger and runs once per change. An animation runs keyframes on its own timeline as soon as it applies; it can loop or run a fixed number of times, with no change of state needed. The cursor uses an animation; the jump control and the chevrons of the disclosures in Experience use transitions.
 
@@ -1347,6 +1427,76 @@ On `impressum.html` and `datenschutz.html`, the frame carries both classes (`cla
 - `.legal address { font-style: normal; }` – browsers italicize `<address>` by default.
 - `.legal ul { padding-left: 1.2em; }` – a smaller list indent than the default 40px.
 
+## Torch
+
+```css
+/* ---------- torch (site.js): the page's code under a light that follows the pointer ---------- */
+
+.torch {
+  position: fixed; left: 0; top: 0; z-index: 4;       /* under the header (5): the menu stays readable */
+  width: 320px; height: 320px; border-radius: 50%; overflow: hidden;
+  background: var(--lit); pointer-events: none;
+  opacity: 0; visibility: hidden; transition: opacity 0.25s, visibility 0s 0.25s;
+  -webkit-mask-image: radial-gradient(closest-side, #000 84%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 84%, transparent 100%);
+}
+.torch.on { opacity: 1; visibility: visible; transition: opacity 0.25s; }
+.torch-sheet { position: absolute; left: 0; top: 0; }
+.torch-box {
+  position: absolute; overflow: hidden;
+  font-family: "Atkinson Hyperlegible Mono", ui-monospace, monospace; font-weight: 400; line-height: 1.3;
+  white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink);
+}
+.torch-box b { font-weight: 400; color: var(--accent); }
+.torch-box i { font-style: normal; color: var(--muted); }
+.torch-box .ln { color: var(--muted); }
+.torch .g, .torch.deep .h { display: none; }
+.torch.deep .g { display: inline; }
+.torch-tag {
+  position: fixed; left: 0; top: 0; z-index: 4; width: 320px;
+  text-align: center; pointer-events: none; opacity: 0;
+  font: 400 12px/1.2 "Atkinson Hyperlegible Mono", ui-monospace, monospace; color: var(--accent);
+}
+.torch-tag.on { opacity: 1; }
+.torch-tag span { padding: 0.2em 0.6em; border-radius: 999px; background: var(--lit); }   /* legible over the page's text */
+@media (prefers-reduced-motion: reduce) { .torch, .torch.on { transition: none; } }
+
+/* ? – the keys, in a card under the </> button (site.js places it) */
+.keys {
+  position: fixed; inset: auto; margin: 0;
+  padding: 0.7rem 1rem 0.8rem; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--paper); color: var(--ink);
+  font: 400 0.9rem/1.5 "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 12%, transparent);
+}
+.keys p { margin: 0 0 0.35rem; color: var(--muted); }
+.keys dl { display: grid; grid-template-columns: auto auto; gap: 0.15rem 1.25rem; margin: 0; }
+.keys dl div { display: contents; }
+.keys dd { margin: 0; }
+.keys kbd { font: inherit; color: var(--accent); }
+```
+
+The torch (chapter 4) lays a light over the page: a circle that follows the pointer and shows, where it falls, the code of the page underneath – the HTML, one level deeper the lines of `build.py`. `site.js` builds the elements; this is how they look.
+
+- `.torch` – the light:
+  - `position: fixed;` – it moves with the pointer, not with the page. `site.js` places it with `transform: translate(…)`: a transform moves the drawing without a new layout, so following the pointer stays smooth.
+  - `z-index: 4` – above the page, under the sticky header (5): the menu stays readable while the light passes it.
+  - `width: 320px; height: 320px; border-radius: 50%; overflow: hidden;` – a circle that clips what lies inside it. Pixels, not rem: the light's radius is a constant in `site.js` too (160).
+  - `background: var(--lit);` – the paper, lit (see the tokens).
+  - `pointer-events: none;` – clicks pass through the light to the page underneath.
+  - `opacity: 0; visibility: hidden;` with `transition: opacity 0.25s, visibility 0s 0.25s` – it fades out, and only then becomes `hidden`: the second transition waits 0.25 s (its delay) and takes 0 s. `.torch.on` sets `transition: opacity 0.25s` alone, so `visibility` switches to `visible` at once and the fade-in is seen.
+  - `mask-image: radial-gradient(closest-side, #000 84%, transparent 100%);` – a soft edge. A mask keeps what lies under its opaque parts and hides what lies under its transparent ones; the radial gradient is opaque to 84 % of the radius and fades to nothing at the edge. `closest-side` – the gradient's 100 % ends at the nearest side of the box, the circle's edge. `-webkit-mask-image` for older Safari.
+- `.torch-sheet` – a sheet as large as the page, inside the light. `site.js` moves it the opposite way, so its contents stay where the page's text is while the light moves: the code lies under the words it belongs to.
+- `.torch-box` – one per block of text, at the block's position and size (`site.js` writes `left`, `top`, `width`, `height` and the font size, 60 % of the text's). In the monospace face, `white-space: pre-wrap` – line breaks in the code are kept, long lines still wrap –, `overflow-wrap: anywhere` – a long attribute may break anywhere, it would not fit otherwise.
+- `b`, `i`, `.ln` – the colours of the code: tag names and replacement fields `{…}` in the accent, attribute values and line numbers muted. `b` and `i` lose their bold and italic, they only carry the colour – short tags keep the generated markup small.
+- `.torch .g, .torch.deep .h { display: none; }` – each box holds both levels: `.h` the HTML, `.g` the lines of build.py. The class `deep` on the light decides which one shows. Switching levels changes one class; the boxes stay.
+- `.torch-tag` – the line under the light ("HTML · again: build.py"), small, in the accent. Its `span` sits on the lit paper, so it can be read over the page's text.
+- Reduced motion: no fade.
+
+- `.keys` – the card that `?` opens, a popover (like the toggletips, see Toggletips). `inset: auto; margin: 0;` – undoes the browser's centring of popovers; `site.js` places the card under the `</>` button with `top` and `right`.
+- `.keys dl { display: grid; grid-template-columns: auto auto; }` with `.keys dl div { display: contents; }` – a two-column grid of keys and what they do. `display: contents` makes each `div` step aside: its `dt` and `dd` become grid items of the `dl` directly, so all keys share one column width.
+- `kbd` – the keys in the accent, in the card's own font (`font: inherit`: browsers set `kbd` in their default monospace).
+
 ## Minimap
 
 ```css
@@ -1428,7 +1578,7 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 
 ```css
 @media print {
-  .top, .minimap, .skip, .jump, .info { display: none; }
+  .top, .minimap, .skip, .jump, .info, .torch, .torch-tag, .keys { display: none; }
   .hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }
   .hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }
   .sec > h2 { position: static; }
@@ -1437,7 +1587,7 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 ```
 
 - `@media print` – applies when the page is printed or saved as PDF.
-- `.top, .minimap, .skip, .jump, .info { display: none; }` – navigation and screen-only aids don't belong on paper. The jump control matters most here: browsers typically repeat fixed elements on every printed page. The toggletip's i goes as well: on paper it cannot be clicked and would be a stray letter after the heading. The disclosures in Experience need no rule: `site.js` opens them before printing ([chapter 4](04-js.md)).
+- `.top, .minimap, .skip, .jump, .info, .torch, .torch-tag, .keys { display: none; }` – navigation and screen-only aids don't belong on paper. The jump control matters most here: browsers typically repeat fixed elements on every printed page. The toggletip's i goes as well: on paper it cannot be clicked and would be a stray letter after the heading. The torch, its line and the keys card go too: a page printed with the light on would carry a grey circle of code. The disclosures in Experience need no rule: `site.js` opens them before printing ([chapter 4](04-js.md)).
 - `.hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }` – puts the name and its caret back in the hero. Once you have scrolled down, the name has docked: `site.js` has moved and shrunk it with an inline `transform`, and `.hero.docked` has set its opacity to 0. With the header hidden on paper, the printout would otherwise carry no name at all.
   - **Why `!important`.** An inline style beats every normal stylesheet declaration, whatever its specificity. The one way for a stylesheet to override it is `!important`: important declarations from the site outrank normal ones, inline styles included. The same flag also beats `.hero.docked`'s `opacity: 0` (0,2,1), which (0,1,1) alone could not.
   - Measured with Chromium's print emulation after scrolling: name visible, no transform.

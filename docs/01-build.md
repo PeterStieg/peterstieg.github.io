@@ -224,6 +224,9 @@ CONTENT = {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
         "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab", "map": "map",
+        "torch": {"labels": ["Show the code", "Show build.py", "Hide the code"],
+                  "tags": ["", "HTML · again: build.py", "build.py · again: off"],
+                  "keys": "Keys", "rows": [["sudo", "HTML · build.py · off"], ["Esc", "off"], ["?", "this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: …",
@@ -331,6 +334,7 @@ Interface labels:
 | `to_top` | str | label of the jump control's up link while it leads to the top of the page (`"Back to top"` / `"Nach oben"`) |
 | `info` | str | spoken name of the superscript i that opens a toggletip |
 | `new_tab` | str | what screen readers hear after every link that leaves the site: `"opens in a new tab"` / `"öffnet in neuem Tab"`, in parentheses, as visually hidden text (`offsite()`, section 20) |
+| `torch` | dict | the strings of the torch, which `site.js` cannot generate in two languages: `labels` – the `</>` button's name for each level, always the next step ("Show the code", "Show build.py", "Hide the code"); `tags` – the line under the light at levels 1 and 2 (level 0 shows none, hence the empty string); `keys` and `rows` – the card that `?` opens. Written into one attribute as JSON (`code_switch()`, section 16) |
 | `map` | str | read out before `new_tab` on the place under Contact, which opens a map: "map, opens in a new tab" / "Karte, öffnet in neuem Tab" |
 | `dur` | 4-tuple | the words for the durations under the role dates: year, years, month, months (`duration()`, section 22). Joined by commas, they also go to `site.js`, which recounts the running role |
 | `jump` | dict | the jump control: `label` names its `<nav>`, `menu` the button that opens the section list, `up` and `down` are templates in which `%s` stands for a section name (`"Up: %s"` → "Up: Experience") |
@@ -370,7 +374,7 @@ Copy:
 - Not localized at all: the company keys at the end of each `ledger` entry and the role `id`s they point to. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates.
 - Nested lists mirror too: the four titles under `"path"` and the five positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Three promotions", "Drei Beförderungen"; "All five positions", "Alle fünf Stationen"). The promotions keep their titles in both, because they are the titles that were held – only the market in the oldest one is localized: "SEO Manager Italy", "SEO Manager Italien". The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical.
 - Nothing checks parity. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A missing list item – a role or project only added in EN – is silent: the German page simply shows one entry fewer. Edit both languages in the same sitting.
-- Quick parity check from the repository root (importing does not build anything, see section 29):
+- Quick parity check from the repository root (importing does not build anything, see section 30):
 
   ```
   python3 -c "import sys; sys.path.insert(0, 'src'); import build as b; print(set(b.CONTENT['en']) ^ set(b.CONTENT['de']))"
@@ -396,6 +400,7 @@ Pitfall: the markers only work where the code runs the text through the matching
 ```python
 SOURCE_NOTE = f"""<!--
   Hallo · Hi · Ciao – view-source counts as root access, too.
+  On the page: type sudo · ? lists the keys.
 
   peterstieg.com
   ├── no tracking
@@ -408,9 +413,10 @@ SOURCE_NOTE = f"""<!--
 
 - A triple-quoted f-string: it may span lines, and `{MOTTO}` is the only replacement field.
 - The content is an HTML comment (`<!-- … -->`): invisible on the page, visible to anyone who opens the page source. `head()` places it between `<!doctype html>` and `<html>`.
+- The second line points developers to the torch (`site.js`): the same view of the source, on the page. `sudo` switches it on; `?` opens the card with the keys. The console greeting in `site.js` says the same words, so whoever finds one finds the other.
 - The comment text must never contain `-->` – that would end the comment early and print the rest on the page.
-- Pitfall: the comment comes before `<meta charset="utf-8">`. Browsers look for the charset declaration only in the first 1024 bytes of the file; it currently sits at byte 232. Let the comment grow by several hundred bytes and the browser may have to guess the encoding – umlauts and the tree characters break.
-- `dots()` deliberately leaves this comment alone (section 28).
+- Pitfall: the comment comes before `<meta charset="utf-8">`. Browsers look for the charset declaration only in the first 1024 bytes of the file; it currently sits at byte 278. Let the comment grow by several hundred bytes and the browser may have to guess the encoding – umlauts and the tree characters break.
+- `dots()` deliberately leaves this comment alone (section 29).
 
 ---
 
@@ -469,6 +475,9 @@ PIN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
 # three code lines, as in the minimap: the section menu before a chapter is reached, and without JavaScript
 LINES_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
              '<path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg>')
+# </> – the torch's button next to the theme switch
+CODE_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+            '<path d="M5.2 4.6 1.8 8l3.4 3.4M10.8 4.6 14.2 8l-3.4 3.4M9.3 2.8 6.7 13.2"/></svg>')
 MOON_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
             '<path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg>')
 
@@ -486,6 +495,7 @@ LOCKUP = re.sub(r"<svg ([^>]*)>(.*)</svg>",
 - `UP_SVG` and `DOWN_SVG` – the two ends of the jump control (section 23). `DOWN_SVG` also follows each company name in the results ledger, as a small superscript ↓ (section 25). It is `UP_SVG` mirrored: the shaft runs from y = 2.5 down to 13.2 (`v10.7` – a vertical line, relative), the head points down.
 - `OUT_SVG` – the ↗ after every link that leaves the site (`offsite()`, section 20). `M4 12 12.5 3.5` draws the diagonal shaft from bottom left to top right; `M6 3.5h6.5V10` draws the head as a corner: along the top to the tip, then straight down. `V` is a vertical line to an absolute y, here 10. The comment calls it the counterpart of the ledger's ↓: the ↓ leads down the same page, the ↗ off it.
 - `MAIL_SVG`, `PIN_SVG` – the marks of the other two Contact links, in the ↗'s place (section 25): an envelope after the address (it opens the mail program) and a pin after the city (it opens a map). The envelope is one path: `M1.8 3.6h12.4v8.8H1.8z` the outline – right, down, back left, `z` closes it – then `M2.2 4 8 8.8 13.8 4` the flap, a V from corner to corner. The pin is a drop – two cubic curves (`C`, `c`) down to the point at the bottom and an arc (`a4.7 4.7 0 0 1 9.4 0`) over the top – with a circle inside.
+- `CODE_SVG` – `</>`, the common sign for "code": two angle brackets (`M5.2 4.6 1.8 8l3.4 3.4` – from the top end to the point on the left and back out, the right one mirrored) and a slash between them, from top right to bottom left. The torch's button (section 16).
 - `LINES_SVG` – three horizontal strokes of different lengths (`h11`, `h9`, `h7`), the second one indented: lines of code, like the bars of the minimap. It sits in the middle of the jump control as long as there is no chapter number to show – at the top of the page and without JavaScript.
 - `viewBox="0 0 16 10"` – the internal coordinate system (16 × 10 units). The real size comes from CSS (`.arr` is 0.95em × 0.62em), so the icon scales with the text.
 - `<path d="…">` – drawing commands. In the arrow: `M1 5` moves the pen to (1, 5), `h13.5` draws a horizontal line 13.5 units to the right (the shaft), `M10 1.2` jumps to the top of the head, `14 5` draws to the tip (coordinate pairs after an `M` count as line commands), `l-4 3.8` draws relative to the tip down to the bottom of the head. Uppercase = absolute coordinates, lowercase = relative.
@@ -687,7 +697,7 @@ def lang_switch(c):
 
 ---
 
-## 16 · theme_switch
+## 16 · theme_switch and code_switch
 
 ```python
 def theme_switch(c):
@@ -706,6 +716,24 @@ def theme_switch(c):
 - `aria-label` and `title` – the button contains only an icon, so it needs a spoken name and a tooltip.
 - Without JavaScript the buttons cannot work, so CSS hides them (`html:not(.js) .themes`).
 
+```python
+def code_switch(c):
+    """</> – the torch (site.js): a light that follows the pointer and shows the page's code underneath. Each click goes
+    one level deeper – the HTML, then the lines of build.py that wrote it – and the third turns it off. Desktop only.
+    The strings for site.js ride along as JSON in one attribute, so the page's text stays free of them."""
+    tc = c["torch"]
+    return (f'<button type="button" class="code" data-torch="{e(json.dumps(tc, ensure_ascii=False))}" '
+            f'aria-label="{e(tc["labels"][0])}" title="{e(tc["labels"][0])}">{CODE_SVG}</button>')
+```
+
+- The button for the torch – the view of the page's code that `site.js` draws under a light (chapter 4). It sits next to the theme switch but outside its group: the theme is a setting that is remembered, the torch a look under the hood that ends with the visit.
+- `json.dumps(tc, ensure_ascii=False)` – the `torch` dict from `CONTENT` (section 8) as JSON text, umlauts as they are rather than `\u00fc`. `e()` then escapes it for the attribute: every `"` becomes `&quot;`, and the browser turns them back before `site.js` reads `dataset.torch` and parses it with `JSON.parse`.
+  - Why an attribute and not hidden elements: the page's text stays what it says. A card with "sudo – HTML · build.py · off" in the HTML would end up in what search engines and CV parsers read; an attribute does not ("Plain text that reads right", decisions.md).
+  - The attribute is in the body, so `dots()` (section 29) reaches it like everything else there: the `·` in the strings arrive with a no-break space before them – in the card, too, a dot never starts a line.
+- `aria-label` and `title` – the name of the first step, "Show the code". `site.js` changes both with every level: a button that cycles names what the next click does.
+- No `aria-pressed`: the button has three states, and `aria-pressed` knows two (plus "mixed", which means something else). The changing name carries the state.
+- Only on screens with a mouse: the CSS shows the button under `(hover: hover) and (pointer: fine)` and with JavaScript (chapter 3). A light that follows the pointer needs a pointer.
+
 ---
 
 ## 17 · topbar
@@ -720,13 +748,14 @@ def topbar(c, sections=True, langs=True):
     switch = lang_switch(c) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
     word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if sections else ""
+    code = code_switch(c) if sections else ""         # the torch reads the CV pages only, not the legal pages or the 404
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
 <div class="wrap">
 <a class="home" href="{'#top' if sections else r + c['path']}">{word}{LOCKUP}</a>
 <nav class="nav" aria-label="{e(c['aria_main'])}">{links}
 {switch}
-{theme_switch(c)}</nav>
+{theme_switch(c)}{code}</nav>
 </div>
 </header>
 """
@@ -742,6 +771,7 @@ def topbar(c, sections=True, langs=True):
   - `<span class="no" aria-hidden="true">{num(keys[i])}</span>` – the chapter number, the same as on the heading: "01 Profile", "02 Experience". Hidden from screen readers, so the link is still called "Profile".
   - `<span class="label" data-label="{e(t)}">` – the label in its own span, plus a copy as a data attribute. `site.js` marks the section being read in bold; the CSS uses the copy to reserve the bold width in advance (chapter 3, Navigation). The span is needed because the trick works on the label alone – the number stays regular.
 - `switch = lang_switch(c) if langs else ""` – same pattern.
+- `code = code_switch(c) if sections else ""` – the torch's button, on the two main pages only. Its second level shows lines of this file for the elements of the CV (section 28); the legal pages and the 404 have none of them.
 - The skip link comes first in the page so it is the first thing the Tab key reaches. CSS keeps it off-screen until it receives keyboard focus; it jumps to `<main id="main">`.
 - `<header class="top">` and `<div class="wrap">` – the page header and a width-limiting layout container.
 - The home link: `{'#top' if sections else r + c['path']}` – a full conditional expression inside a replacement field. On the main page it jumps to the hero (`#top`). On other pages it links to that language's home page: `"" + "de/index.html"` on the legal pages, `"/" + "index.html"` on the 404 page.
@@ -750,6 +780,7 @@ def topbar(c, sections=True, langs=True):
   - `LOCKUP` – the logo `>_ P/S` (section 11), on every page. Its `role="img"` and `aria-label="Peter Stieg"` give the link its name: screen readers say "Peter Stieg, link".
   - `&gt;_` – `>` written as an entity, so the parser cannot mistake it for the end of a tag.
 - `<nav aria-label=…>` – a named navigation landmark. The name matters because the page has two navs (header and footer).
+- `{code}` follows the theme switch without a line break: both are buttons with icons and no text, so there are no words to keep apart.
 - `{links}`, `{switch}` and `{theme_switch(c)}` on lines of their own – the same whitespace for the same reason: "Contact EN DE" instead of "ContactENDE". `.nav` is a flex container, so the line breaks do not move anything; the gaps between the items come from `gap` in the CSS.
 
 ---
@@ -850,8 +881,8 @@ The `rel` attribute:
 
 The text and its marker:
 
-- `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 28) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
-  - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 28).
+- `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 29) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
+  - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 29).
 - `<span class="nw">{last}…</span>` – the last word and the marker share one span, which the CSS sets to `white-space: nowrap` (chapter 3). The line may still break before the last word, never between it and the ↗. Without the span, the ↗ wrapped onto a line of its own at widths of 320 to 390 pixels: the marker is an inline-block, and an inline-block is a break opportunity on both sides. A word joiner (U+2060) between word and arrow did not stop the break in Chromium – measured.
 - `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With fifteen per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers, the i, the ↓ – stay on the page; the muted ↗ leaves it.
 - `said` – what screen readers hear: `new_tab` alone, or `kind` in front of it – "Leipzig (map, opens in a new tab)". Both escaped, because both are copy.
@@ -1525,7 +1556,86 @@ def not_found():
 
 ---
 
-## 28 · nbsp and dots – typography after the fact
+## 28 · TORCH and torch_map – what the torch shows second
+
+```python
+# ---------- torch ----------
+
+# What the torch's second level shows (site.js): for each CSS selector, a snippet that occurs on exactly one line of this
+# file – the line that writes the element – and how many lines to show from there. First match wins, so the narrower
+# selector comes first (Contact before Education). Selectors without ids: the ids differ between the languages.
+TORCH = [
+    (".hero h1", "<h1>{NAME}</h1>", 1),
+    (".hero .tagline", '<p class="tagline" lang="en">', 1),
+    (".hero .claim", '<p class="claim" lang="en">', 1),
+    (".hero .prompt", '<p class="prompt" lang="en">', 1),
+    (".sec > h2", '<h2 id="h-{i}">', 1),
+    (".hw", '<p class="hw">', 1),
+    (".def", '<p class="def">', 1),
+    (".entry + p", '{entry}<p>{e(c["profile"])}</p>', 1),
+    (".ledger dt, .ledger dd", "led = \"\".join(f'<div><dt>", 2),
+    (".fields h3, .fields p", "p4.append(f'<div><h3", 1),
+    (".more summary", '<details class="more">', 1),
+    (".more .tree li", "lis = \"\".join(f'<li>{e(title)}'", 3),
+    (".role .when", '<p class="when">{when}</p>', 1),
+    (".role h3", "<h3>{e(ro['title'])}</h3>", 1),
+    (".role .org", '<p class="org">{org}{place}</p>', 1),
+    (".role .ctx", 'ctx = f\'<p class="ctx">', 1),
+    (".role .tree li", "items = \"\".join(f'<li><span class=\"k\"", 1),
+    (".lines li", 'val = \'<ul class="lines">\'', 1),
+    (".facts:has(a[href^='mailto:']) dt, .facts:has(a[href^='mailto:']) dd", "contact = '<dl class=\"facts\">", 1),
+    (".facts dt, .facts dd", 'fa.append(f"<div><dt>', 1),
+    (".group > h3", "groups.append(f'<div class=\"group\"><h3>", 1),
+    (".projects h4, .projects p", "lis.append(f'<li><h4>", 1),
+    (".principles p", "pr = \"\".join(f'<li><p>", 1),
+    (".notes li", "notes.append(f'<li id=\"fn-{key}\">", 3),
+]
+
+
+def torch_map():
+    """[selector, line number, code] for every TORCH rule, read from this file as it is now – so the numbers stay right
+    whatever changes above them. Stops the build if a snippet matches no line or several."""
+    src = Path(__file__).read_text(encoding="utf-8").split("\n")
+    start = src.index("TORCH = [")
+    end = src.index("]", start)                       # the list names every snippet once more: skip it
+    rows = []
+    for sel, snip, n in TORCH:
+        hits = [i for i, line in enumerate(src) if snip in line and not start <= i <= end]
+        if len(hits) != 1:
+            raise SystemExit(f"TORCH {sel}: {len(hits)} lines match {snip!r}")
+        lines = src[hits[0]:hits[0] + n]
+        pad = min(len(x) - len(x.lstrip()) for x in lines if x.strip())
+        rows.append([sel, hits[0] + 1, "\n".join(x[pad:] for x in lines)])
+    return rows
+```
+
+The torch (chapter 4) has two levels. The first shows each block of text as HTML – the browser has that at hand. The second shows the line of this file that wrote the block; that the browser cannot know, so the build tells it, in `site/assets/torch.json`.
+
+- `TORCH` – one rule per kind of element: a CSS selector, a snippet of this file, a number of lines.
+  - The selector names the elements on the page, as `site.js` will test them with `el.matches()`. `".ledger dt, .ledger dd"` – a selector list, either one.
+  - The snippet is a piece of the template line that writes those elements, long enough to occur on exactly one line: `'<p class="hw">'` finds the line in `page()` that writes the dictionary entry's headword.
+  - The number says how many lines to show from there: 2 for the ledger, whose f-string spans two lines; 3 for the steps behind a disclosure and the footnotes.
+  - Order matters, because `site.js` takes the first rule that matches: `.facts:has(a[href^='mailto:'])` – the list that holds the mail link, Contact – comes before `.facts`, which would also match Contact but means Education.
+  - No ids in the selectors: the ids are localized (`#contact` is `#kontakt` in German, section 8), the classes are not. `:has()` picks the list by what it contains instead.
+- Why a snippet and not a line number: line numbers move with every edit above them. A snippet stays with its line; `torch_map()` looks the number up on every build.
+
+`torch_map()`:
+
+- `Path(__file__).read_text(…)` – the script reads itself: `__file__` is its own path (section 3). `.split("\n")` gives the lines; index 0 is line 1.
+- `start = src.index("TORCH = [")` – the list's first line. `list.index` returns the position of the first element equal to the argument – a whole line, not a substring – and raises `ValueError` if there is none. So the line must read exactly `TORCH = [`, without a comment.
+- `end = src.index("]", start)` – the first line after it that is exactly `]`: the list's closing bracket, unindented. The second argument of `index` is where the search starts.
+- Why skip the list: every snippet occurs there too, as a string inside the rule. Without `not start <= i <= end` each snippet would match twice. `start <= i <= end` is a chained comparison: `start <= i and i <= end`.
+- `hits` – the line indexes that contain the snippet, outside the list. `snip in line` is a substring test.
+- `if len(hits) != 1: raise SystemExit(…)` – no line or several: the template has changed and the rule no longer finds its line. `SystemExit` ends the build with that message and exit status 1, before anything is written, instead of shipping a torch that shows the wrong line.
+- `lines = src[hits[0]:hits[0] + n]` – a slice: `n` lines from the hit.
+- `pad` – the smallest indentation among them (`len(x) - len(x.lstrip())`: the length of the leading spaces), skipping empty lines. `x[pad:]` cuts exactly that much from each, so the snippet keeps its inner indentation but starts at the left edge.
+- `rows.append([sel, hits[0] + 1, …])` – the line number counts from 1, as editors do; the list index counts from 0.
+- The result is a list of lists, not tuples: `json.dumps` writes both as JSON arrays, and the lists say what the file will hold.
+- Pitfall: the numbers are right for the build that wrote them. Change `build.py` without rebuilding, and the torch shows the old numbers – the same as every other file in `site/`.
+
+---
+
+## 29 · nbsp and dots – typography after the fact
 
 ```python
 def nbsp(html):
@@ -1557,7 +1667,7 @@ def dots(html):
 
 ---
 
-## 29 · build – writing to disk
+## 30 · build – writing to disk
 
 ```python
 def build():
@@ -1571,6 +1681,7 @@ def build():
     (SITE / "404.html").write_text(dots(not_found()), encoding="utf-8")
     (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\nAddType application/manifest+json .webmanifest\n",
                                     encoding="utf-8")
+    (SITE / "assets" / "torch.json").write_text(json.dumps(torch_map(), ensure_ascii=False), encoding="utf-8")
     (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n", encoding="utf-8")
     # The sitemap lists pages, not content: it changes when pages are added or removed. lastmod = build date.
     today = date.today().isoformat()
@@ -1599,6 +1710,7 @@ The other files:
   - `ErrorDocument 404 /404.html` – "for a 404, deliver `/404.html`".
   - `AddType application/manifest+json .webmanifest` – "send files ending in `.webmanifest` with this media type". Every response carries a `Content-Type` header that tells the browser what the bytes are. `application/manifest+json` is the registered type for web app manifests, but Apache's built-in list of extensions does not necessarily contain `.webmanifest`; without this line the manifest from `head()` (section 14) may go out under a generic type.
   - The call no longer fits on one line, so it continues inside the parentheses of `write_text(…)`, aligned under the first argument.
+- `assets/torch.json` – the torch's second level (section 28): for every rule, its selector, its line number in this file and the lines. About 3 KB, fetched by `site.js` only when the torch is first switched on. `ensure_ascii=False` keeps the `·` in the code as it is instead of `\u00b7`.
 - `robots.txt` – `User-agent: *` addresses all crawlers, `Allow: /` permits everything, `Sitemap:` gives the absolute URL of the sitemap.
 
 The sitemap:
@@ -1624,7 +1736,7 @@ if __name__ == "__main__":
 
 ---
 
-## 30 · Running it, output, and why site/ is committed
+## 31 · Running it, output, and why site/ is committed
 
 Run from the repository root:
 

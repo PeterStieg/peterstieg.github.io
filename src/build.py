@@ -84,6 +84,9 @@ CONTENT = {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
         "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab", "map": "map",
+        "torch": {"labels": ["Show the code", "Show build.py", "Hide the code"],
+                  "tags": ["", "HTML · again: build.py", "build.py · again: off"],
+                  "keys": "Keys", "rows": [["sudo", "HTML · build.py · off"], ["Esc", "off"], ["?", "this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, certified Data Scientist.",
@@ -184,6 +187,9 @@ CONTENT = {
         "lang": "de", "path": "de/index.html", "root": "../", "locale": "de_DE",
         "aria_main": "Hauptnavigation", "aria_legal": "Rechtliches", "aria_lang": "Sprache",
         "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info", "new_tab": "öffnet in neuem Tab", "map": "Karte",
+        "torch": {"labels": ["Code zeigen", "build.py zeigen", "Code ausblenden"],
+                  "tags": ["", "HTML · noch mal: build.py", "build.py · noch mal: aus"],
+                  "keys": "Tasten", "rows": [["sudo", "HTML · build.py · aus"], ["Esc", "aus"], ["?", "diese Liste"]]},
         "dur": ("Jahr", "Jahre", "Monat", "Monate"),
         "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
         "desc": "Marketinkerer aus Leipzig: Performance Marketing, Leadgenerierung und Data Science. Führungsrollen in vier Unternehmen, zertifizierter Data Scientist.",
@@ -285,6 +291,7 @@ CONTENT = {
 
 SOURCE_NOTE = f"""<!--
   Hallo · Hi · Ciao – view-source counts as root access, too.
+  On the page: type sudo · ? lists the keys.
 
   peterstieg.com
   ├── no tracking
@@ -320,6 +327,9 @@ PIN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
 # three code lines, as in the minimap: the section menu before a chapter is reached, and without JavaScript
 LINES_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
              '<path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg>')
+# </> – the torch's button next to the theme switch
+CODE_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+            '<path d="M5.2 4.6 1.8 8l3.4 3.4M10.8 4.6 14.2 8l-3.4 3.4M9.3 2.8 6.7 13.2"/></svg>')
 MOON_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
             '<path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg>')
 
@@ -418,6 +428,15 @@ def theme_switch(c):
             f'</span>')
 
 
+def code_switch(c):
+    """</> – the torch (site.js): a light that follows the pointer and shows the page's code underneath. Each click goes
+    one level deeper – the HTML, then the lines of build.py that wrote it – and the third turns it off. Desktop only.
+    The strings for site.js ride along as JSON in one attribute, so the page's text stays free of them."""
+    tc = c["torch"]
+    return (f'<button type="button" class="code" data-torch="{e(json.dumps(tc, ensure_ascii=False))}" '
+            f'aria-label="{e(tc["labels"][0])}" title="{e(tc["labels"][0])}">{CODE_SVG}</button>')
+
+
 def topbar(c, sections=True, langs=True):
     r = c["root"]
     keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
@@ -427,13 +446,14 @@ def topbar(c, sections=True, langs=True):
     switch = lang_switch(c) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
     word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if sections else ""
+    code = code_switch(c) if sections else ""         # the torch reads the CV pages only, not the legal pages or the 404
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
 <div class="wrap">
 <a class="home" href="{'#top' if sections else r + c['path']}">{word}{LOCKUP}</a>
 <nav class="nav" aria-label="{e(c['aria_main'])}">{links}
 {switch}
-{theme_switch(c)}</nav>
+{theme_switch(c)}{code}</nav>
 </div>
 </header>
 """
@@ -779,6 +799,56 @@ def not_found():
         footer(c), '<script src="/assets/site.js" defer></script>\n</body>\n</html>\n'])
 
 
+# ---------- torch ----------
+
+# What the torch's second level shows (site.js): for each CSS selector, a snippet that occurs on exactly one line of this
+# file – the line that writes the element – and how many lines to show from there. First match wins, so the narrower
+# selector comes first (Contact before Education). Selectors without ids: the ids differ between the languages.
+TORCH = [
+    (".hero h1", "<h1>{NAME}</h1>", 1),
+    (".hero .tagline", '<p class="tagline" lang="en">', 1),
+    (".hero .claim", '<p class="claim" lang="en">', 1),
+    (".hero .prompt", '<p class="prompt" lang="en">', 1),
+    (".sec > h2", '<h2 id="h-{i}">', 1),
+    (".hw", '<p class="hw">', 1),
+    (".def", '<p class="def">', 1),
+    (".entry + p", '{entry}<p>{e(c["profile"])}</p>', 1),
+    (".ledger dt, .ledger dd", "led = \"\".join(f'<div><dt>", 2),
+    (".fields h3, .fields p", "p4.append(f'<div><h3", 1),
+    (".more summary", '<details class="more">', 1),
+    (".more .tree li", "lis = \"\".join(f'<li>{e(title)}'", 3),
+    (".role .when", '<p class="when">{when}</p>', 1),
+    (".role h3", "<h3>{e(ro['title'])}</h3>", 1),
+    (".role .org", '<p class="org">{org}{place}</p>', 1),
+    (".role .ctx", 'ctx = f\'<p class="ctx">', 1),
+    (".role .tree li", "items = \"\".join(f'<li><span class=\"k\"", 1),
+    (".lines li", 'val = \'<ul class="lines">\'', 1),
+    (".facts:has(a[href^='mailto:']) dt, .facts:has(a[href^='mailto:']) dd", "contact = '<dl class=\"facts\">", 1),
+    (".facts dt, .facts dd", 'fa.append(f"<div><dt>', 1),
+    (".group > h3", "groups.append(f'<div class=\"group\"><h3>", 1),
+    (".projects h4, .projects p", "lis.append(f'<li><h4>", 1),
+    (".principles p", "pr = \"\".join(f'<li><p>", 1),
+    (".notes li", "notes.append(f'<li id=\"fn-{key}\">", 3),
+]
+
+
+def torch_map():
+    """[selector, line number, code] for every TORCH rule, read from this file as it is now – so the numbers stay right
+    whatever changes above them. Stops the build if a snippet matches no line or several."""
+    src = Path(__file__).read_text(encoding="utf-8").split("\n")
+    start = src.index("TORCH = [")
+    end = src.index("]", start)                       # the list names every snippet once more: skip it
+    rows = []
+    for sel, snip, n in TORCH:
+        hits = [i for i, line in enumerate(src) if snip in line and not start <= i <= end]
+        if len(hits) != 1:
+            raise SystemExit(f"TORCH {sel}: {len(hits)} lines match {snip!r}")
+        lines = src[hits[0]:hits[0] + n]
+        pad = min(len(x) - len(x.lstrip()) for x in lines if x.strip())
+        rows.append([sel, hits[0] + 1, "\n".join(x[pad:] for x in lines)])
+    return rows
+
+
 def nbsp(html):
     """Keep numbers and units together: 25 %, 240.000 €, 1,7 Mio. €."""
     return (html.replace(" %", " %").replace(" €", " €")
@@ -802,6 +872,7 @@ def build():
     (SITE / "404.html").write_text(dots(not_found()), encoding="utf-8")
     (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\nAddType application/manifest+json .webmanifest\n",
                                     encoding="utf-8")
+    (SITE / "assets" / "torch.json").write_text(json.dumps(torch_map(), ensure_ascii=False), encoding="utf-8")
     (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n", encoding="utf-8")
     # The sitemap lists pages, not content: it changes when pages are added or removed. lastmod = build date.
     today = date.today().isoformat()

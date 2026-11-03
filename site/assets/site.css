@@ -15,6 +15,11 @@
   src: url("fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
   font-weight: 700; font-style: normal; font-display: swap;
 }
+@font-face {                                          /* the torch's code and the keys card – loaded on first use */
+  font-family: "Atkinson Hyperlegible Mono";
+  src: url("fonts/atkinson-hyperlegible-mono-latin-400-normal.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
 
 :root {
   --paper: #F7F6F3;
@@ -25,6 +30,7 @@
   --accent-soft: #E8C3CA;
   --bar: #C4C6C9;
   --bar-lit: #6E7378;
+  --lit: #FFFFFF;                                     /* the paper under the torch's light */
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -37,6 +43,7 @@
     --accent-soft: #4E0E1B;
     --bar: #3A3F44;
     --bar-lit: #8E949A;
+    --lit: #25282C;
     color-scheme: dark;
   }
 }
@@ -49,6 +56,7 @@
   --accent-soft: #4E0E1B;
   --bar: #3A3F44;
   --bar-lit: #8E949A;
+  --lit: #25282C;
   color-scheme: dark;
 }
 
@@ -178,6 +186,18 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .themes svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .themes button[aria-pressed="true"] svg { stroke-width: 2; }
 html:not(.js) .themes { display: none; }
+/* </> – the torch (site.js): next to the pill and as tall, on screens with a mouse only */
+.nav .code {
+  display: none; place-items: center;
+  width: 2.1rem; height: calc(1.7rem + 2px); padding: 0; margin: 0 0 0 -0.75rem;
+  border: 1px solid var(--line); border-radius: 999px; background: none;
+  color: var(--muted); cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) { .js .nav .code { display: inline-grid; } }
+.nav .code:hover, .nav .code[data-level="1"] { color: var(--ink); }
+.nav .code[data-level="2"] { color: var(--accent); border-color: var(--accent); }
+.nav .code svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.nav .code:not([data-level="0"]) svg { stroke-width: 2; }
 @media (max-width: 47.99rem) { .nav .sect { display: none; } }
 @media (max-width: 55.99rem) { .nav .sect .no { display: none; } }  /* narrow desktops: labels only, so the header fits */
 
@@ -210,14 +230,43 @@ html:not(.js) .themes { display: none; }
 }
 .prompt .caret { display: inline-block; color: var(--accent); font-weight: 700; margin-right: 0.45em; }
 .cursor {
+  position: relative;                                 /* holds the ? and the hover label */
   display: inline-block; width: 0.55em; height: 1.05em;
   margin-left: 0.12em; vertical-align: -0.16em;
   background: var(--accent);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .typed .cursor { animation: blink 1.1s steps(2, start) 4; }
+  .typed .cursor { animation: blink 1.1s steps(2, start) 3; }
 }
 @keyframes blink { to { visibility: hidden; } }
+/* with a mouse: the torch can be switched on, so the third blink shows a ? in outline – there is more to find */
+.cursor::after {
+  content: "?"; position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-weight: 700; line-height: 1; color: transparent;
+  -webkit-text-stroke: 0.06em var(--accent);
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .js.typed .cursor { animation: blink3 3.85s step-end; }
+  .js.typed .cursor::after { animation: ask 3.85s step-end; }
+}
+@keyframes blink3 {                                   /* on 0.55 s · off 0.55 s, twice; on 0.55 s · ? 1.1 s */
+  0%, 28.57%, 57.14% { background: var(--accent); }
+  14.29%, 42.86%, 71.43% { background: transparent; }
+}
+@keyframes ask { 0% { visibility: hidden; } 71.43%, 100% { visibility: visible; } }
+@media (hover: hover) and (pointer: fine) {
+  .js .hero .cursor { cursor: pointer; }
+  .js .hero .cursor:hover { background: transparent; }
+  .js .hero .cursor:hover::after { visibility: visible; }
+  .js .hero .cursor::before {                         /* what to type, while the pointer rests on it */
+    content: "sudo"; position: absolute; left: calc(100% + 0.5em); bottom: 0.08em;
+    font: 400 0.75em/1 "Atkinson Hyperlegible Mono", ui-monospace, monospace; color: var(--muted);
+    white-space: nowrap; pointer-events: none; opacity: 0;
+  }
+  .js .hero .cursor:hover::before { opacity: 1; }
+}
 
 /* ---------- sections ---------- */
 
@@ -495,6 +544,51 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 .legal address { font-style: normal; }
 .legal ul { padding-left: 1.2em; }
 
+/* ---------- torch (site.js): the page's code under a light that follows the pointer ---------- */
+
+.torch {
+  position: fixed; left: 0; top: 0; z-index: 4;       /* under the header (5): the menu stays readable */
+  width: 320px; height: 320px; border-radius: 50%; overflow: hidden;
+  background: var(--lit); pointer-events: none;
+  opacity: 0; visibility: hidden; transition: opacity 0.25s, visibility 0s 0.25s;
+  -webkit-mask-image: radial-gradient(closest-side, #000 84%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 84%, transparent 100%);
+}
+.torch.on { opacity: 1; visibility: visible; transition: opacity 0.25s; }
+.torch-sheet { position: absolute; left: 0; top: 0; }
+.torch-box {
+  position: absolute; overflow: hidden;
+  font-family: "Atkinson Hyperlegible Mono", ui-monospace, monospace; font-weight: 400; line-height: 1.3;
+  white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink);
+}
+.torch-box b { font-weight: 400; color: var(--accent); }
+.torch-box i { font-style: normal; color: var(--muted); }
+.torch-box .ln { color: var(--muted); }
+.torch .g, .torch.deep .h { display: none; }
+.torch.deep .g { display: inline; }
+.torch-tag {
+  position: fixed; left: 0; top: 0; z-index: 4; width: 320px;
+  text-align: center; pointer-events: none; opacity: 0;
+  font: 400 12px/1.2 "Atkinson Hyperlegible Mono", ui-monospace, monospace; color: var(--accent);
+}
+.torch-tag.on { opacity: 1; }
+.torch-tag span { padding: 0.2em 0.6em; border-radius: 999px; background: var(--lit); }   /* legible over the page's text */
+@media (prefers-reduced-motion: reduce) { .torch, .torch.on { transition: none; } }
+
+/* ? – the keys, in a card under the </> button (site.js places it) */
+.keys {
+  position: fixed; inset: auto; margin: 0;
+  padding: 0.7rem 1rem 0.8rem; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--paper); color: var(--ink);
+  font: 400 0.9rem/1.5 "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 12%, transparent);
+}
+.keys p { margin: 0 0 0.35rem; color: var(--muted); }
+.keys dl { display: grid; grid-template-columns: auto auto; gap: 0.15rem 1.25rem; margin: 0; }
+.keys dl div { display: contents; }
+.keys dd { margin: 0; }
+.keys kbd { font: inherit; color: var(--accent); }
+
 /* ---------- minimap ---------- */
 
 .minimap { display: none; }
@@ -529,7 +623,7 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 }
 
 @media print {
-  .top, .minimap, .skip, .jump, .info { display: none; }
+  .top, .minimap, .skip, .jump, .info, .torch, .torch-tag, .keys { display: none; }
   .hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }
   .hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }
   .sec > h2 { position: static; }
