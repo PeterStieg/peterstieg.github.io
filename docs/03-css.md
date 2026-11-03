@@ -49,7 +49,7 @@ Figures marked "measured" come from Chromium. Pixel values in brackets assume th
 
 **Why italic and bold need their own files.** A font file contains one design. Bold is not the regular drawn thicker, and a true italic has its own letterforms. If no matching face is registered, the browser synthesizes one: fake bold smears the regular outlines, fake italic slants the upright letters. With real faces registered, nothing is faked. Browsers download a face only when text on the page actually uses it – the italic file is fetched because `.pos` and `.ety i` set italic. There is no bold-italic file; the site never combines the two.
 
-**The monospace face.** The fourth block registers a second family, Atkinson Hyperlegible Mono, regular only, 10 KB. Code is set in it: the torch's boxes, the keys card, the "sudo" next to the cursor (see Torch). Nothing on the page asks for it until one of these appears, so a visitor who never switches the torch on never downloads it – registering a face costs nothing, using it does. The forward page on peterstieg.github.io uses the same family (chapter 5).
+**The monospace face.** The fourth block registers a second family, Atkinson Hyperlegible Mono, regular only, 10 KB. Code is set in it: the torch's boxes and the keys card (see Torch). Nothing on the page asks for it until one of them appears, so a visitor who never switches the torch on never downloads it – registering a face costs nothing, using it does. The forward page on peterstieg.github.io uses the same family (chapter 5).
 
 **The license file.** Atkinson Hyperlegible is published by the Braille Institute of America under the SIL Open Font License 1.1. Self-hosting means redistributing the font files, which the OFL allows as long as the copyright notice and the license travel with them; `assets/fonts/OFL.txt` takes care of that; the monospace family has its own copyright line and travels with `OFL-mono.txt`. The OFL also permits embedding in web pages and forbids selling the fonts on their own. Self-hosting has a second effect: no request goes to a third-party font service, which keeps the site's no-tracking promise.
 
@@ -500,18 +500,6 @@ These rules continue the header after the docking block.
 .themes svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .themes button[aria-pressed="true"] svg { stroke-width: 2; }
 html:not(.js) .themes { display: none; }
-/* </> – the torch (site.js): next to the pill and as tall, on screens with a mouse only */
-.nav .code {
-  display: none; place-items: center;
-  width: 2.1rem; height: calc(1.7rem + 2px); padding: 0; margin: 0 0 0 -0.75rem;
-  border: 1px solid var(--line); border-radius: 999px; background: none;
-  color: var(--muted); cursor: pointer;
-}
-@media (hover: hover) and (pointer: fine) { .js .nav .code { display: inline-grid; } }
-.nav .code:hover, .nav .code[data-level="1"] { color: var(--ink); }
-.nav .code[data-level="2"] { color: var(--accent); border-color: var(--accent); }
-.nav .code svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.nav .code:not([data-level="0"]) svg { stroke-width: 2; }
 @media (max-width: 47.99rem) { .nav .sect { display: none; } }
 @media (max-width: 55.99rem) { .nav .sect .no { display: none; } }  /* narrow desktops: labels only, so the header fits */
 ```
@@ -532,12 +520,6 @@ html:not(.js) .themes { display: none; }
   - `stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;` – line weight in viewBox units (the icons use a 16 × 16 viewBox), with rounded ends and corners to match the rounded letterforms.
 - `.themes button[aria-pressed="true"] svg { stroke-width: 2; }` – the active theme's icon is drawn heavier. Muted versus ink alone is a subtle difference; a change in shape keeps the state recognizable without relying on color.
 - `html:not(.js) .themes { display: none; }` – without JavaScript the buttons cannot work, so they are removed. The system preference still applies through the media query.
-- `.nav .code` – the torch's button `</>` (chapter 4), a pill of its own next to the theme pill:
-  - `display: none;` – hidden by default. `@media (hover: hover) and (pointer: fine)` shows it: `hover: hover` – the main input device can hover; `pointer: fine` – and it points precisely. A mouse or trackpad meets both; a touchscreen meets neither. A light that follows the pointer needs one. `.js` in front: without JavaScript the button would do nothing.
-  - `width: 2.1rem; height: calc(1.7rem + 2px);` – as tall as the theme pill: its button (1.5rem) plus its padding (2 × 0.1rem) plus its border (2 × 1px). `calc()` adds the two units; the browser works it out per element.
-  - `margin: 0 0 0 -0.75rem;` – a negative left margin pulls it towards the pill: the nav's `gap` of 1.25rem shrinks to 0.5rem here, so the two pills read as neighbours. On phones the button does not exist, so the smaller phone gap never meets it.
-  - `[data-level="1"]`, `[data-level="2"]` – `site.js` writes the torch's level into `data-level`. Level 1 (HTML): ink, like a pressed theme button. Level 2 (build.py): the accent, border included – one step deeper, one step louder. `:not([data-level="0"]) svg` draws the icon heavier at both levels, like the active theme.
-  - Measured with the button: the English and German headers fit from 768 px up, at every width where the section links show.
 - `@media (max-width: 47.99rem) { .nav .sect { display: none; } }` – on narrow screens the four section links disappear; logo, language pill and theme pill stay. The rule belongs to the navigation and only sits here by placement.
 - `@media (max-width: 55.99rem) { .nav .sect .no { display: none; } }` – between 48 and 56rem the links stay, but without numbers. With numbers, the English header needs a window about 800 px wide and overflows at 768 px (measured); without them, it fits with room to spare. The space between number and label disappears with the number: at the start of a line, white space is dropped.
 
@@ -599,7 +581,6 @@ html:not(.js) .themes { display: none; }
 ```css
 .prompt .caret { display: inline-block; color: var(--accent); font-weight: 700; margin-right: 0.45em; }
 .cursor {
-  position: relative;                                 /* holds the ? and the hover label */
   display: inline-block; width: 0.55em; height: 1.05em;
   margin-left: 0.12em; vertical-align: -0.16em;
   background: var(--accent);
@@ -613,7 +594,6 @@ html:not(.js) .themes { display: none; }
   - `margin-left: 0.12em;` – a small gap after the last letter.
   - `vertical-align: -0.16em;` – an inline-block sits on the text baseline by default. Lowering it by 0.16em lets it reach into the descender zone, like a terminal cursor that fills a whole character cell.
   - `background: var(--accent);` – a solid bordeaux block.
-  - `position: relative;` – makes the cursor the reference box for its two pseudo-elements below: the `?` and the "sudo" label are positioned against it.
 
 ```css
 @media (prefers-reduced-motion: no-preference) {
@@ -627,57 +607,8 @@ html:not(.js) .themes { display: none; }
 - `animation: blink 1.1s steps(2, start) 4;` – shorthand for name, length of one cycle, timing function and number of cycles.
   - `visibility` cannot fade. Between `visible` and `hidden` it stays `visible` at any progress strictly between 0 and 1 and becomes `hidden` only at the end. With a smooth timing function, the cursor would be visible almost all the time.
   - `steps(2, start)` cuts each cycle into two jumps and takes the first jump immediately: progress is 0.5 in the first half (visible) and 1 in the second (hidden) – 0.55s on, 0.55s off (measured). With `steps(2, end)` the values would be 0 and 0.5, both visible, and the cursor would never blink.
-  - `3` – three cycles; then the animation ends, the cursor returns to its normal style and stays solid. Endless blinking distracts from reading. The number stays under a limit: WCAG 2.2.2 (Pause, Stop, Hide) asks for a pause control when blinking content runs longer than 5 seconds. Three cycles last 3.3 seconds. (Until November 2026 it was four, 4.4 seconds.)
+  - `3` – three cycles; then the animation ends, the cursor returns to its normal style and stays solid. Endless blinking distracts from reading. The number stays under a limit: WCAG 2.2.2 (Pause, Stop, Hide) asks for a pause control when blinking content runs longer than 5 seconds. Three cycles last 3.3 seconds. (Until November 2026 it was four, 4.4 seconds; a version with a `?` in the third blink was tried and dropped.)
 - The rule sits inside `prefers-reduced-motion: no-preference`, so visitors who asked for less motion see a steady cursor. (`site.js` skips the typing for them as well.)
-
-With a mouse, the cursor says more: the torch can be switched on there (chapter 4), and the cursor is one of its switches.
-
-```css
-/* with a mouse: the torch can be switched on, so the third blink shows a ? in outline – there is more to find */
-.cursor::after {
-  content: "?"; position: absolute; inset: 0;
-  display: grid; place-items: center;
-  font-weight: 700; line-height: 1; color: transparent;
-  -webkit-text-stroke: 0.06em var(--accent);
-  visibility: hidden;
-}
-@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
-  .js.typed .cursor { animation: blink3 3.85s step-end; }
-  .js.typed .cursor::after { animation: ask 3.85s step-end; }
-}
-@keyframes blink3 {                                   /* on 0.55 s · off 0.55 s, twice; on 0.55 s · ? 1.1 s */
-  0%, 28.57%, 57.14% { background: var(--accent); }
-  14.29%, 42.86%, 71.43% { background: transparent; }
-}
-@keyframes ask { 0% { visibility: hidden; } 71.43%, 100% { visibility: visible; } }
-@media (hover: hover) and (pointer: fine) {
-  .js .hero .cursor { cursor: pointer; }
-  .js .hero .cursor:hover { background: transparent; }
-  .js .hero .cursor:hover::after { visibility: visible; }
-  .js .hero .cursor::before {                         /* what to type, while the pointer rests on it */
-    content: "sudo"; position: absolute; left: calc(100% + 0.5em); bottom: 0.08em;
-    font: 400 0.75em/1 "Atkinson Hyperlegible Mono", ui-monospace, monospace; color: var(--muted);
-    white-space: nowrap; pointer-events: none; opacity: 0;
-  }
-  .js .hero .cursor:hover::before { opacity: 1; }
-}
-```
-
-- `.cursor::after` – a `?` that the cursor carries all the time, hidden. `content: "?"` creates the pseudo-element; without `content`, `::after` does not exist.
-  - `position: absolute; inset: 0;` – laid over the cursor's box exactly: `inset: 0` is `top`, `right`, `bottom` and `left` at 0. `display: grid; place-items: center;` centres the character in it.
-  - `color: transparent; -webkit-text-stroke: 0.06em var(--accent);` – the character in outline: no fill, a stroke along its edges. `-webkit-text-stroke` carries a vendor prefix in its name but works in Chrome, Safari and Firefox alike – the prefixed name is the standard one in practice. `0.06em` scales with the prompt.
-  - `font-weight: 700;` – the bold face, so the outline has room inside it.
-  - `visibility: hidden;` – there, but not drawn, until an animation or the hover shows it.
-  - The cursor is `aria-hidden`, so screen readers never meet the `?`; nor does copied text – generated content is not part of the document's text.
-- `.js.typed .cursor { animation: blink3 3.85s step-end; }` – with a mouse and JavaScript, `blink3` replaces `blink`: (0,3,0) against (0,2,0). Three blinks again, but the third one shows the `?`:
-  - `blink3` switches the background, not the visibility: with `visibility: hidden` on the cursor, the `?` inside it would be hidden too.
-  - The keyframes: 0.55 s on, 0.55 s off, twice; then 0.55 s on and 1.1 s off – the `?`'s time. 3.85 s in all, still under WCAG's 5 seconds. Percentages of 3.85 s: 0.55 s is 14.29 %, 1.1 s 28.57 %, and so on.
-  - `step-end` – each keyframe's value holds until the next keyframe, with no interpolation in between. `background` could fade; a terminal cursor does not.
-  - The `?` stands 1.1 s, twice as long as one blink's off-phase: long enough to be read, not only noticed.
-- `.js.typed .cursor::after { animation: ask 3.85s step-end; }` – the same timeline for the `?`: hidden until 71.43 % – the third off-phase –, visible to the end. When the animation ends, the cursor is solid again and the `?` hidden.
-- Not on phones: the media query also asks for `(hover: hover) and (pointer: fine)`. There the cursor blinks three times without a `?` – it would point to a torch that does not exist there.
-- `.js .hero .cursor:hover` – resting the pointer on the cursor shows the `?` and the word to type, `sudo`, in the monospace face next to it (`::before`, shown with `opacity`). `cursor: pointer` – the hand: the cursor can be clicked. `pointer-events: none` on the label: it must not catch the pointer and keep itself visible.
-  - `.hero` in the selector: the 404 page has a prompt too, but no cursor to click.
 
 **Transitions versus animations.** A transition reacts to a change: when a property gets a new value (a class is added, `:hover` begins), the browser interpolates from the old value to the new one over the given time. It needs a trigger and runs once per change. An animation runs keyframes on its own timeline as soon as it applies; it can loop or run a fixed number of times, with no change of state needed. The cursor uses an animation; the jump control and the chevrons of the disclosures in Experience use transitions.
 
@@ -1461,7 +1392,7 @@ On `impressum.html` and `datenschutz.html`, the frame carries both classes (`cla
 .torch-tag span { padding: 0.2em 0.6em; border-radius: 999px; background: var(--lit); }   /* legible over the page's text */
 @media (prefers-reduced-motion: reduce) { .torch, .torch.on { transition: none; } }
 
-/* ? – the keys, in a card under the </> button (site.js places it) */
+/* ? – the keys, in a card under the header's right end (site.js places it) */
 .keys {
   position: fixed; inset: auto; margin: 0;
   padding: 0.7rem 1rem 0.8rem; border: 1px solid var(--line); border-radius: 8px;
@@ -1493,7 +1424,7 @@ The torch (chapter 4) lays a light over the page: a circle that follows the poin
 - `.torch-tag` – the line under the light ("HTML · again: build.py"), small, in the accent. Its `span` sits on the lit paper, so it can be read over the page's text.
 - Reduced motion: no fade.
 
-- `.keys` – the card that `?` opens, a popover (like the toggletips, see Toggletips). `inset: auto; margin: 0;` – undoes the browser's centring of popovers; `site.js` places the card under the `</>` button with `top` and `right`.
+- `.keys` – the card that `?` opens, a popover (like the toggletips, see Toggletips). `inset: auto; margin: 0;` – undoes the browser's centring of popovers; `site.js` places the card under the header's right end, below the theme switch, with `top` and `right`.
 - `.keys dl { display: grid; grid-template-columns: auto auto; }` with `.keys dl div { display: contents; }` – a two-column grid of keys and what they do. `display: contents` makes each `div` step aside: its `dt` and `dd` become grid items of the `dl` directly, so all keys share one column width.
 - `kbd` – the keys in the accent, in the card's own font (`font: inherit`: browsers set `kbd` in their default monospace).
 

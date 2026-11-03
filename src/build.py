@@ -84,8 +84,7 @@ CONTENT = {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
         "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab", "map": "map",
-        "torch": {"labels": ["Show the code", "Show build.py", "Hide the code"],
-                  "tags": ["", "HTML · again: build.py", "build.py · again: off"],
+        "torch": {"tags": ["", "HTML · again: build.py", "build.py · again: off"],
                   "keys": "Keys", "rows": [["sudo", "HTML · build.py · off"], ["Esc", "off"], ["?", "this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
@@ -187,8 +186,7 @@ CONTENT = {
         "lang": "de", "path": "de/index.html", "root": "../", "locale": "de_DE",
         "aria_main": "Hauptnavigation", "aria_legal": "Rechtliches", "aria_lang": "Sprache",
         "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info", "new_tab": "öffnet in neuem Tab", "map": "Karte",
-        "torch": {"labels": ["Code zeigen", "build.py zeigen", "Code ausblenden"],
-                  "tags": ["", "HTML · noch mal: build.py", "build.py · noch mal: aus"],
+        "torch": {"tags": ["", "HTML · noch mal: build.py", "build.py · noch mal: aus"],
                   "keys": "Tasten", "rows": [["sudo", "HTML · build.py · aus"], ["Esc", "aus"], ["?", "diese Liste"]]},
         "dur": ("Jahr", "Jahre", "Monat", "Monate"),
         "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
@@ -327,9 +325,6 @@ PIN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
 # three code lines, as in the minimap: the section menu before a chapter is reached, and without JavaScript
 LINES_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
              '<path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg>')
-# </> – the torch's button next to the theme switch
-CODE_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
-            '<path d="M5.2 4.6 1.8 8l3.4 3.4M10.8 4.6 14.2 8l-3.4 3.4M9.3 2.8 6.7 13.2"/></svg>')
 MOON_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
             '<path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg>')
 
@@ -428,15 +423,6 @@ def theme_switch(c):
             f'</span>')
 
 
-def code_switch(c):
-    """</> – the torch (site.js): a light that follows the pointer and shows the page's code underneath. Each click goes
-    one level deeper – the HTML, then the lines of build.py that wrote it – and the third turns it off. Desktop only.
-    The strings for site.js ride along as JSON in one attribute, so the page's text stays free of them."""
-    tc = c["torch"]
-    return (f'<button type="button" class="code" data-torch="{e(json.dumps(tc, ensure_ascii=False))}" '
-            f'aria-label="{e(tc["labels"][0])}" title="{e(tc["labels"][0])}">{CODE_SVG}</button>')
-
-
 def topbar(c, sections=True, langs=True):
     r = c["root"]
     keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
@@ -446,14 +432,13 @@ def topbar(c, sections=True, langs=True):
     switch = lang_switch(c) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
     word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if sections else ""
-    code = code_switch(c) if sections else ""         # the torch reads the CV pages only, not the legal pages or the 404
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
 <div class="wrap">
 <a class="home" href="{'#top' if sections else r + c['path']}">{word}{LOCKUP}</a>
 <nav class="nav" aria-label="{e(c['aria_main'])}">{links}
 {switch}
-{theme_switch(c)}{code}</nav>
+{theme_switch(c)}</nav>
 </div>
 </header>
 """
@@ -637,7 +622,9 @@ def page(c):
         return f'<sup class="fnref"><a href="#fn-{key}" id="ref-{key}" aria-describedby="h-{sid(c, "notes")}">{n}</a></sup>'
 
     out = [head(c, TITLE, c["desc"], URL + slug), jsonld(c), "</head>\n<body>\n", topbar(c)]
-    out.append('<div class="minimap" aria-hidden="true"></div>\n<main id="main">\n<div class="wrap">\n')
+    # data-torch: the torch's strings for site.js (sudo, ?), as JSON in an attribute – out of the page's text
+    torch = e(json.dumps(c["torch"], ensure_ascii=False))
+    out.append(f'<div class="minimap" aria-hidden="true"></div>\n<main id="main" data-torch="{torch}">\n<div class="wrap">\n')
 
     # hero – same order as the LinkedIn banner
     out.append(f"""<section class="hero" id="top">

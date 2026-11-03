@@ -482,13 +482,12 @@
   window.addEventListener("load", layout);
 
   /* ---------- Torch: the page's code under a light that follows the pointer – desktop only.
-     sudo, the </> button or the cursor in the hero: the HTML of every block of text. Once more: the lines of build.py
-     that wrote it (assets/torch.json, written by the build). A third time, or Esc: off. ? lists the keys. */
-  const codeBtn = document.querySelector(".nav .code");
+     Type sudo: the HTML of every block of text. Once more: the lines of build.py that wrote it (assets/torch.json,
+     written by the build). A third time, or Esc: off. ? lists the keys. */
+  const torchHost = document.querySelector("main[data-torch]");   // the two CV pages only
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
-  if (codeBtn && jsUrl) {
-    const T = JSON.parse(codeBtn.dataset.torch);     // the strings in the page's language
-    const main = document.querySelector("main");
+  if (torchHost && jsUrl) {
+    const T = JSON.parse(torchHost.dataset.torch);   // the strings in the page's language
     const SEL = "h1, h2, h3, h4, p, li, dt, dd, summary";
     const R = 160;                                    // the light's radius in px, as in the CSS
     let level = 0, map = null, px = innerWidth / 2, py = innerHeight / 2, typed = "", tf = 0, card = null;
@@ -568,14 +567,12 @@
       lens.classList.toggle("deep", n === 2);
       tag.classList.toggle("on", n > 0);
       tag.innerHTML = n ? `<span>${esc(T.tags[n])}</span>` : "";
-      codeBtn.dataset.level = n;
-      codeBtn.setAttribute("aria-label", T.labels[n]);
-      codeBtn.title = T.labels[n];
       aim();
     };
-    const next = () => set((level + 1) % 3);         // repeat the trigger to go deeper: HTML, build.py, off
+    const next = () => set((level + 1) % 3);         // sudo again goes deeper: HTML, build.py, off
 
-    const keys = () => {                              // ? – the keys, in a card under the </> button
+    const nav = document.querySelector(".top .nav");
+    const keys = () => {                              // ? – the keys, in a card under the header's right end
       if (!card) {
         card = document.createElement("div");
         card.className = "keys";
@@ -584,19 +581,16 @@
         card.setAttribute("aria-label", T.keys);
         card.innerHTML = `<p>${esc(T.keys)}</p><dl>` + T.rows.map(([k, v]) =>
           `<div><dt><kbd>${esc(k)}</kbd></dt><dd>${esc(v)}</dd></div>`).join("") + "</dl>";
-        codeBtn.after(card);                            // in the header's nav: inside a landmark, like all content
+        nav.appendChild(card);                        // in the header's nav: inside a landmark, like all content
       }
       if (!card.showPopover) return;                  // no popover API, no card
       if (card.matches(":popover-open")) { card.hidePopover(); return; }
-      const b = codeBtn.getBoundingClientRect();
+      const b = nav.getBoundingClientRect();
       card.style.top = `${Math.round(b.bottom + 8)}px`;
       card.style.right = `${Math.round(Math.max(8, innerWidth - b.right))}px`;
       card.showPopover();
     };
 
-    codeBtn.addEventListener("click", next);
-    const cursor = document.querySelector(".hero .prompt .cursor");
-    if (cursor) cursor.addEventListener("click", next);
     document.addEventListener("keydown", (ev) => {
       if (ev.ctrlKey || ev.metaKey || ev.altKey || ev.isComposing) return;
       if (ev.target.closest && ev.target.closest("input, textarea, select, [contenteditable]")) return;

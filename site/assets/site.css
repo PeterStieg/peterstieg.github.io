@@ -186,18 +186,6 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .themes svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .themes button[aria-pressed="true"] svg { stroke-width: 2; }
 html:not(.js) .themes { display: none; }
-/* </> – the torch (site.js): next to the pill and as tall, on screens with a mouse only */
-.nav .code {
-  display: none; place-items: center;
-  width: 2.1rem; height: calc(1.7rem + 2px); padding: 0; margin: 0 0 0 -0.75rem;
-  border: 1px solid var(--line); border-radius: 999px; background: none;
-  color: var(--muted); cursor: pointer;
-}
-@media (hover: hover) and (pointer: fine) { .js .nav .code { display: inline-grid; } }
-.nav .code:hover, .nav .code[data-level="1"] { color: var(--ink); }
-.nav .code[data-level="2"] { color: var(--accent); border-color: var(--accent); }
-.nav .code svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.nav .code:not([data-level="0"]) svg { stroke-width: 2; }
 @media (max-width: 47.99rem) { .nav .sect { display: none; } }
 @media (max-width: 55.99rem) { .nav .sect .no { display: none; } }  /* narrow desktops: labels only, so the header fits */
 
@@ -230,7 +218,6 @@ html:not(.js) .themes { display: none; }
 }
 .prompt .caret { display: inline-block; color: var(--accent); font-weight: 700; margin-right: 0.45em; }
 .cursor {
-  position: relative;                                 /* holds the ? and the hover label */
   display: inline-block; width: 0.55em; height: 1.05em;
   margin-left: 0.12em; vertical-align: -0.16em;
   background: var(--accent);
@@ -239,34 +226,6 @@ html:not(.js) .themes { display: none; }
   .typed .cursor { animation: blink 1.1s steps(2, start) 3; }
 }
 @keyframes blink { to { visibility: hidden; } }
-/* with a mouse: the torch can be switched on, so the third blink shows a ? in outline – there is more to find */
-.cursor::after {
-  content: "?"; position: absolute; inset: 0;
-  display: grid; place-items: center;
-  font-weight: 700; line-height: 1; color: transparent;
-  -webkit-text-stroke: 0.06em var(--accent);
-  visibility: hidden;
-}
-@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
-  .js.typed .cursor { animation: blink3 3.85s step-end; }
-  .js.typed .cursor::after { animation: ask 3.85s step-end; }
-}
-@keyframes blink3 {                                   /* on 0.55 s · off 0.55 s, twice; on 0.55 s · ? 1.1 s */
-  0%, 28.57%, 57.14% { background: var(--accent); }
-  14.29%, 42.86%, 71.43% { background: transparent; }
-}
-@keyframes ask { 0% { visibility: hidden; } 71.43%, 100% { visibility: visible; } }
-@media (hover: hover) and (pointer: fine) {
-  .js .hero .cursor { cursor: pointer; }
-  .js .hero .cursor:hover { background: transparent; }
-  .js .hero .cursor:hover::after { visibility: visible; }
-  .js .hero .cursor::before {                         /* what to type, while the pointer rests on it */
-    content: "sudo"; position: absolute; left: calc(100% + 0.5em); bottom: 0.08em;
-    font: 400 0.75em/1 "Atkinson Hyperlegible Mono", ui-monospace, monospace; color: var(--muted);
-    white-space: nowrap; pointer-events: none; opacity: 0;
-  }
-  .js .hero .cursor:hover::before { opacity: 1; }
-}
 
 /* ---------- sections ---------- */
 
@@ -575,7 +534,7 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 .torch-tag span { padding: 0.2em 0.6em; border-radius: 999px; background: var(--lit); }   /* legible over the page's text */
 @media (prefers-reduced-motion: reduce) { .torch, .torch.on { transition: none; } }
 
-/* ? – the keys, in a card under the </> button (site.js places it) */
+/* ? – the keys, in a card under the header's right end (site.js places it) */
 .keys {
   position: fixed; inset: auto; margin: 0;
   padding: 0.7rem 1rem 0.8rem; border: 1px solid var(--line); border-radius: 8px;

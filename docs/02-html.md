@@ -22,7 +22,7 @@ Every HTML page in `site/` is generated: `src/build.py` writes them, together wi
 ```
 
 - `<!doctype html>` – switches the browser to standards mode. Without it, browsers fall back to quirks mode, which imitates the rendering bugs of late-1990s browsers (for example in how heights and table cells are calculated). This short form is all HTML needs; upper or lower case does not matter.
-- `<!-- … -->` – a comment. The parser keeps it in the document (DevTools shows it above `<html>`), but nothing renders. It is an easter egg for anyone who opens view-source: the greeting is German, English and Italian, "root access" picks up the claim, the second line hands over to the torch – the same view of the source, on the page (see "The torch's button") –, the tree imitates the Unix `tree` command, and the last line is the motto from the hero. `build.py` keeps the text in the constant `SOURCE_NOTE` and puts it on every page. `site.js` prints a similar message to the browser console, with the same line about `sudo` and `?`.
+- `<!-- … -->` – a comment. The parser keeps it in the document (DevTools shows it above `<html>`), but nothing renders. It is an easter egg for anyone who opens view-source: the greeting is German, English and Italian, "root access" picks up the claim, the second line hands over to the torch – the same view of the source, on the page (see `<main>`) –, the tree imitates the Unix `tree` command, and the last line is the motto from the hero. `build.py` keeps the text in the constant `SOURCE_NOTE` and puts it on every page. `site.js` prints a similar message to the browser console, with the same line about `sudo` and `?`.
 - The comment sits before `<meta charset>`. That is fine as long as it stays short: browsers look for the charset declaration within the first 1024 bytes of the file. Here the declaration starts at byte 278.
 - The comment keeps ordinary spaces around its middle dot. The function `dots()` in `build.py`, which makes middle dots non-breaking, only touches what comes after `<body>` (see "Non-breaking spaces and middle dots").
 
@@ -322,8 +322,7 @@ The content of the block, indented for reading (in the file it is one line):
 - On the German page the roles swap: `EN` is the link (`../index.html`, `hreflang="en" lang="en"`), `DE` is the `aria-current` span.
 
 ```html
-<span class="themes" role="group" aria-label="Theme"><button type="button" data-theme-set="light" aria-pressed="false" aria-label="Light" title="Light"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15…"/></svg></button><button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Dark" title="Dark"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg></button></span>
-<button type="button" class="code" data-torch="{&quot;labels&quot;: [&quot;Show the code&quot;, …]}" aria-label="Show the code" title="Show the code"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5.2 4.6 1.8 8l3.4 3.4M10.8 4.6 14.2 8l-3.4 3.4M9.3 2.8 6.7 13.2"/></svg></button></nav>
+<span class="themes" role="group" aria-label="Theme"><button type="button" data-theme-set="light" aria-pressed="false" aria-label="Light" title="Light"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15…"/></svg></button><button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Dark" title="Dark"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg></button></span></nav>
 </div>
 </header>
 ```
@@ -343,13 +342,6 @@ The content of the block, indented for reading (in the file it is one line):
   - No colors in the SVG: CSS sets `fill: none; stroke: currentColor`, so the icons take the text color and follow the theme automatically.
 - Without JavaScript the whole group is hidden (`html:not(.js) .themes`): a button that cannot work should not be offered.
 
-The torch's button:
-
-- `<button type="button" class="code">` – `</>`, after the theme group but not in it: the theme is a setting the browser remembers, the torch a look at the page's code that ends with the visit. It exists on the two main pages only. One line in the HTML, a separate line here for reading.
-- What it does lives in `site.js` (chapter 4): a light that follows the pointer and shows, where it falls, the HTML of every block of text; clicked again, the lines of `build.py` that wrote it; a third time, off. Typing `sudo` anywhere on the page does the same, and so does a click on the cursor at the end of the prompt. `?` opens a card with the keys.
-- `data-torch="{&quot;labels&quot;: …}"` – the strings `site.js` needs in the page's language, as JSON in one attribute: the button's three names, the line under the light, the card. Inside an attribute every `"` must be written `&quot;`; the browser decodes them, and `site.js` reads clean JSON from `dataset.torch`. As an attribute the strings stay out of the page's text – nothing for search engines or CV parsers to read as content.
-- `aria-label="Show the code"` and `title` – the name says what the next click does; `site.js` changes it to "Show build.py", then "Hide the code". German: "Code zeigen", "build.py zeigen", "Code ausblenden".
-- The CSS shows the button only where there is a mouse – `(hover: hover) and (pointer: fine)` – and JavaScript. On phones and tablets it does not exist for the eye, and the torch does not start.
 - Strictly, `<nav>` is meant for navigation links; the theme buttons sit inside it because they share the header row. Screen readers cope with this without problems.
 
 ### Minimap
@@ -365,12 +357,16 @@ The torch's button:
 ### `<main>`
 
 ```html
-<main id="main">
+<main id="main" data-torch="{&quot;tags&quot;: [&quot;&quot;, &quot;HTML&nbsp;· again: build.py&quot;, …]}">
 <div class="wrap">
 ```
 
 - `<main>` – the main landmark: the content that is unique to this page. One per page.
 - `id="main"` – the target of the skip link.
+- `data-torch` – the strings of the torch, in the page's language, as JSON. The torch is `site.js`'s view of the page's code (chapter 4): typing `sudo` anywhere on the page lays a light over it that follows the pointer and shows, where it falls, the HTML of every block of text; typed again, the lines of `build.py` that wrote it; a third time, off. Esc ends it, `?` opens a card with the keys. Only with a mouse or trackpad – a light that follows the pointer needs one.
+  - Inside an attribute every `"` must be written `&quot;`; the browser decodes them, and `site.js` reads clean JSON from `dataset.torch`. The `&nbsp;` before each `·` comes from `dots()`, as everywhere in the body.
+  - As an attribute the strings stay out of the page's text – nothing for search engines or CV parsers to read as content.
+  - The legal pages and the 404 have a plain `<main id="main">`: no strings, no torch.
 
 ### Hero
 
