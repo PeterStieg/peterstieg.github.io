@@ -485,7 +485,7 @@ The drawn arrow:
 <div class="fields">
 <div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. Optimized for RoAS and cost per inquiry, quote and order.</p></div>
 …
-<div><h3>People<button type="button" class="info" popovertarget="tip-people" aria-label="Info"></button></h3><span class="tip" id="tip-people" popover>Processes fit people, not the other way round.</span><p>Teams of up to six, from SEA to graphic design, including career changers.</p></div>
+<div><h3>People<button type="button" class="info" popovertarget="tip-people" aria-label="Info"></button></h3><span class="tip" id="tip-people" popover>Processes fit people, not the other way round.</span><p>Teams of up to six, from SEA to graphic design, including career changers from retail and fine arts.</p></div>
 </div>
 </div>
 </section>
@@ -646,7 +646,7 @@ The footnote reference, piece by piece:
 <div class="body">
 <div class="group"><h3>At E+SERVICE+CHECK</h3>
 <ul class="projects">
-<li><h4>Call and inquiry pipeline</h4><p>More than half a million calls, two phone systems, five web forms – joined with Odoo master data.</p><p class="stack">Python&nbsp;· BigQuery&nbsp;· Looker Studio</p></li>
+<li><h4>Call and inquiry pipeline</h4><p>More than half a million calls, two phone systems, five web forms – joined with Odoo master data.</p><p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p></li>
 …
 </ul></div>
 <div class="group"><h3>Certification capstones</h3>
@@ -683,7 +683,7 @@ The footnote reference, piece by piece:
 <div><dt>Email</dt><dd><a href="mailto:info@peterstieg.com"><span class="nw">info@peterstieg.com<span class="newtab sym"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.8 3.6h12.4v8.8H1.8zM2.2 4 8 8.8 13.8 4"/></svg></span></span></a></dd></div>
 <div><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/peterstieg/" target="_blank" rel="me noopener"><span class="nw">linkedin.com/in/peterstieg<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a></dd></div>
 <div><dt>GitHub</dt><dd><a href="https://github.com/PeterStieg" target="_blank" rel="me noopener"><span class="nw">github.com/PeterStieg<span class="newtab">…</span></span></a></dd></div>
-<div><dt>Based in</dt><dd><a href="https://www.openstreetmap.org/#map=12/51.3403/12.3747" target="_blank" rel="noopener"><span class="nw">Leipzig<span class="newtab sym"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 14.8C5.2 11.9 3.3 9.3 3.3 6.5a4.7 4.7 0 0 1 9.4 0c0 2.8-1.9 5.4-4.7 8.3z"/><circle cx="8" cy="6.5" r="1.6"/></svg><span class="sr-only"> (map, opens in a new tab)</span></span></span></a></dd></div>
+<div><dt>Based in</dt><dd><a href="https://www.openstreetmap.org/?mlat=51.3673&mlon=12.3668#map=15/51.3673/12.3668" target="_blank" rel="noopener"><span class="nw">Leipzig<span class="newtab sym"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 14.8C5.2 11.9 3.3 9.3 3.3 6.5a4.7 4.7 0 0 1 9.4 0c0 2.8-1.9 5.4-4.7 8.3z"/><circle cx="8" cy="6.5" r="1.6"/></svg><span class="sr-only"> (map, opens in a new tab)</span></span></span></a></dd></div>
 </dl>
 ```
 
@@ -694,7 +694,7 @@ The footnote reference, piece by piece:
 - The address has no space, so the whole of it sits in the `<span class="nw">` with the ↗: if the line is too narrow, the address moves to the next line in one piece, arrow included.
 - Every value carries a raised mark in the ↗'s place, so the four rows read alike, and each mark says what the click does: an envelope – the mail program; ↗ – another website; a pin – a map. Envelope and pin carry the extra class `sym`: drawn symbols have more detail than an arrow, so the CSS draws them larger and with a thinner line (03-css).
 - The envelope needs no hidden words: the row is labelled "Email", and screen readers announce a link anyway. The pin does: `(map, opens in a new tab)` – the map opens in a new tab like every other page outside the site.
-- `https://www.openstreetmap.org/#map=12/51.3403/12.3747` – the map's position lives after the `#`: zoom 12, latitude, longitude – the Markt in the centre of Leipzig. No street, no pin: the link shows the city. OpenStreetMap opens without the consent page that Google Maps shows visitors in the EU first.
+- `https://www.openstreetmap.org/?mlat=51.3673&mlon=12.3668#map=15/51.3673/12.3668` – `mlat` and `mlon` set a pin, on Coppiplatz in Gohlis; the part after `#` positions the map: zoom 15, latitude, longitude. The bare `&` between the two parameters is valid HTML: an ampersand only starts a character reference when a known name and a semicolon follow, and `&mlon=` is none. OpenStreetMap opens without the consent page that Google Maps shows visitors in the EU first.
 - German page: "E-Mail" and "Wohnort" as labels, LinkedIn and GitHub as they are.
 
 ### Sources
@@ -803,10 +803,10 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 **Middle dots never start a line.** The copy in `build.py` uses " · " as a separator. Before writing any page – the two home pages, the legal pages and the 404 page – the function `dots()` replaces every " · " after `<body>` with `&nbsp;· `. The dot is now glued to the word before it, and the only break opportunity is after it:
 
 ```html
-<p class="stack">Python&nbsp;· BigQuery&nbsp;· Looker Studio</p>
+<p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p>
 ```
 
-On a narrow screen a list like this breaks as "Python · BigQuery ·" / "Looker Studio" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
+On a narrow screen a list like this breaks as "Python · BigQuery ·" / "Data Studio" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
 
 `dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag – and `steps()` does the same before the company of each position behind "All five positions":
 

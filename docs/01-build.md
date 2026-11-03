@@ -84,7 +84,7 @@ URL = "https://peterstieg.com/"
 EMAIL = "info@peterstieg.com"
 LINKEDIN = "https://www.linkedin.com/in/peterstieg/"
 GITHUB = "https://github.com/PeterStieg"
-MAP = "https://www.openstreetmap.org/#map=12/51.3403/12.3747"   # the city, centred on the Markt – no pin, no street
+MAP = "https://www.openstreetmap.org/?mlat=51.3673&mlon=12.3668#map=15/51.3673/12.3668"   # a pin on Coppiplatz, Gohlis
 REPO_DS = "https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products"
 REPO_MLOPS = "https://github.com/PeterStieg/may25_bmlops_classification-of-rakuten-e-commerce-products"
 DEMO_DS = "https://feb25-bds-rakuten.streamlit.app/"       # Streamlit Community Cloud: sleeps when idle, wakes on request
@@ -98,7 +98,7 @@ DEMO_MLOPS = "https://may25-bds-rakuten.streamlit.app/"
   - `/ "site"` appends the folder name. Result: the script writes to the right place no matter which directory you start it from.
 - `URL` ends with a slash. Every use concatenates (`URL + slug`, `f"{URL}og-image.png"`), so the trailing slash must stay and the parts appended to it must not start with one.
 - `DEMO_*` – the two capstone apps on Streamlit Community Cloud. An app that nobody has opened for a while goes to sleep; the first visitor sees a wake-up button and waits about a minute.
-- `MAP` – the place under Contact as a map: OpenStreetMap at zoom 12, centred on the Markt. Only the part after `#` positions the map – zoom, latitude, longitude – so the address names no street and sets no pin; the map shows the city, not a house. OpenStreetMap rather than Google Maps: it opens without a consent page first.
+- `MAP` – the place under Contact as a map: OpenStreetMap with a pin on Coppiplatz in Gohlis. `mlat` and `mlon` in the query set the pin; the part after `#` positions the map – zoom 15, latitude, longitude –, close enough to read the square's name, wide enough to see the district. Four decimals are about 10 metres. OpenStreetMap rather than Google Maps: it opens without a consent page first.
 - `EMAIL`, `LINKEDIN`, `GITHUB`, `MAP`, `REPO_*`, `DEMO_*` – each defined once and used in several places (contact section, JSON-LD, legal pages, project links). Change once, rebuild, done.
 - UPPER_CASE names mark constants. Python does not enforce this – it is a convention that says "set once, never reassigned".
 
@@ -272,7 +272,7 @@ CONTENT = {
         ],
         "groups": [
             ("At E+SERVICE+CHECK", [
-                ("Call and inquiry pipeline", "…", "Python · BigQuery · Looker Studio", []),
+                ("Call and inquiry pipeline", "…", "Python · BigQuery · Data Studio", []),
                 …
             ]),
             ("Certification capstones", [
@@ -389,7 +389,7 @@ Copy:
 | `→` | `"€6k → €240k"` | a drawn SVG arrow, its word kept as visually hidden text | `t()` |
 | `*word*` | `"[*marketer* × *tinkerer*]"` | `<i>word</i>` – words cited as words, like in a dictionary | `t()` |
 | `[[key]]` | `"Data Scientist[[ds]]"` | a numbered footnote reference to `NOTES[key]` | regex in `page()`, education section |
-| ` · ` | `"Python · BigQuery · Looker Studio"` | a middle dot glued to the word before it | `dots()` |
+| ` · ` | `"Python · BigQuery · Data Studio"` | a middle dot glued to the word before it | `dots()` |
 
 Pitfall: the markers only work where the code runs the text through the matching function. `t()` handles `entry["ety"]`, the first item of each `ledger` entry and the values in each role's `tree`. The `[[…]]` regex runs only on the middle value of each `facts` tuple, and only when that value is a string – the items of a list go through `e()` alone. Everywhere else – `profile`, `fields`, `people_note`, `ctx`, `path`, `positions`, `groups`, `approach` – the text only goes through `e()`: asterisks stay visible and `→` stays a plain character in a fallback font.
 

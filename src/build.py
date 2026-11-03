@@ -30,7 +30,7 @@ URL = "https://peterstieg.com/"
 EMAIL = "info@peterstieg.com"
 LINKEDIN = "https://www.linkedin.com/in/peterstieg/"
 GITHUB = "https://github.com/PeterStieg"
-MAP = "https://www.openstreetmap.org/#map=12/51.3403/12.3747"   # the city, centred on the Markt – no pin, no street
+MAP = "https://www.openstreetmap.org/?mlat=51.3673&mlon=12.3668#map=15/51.3673/12.3668"   # a pin on Coppiplatz, Gohlis
 REPO_DS = "https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products"
 REPO_MLOPS = "https://github.com/PeterStieg/may25_bmlops_classification-of-rakuten-e-commerce-products"
 DEMO_DS = "https://feb25-bds-rakuten.streamlit.app/"       # Streamlit Community Cloud: sleeps when idle, wakes on request
@@ -105,9 +105,9 @@ CONTENT = {
         ],
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. Optimized for RoAS and cost per inquiry, quote and order.",
-            "Tracking with Google Tag Manager, then Python, SQL, BigQuery and Looker Studio on Google Cloud. Internal web apps in Streamlit.",
+            "Tracking with Google Tag Manager, then Python, SQL, BigQuery and Data Studio on Google Cloud. Internal web apps in Streamlit.",
             "Corporate identity from claim to logo, websites, templates and employer branding. Mockups, vector graphics and videos. Inkscape, Canva – and Python wherever pixels can be generated.",
-            "Teams of up to six, from SEA to graphic design, including career changers.",
+            "Teams of up to six, from SEA to graphic design, including career changers from retail and fine arts.",
         ],
         "people_note": "Processes fit people, not the other way round.",
         "roles": [
@@ -155,7 +155,7 @@ CONTENT = {
         ],
         "groups": [
             ("At E+SERVICE+CHECK", [
-                ("Call and inquiry pipeline", "More than half a million calls, two phone systems, five web forms – joined with Odoo master data.", "Python · BigQuery · Looker Studio", []),
+                ("Call and inquiry pipeline", "More than half a million calls, two phone systems, five web forms – joined with Odoo master data.", "Python · BigQuery · Data Studio", []),
                 ("PRUEF+CHECK", "Rule-based validation of inspection checklists instead of manual Excel checks. From requirement to go-live: five days.", "Streamlit · Azure", []),
                 ("Document extraction", "Around 14,000 unstructured supplier documents turned into structured records for ERP import.", "Python · Claude API", []),
                 ("Customer portal", "Moved to a company-owned Azure tenant with separate production and staging. Running cloud costs: a fraction of before.", "Azure", []),
@@ -210,9 +210,9 @@ CONTENT = {
         ],
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn und Marktplätze. Gesteuert über KUR und Kosten je Anfrage, Angebot und Auftrag.",
-            "Tracking mit Google Tag Manager, danach Python, SQL, BigQuery und Looker Studio auf Google Cloud. Interne Web-Apps mit Streamlit.",
+            "Tracking mit Google Tag Manager, danach Python, SQL, BigQuery und Data Studio auf Google Cloud. Interne Web-Apps mit Streamlit.",
             "Corporate Identity vom Claim bis zum Logo, Websites, Vorlagen und Employer Branding. Mockups, Vektorgrafiken und Videos. Inkscape, Canva – und Python, wo sich Pixel generieren lassen.",
-            "Teams mit bis zu sechs Personen, von SEA bis Grafik, darunter Quereinsteiger.",
+            "Teams mit bis zu sechs Personen, von SEA bis Grafik, darunter Quereinsteiger aus Einzelhandel und bildender Kunst.",
         ],
         "people_note": "Prozesse passen zu Menschen, nicht umgekehrt.",
         "roles": [
@@ -260,7 +260,7 @@ CONTENT = {
         ],
         "groups": [
             ("Bei E+SERVICE+CHECK", [
-                ("Anruf- und Anfragen-Pipeline", "Über eine halbe Million Anrufe, zwei Telefonanlagen, fünf Webformulare – verknüpft mit Odoo-Stammdaten.", "Python · BigQuery · Looker Studio", []),
+                ("Anruf- und Anfragen-Pipeline", "Über eine halbe Million Anrufe, zwei Telefonanlagen, fünf Webformulare – verknüpft mit Odoo-Stammdaten.", "Python · BigQuery · Data Studio", []),
                 ("PRUEF+CHECK", "Regelbasierte Validierung von Prüflisten statt manueller Excel-Kontrolle. Von der Anforderung bis zum Go-live: fünf Tage.", "Streamlit · Azure", []),
                 ("Dokumentenextraktion", "Rund 14.000 unstrukturierte Lieferantendokumente als strukturierte Datensätze für den ERP-Import.", "Python · Claude API", []),
                 ("Kundenportal", "Umzug in einen eigenen Azure-Tenant mit getrennter Produktion und Staging. Laufende Cloud-Kosten: ein Bruchteil von vorher.", "Azure", []),
