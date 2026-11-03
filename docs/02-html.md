@@ -91,12 +91,12 @@ Why inline, and why exactly here:
 
 ```html
 <title>Peter Stieg – Performance Marketing · Data Science</title>
-<meta name="description" content="Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, certified Data Scientist.">
+<meta name="description" content="Marketinkerer from Leipzig: performance marketing and data science. Four leadership roles, up to €240k media budget a month, certified Data Scientist.">
 <meta name="author" content="Peter Stieg">
 ```
 
 - `<title>` – the text in the browser tab, in bookmarks and history, and usually the headline of the search result (Google may rewrite it). Both languages use the same title, because the tagline is a brand element that stays English.
-- `<meta name="description">` – the snippet search engines may show under the headline. It is not a ranking factor; its job is to earn the click. At 146 characters (about 910 pixels in the 14-pixel Arial of a search result) it fits the roughly 920 pixels Google shows on a desktop before cutting with "…". It opens with the coined word and the place, then the three fields, then the two facts behind them: leadership roles and the certificate. The German page has its own text, "Führungsrollen in vier Unternehmen, zertifizierter Data Scientist" – the same facts, 150 characters.
+- `<meta name="description">` – the snippet search engines may show under the headline. It is not a ranking factor; its job is to earn the click. At 150 characters (about 940 pixels in the 14-pixel Arial of a search result) it sits at the edge of the roughly 920 pixels Google shows on a desktop before cutting with "…". It opens with the coined word and the place, then the two fields of the title – no third, so snippet, title and banner say the same –, then three facts: leadership roles, budget, certificate. A figure rather than "proven track record": a claim every profile makes against a number the ledger backs up. "Up to": €240k was the peak month, not every month. The German page has its own text, "Vier Führungsrollen, bis 240.000 € Mediabudget im Monat, zertifizierter Data Scientist" – the same facts, 154 characters.
 - `<meta name="author">` – the author's name. Search engines do not use it for ranking; it is metadata for tools that look for an author.
 
 ### Canonical URL and language alternates
@@ -209,7 +209,7 @@ The content of the block, indented for reading (in the file it is one line):
   "url": "https://peterstieg.com/",
   "image": "https://peterstieg.com/og-image.png",
   "jobTitle": "Head of Marketing",
-  "description": "Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, certified Data Scientist.",
+  "description": "Marketinkerer from Leipzig: performance marketing and data science. Four leadership roles, up to €240k media budget a month, certified Data Scientist.",
   "address": {"@type": "PostalAddress", "addressLocality": "Leipzig", "addressCountry": "DE"},
   "email": "mailto:info@peterstieg.com",
   "sameAs": ["https://www.linkedin.com/in/peterstieg/", "https://github.com/PeterStieg"],
@@ -507,7 +507,7 @@ The toggletip after "People", piece by piece:
 <div>
 <h3>Head of Marketing</h3>
 <p class="org"><a href="https://www.e-service-check.de/" target="_blank" rel="noopener">E+SERVICE+CHECK <span class="nw">GmbH<span class="newtab">…</span></span></a>&nbsp;<span class="place">· Laucha</span></p>
-<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team:</span> functional lead for content, marketing and project management</li><li><span class="k">Scope:</span> marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result:</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
+<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team:</span> functional lead for content, marketing and project management</li><li><span class="k">Scope:</span> marketing, lead generation, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result:</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
 </div>
 </li>
 …
@@ -822,7 +822,7 @@ The no-break space works across the tag boundaries: "GmbH", its ↗ (held to the
 <p class="tagline" lang="en">Performance&nbsp;Marketing&nbsp;· Data&nbsp;Science</p>
 <p class="claim" lang="en">Marketing leadership with root access</p>
 <div><h3 lang="en">Performance</h3>…
-<li><span class="k" lang="en">Scope:</span> Marketing, Design und Automatisierung von Grund auf aufgebaut – …</li>
+<li><span class="k" lang="en">Scope:</span> Marketing, Leadgenerierung, Design und Automatisierung von Grund auf aufgebaut – …</li>
 <span class="ety">[engl. <i lang="en">marketer</i> × <i lang="en">tinkerer</i> ‚Tüftler‘]</span>
 ```
 
