@@ -83,7 +83,7 @@ CONTENT = {
     "en": {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
-        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab", "map": "map",
+        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "new_tab": "opens in a new tab", "map": "map",
         "torch": {"tags": ["", "HTML · again: build.py", "build.py · again: off"],
                   "keys": "Keyboard shortcuts", "close": "Close",
                   "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], ["?", "Show this list"]]},
@@ -96,7 +96,7 @@ CONTENT = {
                 "education": "Education", "contact": "Contact", "notes": "Sources"},
         "entry": {"hw": "mar·ke·tin·ker·er", "pos": "noun", "ety": "[*marketer* × *tinkerer*]",
                   "def": "A marketing leader who builds the tools behind the campaigns."},
-        "profile": "Leadership roles at four companies, with interdisciplinary marketing and design teams of up to six people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer. Working languages: German, English, Italian.",
+        "profile": "Leadership roles at four companies, with interdisciplinary marketing and design teams of up to nine people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer. Working languages: German, English, Italian.",
         "ledger_label": "Selected results",
         "ledger": [
             ("Leads > 2×", "inbound inquiries year over year", "e-service-check"),
@@ -107,9 +107,8 @@ CONTENT = {
             "Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. Optimized for RoAS and cost per inquiry, quote and order.",
             "Tracking with Google Tag Manager, then Python, SQL, BigQuery and Data Studio on Google Cloud. Internal web apps in Streamlit.",
             "Corporate identity from claim to logo, websites, templates and employer branding. Mockups, vector graphics and videos. Inkscape, Canva – and Python wherever pixels can be generated.",
-            "Teams of up to six, from SEA to graphic design, including career changers from retail and fine arts.",
+            "Teams of up to nine, from SEA to graphic design, including career changers from retail and fine arts.",
         ],
-        "people_note": "Processes fit people, not the other way round.",
         "roles": [
             {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
@@ -133,7 +132,8 @@ CONTENT = {
                       ("Scope", "SEO, performance marketing and lead generation – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM, newsletters and marketing automation"),
                       ("Result", "RoAS 7.6 → 7.8 while spend grew; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
             {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar GmbH", "place": "Leipzig",
-             "tree": [("Scope", "e-commerce operations for discounted sporting goods, email automation, WhatsApp and Telegram")]},
+             "tree": [("Team", "nine – four in design, five in marketing"),
+                      ("Scope", "e-commerce operations for discounted sporting goods in DE, COM, FR, IT, NL, ES and PL – email automation, WhatsApp and Telegram")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Art prints online in more than 15 European countries.",
              "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
@@ -146,11 +146,11 @@ CONTENT = {
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "export promotion, brand protection, competitive intelligence, web marketing")],
              "positions": ("All five positions", [
-                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl"),
-                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl"),
-                 ("06/2013 – 12/2013", "Marketing & export DACH", "Fontebona Srl"),
-                 ("04/2012 – 05/2013", "Market research", "Proactive Europe Srl"),
-                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl"),
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", ""),
+                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl", ""),
+                 ("06/2013 – 12/2013", "Marketing & export DACH", "Fontebona Srl", ""),
+                 ("04/2012 – 05/2013", "Market research", "Proactive Europe Srl", ""),
+                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl", ""),
              ])},
         ],
         "groups": [
@@ -186,7 +186,7 @@ CONTENT = {
     "de": {
         "lang": "de", "path": "de/index.html", "root": "../", "locale": "de_DE",
         "aria_main": "Hauptnavigation", "aria_legal": "Rechtliches", "aria_lang": "Sprache",
-        "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info", "new_tab": "öffnet in neuem Tab", "map": "Karte",
+        "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "new_tab": "öffnet in neuem Tab", "map": "Karte",
         "torch": {"tags": ["", "HTML · noch mal: build.py", "build.py · noch mal: aus"],
                   "keys": "Tastenkürzel", "close": "Schließen",
                   "rows": [["sudo", "Code-Ansicht: HTML · build.py · aus"], ["Esc", "Schließen"], ["?", "Diese Liste zeigen"]]},
@@ -201,7 +201,7 @@ CONTENT = {
                 "approach": "arbeitsweise", "education": "ausbildung", "contact": "kontakt", "notes": "quellen"},
         "entry": {"hw": "Mar|ke|tin|ke|rer", "pos": "der; -s, -", "ety": "[engl. *marketer* × *tinkerer* ‚Tüftler‘]",
                   "def": "Marketingleiter, der die Werkzeuge hinter seinen Kampagnen selbst baut."},
-        "profile": "Führungsverantwortung in vier Unternehmen, für interdisziplinäre Teams aus Marketing und Design mit bis zu sechs Personen in E-Commerce und B2B. Zertifiziert als Data Scientist und MLOps Engineer. Arbeitssprachen: Deutsch, Englisch, Italienisch.",
+        "profile": "Führungsverantwortung in vier Unternehmen, für interdisziplinäre Teams aus Marketing und Design mit bis zu neun Personen in E-Commerce und B2B. Zertifiziert als Data Scientist und MLOps Engineer. Arbeitssprachen: Deutsch, Englisch, Italienisch.",
         "ledger_label": "Ausgewählte Ergebnisse",
         "ledger": [
             ("Leads > 2×", "Anfragen im Jahresvergleich", "e-service-check"),
@@ -212,9 +212,8 @@ CONTENT = {
             "Google Ads, Microsoft Advertising, Meta, LinkedIn und Marktplätze. Gesteuert über KUR und Kosten je Anfrage, Angebot und Auftrag.",
             "Tracking mit Google Tag Manager, danach Python, SQL, BigQuery und Data Studio auf Google Cloud. Interne Web-Apps mit Streamlit.",
             "Corporate Identity vom Claim bis zum Logo, Websites, Vorlagen und Employer Branding. Mockups, Vektorgrafiken und Videos. Inkscape, Canva – und Python, wo sich Pixel generieren lassen.",
-            "Teams mit bis zu sechs Personen, von SEA bis Grafik, darunter Quereinsteiger aus Einzelhandel und bildender Kunst.",
+            "Teams mit bis zu neun Personen, von SEA bis Grafik, darunter Quereinsteiger aus Einzelhandel und bildender Kunst.",
         ],
-        "people_note": "Prozesse passen zu Menschen, nicht umgekehrt.",
         "roles": [
             {"id": "e-service-check", "when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-zertifizierte Prüfungen der elektrischen Sicherheit (DGUV V3/V4), bundesweit, 349 Mitarbeitende.",
@@ -238,7 +237,8 @@ CONTENT = {
                       ("Scope", "SEO, Performance Marketing und Leadgenerierung – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM, Newsletter und Marketing Automation"),
                       ("Result", "KUR 13,2 → 12,8 % bei ausgebautem Budget; Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %")]},
             {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar GmbH", "place": "Leipzig",
-             "tree": [("Scope", "E-Commerce-Betrieb für Sportartikel im Rabattsegment, E-Mail-Automatisierung, WhatsApp und Telegram")]},
+             "tree": [("Team", "neun Personen – vier im Design, fünf im Marketing"),
+                      ("Scope", "E-Commerce-Betrieb für Sportartikel im Rabattsegment in DE, COM, FR, IT, NL, ES und PL – E-Mail-Automatisierung, WhatsApp und Telegram")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Kunstdrucke online in über 15 europäischen Ländern.",
              "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
@@ -251,11 +251,11 @@ CONTENT = {
             {"when": "10/2010 – 08/2014", "title": "Marketing, Marktforschung, Export", "org": "Fünf Unternehmen", "place": "Rom",
              "tree": [("Scope", "Exportförderung, Brand Protection, Competitive Intelligence, Web Marketing")],
              "positions": ("Alle fünf Stationen", [
-                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl"),
-                 ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor Srl"),
-                 ("06/2013 – 12/2013", "Marketing & Export DACH", "Fontebona Srl"),
-                 ("04/2012 – 05/2013", "Marktforschung", "Proactive Europe Srl"),
-                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl"),
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", ""),
+                 ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor Srl", ""),
+                 ("06/2013 – 12/2013", "Marketing & Export DACH", "Fontebona Srl", ""),
+                 ("04/2012 – 05/2013", "Marktforschung", "Proactive Europe Srl", ""),
+                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl", ""),
              ])},
         ],
         "groups": [
@@ -503,17 +503,6 @@ def chapter_no(key):
     return f'<span class="no{ghost}" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
 
 
-def info(c, key, text, lang=""):
-    """Toggletip: a superscript i after a heading, the note opens next to it as a popover – no JavaScript needed.
-    Returns the button (it goes into the heading; its i is drawn by CSS) and the note (it goes after the heading) – so the
-    heading's text stays its title for anything that reads the page as text. lang: the note's language where it differs
-    from the page's."""
-    tip = f"tip-{key}"
-    lang_attr = f' lang="{lang}"' if lang else ""
-    return (f'<button type="button" class="info" popovertarget="{tip}" aria-label="{e(c["info"])}"></button>',
-            f'<span class="tip" id="{tip}" popover{lang_attr}>{e(text)}</span>')
-
-
 def section(c, key, title_html, body, cls="body"):
     i = sid(c, key)
     return f"""<section class="sec" id="{i}" aria-labelledby="h-{i}">
@@ -576,9 +565,10 @@ def jump(c):
 
 def steps(c, label, rows):
     """A disclosure with the steps inside one timeline entry, newest first like the timeline itself: title (and company,
-    where it changes), then dates and length. reversed: the list counts down, as the timeline does."""
-    lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {e(org)}</span>' if org else "")
-                  + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span in rows)
+    where it changes – linked to its website where there is one), then dates and length. reversed: the list counts down,
+    as the timeline does. rows: (title, company, dates, url) – company and url may be empty."""
+    lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {offsite(c, url, e(org)) if url else e(org)}</span>' if org else "")
+                  + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span, url in rows)
     return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n</details>\n'
 
 
@@ -597,10 +587,10 @@ def role(c, ro):
     if ro.get("path"):                                 # promotions, one per contract: its start; it ends the month before the next
         label, path = ro["path"]
         ends = [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]] + [before(start) for start, _ in path[:-1]]
-        more += steps(c, label, [(title, "", f"{start} – {end}") for (start, title), end in zip(path, ends)])
+        more += steps(c, label, [(title, "", f"{start} – {end}", "") for (start, title), end in zip(path, ends)])
     if ro.get("positions"):                            # the positions it sums up, each at its own company
         label, positions = ro["positions"]
-        more += steps(c, label, [(title, org_, when_) for when_, title, org_ in positions])
+        more += steps(c, label, [(title, org_, when_, url) for when_, title, org_, url in positions])
     return f"""<p class="when">{when}</p>
 <div>
 <h3>{e(ro['title'])}</h3>
@@ -646,18 +636,15 @@ def page(c):
 </div>
 """
     # each result names its company; the name leads to the role under Experience
-    # ↓: superscript and in accent like the footnote numbers and the i – a link that stays on this page
+    # ↓: superscript and in accent like the footnote numbers – a link that stays on this page
     led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)}<br><a href="#{k}">{e(COMPANIES[k])}'
                   f'<span class="jmp">{DOWN_SVG}</span></a></dd></div>\n' for a, b, k in c["ledger"])
     out.append(section(c, "profile", e(s["profile"]),
                        f'{entry}<p>{e(c["profile"])}</p>\n<dl class="ledger" aria-label="{e(c["ledger_label"])}">\n{led}</dl>\n'))
 
-    # P⁴ – four fields, each a P; People carries its principle as a note behind the i
-    p4 = []
-    for p, txt in zip(P4, c["fields"]):
-        button, note = info(c, "people", c["people_note"]) if p == "People" else ("", "")
-        p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}</p></div>\n')
-    out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
+    # P⁴ – four fields, each a P
+    p4 = "".join(f'<div><h3{en_attr}>{e(p)}</h3><p>{e(txt)}</p></div>\n' for p, txt in zip(P4, c["fields"]))
+    out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{p4}</div>\n'))
 
     # experience – each role as a #JobAlert-style tree
     roles = []
@@ -803,7 +790,7 @@ TORCH = [
     (".def", '<p class="def">', 1),
     (".entry + p", '{entry}<p>{e(c["profile"])}</p>', 1),
     (".ledger dt, .ledger dd", "led = \"\".join(f'<div><dt>", 2),
-    (".fields h3, .fields p", "p4.append(f'<div><h3", 1),
+    (".fields h3, .fields p", "p4 = \"\".join(f'<div><h3", 1),
     (".more summary", '<details class="more">', 1),
     (".more .tree li", "lis = \"\".join(f'<li>{e(title)}'", 3),
     (".role .when", '<p class="when">{when}</p>', 1),

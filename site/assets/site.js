@@ -439,23 +439,6 @@
     stuck = h;
   };
 
-  /* ---------- Toggletips: the popover opens next to its i, below or – without room – above it.
-     Placed before the first frame it shows in; follows the i while scrolling. Without JavaScript it is centred. */
-  const tips = "popover" in HTMLElement.prototype ? [...document.querySelectorAll(".tip")] : [];
-  const place = (tip) => {
-    const i = document.querySelector(`[popovertarget="${tip.id}"]`).getBoundingClientRect();
-    if (i.bottom < top.offsetHeight || i.top > window.innerHeight) { tip.hidePopover(); return; }   // the i left the screen
-    const m = 8, w = tip.offsetWidth, h = tip.offsetHeight;
-    let y = i.bottom + 6;
-    if (y + h > window.innerHeight - m) y = i.top - h - 6;
-    tip.style.left = Math.max(m, Math.min(i.left - 12, window.innerWidth - w - m)) + "px";
-    tip.style.top = Math.max(m, y) + "px";
-  };
-  tips.forEach((tip) => tip.addEventListener("beforetoggle", (ev) => {
-    if (ev.newState === "open") requestAnimationFrame(() => place(tip));
-  }));
-  const follow = () => tips.forEach((tip) => { if (tip.matches(":popover-open")) place(tip); });
-
   /* ---------- The positions before 2014: opening them changes the page height – redraw the minimap.
      Printing shows them open. */
   const more = [...document.querySelectorAll("details.more")];
@@ -471,7 +454,7 @@
   let raf = 0;
   window.addEventListener("scroll", () => {
     if (raf) return;
-    raf = requestAnimationFrame(() => { raf = 0; here(); steer(); paint(); onScrollTop(); dockApply(); stick(); follow(); hide(); });
+    raf = requestAnimationFrame(() => { raf = 0; here(); steer(); paint(); onScrollTop(); dockApply(); stick(); hide(); });
   }, { passive: true });
 
   let rt = 0;
@@ -530,7 +513,7 @@
       root.classList.add("mm-measure");               // sticky headings report their place in the flow
       const frag = document.createDocumentFragment();
       main.querySelectorAll(SEL).forEach((el) => {
-        if (el.querySelector(SEL) || el.closest(".sr-only, [popover]")) return;
+        if (el.querySelector(SEL) || el.closest(".sr-only")) return;
         const r = el.getBoundingClientRect();
         if (!r.width || !r.height) return;
         const fs = parseFloat(getComputedStyle(el).fontSize);

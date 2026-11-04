@@ -762,7 +762,7 @@ The ledger in the Profile section is a `<dl>`: a big result (`<dt>`) with its co
 - `.ledger dd a { white-space: nowrap; }` – each context is followed, on a line of its own, by a link to the company's role under Experience ("Posterlounge", `href="#posterlounge"`), with a raised ↓ at the end of the link (next block). The link keeps the underline and the muted colour of the text around it. `nowrap` keeps the link on one line: when the row runs out of space, the whole name moves to the next line, its ↓ with it. The three current names are single words, so at real screen widths the rule changes nothing (measured at 320 to 390px, with and without it). It guards against a name of several words, and against a ↓ alone at the start of a line: CSS puts a soft wrap opportunity before and after every inline-block, even with no space next to it. In a row squeezed to the width of the name, the ↓ wraps on its own without `nowrap`; with it, the ↓ stays next to the name (measured). A `<br>` in the HTML puts the name on its own line.
 
 ```css
-/* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
+/* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers */
 .ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--accent); }
 ```
 
@@ -773,8 +773,8 @@ In the HTML, the company name is followed by `<span class="jmp">` with an inline
   - `width: 0.6em; height: 0.6em;` – a square of 0.6 times the explanation's 18px: 10.8px (measured). In em, so it follows the text size.
   - `margin-left: 0.1em;` – a hair of space after the name.
   - `position: relative; top: -0.5em;` – superscript. The box keeps its place in the line – an inline-block with no text inside sits with its bottom edge on the baseline, and its 0.6em fit within the line – and `top: -0.5em` draws it 0.5em (9px) higher. Relative positioning moves only the drawing, never the layout: the line keeps its height (measured: 27.9px, as without ↓), and the arrow's bottom edge ends up 9px above the baseline of the name.
-  - Why not `vertical-align: 0.5em`, the usual way to raise a box: it moves the box in the layout, so the line grows to make room – the ↓ reached 2.8px above the link's box and made each line 0.8px taller (measured: 27.9 → 28.7px). Negative margins, which keep the toggletip's i from doing the same, do not help here: an inline-block that holds no text has its *bottom margin edge* as baseline, so a negative bottom margin lifts that baseline into the box and the arrow drops below the text. The i holds a letter, so its baseline is that letter's and margins leave it alone.
-  - `color: var(--accent);` – bordeaux. Raised and in the accent colour, the ↓ looks like the footnote numbers and the i of the toggletip: on this site, that combination marks a jump within the page. The SVG draws in `currentColor` (the svg rule follows in the next section), so this one declaration colours it, while the name keeps the muted colour of the text.
+  - Why not `vertical-align: 0.5em`, the usual way to raise a box: it moves the box in the layout, so the line grows to make room – the ↓ reached 2.8px above the link's box and made each line 0.8px taller (measured: 27.9 → 28.7px). Negative margins do not help either: an inline-block that holds no text has its *bottom margin edge* as baseline, so a negative bottom margin lifts that baseline into the box and the arrow drops below the text.
+  - `color: var(--accent);` – bordeaux. Raised and in the accent colour, the ↓ looks like the footnote numbers: on this site, that combination marks a jump within the page. The SVG draws in `currentColor` (the svg rule follows in the next section), so this one declaration colours it, while the name keeps the muted colour of the text.
 - **Why the underline stops before the ↓.** The link's underline is a text decoration. Decorations propagate to the text of the element's inline descendants, but not into atomic inline-level boxes – inline-blocks, images, inline tables. The `.jmp` is an inline-block, so the underline ends under the last letter of the name and does not run on through the margin and under the arrow. On hover the underline turns bordeaux, the colour the ↓ already has.
 
 ## Links that leave the site
@@ -795,7 +795,7 @@ Sixteen links lead off the site: the company websites in Experience, GitHub and 
   - `display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.1em;` – a square box in the line, a hair of space after the word. 0.55em is 9.9px next to body text and 8.4px in the smaller technology line and in Sources (measured).
   - `position: relative; top: -0.5em;` – superscript, the technique of the ↓: the box keeps its place on the baseline and is only drawn 0.5em higher, so the line keeps its height (measured: 27.9px with and without the ↗). The hidden words inside the box are absolutely positioned, like the "to" of `.arr`: they form no line, so the box still has no text of its own and sits with its bottom edge on the baseline.
   - `color: var(--muted);` – grey, not bordeaux.
-- **Why quieter than the ↓.** Fifteen arrows on one page can clutter it, so the ↗ is deliberately the quieter of the two markers: muted instead of accent, and 0.55em instead of 0.6em. The colour also keeps the vocabulary apart: the accent superscripts – the footnote numbers, the i, the ↓ – stay on this page; the muted ↗ leaves it. Muted still reaches 6.4:1 against the paper (7.3:1 in dark mode), far above the 3:1 that WCAG asks of graphics.
+- **Why quieter than the ↓.** Fifteen arrows on one page can clutter it, so the ↗ is deliberately the quieter of the two markers: muted instead of accent, and 0.55em instead of 0.6em. The colour also keeps the vocabulary apart: the accent superscripts – the footnote numbers and the ↓ – stay on this page; the muted ↗ leaves it. Muted still reaches 6.4:1 against the paper (7.3:1 in dark mode), far above the 3:1 that WCAG asks of graphics.
 - As with the ↓, the underline stops under the last letter: an inline-block takes no text decoration from the link.
 - `a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }` – while the link is hovered or has keyboard focus, its ↗ turns bordeaux, together with the underline (`a:hover`) or next to the focus ring. The selector starts at the link: any `.newtab` inside an `a` in that state. (0,2,1) beats `.ext` (0,1,0).
 - `.nw { white-space: nowrap; }` – keeps the last word and its ↗ on one line. An inline-block is a soft wrap opportunity on both sides (see `.ledger dd a` above), so without the span the browser may break between the word and the arrow, and the ↗ starts a line on its own. Measured at 320 to 390px, in steps of 5px: depending on the width, it happened after "GitHub", "GmbH", "credential" and "page". A word joiner (U+2060), the character that forbids a break between its neighbours, did not prevent it in Chromium (measured): the wrap opportunity at an inline-block exists even next to characters that would normally suppress one. `nowrap` on a span around both removes every wrap opportunity inside it; the space before the last word stays outside the span, so the line can still break there, and the word moves down together with its arrow. With the rule, no ↗ starts a line at any of those widths, on either page (measured).
@@ -1099,73 +1099,6 @@ The Education section has footnote numbers (`<sup class="fnref">`) that link to 
 - `.notes .back` – the `^` back link: no underline, bordeaux, bold, a little space after it.
 - `.notes li:target` – `:target` matches the element whose `id` equals the URL fragment. Click footnote 1, the URL ends in `#fn-ds`, and that list item switches from muted to ink: a highlight for the note you came to read, with no JavaScript.
 
-## Toggletips
-
-```css
-/* toggletip: a superscript i after a heading, set like the footnote numbers. The note is a popover:
-   it opens and closes without JavaScript (click outside or Esc closes it); site.js only places it next to the i. */
-.info {
-  position: relative;
-  margin: -1em 0 -1em 0.12em; padding: 0 0.1em; border: 0; background: none;   /* negative margins: the line keeps its height */
-  font: inherit; font-size: 0.68em; font-weight: 700; line-height: 1; vertical-align: 0.6em;
-  color: var(--accent); cursor: pointer;
-}
-.info::before { content: ""; position: absolute; inset: -0.9em -0.7em; }   /* a hit area larger than the letter */
-.info::after { content: "i"; }                    /* the letter itself: in CSS, so the heading's text stays its title */
-.info:hover, .info:focus-visible { text-decoration: underline; text-underline-offset: 0.15em; }
-```
-
-One heading carries a short note behind a raised "i": "People" in P⁴. The pattern is called a toggletip – a button that shows a note on click – as opposed to a tooltip, which appears on hover and is out of reach on touch screens. The HTML is an empty `<button class="info" popovertarget="tip-people" aria-label="Info">` at the end of the `<h3>` and, directly after the heading, a `<span class="tip" id="tip-people" popover>` that holds the note ([chapter 2](02-html.md)). `popover` and `popovertarget` are the HTML popover API: the button opens and closes the element with the matching id, without any script. An open popover is shown in the **top layer**, a layer the browser draws above the whole page – above every `z-index` and outside every ancestor's stacking context. A click outside it or Esc closes it again ("light dismiss").
-
-- `.info` – the button is set like a footnote number:
-  - `position: relative;` – the reference box for the hit area below.
-  - `margin: -1em 0 -1em 0.12em;` – on the left, a hair of space after the title. Top and bottom are negative, and that is the point of the rule. A button is an inline-block, and an inline-block takes part in its line with its whole margin box: raised by `vertical-align`, it can push the top of the line box up and make the heading taller. `.fnref` avoids this with `line-height: 0`, which works for an inline box such as `<sup>`. On an inline-block, the same value would make the button's own box zero pixels tall – and with it its focus ring and its hit area. Negative margins of one em each shrink the margin box instead, while the button keeps its size. Measured: the People heading is 29.7px tall with the i and without it. Its line height of 1.35 leaves room for the raised button, so there the margins change nothing; they guard tighter lines. A test button in an h2 (line height 1.3) makes the heading 0.16px taller without them (26 → 26.16px on wide screens, 43 → 43.16px as the phone bar) and leaves both heights unchanged with them.
-  - `padding: 0 0.1em; border: 0; background: none;` – the browser's button look removed; the same side padding as `.fnref a`.
-  - `font: inherit;` – buttons do not inherit the font of the text around them; browsers give them a font of their own. The shorthand `font: inherit` takes family, weight, style and the rest from the heading. The longhands after it then adjust single values; they must come after the shorthand, which would otherwise reset them.
-  - `font-size: 0.68em; font-weight: 700; line-height: 1; vertical-align: 0.6em;` – the footnote values: 68% of the heading's size, bold, raised by 0.6em of its own size. `line-height: 1` makes the box one font size tall (15.0px in the 22px People heading, measured).
-  - `color: var(--accent); cursor: pointer;` – bordeaux like a footnote number, and the hand cursor that buttons don't get by default.
-- `.info::before { content: ""; position: absolute; inset: -0.9em -0.7em; }` – an empty box that reaches 0.9em above and below the button and 0.7em to each side. `inset` is the shorthand for `top`, `right`, `bottom` and `left`; with two values, the first is vertical, the second horizontal, and negative values reach outside the button. A pseudo-element belongs to its element, so a click on this box is a click on the button. The letter alone is a target of 8 × 15px (measured: 7.7 × 15.0px); with the box it is about 29 × 42px, above the 24 × 24px that WCAG 2.5.8 (Target Size, Minimum) asks for.
-- `.info::after { content: "i"; }` – the letter itself. The button is empty in the HTML; the i is generated content. The button's two pseudo-elements each have one job: `::before` is the hit area, absolutely positioned and therefore out of the flow; `::after` is the letter, the button's only content in the flow, so it sizes the button as a letter in the HTML would (measured: still 7.7 × 15.0px, the heading still 29.7px). It inherits font, size, weight and colour from the button, and the underline of the next rule reaches it like any text inside the button.
-  - Why the letter is in CSS: generated content is not part of the document's text – the same reason that moved the colon of the tree into the HTML moves the i out of it. The heading's text is its title and nothing else: "People" for a copied line, a search engine or a tool that lists a page's headings. With the letter and the note inside the heading, its text would be "PeopleiProcesses fit people, not the other way round." (measured on that markup).
-  - The button's name does not depend on its content: it comes from `aria-label="Info"`, which takes precedence over the content in any case. Screen readers announce "Info, button".
-- `.info:hover, .info:focus-visible` – an underline under the i on hover, as on the footnote numbers, and on keyboard focus, in addition to the accent ring of the global `button:focus-visible` rule. `text-underline-offset: 0.15em` keeps the line close to the small letter.
-
-```css
-.tip {
-  max-width: min(20rem, calc(100vw - 2rem));
-  margin: auto; padding: 0.55rem 0.8rem;
-  border: 1px solid var(--line); border-radius: 0.4rem;
-  background: var(--paper); color: var(--ink);
-  font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;
-  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
-}
-.js .tip { margin: 0; inset: auto; }
-```
-
-`.tip` is the note. The browser's own stylesheet already styles every element with a `popover` attribute: hidden while closed; when open, `position: fixed` with `inset: 0`, `fit-content` width and height, `margin: auto` – which centres it on the screen – and a plain border and padding in system colours.
-
-- `max-width: min(20rem, calc(100vw - 2rem));` – `min()` returns the smaller argument: at most 20rem (320px), and on a narrow phone never wider than the screen minus 1rem on each side. A longer note wraps.
-- `margin: auto;` – repeats the browser's default: with `inset: 0`, auto margins centre the box. This is where the People note appears without JavaScript (measured: centred on a 1280 × 800 window). The note follows its `<h3>` inside a P⁴ field, not as a direct child of `.body`, so the first- and last-child rules of `.body` do not reach it, and the browser's centring applies unhindered.
-- `padding: 0.55rem 0.8rem; border: …; border-radius: 0.4rem;` – a small card with soft corners and the site's hairline.
-- `background: var(--paper); color: var(--ink);` – the theme's colours instead of the system colours, and opaque, unlike the header: the note must stay readable over any text.
-- `font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;` – the note's own text values. Inheritance follows the document tree, also for an element drawn in the top layer. The note sits after its heading, not inside it, so it inherits body text: 1.125rem, regular. `font-size` and `line-height` set it a step smaller and a little tighter (measured: 16px on 23.2px lines); the other three repeat what it inherits and keep it at body values wherever it is placed – inside a heading, it would otherwise be set large and bold like the heading.
-- `box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);` – a soft shadow 0.4rem below the card, blurred over 1.25rem, lifts it off the page. Its colour is 14% ink: a dark shadow on light paper, a faint light glow on dark paper – the same one-colour-for-both-themes idea as `.mm-view`. The list of the jump control uses the same shadow.
-- `.js .tip { margin: 0; inset: auto; }` – with JavaScript, `site.js` places the note next to its i: below it, or above it when there is no room below; it follows the i while scrolling and closes the note when the i leaves the screen ([chapter 4](04-js.md)). The script writes `left` and `top` inline. For those two values to decide the position, the centring has to go: `inset: auto` clears the four offsets the browser set to 0, `margin: 0` removes the auto margins. (0,2,0) beats `.tip`. Without JavaScript, `.js` is missing, and the note keeps the browser's placement (see `margin: auto` above) – readable, just not next to its i.
-  - `site.js` positions the note on `beforetoggle`, in the next animation frame, before the first frame in which the note is visible. It never flashes in the centre.
-  - **Why the top layer matters here.** A `backdrop-filter`, like a `transform`, makes an element the containing block for its `position: fixed` descendants: a fixed note inside the phone heading bar, which has such a filter, would be placed relative to the bar, not to the screen. Elements in the top layer are exempt: an open popover is positioned against the viewport, whatever its ancestors do. The note sits after an `<h3>`, outside any such bar; in the top layer its position would not depend on one either way, and the screen coordinates of `site.js` are correct wherever the note sits.
-
-```css
-@supports not selector(:popover-open) {            /* browsers without popovers: the note stays in the text */
-  .info { display: none; }
-  .tip { display: block; margin: 0.25rem 0 0; padding: 0; border: 0; box-shadow: none; background: none; color: var(--muted); }
-}
-```
-
-- `@supports not selector(:popover-open)` – a feature query about a selector: `selector()` is true when the browser can parse the selector in it. `:popover-open`, the pseudo-class of an open popover, exists exactly in the browsers that support popovers, so the block applies to those without. Popovers reached all major engines in spring 2024 (Firefox 125 came last).
-- In such a browser, `popover` and `popovertarget` are unknown attributes: the button would do nothing, and the note would always show, a small card on a line of its own between heading and text.
-- `.info { display: none; }` – the useless button goes, its generated i with it.
-- `.tip { display: block; … }` – the note becomes a quiet line between heading and text: a block, a little space above, no card (no padding, border, shadow or background), in muted grey. The text values of `.tip` still apply: 1rem, a step below the text that follows.
-
 ## 404 page
 
 ```css
@@ -1291,7 +1224,7 @@ The list of sections opens beside the pill. As with the disclosures in Experienc
 - `bottom: 0;` – the list's lower edge is aligned with the pill's, so it grows upwards, where there is room.
 - `margin: 0; padding: 0.4rem 0; list-style: none;` – list reset, a little space at the top and bottom.
 - `max-height: calc(100vh - 6rem); overflow: auto;` – on a short screen, such as a phone held sideways, the list never grows taller than the viewport minus 6rem, and the rest scrolls inside it. Counted from a pill 1rem or 1.75rem above the bottom, its top edge stays about 4.25rem or more below the top of the screen, clear of the 3.5rem header.
-- `background: var(--paper); border: …; border-radius: 0.5rem; box-shadow: …` – an opaque card like the toggletip note, with the same shadow.
+- `background: var(--paper); border: …; border-radius: 0.5rem; box-shadow: …` – an opaque card like the keys card, with a similar shadow.
 - `font-size: 0.95rem;` – the size of the header menu.
 
 ```css
@@ -1439,9 +1372,9 @@ The torch (chapter 4) lays a light over the page: a circle that follows the poin
 - `.torch-tag` – the line under the light ("HTML · again: build.py"), small, in the accent. Its `span` sits on the lit paper, so it can be read over the page's text.
 - Reduced motion: no fade.
 
-- `.keys` – the card that `?` opens, a popover (like the toggletips, see Toggletips), laid out like the shortcut cards of Instagram or GitHub: a title with a close button, a line under it, then one row per shortcut – what it does on the left, the key on the right. `inset: auto; margin: 0;` undoes the browser's centring of popovers; `site.js` places the card under the header's right end, below the theme switch, with `top` and `right`. `padding: 0` – the head and the list bring their own, so the line under the head runs from edge to edge.
+- `.keys` – the card that `?` opens, a popover, laid out like the shortcut cards of Instagram or GitHub: a title with a close button, a line under it, then one row per shortcut – what it does on the left, the key on the right. `inset: auto; margin: 0;` undoes the browser's centring of popovers; `site.js` places the card under the header's right end, below the theme switch, with `top` and `right`. `padding: 0` – the head and the list bring their own, so the line under the head runs from edge to edge.
 - `.keys .head` – a flex row: the title at the start, the close button at the end (`justify-content: space-between`). Less padding on the right: the round button has its own room.
-- `.keys .close` – a round button (`border-radius: 50%`) on a faint tint of the ink, the × drawn as two strokes like every icon here. It needs no script: `popovertarget="keys"` with `popovertargetaction="hide"` closes the popover with that id, the way the browser opens and closes toggletips.
+- `.keys .close` – a round button (`border-radius: 50%`) on a faint tint of the ink, the × drawn as two strokes like every icon here. It needs no script: `popovertarget="keys"` with `popovertargetaction="hide"` closes the popover with that id – the browser does it, as it would open one with `popovertarget` alone.
 - `.keys dl` – a grid of two columns, `auto auto`: as wide as the longest description and the widest key. `.keys dl div { display: contents; }` makes each `div` step aside, so its `dt` and `dd` become grid items of the `dl` directly and all rows share the same two columns.
 - `.keys dt { text-align: right; }` – the descriptions end at the keys, so each one sits next to its key however long it is.
 - `.keys kbd` – a key cap: a box with rounded corners and a heavier lower edge (`border-bottom-width: 2px`), on a slightly darker paper, in the monospace face. `min-width: 1.75em` with centred text – a one-character key such as `?` gets a square cap, not a sliver. `color-mix(in srgb, var(--ink) 4%, var(--paper))` – 4 % ink into the paper: a shade darker in the light theme, a shade lighter in the dark one, from the same line.
@@ -1527,7 +1460,7 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 
 ```css
 @media print {
-  .top, .minimap, .skip, .jump, .info, .torch, .torch-tag, .keys { display: none; }
+  .top, .minimap, .skip, .jump, .torch, .torch-tag, .keys { display: none; }
   .hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }
   .hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }
   .sec > h2 { position: static; }
@@ -1536,7 +1469,7 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
 ```
 
 - `@media print` – applies when the page is printed or saved as PDF.
-- `.top, .minimap, .skip, .jump, .info, .torch, .torch-tag, .keys { display: none; }` – navigation and screen-only aids don't belong on paper. The jump control matters most here: browsers typically repeat fixed elements on every printed page. The toggletip's i goes as well: on paper it cannot be clicked and would be a stray letter after the heading. The torch, its line and the keys card go too: a page printed with the light on would carry a grey circle of code. The disclosures in Experience need no rule: `site.js` opens them before printing ([chapter 4](04-js.md)).
+- `.top, .minimap, .skip, .jump, .torch, .torch-tag, .keys { display: none; }` – navigation and screen-only aids don't belong on paper. The jump control matters most here: browsers typically repeat fixed elements on every printed page. The torch, its line and the keys card go too: a page printed with the light on would carry a grey circle of code. The disclosures in Experience need no rule: `site.js` opens them before printing ([chapter 4](04-js.md)).
 - `.hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }` – puts the name and its caret back in the hero. Once you have scrolled down, the name has docked: `site.js` has moved and shrunk it with an inline `transform`, and `.hero.docked` has set its opacity to 0. With the header hidden on paper, the printout would otherwise carry no name at all.
   - **Why `!important`.** An inline style beats every normal stylesheet declaration, whatever its specificity. The one way for a stylesheet to override it is `!important`: important declarations from the site outrank normal ones, inline styles included. The same flag also beats `.hero.docked`'s `opacity: 0` (0,2,1), which (0,1,1) alone could not.
   - Measured with Chromium's print emulation after scrolling: name visible, no transform.

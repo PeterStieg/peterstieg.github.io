@@ -288,7 +288,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 .ledger dd { margin: 0; color: var(--muted); }
 .ledger dd a { white-space: nowrap; }
 @media (max-width: 22rem) { .ledger dt { font-size: 1.3rem; } }   /* the longest result still fits a 320px screen */
-/* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
+/* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers */
 .ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--accent); }
 /* ↗ after a link that leaves the site: it opens in a new tab. Quieter than the ↓ – muted, in accent on hover */
 .newtab { display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--muted); }
@@ -402,31 +402,6 @@ a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 .notes li::marker { color: var(--ink); font-weight: 700; }
 .notes .back { text-decoration: none; color: var(--accent); font-weight: 700; margin-right: 0.15em; }
 .notes li:target { color: var(--ink); }
-
-/* toggletip: a superscript i after a heading, set like the footnote numbers. The note is a popover:
-   it opens and closes without JavaScript (click outside or Esc closes it); site.js only places it next to the i. */
-.info {
-  position: relative;
-  margin: -1em 0 -1em 0.12em; padding: 0 0.1em; border: 0; background: none;   /* negative margins: the line keeps its height */
-  font: inherit; font-size: 0.68em; font-weight: 700; line-height: 1; vertical-align: 0.6em;
-  color: var(--accent); cursor: pointer;
-}
-.info::before { content: ""; position: absolute; inset: -0.9em -0.7em; }   /* a hit area larger than the letter */
-.info::after { content: "i"; }                    /* the letter itself: in CSS, so the heading's text stays its title */
-.info:hover, .info:focus-visible { text-decoration: underline; text-underline-offset: 0.15em; }
-.tip {
-  max-width: min(20rem, calc(100vw - 2rem));
-  margin: auto; padding: 0.55rem 0.8rem;
-  border: 1px solid var(--line); border-radius: 0.4rem;
-  background: var(--paper); color: var(--ink);
-  font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;
-  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
-}
-.js .tip { margin: 0; inset: auto; }
-@supports not selector(:popover-open) {            /* browsers without popovers: the note stays in the text */
-  .info { display: none; }
-  .tip { display: block; margin: 0.25rem 0 0; padding: 0; border: 0; box-shadow: none; background: none; color: var(--muted); }
-}
 
 /* 404 */
 .lost { padding-block: clamp(3.5rem, 13vh, 8.5rem) clamp(3rem, 9vh, 6rem); }
@@ -597,7 +572,7 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 }
 
 @media print {
-  .top, .minimap, .skip, .jump, .info, .torch, .torch-tag, .keys { display: none; }
+  .top, .minimap, .skip, .jump, .torch, .torch-tag, .keys { display: none; }
   .hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }
   .hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }
   .sec > h2 { position: static; }

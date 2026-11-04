@@ -223,7 +223,7 @@ CONTENT = {
     "en": {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
-        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab", "map": "map",
+        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "new_tab": "opens in a new tab", "map": "map",
         "torch": {"tags": ["", "HTML · again: build.py", "build.py · again: off"],
                   "keys": "Keyboard shortcuts", "close": "Close",
                   "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], ["?", "Show this list"]]},
@@ -246,7 +246,6 @@ CONTENT = {
             "Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. …",
             …
         ],
-        "people_note": "Processes fit people, not the other way round.",
         "roles": [
             {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
@@ -332,7 +331,6 @@ Interface labels:
 | `theme` | 3-tuple | group label, "light" label, "dark" label for `theme_switch()` |
 | `arrow` | str | the word behind a drawn → (`"to"` / `"auf"`): what screen readers say and what copied text reads |
 | `to_top` | str | label of the jump control's up link while it leads to the top of the page (`"Back to top"` / `"Nach oben"`) |
-| `info` | str | spoken name of the superscript i that opens a toggletip |
 | `new_tab` | str | what screen readers hear after every link that leaves the site: `"opens in a new tab"` / `"öffnet in neuem Tab"`, in parentheses, as visually hidden text (`offsite()`, section 20) |
 | `torch` | dict | the strings of the torch (`sudo`, chapter 4), which `site.js` cannot generate in two languages: `tags` – the line under the light at levels 1 and 2 (level 0 shows none, hence the empty string); `keys`, `close` and `rows` – the card that `?` opens: its title, the name of its close button, and per shortcut the key and what it does. Written into `<main>` as JSON in one attribute (section 25) |
 | `map` | str | read out before `new_tab` on the place under Contact, which opens a map: "map, opens in a new tab" / "Karte, öffnet in neuem Tab" |
@@ -359,7 +357,6 @@ Copy:
 | `profile` | str | the profile paragraph |
 | `ledger_label`, `ledger` | str, list of (figure, context, company key) | the results list in the profile; the key looks up the name in `COMPANIES` and links to the role with that `id` |
 | `fields` | list of 4 str | the P⁴ section, paired with `P4` |
-| `people_note` | str | the toggletip after the People heading in P⁴, the only one on the page |
 | `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`, or `"since MM/YYYY"` for the role that is still running – `months()` reads the dates), `title`, `org`, `url` (optional: the company's website, behind the company name, in a new tab), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (start `"MM/YYYY"`, title)), newest first – the promotions within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts), `positions` (optional: (label, list of (range `"MM/YYYY – MM/YYYY"`, title, company)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates) |
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link; each link opens in a new tab |
 | `approach` | list of 3 str | Approach, one list item per sentence |
@@ -859,7 +856,7 @@ The text and its marker:
 - `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 29) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
   - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 29).
 - `<span class="nw">{last}…</span>` – the last word and the marker share one span, which the CSS sets to `white-space: nowrap` (chapter 3). The line may still break before the last word, never between it and the ↗. Without the span, the ↗ wrapped onto a line of its own at widths of 320 to 390 pixels: the marker is an inline-block, and an inline-block is a break opportunity on both sides. A word joiner (U+2060) between word and arrow did not stop the break in Chromium – measured.
-- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With fifteen per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers, the i, the ↓ – stay on the page; the muted ↗ leaves it.
+- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With fifteen per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers and the ↓ – stay on the page; the muted ↗ leaves it.
 - `said` – what screen readers hear: `new_tab` alone, or `kind` in front of it – "Leipzig (map, opens in a new tab)". Both escaped, because both are copy.
 - `sym` – the class `sym` next to `newtab` when a symbol stands in for the ↗. The CSS draws a symbol larger, with a thinner line, so its detail stays legible at the size of a superscript and its strokes look as heavy as the arrow's (chapter 3). In `{mark}` the f-string inserts the SVG unescaped – it is markup, a constant.
 - `<span class="sr-only"> ({said})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge GmbH (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
@@ -871,9 +868,9 @@ The name:
 
 ---
 
-## 21 · chapter_no and info
+## 21 · chapter_no
 
-Two small helpers for headings: the chapter number in front, a toggletip behind.
+A small helper for headings: the chapter number in front.
 
 ```python
 def chapter_no(key):
@@ -888,35 +885,6 @@ def chapter_no(key):
 - The span holds the number from `num(key)` (section 12). P⁴ gets `<span class="no ghost">01</span>`: the number of its chapter, which the CSS makes invisible. It still takes up its width, so "P⁴" starts exactly where "Profile" does – an outline, without any measuring. An empty string counts as false, so `if num(key)` is enough.
   - `aria-hidden="true"` – screen readers skip the number and announce "Profile", not "zero one Profile". The number is a visual signpost; the order of headings already carries the structure.
   - The space after `</span>` sits outside the span, so the plain text of the heading still reads "01 Profile" for search engines and copy-paste.
-
-```python
-def info(c, key, text, lang=""):
-    """Toggletip: a superscript i after a heading, the note opens next to it as a popover – no JavaScript needed.
-    Returns the button (it goes into the heading; its i is drawn by CSS) and the note (it goes after the heading) – so the
-    heading's text stays its title for anything that reads the page as text. lang: the note's language where it differs
-    from the page's."""
-    tip = f"tip-{key}"
-    lang_attr = f' lang="{lang}"' if lang else ""
-    return (f'<button type="button" class="info" popovertarget="{tip}" aria-label="{e(c["info"])}"></button>',
-            f'<span class="tip" id="{tip}" popover{lang_attr}>{e(text)}</span>')
-```
-
-- A toggletip: a small button that shows a short note when clicked or tapped and hides it again on the next click. Unlike a tooltip, which appears on hover, it works the same with a mouse, a finger and the keyboard (Enter or Space on the focused button). The page has one, after the People heading in P⁴.
-- `tip = f"tip-{key}"` – the note's id: `tip-people`. Ids must be unique on a page, so every call needs its own key.
-- `lang_attr` – an optional `lang` attribute for the note, for where its language differs from the page's – a note in English on the German page (rule 5). The People note is copy in the page language and passes none.
-- The return value is a pair – a tuple of two strings, the button and the note, separated by the comma at the end of the first line. The caller unpacks it and puts the two in different places:
-  - the button into the heading, right after the title – the superscript i belongs there;
-  - the note after the heading, right after the `</h3>` (section 25).
-- Why apart: everything inside a heading is part of its text. Programs that read the HTML as text – search engines, tools that extract a profile from a page – take a heading as one string. With the i and the note inside, the People heading would read "PeopleiProcesses fit people, not the other way round." Now it reads "People": the title, nothing else. On screen nothing changes – `site.js` places the open note next to the i wherever the note sits in the HTML.
-- The button:
-  - `type="button"` – the safe habit (section 16).
-  - `popovertarget="{tip}"` – the HTML popover API. A button with this attribute opens and closes the element with that id, provided the element carries the `popover` attribute. The browser does it on its own, without JavaScript. The two do not need to be next to each other.
-  - It is empty in the HTML. The visible `i` comes from the CSS – `.info::after { content: "i"; }` – and is set as a superscript there. Text that CSS generates with `content` is drawn but is not part of the page's text, so the heading reads "People", not "Peoplei". `aria-label` gives the button its real name: "Info". The browser also tells screen readers whether the note is open or closed.
-- The note:
-  - `popover` – short for `popover="auto"`: the element stays hidden until its button opens it. Then it is drawn in the top layer – above everything else on the page, regardless of `z-index`, and never cut off by a parent element. "Auto" also brings light dismiss: a click outside the note or the Esc key closes it, and opening another auto popover closes the first.
-  - Where it appears: without JavaScript, the browser's default style centers it in the window. `site.js` places it right next to the i, keeps it there while the page scrolls and closes it once the i leaves the screen (chapter 4).
-  - `{e(text)}` – the note is copy, so it is escaped.
-- A browser without popover support does not know the attribute and shows the `<span>` as ordinary text. The CSS builds on that: `@supports not selector(:popover-open)` hides the i and sets the note as a muted line between the heading and the text (chapter 3). The note is never lost.
 
 ---
 
@@ -1247,7 +1215,7 @@ def page(c):
 </div>
 """
     # each result names its company; the name leads to the role under Experience
-    # ↓: superscript and in accent like the footnote numbers and the i – a link that stays on this page
+    # ↓: superscript and in accent like the footnote numbers – a link that stays on this page
     led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)}<br><a href="#{k}">{e(COMPANIES[k])}'
                   f'<span class="jmp">{DOWN_SVG}</span></a></dd></div>\n' for a, b, k in c["ledger"])
     out.append(section(c, "profile", e(s["profile"]),
@@ -1262,7 +1230,7 @@ def page(c):
 - `led` – the results list as a description list: `<dt>` holds the label and the figure (through `t()` for the arrows; "Leads > 2×" becomes `Leads &gt; 2×`), `<dd>` the context and, after a `<br>`, the company. Every result reads the same way: label and figure on the first line – Leads, RoAS, Media budget –, one line of context, the company on a line of its own. A `<div>` around each `dt`/`dd` pair is valid inside `<dl>` and gives CSS one box per row.
   - `for a, b, k in c["ledger"]` – each entry is a 3-tuple: figure, context, company key. The generator spans two lines – two adjacent f-strings, joined into one; inside the parentheses of `join()` Python needs no line-continuation sign.
   - `<a href="#{k}">{e(COMPANIES[k])}…</a>` – the company's name from `COMPANIES` (section 7), as a link to the role with that `id` under Experience. In the CSS, `.role:target` colors the dates and title of the role the visitor arrived at (chapter 3).
-  - `<span class="jmp">{DOWN_SVG}</span>` – a small ↓ after the name, inside the link. The CSS sets it superscript and in the accent color, like the footnote numbers and the i: a mark that says "this link stays on this page and leads down". The ↗ says the opposite – by convention it marks a link that leaves the site, and the page uses it that way, muted, after every such link (section 20). The SVG is `aria-hidden`, so the link's name stays the company's name. The link's underline does not run under the arrow: the span is an inline-block, and text decoration does not reach into inline-blocks (chapter 3).
+  - `<span class="jmp">{DOWN_SVG}</span>` – a small ↓ after the name, inside the link. The CSS sets it superscript and in the accent color, like the footnote numbers: a mark that says "this link stays on this page and leads down". The ↗ says the opposite – by convention it marks a link that leaves the site, and the page uses it that way, muted, after every such link (section 20). The SVG is `aria-hidden`, so the link's name stays the company's name. The link's underline does not run under the arrow: the span is an inline-block, and text decoration does not reach into inline-blocks (chapter 3).
   - `<br>` instead of a separator: the company always starts its own line, so all three results are equally long – two lines under the figure on every screen from 360px up. In plain text the `<br>` becomes a line break, so a parser still gets context and company apart.
   - Pitfalls: a key missing from `COMPANIES` raises `KeyError` – loud. A key that no role carries as its `id` is silent: the link points at nothing and does not scroll.
 - `section(…)` – heading escaped, body = entry + profile paragraph + results list with its own `aria-label`.
@@ -1270,19 +1238,14 @@ def page(c):
 ### P⁴
 
 ```python
-    # P⁴ – four fields, each a P; People carries its principle as a note behind the i
-    p4 = []
-    for p, txt in zip(P4, c["fields"]):
-        button, note = info(c, "people", c["people_note"]) if p == "People" else ("", "")
-        p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}</p></div>\n')
-    out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
+    # P⁴ – four fields, each a P
+    p4 = "".join(f'<div><h3{en_attr}>{e(p)}</h3><p>{e(txt)}</p></div>\n' for p, txt in zip(P4, c["fields"]))
+    out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{p4}</div>\n'))
 ```
 
 - `zip(P4, c["fields"])` pairs each heading with its text; `for p, txt in …` unpacks each pair into the P-word and its text.
-- `button, note = … if p == "People" else ("", "")` – the toggletip for People (section 21), two empty strings for the other three fields. `p == "People"` compares with the English word from `P4`, which is the same on both pages.
-  - The conditional expression yields a pair either way, and the pair is unpacked into two names. Pitfall: `else ""` would not do – unpacking an empty string into two names raises `ValueError: not enough values to unpack`.
-  - No language argument: the note sits after the English `<h3>`, not inside it, so it inherits the page's language – German on the German page, English on the English one.
-  - `{e(p)}{button}</h3>{note}` – the i follows the word without a space, like a footnote number, inside the heading. The note follows the closing `</h3>`, between heading and text.
+- `"".join(…)` – a generator expression straight into the join: one `<div>` per field, heading and text, no list in between.
+- No note behind People any more: the *i* with "Processes fit people, not the other way round." was dropped (decisions.md), and with it the helper `info()` and the toggletip's CSS and script.
 - `<h3{en_attr}>` – the P-words are English on both pages.
 - The section key is `"fields"`, but `sec` has no `"fields"` heading: `title_of()` (section 23) returns the fixed markup `P<sup>4</sup>` in every language. The German anchor is `p-wie-peter`.
 
@@ -1557,7 +1520,7 @@ TORCH = [
     (".def", '<p class="def">', 1),
     (".entry + p", '{entry}<p>{e(c["profile"])}</p>', 1),
     (".ledger dt, .ledger dd", "led = \"\".join(f'<div><dt>", 2),
-    (".fields h3, .fields p", "p4.append(f'<div><h3", 1),
+    (".fields h3, .fields p", "p4 = \"\".join(f'<div><h3", 1),
     (".more summary", '<details class="more">', 1),
     (".more .tree li", "lis = \"\".join(f'<li>{e(title)}'", 3),
     (".role .when", '<p class="when">{when}</p>', 1),
@@ -1791,9 +1754,9 @@ Make each change in `src/build.py`, run `python3 src/build.py`, look at the resu
 - **Canonical and hreflang** – link annotations that tell search engines the preferred URL of a page and which language versions exist.
 - **JSON-LD** – structured data in a `<script type="application/ld+json">` block, using the schema.org vocabulary.
 - **Web app manifest** – a JSON file linked with `<link rel="manifest">` that describes a site as an installable app: name, colors, icons, display mode. Here it supplies the home-screen icons.
-- **Popover and toggletip** – a popover is an element with the `popover` attribute: hidden until a button with `popovertarget` opens it, then drawn above the whole page, closed again by a click outside or Esc. A toggletip is the pattern built from it here: a small button that shows a short note on click instead of on hover.
+- **Popover** – an element with the `popover` attribute: hidden until a button with `popovertarget` or a script opens it, then drawn above the whole page, closed again by a click outside or Esc. Here: the torch's keys card (chapter 4).
 - **Disclosure** – a control that shows and hides a block of content. HTML has one built in: `<details>` with its `<summary>`, used for the Posterlounge promotions and the five early positions (both written by `steps()`) and for the jump control's list.
-- **Generated content** – text that CSS inserts with `content` in `::before` or `::after`, such as the toggletip's i. It is drawn, but it is not part of the page's text: copy and paste, search engines and parsers do not get it. Words and punctuation that carry meaning belong in the HTML.
+- **Generated content** – text that CSS inserts with `content` in `::before` or `::after`, such as the bold copy of each menu label that reserves its width (`content: attr(data-label)`). It is drawn, but it is not part of the page's text: copy and paste, search engines and parsers do not get it. Words and punctuation that carry meaning belong in the HTML.
 - **Visually hidden text** – text that is in the HTML but shrunk out of sight by CSS (here the class `sr-only`), so screen readers and anything that reads the text still get it: the word behind each drawn arrow, the full motto in the hero, the "(opens in a new tab)" after each link that leaves the site.
 - **`target="_blank"` and `noopener`** – `target="_blank"` opens a link in a new tab; `rel="noopener"` keeps the new page from reaching back to the one that opened it through `window.opener`. Here both come from `offsite()`, for every link that leaves the site.
 - **Relative vs root-absolute path** – `assets/site.css` or `../assets/site.css` resolve from the current page's folder; `/assets/site.css` resolves from the domain root.
