@@ -1392,19 +1392,34 @@ On `impressum.html` and `datenschutz.html`, the frame carries both classes (`cla
 .torch-tag span { padding: 0.2em 0.6em; border-radius: 999px; background: var(--lit); }   /* legible over the page's text */
 @media (prefers-reduced-motion: reduce) { .torch, .torch.on { transition: none; } }
 
-/* ? – the keys, in a card under the header's right end (site.js places it) */
+/* ? – the shortcuts, in a card under the header's right end (site.js places it): what it does left, the key right */
 .keys {
-  position: fixed; inset: auto; margin: 0;
-  padding: 0.7rem 1rem 0.8rem; border: 1px solid var(--line); border-radius: 8px;
-  background: var(--paper); color: var(--ink);
-  font: 400 0.9rem/1.5 "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+  position: fixed; inset: auto; margin: 0; padding: 0;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: var(--paper); color: var(--ink); font-size: 0.95rem; line-height: 1.4;
   box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 12%, transparent);
 }
-.keys p { margin: 0 0 0.35rem; color: var(--muted); }
-.keys dl { display: grid; grid-template-columns: auto auto; gap: 0.15rem 1.25rem; margin: 0; }
+.keys .head {
+  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+  margin: 0; padding: 0.55rem 0.55rem 0.55rem 1rem; border-bottom: 1px solid var(--line);
+}
+.keys .close {
+  display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0;
+  border: 0; border-radius: 50%; background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--muted); cursor: pointer;
+}
+.keys .close:hover { color: var(--ink); }
+.keys .close svg { width: 0.85rem; height: 0.85rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.keys dl { display: grid; grid-template-columns: auto auto; align-items: center; gap: 0.55rem 1rem; margin: 0; padding: 0.85rem 1rem 1rem; }
 .keys dl div { display: contents; }
+.keys dt { text-align: right; }
 .keys dd { margin: 0; }
-.keys kbd { font: inherit; color: var(--accent); }
+.keys kbd {                                           /* a key cap: a box with a heavier lower edge */
+  display: inline-block; min-width: 1.75em; padding: 0.05em 0.45em;
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px;
+  background: color-mix(in srgb, var(--ink) 4%, var(--paper));
+  font: 400 0.85em/1.5 "Atkinson Hyperlegible Mono", ui-monospace, monospace; text-align: center;
+}
 ```
 
 The torch (chapter 4) lays a light over the page: a circle that follows the pointer and shows, where it falls, the code of the page underneath – the HTML, one level deeper the lines of `build.py`. `site.js` builds the elements; this is how they look.
@@ -1424,9 +1439,12 @@ The torch (chapter 4) lays a light over the page: a circle that follows the poin
 - `.torch-tag` – the line under the light ("HTML · again: build.py"), small, in the accent. Its `span` sits on the lit paper, so it can be read over the page's text.
 - Reduced motion: no fade.
 
-- `.keys` – the card that `?` opens, a popover (like the toggletips, see Toggletips). `inset: auto; margin: 0;` – undoes the browser's centring of popovers; `site.js` places the card under the header's right end, below the theme switch, with `top` and `right`.
-- `.keys dl { display: grid; grid-template-columns: auto auto; }` with `.keys dl div { display: contents; }` – a two-column grid of keys and what they do. `display: contents` makes each `div` step aside: its `dt` and `dd` become grid items of the `dl` directly, so all keys share one column width.
-- `kbd` – the keys in the accent, in the card's own font (`font: inherit`: browsers set `kbd` in their default monospace).
+- `.keys` – the card that `?` opens, a popover (like the toggletips, see Toggletips), laid out like the shortcut cards of Instagram or GitHub: a title with a close button, a line under it, then one row per shortcut – what it does on the left, the key on the right. `inset: auto; margin: 0;` undoes the browser's centring of popovers; `site.js` places the card under the header's right end, below the theme switch, with `top` and `right`. `padding: 0` – the head and the list bring their own, so the line under the head runs from edge to edge.
+- `.keys .head` – a flex row: the title at the start, the close button at the end (`justify-content: space-between`). Less padding on the right: the round button has its own room.
+- `.keys .close` – a round button (`border-radius: 50%`) on a faint tint of the ink, the × drawn as two strokes like every icon here. It needs no script: `popovertarget="keys"` with `popovertargetaction="hide"` closes the popover with that id, the way the browser opens and closes toggletips.
+- `.keys dl` – a grid of two columns, `auto auto`: as wide as the longest description and the widest key. `.keys dl div { display: contents; }` makes each `div` step aside, so its `dt` and `dd` become grid items of the `dl` directly and all rows share the same two columns.
+- `.keys dt { text-align: right; }` – the descriptions end at the keys, so each one sits next to its key however long it is.
+- `.keys kbd` – a key cap: a box with rounded corners and a heavier lower edge (`border-bottom-width: 2px`), on a slightly darker paper, in the monospace face. `min-width: 1.75em` with centred text – a one-character key such as `?` gets a square cap, not a sliver. `color-mix(in srgb, var(--ink) 4%, var(--paper))` – 4 % ink into the paper: a shade darker in the light theme, a shade lighter in the dark one, from the same line.
 
 ## Minimap
 

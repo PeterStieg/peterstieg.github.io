@@ -225,7 +225,8 @@ CONTENT = {
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
         "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab", "map": "map",
         "torch": {"tags": ["", "HTML · again: build.py", "build.py · again: off"],
-                  "keys": "Keys", "rows": [["sudo", "HTML · build.py · off"], ["Esc", "off"], ["?", "this list"]]},
+                  "keys": "Keyboard shortcuts", "close": "Close",
+                  "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], ["?", "Show this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: …",
@@ -333,7 +334,7 @@ Interface labels:
 | `to_top` | str | label of the jump control's up link while it leads to the top of the page (`"Back to top"` / `"Nach oben"`) |
 | `info` | str | spoken name of the superscript i that opens a toggletip |
 | `new_tab` | str | what screen readers hear after every link that leaves the site: `"opens in a new tab"` / `"öffnet in neuem Tab"`, in parentheses, as visually hidden text (`offsite()`, section 20) |
-| `torch` | dict | the strings of the torch (`sudo`, chapter 4), which `site.js` cannot generate in two languages: `tags` – the line under the light at levels 1 and 2 (level 0 shows none, hence the empty string); `keys` and `rows` – the card that `?` opens. Written into `<main>` as JSON in one attribute (section 25) |
+| `torch` | dict | the strings of the torch (`sudo`, chapter 4), which `site.js` cannot generate in two languages: `tags` – the line under the light at levels 1 and 2 (level 0 shows none, hence the empty string); `keys`, `close` and `rows` – the card that `?` opens: its title, the name of its close button, and per shortcut the key and what it does. Written into `<main>` as JSON in one attribute (section 25) |
 | `map` | str | read out before `new_tab` on the place under Contact, which opens a map: "map, opens in a new tab" / "Karte, öffnet in neuem Tab" |
 | `dur` | 4-tuple | the words for the durations under the role dates: year, years, month, months (`duration()`, section 22). Joined by commas, they also go to `site.js`, which recounts the running role |
 | `jump` | dict | the jump control: `label` names its `<nav>`, `menu` the button that opens the section list, `up` and `down` are templates in which `%s` stands for a section name (`"Up: %s"` → "Up: Experience") |

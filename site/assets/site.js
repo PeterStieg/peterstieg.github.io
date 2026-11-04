@@ -572,15 +572,18 @@
     const next = () => set((level + 1) % 3);         // sudo again goes deeper: HTML, build.py, off
 
     const nav = document.querySelector(".top .nav");
-    const keys = () => {                              // ? – the keys, in a card under the header's right end
+    const keys = () => {                              // ? – the shortcuts, in a card under the header's right end
       if (!card) {
         card = document.createElement("div");
         card.className = "keys";
+        card.id = "keys";
         card.setAttribute("popover", "");
-        card.setAttribute("role", "note");            // supplementary content, named by aria-label
-        card.setAttribute("aria-label", T.keys);
-        card.innerHTML = `<p>${esc(T.keys)}</p><dl>` + T.rows.map(([k, v]) =>
-          `<div><dt><kbd>${esc(k)}</kbd></dt><dd>${esc(v)}</dd></div>`).join("") + "</dl>";
+        card.setAttribute("role", "dialog");          // non-modal, with its own close button
+        card.setAttribute("aria-labelledby", "keys-title");
+        card.innerHTML = `<p class="head"><strong id="keys-title">${esc(T.keys)}</strong>` +
+          `<button type="button" class="close" popovertarget="keys" popovertargetaction="hide" aria-label="${esc(T.close)}">` +
+          '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></p><dl>' +
+          T.rows.map(([k, v]) => `<div><dt>${esc(v)}</dt><dd><kbd>${esc(k)}</kbd></dd></div>`).join("") + "</dl>";
         nav.appendChild(card);                        // in the header's nav: inside a landmark, like all content
       }
       if (!card.showPopover) return;                  // no popover API, no card

@@ -534,19 +534,34 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 .torch-tag span { padding: 0.2em 0.6em; border-radius: 999px; background: var(--lit); }   /* legible over the page's text */
 @media (prefers-reduced-motion: reduce) { .torch, .torch.on { transition: none; } }
 
-/* ? – the keys, in a card under the header's right end (site.js places it) */
+/* ? – the shortcuts, in a card under the header's right end (site.js places it): what it does left, the key right */
 .keys {
-  position: fixed; inset: auto; margin: 0;
-  padding: 0.7rem 1rem 0.8rem; border: 1px solid var(--line); border-radius: 8px;
-  background: var(--paper); color: var(--ink);
-  font: 400 0.9rem/1.5 "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+  position: fixed; inset: auto; margin: 0; padding: 0;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: var(--paper); color: var(--ink); font-size: 0.95rem; line-height: 1.4;
   box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 12%, transparent);
 }
-.keys p { margin: 0 0 0.35rem; color: var(--muted); }
-.keys dl { display: grid; grid-template-columns: auto auto; gap: 0.15rem 1.25rem; margin: 0; }
+.keys .head {
+  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+  margin: 0; padding: 0.55rem 0.55rem 0.55rem 1rem; border-bottom: 1px solid var(--line);
+}
+.keys .close {
+  display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0;
+  border: 0; border-radius: 50%; background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--muted); cursor: pointer;
+}
+.keys .close:hover { color: var(--ink); }
+.keys .close svg { width: 0.85rem; height: 0.85rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.keys dl { display: grid; grid-template-columns: auto auto; align-items: center; gap: 0.55rem 1rem; margin: 0; padding: 0.85rem 1rem 1rem; }
 .keys dl div { display: contents; }
+.keys dt { text-align: right; }
 .keys dd { margin: 0; }
-.keys kbd { font: inherit; color: var(--accent); }
+.keys kbd {                                           /* a key cap: a box with a heavier lower edge */
+  display: inline-block; min-width: 1.75em; padding: 0.05em 0.45em;
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px;
+  background: color-mix(in srgb, var(--ink) 4%, var(--paper));
+  font: 400 0.85em/1.5 "Atkinson Hyperlegible Mono", ui-monospace, monospace; text-align: center;
+}
 
 /* ---------- minimap ---------- */
 
