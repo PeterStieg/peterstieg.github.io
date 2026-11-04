@@ -286,6 +286,8 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 .newtab { display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--muted); }
 a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 .nw { white-space: nowrap; }                     /* the last word and its ↗ stay together */
+.newtab.sym { width: 0.8em; height: 0.8em; top: -0.42em; }   /* envelope and pin: more detail than the ↗ … */
+.newtab.sym svg { stroke-width: 1.5; }                       /* … drawn in the same line weight */
 .ledger .jmp svg, .newtab svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 
 /* fields of work */

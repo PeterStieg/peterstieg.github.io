@@ -30,6 +30,7 @@ URL = "https://peterstieg.com/"
 EMAIL = "info@peterstieg.com"
 LINKEDIN = "https://www.linkedin.com/in/peterstieg/"
 GITHUB = "https://github.com/PeterStieg"
+MAP = "https://www.openstreetmap.org/?mlat=51.3673&mlon=12.3668#map=15/51.3673/12.3668"   # a pin on Coppiplatz, Gohlis
 REPO_DS = "https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products"
 REPO_MLOPS = "https://github.com/PeterStieg/may25_bmlops_classification-of-rakuten-e-commerce-products"
 DEMO_DS = "https://feb25-bds-rakuten.streamlit.app/"       # Streamlit Community Cloud: sleeps when idle, wakes on request
@@ -82,10 +83,10 @@ CONTENT = {
     "en": {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
-        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab",
+        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab", "map": "map",
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
-        "desc": "Marketinkerer from Leipzig: performance marketing, lead generation and data science. Leadership roles at four companies, self-built tools.",
+        "desc": "Marketinkerer from Leipzig: performance marketing and data science. Four leadership roles, up to €240k media budget a month, certified Data Scientist.",
         "skip": "Skip to content",
         "nav": [("profile", "Profile"), ("experience", "Experience"), ("projects", "Projects"), ("contact", "Contact")],
         "sec": {"profile": "Profile", "experience": "Experience", "projects": "Projects", "approach": "Approach",
@@ -101,16 +102,16 @@ CONTENT = {
         ],
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. Optimized for RoAS and cost per inquiry, quote and order.",
-            "Tracking with Google Tag Manager and Consent Mode v2, then Python, SQL, BigQuery and Data Studio on Google Cloud. Internal web apps in Streamlit.",
+            "Tracking with Google Tag Manager, then Python, SQL, BigQuery and Data Studio on Google Cloud. Internal web apps in Streamlit.",
             "Corporate identity from claim to logo, websites, templates and employer branding. Mockups, vector graphics and videos. Inkscape, Canva – and Python wherever pixels can be generated.",
-            "Teams of up to six, from SEA to graphic design, including career changers.",
+            "Teams of up to six, from SEA to graphic design, including career changers from retail and fine arts.",
         ],
         "people_note": "Processes fit people, not the other way round.",
         "roles": [
             {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
              "tree": [("Team", "functional lead for content, marketing and project management"),
-                      ("Scope", "marketing, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding"),
+                      ("Scope", "marketing, lead generation, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding"),
                       ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark")]},
             {"when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
              "org": "Liora (formerly DataScientest) · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
@@ -182,10 +183,10 @@ CONTENT = {
     "de": {
         "lang": "de", "path": "de/index.html", "root": "../", "locale": "de_DE",
         "aria_main": "Hauptnavigation", "aria_legal": "Rechtliches", "aria_lang": "Sprache",
-        "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info", "new_tab": "öffnet in neuem Tab",
+        "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "info": "Info", "new_tab": "öffnet in neuem Tab", "map": "Karte",
         "dur": ("Jahr", "Jahre", "Monat", "Monate"),
         "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
-        "desc": "Marketinkerer aus Leipzig: Performance Marketing, Leadgenerierung und Data Science. Führungsverantwortung in vier Unternehmen, Werkzeuge selbst gebaut.",
+        "desc": "Marketinkerer aus Leipzig: Performance Marketing und Data Science. Vier Führungsrollen, bis 240.000 € Mediabudget im Monat, zertifizierter Data Scientist.",
         "skip": "Zum Inhalt springen",
         "nav": [("profil", "Profil"), ("stationen", "Stationen"), ("projekte", "Projekte"), ("kontakt", "Kontakt")],
         "sec": {"profile": "Profil", "experience": "Stationen", "projects": "Projekte", "approach": "Arbeitsweise",
@@ -203,16 +204,16 @@ CONTENT = {
         ],
         "fields": [
             "Google Ads, Microsoft Advertising, Meta, LinkedIn und Marktplätze. Gesteuert über KUR und Kosten je Anfrage, Angebot und Auftrag.",
-            "Tracking mit Google Tag Manager und Consent Mode v2, danach Python, SQL, BigQuery und Data Studio auf Google Cloud. Interne Web-Apps mit Streamlit.",
+            "Tracking mit Google Tag Manager, danach Python, SQL, BigQuery und Data Studio auf Google Cloud. Interne Web-Apps mit Streamlit.",
             "Corporate Identity vom Claim bis zum Logo, Websites, Vorlagen und Employer Branding. Mockups, Vektorgrafiken und Videos. Inkscape, Canva – und Python, wo sich Pixel generieren lassen.",
-            "Teams mit bis zu sechs Personen, von SEA bis Grafik, darunter Quereinsteiger.",
+            "Teams mit bis zu sechs Personen, von SEA bis Grafik, darunter Quereinsteiger aus Einzelhandel und bildender Kunst.",
         ],
         "people_note": "Prozesse passen zu Menschen, nicht umgekehrt.",
         "roles": [
             {"id": "e-service-check", "when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-zertifizierte Prüfungen der elektrischen Sicherheit (DGUV V3/V4), bundesweit, 349 Mitarbeitende.",
              "tree": [("Team", "fachliche Führung in Content, Marketing und Projektmanagement"),
-                      ("Scope", "Marketing, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, CRM, Events, Employer Branding"),
+                      ("Scope", "Marketing, Leadgenerierung, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, CRM, Events, Employer Branding"),
                       ("Result", "Anfragen im Jahresvergleich mehr als verdoppelt; neue Corporate Identity samt Grundlage der EUIPO-Markenanmeldung")]},
             {"when": "05/2025 – 07/2025", "title": "Weiterbildung MLOps Engineer (Vollzeit)",
              "org": "Liora (ehemals DataScientest) · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
@@ -311,6 +312,11 @@ DOWN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
 # ↗ after a link that leaves the site – the counterpart of the ledger's ↓
 OUT_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
            '<path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg>')
+# the marks of the two Contact links that are not web pages: the address opens the mail program, the city a map
+MAIL_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+            '<path d="M1.8 3.6h12.4v8.8H1.8zM2.2 4 8 8.8 13.8 4"/></svg>')
+PIN_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+           '<path d="M8 14.8C5.2 11.9 3.3 9.3 3.3 6.5a4.7 4.7 0 0 1 9.4 0c0 2.8-1.9 5.4-4.7 8.3z"/><circle cx="8" cy="6.5" r="1.6"/></svg>')
 # three code lines, as in the minimap: the section menu before a chapter is reached, and without JavaScript
 LINES_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
              '<path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg>')
@@ -470,14 +476,17 @@ def jsonld(c):
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>\n"
 
 
-def offsite(c, url, text, attrs=""):
+def offsite(c, url, text, attrs="", mark=OUT_SVG, kind=""):
     """A link that leaves the site: opens in a new tab, so the page stays open behind it. Marked with ↗ for the eye and
     "(opens in a new tab)" for screen readers. The last word and the ↗ share a no-wrap span: the arrow never starts a
-    line on its own. attrs: extra attributes, written as they are (' hreflang="en"', ' rel="me noopener"')."""
+    line on its own. attrs: extra attributes, written as they are (' hreflang="en"', ' rel="me noopener"').
+    mark, kind: another mark in place of the ↗ and what it stands for, read out first ("map, opens in a new tab")."""
     rel = "" if "rel=" in attrs else ' rel="noopener"'
     lead, space, last = text.rpartition(" ")
-    return (f'<a href="{url}" target="_blank"{rel}{attrs}>{lead}{space}<span class="nw">{last}<span class="newtab">{OUT_SVG}'
-            f'<span class="sr-only"> ({e(c["new_tab"])})</span></span></span></a>')
+    said = f"{e(kind)}, {e(c['new_tab'])}" if kind else e(c["new_tab"])
+    sym = " sym" if kind else ""                      # a drawn symbol, larger than the ↗ to stay legible
+    return (f'<a href="{url}" target="_blank"{rel}{attrs}>{lead}{space}<span class="nw">{last}<span class="newtab{sym}">{mark}'
+            f'<span class="sr-only"> ({said})</span></span></span></a>')
 
 
 def chapter_no(key):
@@ -673,13 +682,14 @@ def page(c):
     pr = "".join(f'<li><p>{e(a)}</p></li>\n' for a in c["approach"])
     out.append(section(c, "approach", e(s["approach"]), f'<ul class="principles">\n{pr}</ul>\n'))
 
-    # contact – one row per way to get in touch, laid out like Education
+    # contact – one row per way to get in touch, laid out like Education; every link carries a mark like the ↗:
+    # an envelope for the mail program, ↗ for the two profiles, a pin for the map
     mail, based, city = c["reach"]
-    rows = [(e(mail), f'<a href="mailto:{EMAIL}">{EMAIL}</a>')]
+    rows = [(e(mail), f'<a href="mailto:{EMAIL}"><span class="nw">{EMAIL}<span class="newtab sym">{MAIL_SVG}</span></span></a>')]
     for name, url in (("LinkedIn", LINKEDIN), ("GitHub", GITHUB)):
         address = re.sub(r"^https://(www\.)?|/$", "", url)               # the address is the link text
         rows.append((name, offsite(c, url, address, ' rel="me noopener"')))  # both profiles are Pete's own
-    rows.append((e(based), e(city)))
+    rows.append((e(based), offsite(c, MAP, e(city), mark=PIN_SVG, kind=c["map"])))
     contact = '<dl class="facts">\n' + "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>\n" for k, v in rows) + "</dl>\n"
     out.append(section(c, "contact", e(s["contact"]), contact))
 
@@ -719,7 +729,7 @@ IMPRESSUM = f"""<h1>Impressum</h1>
 """
 
 DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
-<p class="muted">Stand: Oktober 2026</p>
+<p class="muted">Stand: November 2026</p>
 <h2>Verantwortlicher</h2>
 <address>{ADDRESS}<br>E-Mail: <a href="mailto:{EMAIL}">{EMAIL}</a></address>
 <h2>Kurz gesagt</h2>
@@ -732,7 +742,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 <h2>Kontakt per E-Mail</h2>
 <p>Wenn Sie eine E-Mail schreiben, werden Ihre Angaben verarbeitet, um die Anfrage zu beantworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Die Daten werden gelöscht, sobald sie dafür nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
 <h2>Links zu anderen Plattformen</h2>
-<p>Die Seite verlinkt auf LinkedIn, GitHub, die Kursseiten von Liora, die Nachweisseiten von DataScientest, thekey.career und edX, die Demos der Abschlussprojekte bei Streamlit sowie die Websites früherer und heutiger Arbeitgeber. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
+<p>Die Seite verlinkt auf LinkedIn, GitHub, eine Karte bei OpenStreetMap, die Kursseiten von Liora, die Nachweisseiten von DataScientest, thekey.career und edX, die Demos der Abschlussprojekte bei Streamlit sowie die Websites früherer und heutiger Arbeitgeber. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
 <h2>Ihre Rechte</h2>
 <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Einer Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO können Sie widersprechen (Art. 21). Außerdem können Sie sich bei einer Datenschutz-Aufsichtsbehörde beschweren, etwa bei der zuständigen Behörde Ihres Bundeslandes.</p>
 """
