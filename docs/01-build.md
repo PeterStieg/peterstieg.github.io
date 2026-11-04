@@ -264,8 +264,8 @@ CONTENT = {
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "…")],
              "positions": ("All five positions", [
-                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl"),
-                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl"),
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://sbsbusiness.eu/"),
+                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl", ""),
                  …
              ])},
         ],
@@ -836,13 +836,13 @@ def offsite(c, url, text, attrs="", mark=OUT_SVG, kind=""):
             f'<span class="sr-only"> ({said})</span></span></span></a>')
 ```
 
-- Every link that leaves the site goes through this function – 16 per page: the three company websites in Experience (section 24), GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
+- Every link that leaves the site goes through this function – 22 per page: nine company websites in Experience – six roles and three of the five early positions (section 24) –, GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
 - Why a new tab: whoever checks a certificate or a company website keeps the page open behind it and returns to the same spot. The marker announces the new tab before the click, for the eye (↗) and for screen readers (the hidden words).
 - The parameters:
   - `url` – inserted as it is. Every URL is one of your own constants.
   - `text` – HTML, not plain copy, like `title_html` in `section()` (section 22): callers pass `e(…)`, or a constant without special characters such as `"LinkedIn"`.
   - `attrs` – further attributes as one string with a leading space, written into the tag as they are – the convention of `rid` and `en_attr` (section 25). Empty by default.
-  - `mark`, `kind` – a different mark in place of the ↗, and the word for what it stands for. Only the map under Contact passes them: `mark=PIN_SVG, kind=c["map"]`. Keyword arguments with defaults, so the fifteen other calls stay as they are.
+  - `mark`, `kind` – a different mark in place of the ↗, and the word for what it stands for. Only the map under Contact passes them: `mark=PIN_SVG, kind=c["map"]`. Keyword arguments with defaults, so every other call stays as it is.
 
 The `rel` attribute:
 
@@ -856,7 +856,7 @@ The text and its marker:
 - `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 29) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
   - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 29).
 - `<span class="nw">{last}…</span>` – the last word and the marker share one span, which the CSS sets to `white-space: nowrap` (chapter 3). The line may still break before the last word, never between it and the ↗. Without the span, the ↗ wrapped onto a line of its own at widths of 320 to 390 pixels: the marker is an inline-block, and an inline-block is a break opportunity on both sides. A word joiner (U+2060) between word and arrow did not stop the break in Chromium – measured.
-- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With fifteen per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers and the ↓ – stay on the page; the muted ↗ leaves it.
+- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With twenty-one per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers and the ↓ – stay on the page; the muted ↗ leaves it.
 - `said` – what screen readers hear: `new_tab` alone, or `kind` in front of it – "Leipzig (map, opens in a new tab)". Both escaped, because both are copy.
 - `sym` – the class `sym` next to `newtab` when a symbol stands in for the ↗. The CSS draws a symbol larger, with a thinner line, so its detail stays legible at the size of a superscript and its strokes look as heavy as the arrow's (chapter 3). In `{mark}` the f-string inserts the SVG unescaped – it is markup, a constant.
 - `<span class="sr-only"> ({said})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge GmbH (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
@@ -1039,22 +1039,24 @@ The jump control: a narrow vertical pill in the bottom-right corner of the windo
 ```python
 def steps(c, label, rows):
     """A disclosure with the steps inside one timeline entry, newest first like the timeline itself: title (and company,
-    where it changes), then dates and length. reversed: the list counts down, as the timeline does."""
-    lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {e(org)}</span>' if org else "")
-                  + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span in rows)
+    where it changes – linked to its website where there is one), then dates and length. reversed: the list counts down,
+    as the timeline does. rows: (title, company, dates, url) – company and url may be empty."""
+    lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {offsite(c, url, e(org)) if url else e(org)}</span>' if org else "")
+                  + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span, url in rows)
     return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n</details>\n'
 ```
 
 - One disclosure: a summary line and, behind it, the steps inside one timeline entry. Two entries have one – Posterlounge's promotions and the five positions before 2014. Both come from this function, so they look and behave the same.
 - `label` – the summary text: "Three promotions", "All five positions".
-- `rows` – a list of (title, company, range) triples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names.
+- `rows` – a list of (title, company, range, url) tuples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names. The url is `""` where there is none to link: the promotions, and the two early positions whose company has no website that could be verified.
 - `lis` – one `<li>` per row, three f-strings joined with `+`:
   - `<li>{e(title)}` – the title, escaped.
   - `(… if org else "")` – the company, only where there is one. The parentheses are needed: `+` binds more tightly than a conditional expression, so without them the `if … else` would take the whole sum as its two branches – a row with a company would lose its dates, a row without one its title.
-  - `&nbsp;<span class="muted">· {e(org)}</span>` – the company after a middle dot, set lighter by the class `muted` (chapter 3). The `&nbsp;` does what `dots()` cannot, as in the place line of `role()` below: a `<span>` tag sits between the space and the dot, so the plain sequence ` · ` never occurs, and the line brings its own non-breaking space.
+  - `{offsite(c, url, e(org)) if url else e(org)}` – the company as a link to its website, in a new tab with its ↗ (section 20), or as plain text where there is no url. A conditional expression inside the replacement field; it holds no quotes, so it can sit inside the single-quoted f-string.
+  - `&nbsp;<span class="muted">· …</span>` – the company after a middle dot, set lighter by the class `muted` (chapter 3). The `&nbsp;` does what `dots()` cannot, as in the place line of `role()` below: a `<span>` tag sits between the space and the dot, so the plain sequence ` · ` never occurs, and the line brings its own non-breaking space.
   - `<br><span class="at">{span} · {duration(c, months(span))}</span>` – a line break, then the range and its length: "04/2014 – 08/2014 · 5 months". `months()` counts the range, `duration()` puts the count into words (section 22) – the same two functions as for the role's own dates. This ` · ` is plain, so `dots()` glues it later.
   - `span` is the one value inserted without `e()`: digits, slashes and an en dash, nothing HTML reads as markup. A range with `&` or `<` in it would need `e(span)`.
-  - `for title, org, span in rows` – unpacks each triple. The generator spans two lines inside the parentheses of `join()`.
+  - `for title, org, span, url in rows` – unpacks each tuple. The generator spans two lines inside the parentheses of `join()`.
 - `<details class="more">` with `<summary>` – the native disclosure, as in the jump control (section 23): closed by default, opened by click or keyboard, announced as collapsed or expanded. `site.js` adds two things: it redraws the minimap when a disclosure opens, because the page just got longer, and it opens the disclosures for printing (chapter 4).
 - `<ol class="tree" reversed>` – an ordered list, because the steps have an order.
   - `reversed` – the list counts down, like the timeline's `<ol class="roles" reversed>` (section 25): the newest step at the top carries the highest number. The numbers are not shown; `reversed` only keeps the list's semantics in line with its order, for assistive technology and anything else that reads the list's numbering. Nothing changes on screen.
@@ -1077,10 +1079,10 @@ def role(c, ro):
     if ro.get("path"):                                 # promotions, one per contract: its start; it ends the month before the next
         label, path = ro["path"]
         ends = [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]] + [before(start) for start, _ in path[:-1]]
-        more += steps(c, label, [(title, "", f"{start} – {end}") for (start, title), end in zip(path, ends)])
+        more += steps(c, label, [(title, "", f"{start} – {end}", "") for (start, title), end in zip(path, ends)])
     if ro.get("positions"):                            # the positions it sums up, each at its own company
         label, positions = ro["positions"]
-        more += steps(c, label, [(title, org_, when_) for when_, title, org_ in positions])
+        more += steps(c, label, [(title, org_, when_, url) for when_, title, org_, url in positions])
     return f"""<p class="when">{when}</p>
 <div>
 <h3>{e(ro['title'])}</h3>
@@ -1116,13 +1118,13 @@ The disclosures:
   - `label, path = ro["path"]` – the summary text and the list of (start, title) pairs, newest first. Only the starts are stored, as the contracts give them (section 8): 09/2021, 10/2020, 11/2018, 10/2017.
   - `ends` – one end per step, in the same order as the steps. The newest step ends with the role: `re.findall(…)[-1]` is the last date of its `when`, 06/2023, in a list of its own. Every other step ends the month before the step above it in the list starts – the one that followed it in time: `before(start) for start, _ in path[:-1]` takes the starts of all steps but the oldest and steps each back by a month (section 22). `[:-1]` is a slice without the last item: the oldest start, 10/2017, is where the role begins, and no step ends before it. The underscore is the usual name for a value that is unpacked but not used, here the title. `+` joins the two lists: `["06/2023", "08/2021", "09/2020", "10/2018"]`.
   - `zip(path, ends)` – pairs the n-th step with the n-th end. `(start, title), end` unpacks each pair: the step's tuple on the left, its end on the right. Head of Marketing gets 06/2023; Senior Marketing Manager gets 08/2021, the month before Head of Marketing began.
-  - `(title, "", f"{start} – {end}")` – one row for `steps()`: the title, no company, and the range as text, "10/2017 – 10/2018". `steps()` adds the length; the four lengths add up to the role's 69 months.
+  - `(title, "", f"{start} – {end}", "")` – one row for `steps()`: the title, no company, the range as text and no url, "10/2017 – 10/2018". `steps()` adds the length; the four lengths add up to the role's 69 months.
   - Storing starts instead of ranges means one date per step, each written once: a corrected start moves the end of the step below it, the older one, as well.
   - The computation depends on the order. Stored oldest first, every step but the first would end before it starts – no error, only wrong ranges and lengths on the page.
   - The role itself must have ended: for a role still running, `[-1]` would be its start, and the newest step would end where the role begins.
 - `positions` – used by one entry: "10/2010 – 08/2014 · Five companies" keeps the timeline at one line for those years and holds the five single positions behind "All five positions".
-  - `label, positions = ro["positions"]` – the summary text and the list of (range, title, company) triples, newest first. Here every position carries its full range: the positions overlap (06/2013 – 05/2014 and 06/2013 – 12/2013) and leave gaps, so no end follows from the next start.
-  - `[(title, org_, when_) for when_, title, org_ in positions]` – a list comprehension that reorders each triple from the stored order (range, title, company) into the order `steps()` takes (title, company, range).
+  - `label, positions = ro["positions"]` – the summary text and the list of (range, title, company, url) tuples, newest first. Here every position carries its full range: the positions overlap (06/2013 – 05/2014 and 06/2013 – 12/2013) and leave gaps, so no end follows from the next start.
+  - `[(title, org_, when_, url) for when_, title, org_, url in positions]` – a list comprehension that reorders each tuple from the stored order (range, title, company, url) into the order `steps()` takes (title, company, range, url).
   - The trailing underscores: `org` and `when` are already local variables of `role()` – the company line and the dates line built above, both used again in the `return`. Python 3 gives a comprehension its own scope, so plain names would not overwrite them, but one function would then mean two things by each name, a few lines apart. The underscore is the usual way around a name that is taken, as with `months_` in `duration()` (section 22).
   - The `path` branch does reuse a name: in its comprehensions, `start` is a step's start, while the `start` above is the match object of the role's dates. The comprehension scope keeps the two apart, and the match is no longer needed by then.
   - Each position: title, company, range and length – "Marketing Consultant · SBS systems for business solutions Srl", "04/2014 – 08/2014 · 5 months". No place and no tree per position: the entry's own Scope line sums them up, and its company line says "Five companies · Rome".
