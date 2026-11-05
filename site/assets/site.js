@@ -2,6 +2,7 @@
 (() => {
   const root = document.documentElement;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const jsUrl = document.currentScript ? document.currentScript.src : "";   // where this file lives, for torch.json
   root.classList.add("js");
 
   /* ---------- Theme: follows the system until the visitor picks one; the pick is remembered locally. */
@@ -438,23 +439,6 @@
     stuck = h;
   };
 
-  /* ---------- Toggletips: the popover opens next to its i, below or – without room – above it.
-     Placed before the first frame it shows in; follows the i while scrolling. Without JavaScript it is centred. */
-  const tips = "popover" in HTMLElement.prototype ? [...document.querySelectorAll(".tip")] : [];
-  const place = (tip) => {
-    const i = document.querySelector(`[popovertarget="${tip.id}"]`).getBoundingClientRect();
-    if (i.bottom < top.offsetHeight || i.top > window.innerHeight) { tip.hidePopover(); return; }   // the i left the screen
-    const m = 8, w = tip.offsetWidth, h = tip.offsetHeight;
-    let y = i.bottom + 6;
-    if (y + h > window.innerHeight - m) y = i.top - h - 6;
-    tip.style.left = Math.max(m, Math.min(i.left - 12, window.innerWidth - w - m)) + "px";
-    tip.style.top = Math.max(m, y) + "px";
-  };
-  tips.forEach((tip) => tip.addEventListener("beforetoggle", (ev) => {
-    if (ev.newState === "open") requestAnimationFrame(() => place(tip));
-  }));
-  const follow = () => tips.forEach((tip) => { if (tip.matches(":popover-open")) place(tip); });
-
   /* ---------- The positions before 2014: opening them changes the page height – redraw the minimap.
      Printing shows them open. */
   const more = [...document.querySelectorAll("details.more")];
@@ -470,7 +454,7 @@
   let raf = 0;
   window.addEventListener("scroll", () => {
     if (raf) return;
-    raf = requestAnimationFrame(() => { raf = 0; here(); steer(); paint(); onScrollTop(); dockApply(); stick(); follow(); hide(); });
+    raf = requestAnimationFrame(() => { raf = 0; here(); steer(); paint(); onScrollTop(); dockApply(); stick(); hide(); });
   }, { passive: true });
 
   let rt = 0;
@@ -480,8 +464,139 @@
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(layout);
   window.addEventListener("load", layout);
 
+  /* ---------- Torch: the page's code under a light that follows the pointer – desktop only.
+     Type sudo: the HTML of every block of text. Once more: the lines of build.py that wrote it (assets/torch.json,
+     written by the build). A third time, or Esc: off. ? lists the keys. */
+  const torchHost = document.querySelector("main[data-torch]");   // the two CV pages only
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+  if (torchHost && jsUrl) {
+    const T = JSON.parse(torchHost.dataset.torch);   // the strings in the page's language
+    const SEL = "h1, h2, h3, h4, p, li, dt, dd, summary";
+    const R = 160;                                    // the light's radius in px, as in the CSS
+    let level = 0, map = null, px = innerWidth / 2, py = innerHeight / 2, typed = "", tf = 0, card = null;
+
+    const lens = document.createElement("div");
+    const sheet = document.createElement("div");
+    const tag = document.createElement("div");
+    lens.className = "torch";
+    sheet.className = "torch-sheet";
+    tag.className = "torch-tag";
+    lens.setAttribute("aria-hidden", "true");
+    tag.setAttribute("aria-hidden", "true");
+    lens.appendChild(sheet);
+    document.body.append(lens, tag);
+
+    const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    const html = (el) => {                            // the markup as build.py wrote it: tags in the accent, values muted
+      const c = el.cloneNode(true);
+      for (const n of [c, ...c.querySelectorAll("*")]) {   // without what this script adds: inline styles, .stuck
+        n.removeAttribute("style");
+        n.classList.remove("stuck");
+        if (n.getAttribute("class") === "") n.removeAttribute("class");
+      }
+      return esc(c.outerHTML.replace(/<svg\b[\s\S]*?<\/svg>/g, "<svg>…</svg>"))
+        .replace(/(&lt;\/?[a-z][a-z0-9]*)([\s\S]*?)(\/?&gt;)/g,
+          (m, open, attrs, close) => `<b>${open}</b>${attrs.replace(/"([^"]*)"/g, '<i>"$1"</i>')}<b>${close}</b>`);
+    };
+
+    const matches = (el, sel) => { try { return el.matches(sel); } catch (_) { return false; } };   // :has() is new
+    const gen = (el) => {                             // the lines of build.py, numbered, replacement fields in the accent
+      const hit = map && map.find(([sel]) => matches(el, sel));
+      return hit ? hit[2].split("\n").map((l, k) => `<span class="ln">${hit[1] + k}</span> ` +
+        esc(l).replace(/\{[^{}]*\}/g, (m) => `<b>${m}</b>`)).join("\n") : "";
+    };
+
+    const build = () => {                             // one box of code per block of text, where that block sits
+      const moved = [...main.querySelectorAll('[style*="transform"]')].map((el) => [el, el.style.transform]);
+      moved.forEach(([el]) => { el.style.transform = "none"; });   // the docking name: measured in its place
+      root.classList.add("mm-measure");               // sticky headings report their place in the flow
+      const frag = document.createDocumentFragment();
+      main.querySelectorAll(SEL).forEach((el) => {
+        if (el.querySelector(SEL) || el.closest(".sr-only")) return;
+        const r = el.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        const fs = parseFloat(getComputedStyle(el).fontSize);
+        const b = document.createElement("div");
+        b.className = "torch-box";
+        b.style.cssText = `left:${(r.left + scrollX).toFixed(1)}px;top:${(r.top + scrollY).toFixed(1)}px;` +
+          `width:${r.width.toFixed(1)}px;height:${r.height.toFixed(1)}px;font-size:${Math.max(11, Math.min(40, fs * 0.6)).toFixed(1)}px`;
+        b.innerHTML = `<span class="h">${html(el)}</span><span class="g">${gen(el)}</span>`;
+        frag.appendChild(b);
+      });
+      root.classList.remove("mm-measure");
+      moved.forEach(([el, t]) => { el.style.transform = t; });
+      sheet.replaceChildren(frag);
+    };
+
+    const aim = () => {                               // the light moves with the pointer, the code stays with the page
+      tf = 0;
+      lens.style.transform = `translate(${px - R}px, ${py - R}px)`;
+      sheet.style.transform = `translate(${R - px - scrollX}px, ${R - py - scrollY}px)`;
+      tag.style.transform = `translate(${px - R}px, ${py + R + 6}px)`;
+    };
+    const track = () => { if (level && !tf) tf = requestAnimationFrame(aim); };
+
+    const set = (n) => {
+      if (n && !fine.matches) return;
+      if (n && !map) {
+        map = [];                                     // fetched once; opened from disk, the second level stays empty
+        fetch(new URL("torch.json", jsUrl)).then((r) => (r.ok ? r.json() : [])).then((m) => { map = m; if (level) build(); })
+          .catch(() => {});
+      }
+      if (n && !level) build();
+      level = n;
+      lens.classList.toggle("on", n > 0);
+      lens.classList.toggle("deep", n === 2);
+      tag.classList.toggle("on", n > 0);
+      tag.innerHTML = n ? `<span>${esc(T.tags[n])}</span>` : "";
+      aim();
+    };
+    const next = () => set((level + 1) % 3);         // sudo again goes deeper: HTML, build.py, off
+
+    const nav = document.querySelector(".top .nav");
+    const keys = () => {                              // ? – the shortcuts, in a card under the header's right end
+      if (!card) {
+        card = document.createElement("div");
+        card.className = "keys";
+        card.id = "keys";
+        card.setAttribute("popover", "");
+        card.setAttribute("role", "dialog");          // non-modal, with its own close button
+        card.setAttribute("aria-labelledby", "keys-title");
+        card.innerHTML = `<p class="head"><strong id="keys-title">${esc(T.keys)}</strong>` +
+          `<button type="button" class="close" popovertarget="keys" popovertargetaction="hide" aria-label="${esc(T.close)}">` +
+          '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></p><dl>' +
+          T.rows.map(([k, v]) => `<div><dt>${esc(v)}</dt><dd><kbd>${esc(k)}</kbd></dd></div>`).join("") + "</dl>";
+        nav.appendChild(card);                        // in the header's nav: inside a landmark, like all content
+      }
+      if (!card.showPopover) return;                  // no popover API, no card
+      if (card.matches(":popover-open")) { card.hidePopover(); return; }
+      const b = nav.getBoundingClientRect();
+      card.style.top = `${Math.round(b.bottom + 8)}px`;
+      card.style.right = `${Math.round(Math.max(8, innerWidth - b.right))}px`;
+      card.showPopover();
+    };
+
+    document.addEventListener("keydown", (ev) => {
+      if (ev.ctrlKey || ev.metaKey || ev.altKey || ev.isComposing) return;
+      if (ev.target.closest && ev.target.closest("input, textarea, select, [contenteditable]")) return;
+      if (ev.key === "Escape") { if (level) set(0); return; }
+      if (!fine.matches || ev.key.length !== 1) return;
+      if (ev.key === "?") { keys(); return; }
+      typed = (typed + ev.key.toLowerCase()).slice(-4);
+      if (typed === "sudo") { typed = ""; next(); }
+    });
+    window.addEventListener("pointermove", (ev) => { px = ev.clientX; py = ev.clientY; track(); }, { passive: true });
+    window.addEventListener("pointerdown", (ev) => { px = ev.clientX; py = ev.clientY; track(); }, { passive: true });
+    window.addEventListener("scroll", track, { passive: true });
+    let bt = 0;
+    window.addEventListener("resize", () => { clearTimeout(bt); bt = setTimeout(() => { if (level) { build(); aim(); } }, 150); });
+    document.addEventListener("toggle", () => { if (level) build(); }, true);   // an opened disclosure moves the page
+  }
+
   /* {KeyWord:Developer}: Google Ads Dynamic Keyword Insertion – the default shows when nothing better matches. */
   console.log("%c>_ sudo dream plan ship", "color:#7A1A2C;font-weight:700;font-size:14px",
     "\nHi {KeyWord:Developer} – view-source counts as root access, too." +
+    "\nOn the page: type sudo · ? lists the keys." +
     "\n\npeterstieg.com\n├── no tracking\n├── no cookies\n└── no framework");
 })();

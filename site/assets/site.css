@@ -15,6 +15,11 @@
   src: url("fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
   font-weight: 700; font-style: normal; font-display: swap;
 }
+@font-face {                                          /* the torch's code and the keys card – loaded on first use */
+  font-family: "Atkinson Hyperlegible Mono";
+  src: url("fonts/atkinson-hyperlegible-mono-latin-400-normal.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
 
 :root {
   --paper: #F7F6F3;
@@ -25,6 +30,7 @@
   --accent-soft: #E8C3CA;
   --bar: #C4C6C9;
   --bar-lit: #6E7378;
+  --lit: #FFFFFF;                                     /* the paper under the torch's light */
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -37,6 +43,7 @@
     --accent-soft: #4E0E1B;
     --bar: #3A3F44;
     --bar-lit: #8E949A;
+    --lit: #25282C;
     color-scheme: dark;
   }
 }
@@ -49,6 +56,7 @@
   --accent-soft: #4E0E1B;
   --bar: #3A3F44;
   --bar-lit: #8E949A;
+  --lit: #25282C;
   color-scheme: dark;
 }
 
@@ -215,7 +223,7 @@ html:not(.js) .themes { display: none; }
   background: var(--accent);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .typed .cursor { animation: blink 1.1s steps(2, start) 4; }
+  .typed .cursor { animation: blink 1.1s steps(2, start) 3; }
 }
 @keyframes blink { to { visibility: hidden; } }
 
@@ -280,7 +288,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 .ledger dd { margin: 0; color: var(--muted); }
 .ledger dd a { white-space: nowrap; }
 @media (max-width: 22rem) { .ledger dt { font-size: 1.3rem; } }   /* the longest result still fits a 320px screen */
-/* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers and the i */
+/* ↓ after the company: the link stays on this page – superscript and in accent, like the footnote numbers */
 .ledger .jmp { display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--accent); }
 /* ↗ after a link that leaves the site: it opens in a new tab. Quieter than the ↓ – muted, in accent on hover */
 .newtab { display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.1em; position: relative; top: -0.5em; color: var(--muted); }
@@ -395,31 +403,6 @@ a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 .notes .back { text-decoration: none; color: var(--accent); font-weight: 700; margin-right: 0.15em; }
 .notes li:target { color: var(--ink); }
 
-/* toggletip: a superscript i after a heading, set like the footnote numbers. The note is a popover:
-   it opens and closes without JavaScript (click outside or Esc closes it); site.js only places it next to the i. */
-.info {
-  position: relative;
-  margin: -1em 0 -1em 0.12em; padding: 0 0.1em; border: 0; background: none;   /* negative margins: the line keeps its height */
-  font: inherit; font-size: 0.68em; font-weight: 700; line-height: 1; vertical-align: 0.6em;
-  color: var(--accent); cursor: pointer;
-}
-.info::before { content: ""; position: absolute; inset: -0.9em -0.7em; }   /* a hit area larger than the letter */
-.info::after { content: "i"; }                    /* the letter itself: in CSS, so the heading's text stays its title */
-.info:hover, .info:focus-visible { text-decoration: underline; text-underline-offset: 0.15em; }
-.tip {
-  max-width: min(20rem, calc(100vw - 2rem));
-  margin: auto; padding: 0.55rem 0.8rem;
-  border: 1px solid var(--line); border-radius: 0.4rem;
-  background: var(--paper); color: var(--ink);
-  font-size: 1rem; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none;
-  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
-}
-.js .tip { margin: 0; inset: auto; }
-@supports not selector(:popover-open) {            /* browsers without popovers: the note stays in the text */
-  .info { display: none; }
-  .tip { display: block; margin: 0.25rem 0 0; padding: 0; border: 0; box-shadow: none; background: none; color: var(--muted); }
-}
-
 /* 404 */
 .lost { padding-block: clamp(3.5rem, 13vh, 8.5rem) clamp(3rem, 9vh, 6rem); }
 .lost .code { margin: 0; font-size: clamp(3rem, 10vw, 6rem); line-height: 1; font-weight: 700; letter-spacing: 0.04em; }
@@ -495,6 +478,66 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 .legal address { font-style: normal; }
 .legal ul { padding-left: 1.2em; }
 
+/* ---------- torch (site.js): the page's code under a light that follows the pointer ---------- */
+
+.torch {
+  position: fixed; left: 0; top: 0; z-index: 4;       /* under the header (5): the menu stays readable */
+  width: 320px; height: 320px; border-radius: 50%; overflow: hidden;
+  background: var(--lit); pointer-events: none;
+  opacity: 0; visibility: hidden; transition: opacity 0.25s, visibility 0s 0.25s;
+  -webkit-mask-image: radial-gradient(closest-side, #000 84%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 84%, transparent 100%);
+}
+.torch.on { opacity: 1; visibility: visible; transition: opacity 0.25s; }
+.torch-sheet { position: absolute; left: 0; top: 0; }
+.torch-box {
+  position: absolute; overflow: hidden;
+  font-family: "Atkinson Hyperlegible Mono", ui-monospace, monospace; font-weight: 400; line-height: 1.3;
+  white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink);
+}
+.torch-box b { font-weight: 400; color: var(--accent); }
+.torch-box i { font-style: normal; color: var(--muted); }
+.torch-box .ln { color: var(--muted); }
+.torch .g, .torch.deep .h { display: none; }
+.torch.deep .g { display: inline; }
+.torch-tag {
+  position: fixed; left: 0; top: 0; z-index: 4; width: 320px;
+  text-align: center; pointer-events: none; opacity: 0;
+  font: 400 12px/1.2 "Atkinson Hyperlegible Mono", ui-monospace, monospace; color: var(--accent);
+}
+.torch-tag.on { opacity: 1; }
+.torch-tag span { padding: 0.2em 0.6em; border-radius: 999px; background: var(--lit); }   /* legible over the page's text */
+@media (prefers-reduced-motion: reduce) { .torch, .torch.on { transition: none; } }
+
+/* ? – the shortcuts, in a card under the header's right end (site.js places it): what it does left, the key right */
+.keys {
+  position: fixed; inset: auto; margin: 0; padding: 0;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: var(--paper); color: var(--ink); font-size: 0.95rem; line-height: 1.4;
+  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--ink) 12%, transparent);
+}
+.keys .head {
+  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+  margin: 0; padding: 0.55rem 0.55rem 0.55rem 1rem; border-bottom: 1px solid var(--line);
+}
+.keys .close {
+  display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0;
+  border: 0; border-radius: 50%; background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--muted); cursor: pointer;
+}
+.keys .close:hover { color: var(--ink); }
+.keys .close svg { width: 0.85rem; height: 0.85rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.keys dl { display: grid; grid-template-columns: auto auto; align-items: center; gap: 0.55rem 1rem; margin: 0; padding: 0.85rem 1rem 1rem; }
+.keys dl div { display: contents; }
+.keys dt { text-align: right; }
+.keys dd { margin: 0; }
+.keys kbd {                                           /* a key cap: a box with a heavier lower edge */
+  display: inline-block; min-width: 1.75em; padding: 0.05em 0.45em;
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px;
+  background: color-mix(in srgb, var(--ink) 4%, var(--paper));
+  font: 400 0.85em/1.5 "Atkinson Hyperlegible Mono", ui-monospace, monospace; text-align: center;
+}
+
 /* ---------- minimap ---------- */
 
 .minimap { display: none; }
@@ -529,7 +572,7 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 }
 
 @media print {
-  .top, .minimap, .skip, .jump, .info { display: none; }
+  .top, .minimap, .skip, .jump, .torch, .torch-tag, .keys { display: none; }
   .hero h1, .hero .prompt .caret { transform: none !important; opacity: 1 !important; }
   .hero .prompt .cmd, .hero .prompt .cursor { opacity: 1 !important; }
   .sec > h2 { position: static; }

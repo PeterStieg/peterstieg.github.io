@@ -223,7 +223,10 @@ CONTENT = {
     "en": {
         "lang": "en", "path": "index.html", "root": "", "locale": "en_GB",
         "aria_main": "Main", "aria_legal": "Legal", "aria_lang": "Language",
-        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "info": "Info", "new_tab": "opens in a new tab", "map": "map",
+        "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "new_tab": "opens in a new tab", "map": "map",
+        "torch": {"tags": ["", "HTML · again: build.py", "build.py · again: off"],
+                  "keys": "Keyboard shortcuts", "close": "Close",
+                  "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], ["?", "Show this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: …",
@@ -243,7 +246,6 @@ CONTENT = {
             "Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. …",
             …
         ],
-        "people_note": "Processes fit people, not the other way round.",
         "roles": [
             {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
@@ -262,8 +264,8 @@ CONTENT = {
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "…")],
              "positions": ("All five positions", [
-                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl"),
-                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl"),
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://sbsbusiness.eu/"),
+                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl", ""),
                  …
              ])},
         ],
@@ -329,8 +331,8 @@ Interface labels:
 | `theme` | 3-tuple | group label, "light" label, "dark" label for `theme_switch()` |
 | `arrow` | str | the word behind a drawn → (`"to"` / `"auf"`): what screen readers say and what copied text reads |
 | `to_top` | str | label of the jump control's up link while it leads to the top of the page (`"Back to top"` / `"Nach oben"`) |
-| `info` | str | spoken name of the superscript i that opens a toggletip |
 | `new_tab` | str | what screen readers hear after every link that leaves the site: `"opens in a new tab"` / `"öffnet in neuem Tab"`, in parentheses, as visually hidden text (`offsite()`, section 20) |
+| `torch` | dict | the strings of the torch (`sudo`, chapter 4), which `site.js` cannot generate in two languages: `tags` – the line under the light at levels 1 and 2 (level 0 shows none, hence the empty string); `keys`, `close` and `rows` – the card that `?` opens: its title, the name of its close button, and per shortcut the key and what it does. Written into `<main>` as JSON in one attribute (section 25) |
 | `map` | str | read out before `new_tab` on the place under Contact, which opens a map: "map, opens in a new tab" / "Karte, öffnet in neuem Tab" |
 | `dur` | 4-tuple | the words for the durations under the role dates: year, years, month, months (`duration()`, section 22). Joined by commas, they also go to `site.js`, which recounts the running role |
 | `jump` | dict | the jump control: `label` names its `<nav>`, `menu` the button that opens the section list, `up` and `down` are templates in which `%s` stands for a section name (`"Up: %s"` → "Up: Experience") |
@@ -355,7 +357,6 @@ Copy:
 | `profile` | str | the profile paragraph |
 | `ledger_label`, `ledger` | str, list of (figure, context, company key) | the results list in the profile; the key looks up the name in `COMPANIES` and links to the role with that `id` |
 | `fields` | list of 4 str | the P⁴ section, paired with `P4` |
-| `people_note` | str | the toggletip after the People heading in P⁴, the only one on the page |
 | `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`, or `"since MM/YYYY"` for the role that is still running – `months()` reads the dates), `title`, `org`, `url` (optional: the company's website, behind the company name, in a new tab), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (start `"MM/YYYY"`, title)), newest first – the promotions within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts), `positions` (optional: (label, list of (range `"MM/YYYY – MM/YYYY"`, title, company)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates) |
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link; each link opens in a new tab |
 | `approach` | list of 3 str | Approach, one list item per sentence |
@@ -370,7 +371,7 @@ Copy:
 - Not localized at all: the company keys at the end of each `ledger` entry and the role `id`s they point to. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates.
 - Nested lists mirror too: the four titles under `"path"` and the five positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Three promotions", "Drei Beförderungen"; "All five positions", "Alle fünf Stationen"). The promotions keep their titles in both, because they are the titles that were held – only the market in the oldest one is localized: "SEO Manager Italy", "SEO Manager Italien". The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical.
 - Nothing checks parity. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A missing list item – a role or project only added in EN – is silent: the German page simply shows one entry fewer. Edit both languages in the same sitting.
-- Quick parity check from the repository root (importing does not build anything, see section 29):
+- Quick parity check from the repository root (importing does not build anything, see section 30):
 
   ```
   python3 -c "import sys; sys.path.insert(0, 'src'); import build as b; print(set(b.CONTENT['en']) ^ set(b.CONTENT['de']))"
@@ -396,6 +397,7 @@ Pitfall: the markers only work where the code runs the text through the matching
 ```python
 SOURCE_NOTE = f"""<!--
   Hallo · Hi · Ciao – view-source counts as root access, too.
+  On the page: type sudo · ? lists the keys.
 
   peterstieg.com
   ├── no tracking
@@ -408,9 +410,10 @@ SOURCE_NOTE = f"""<!--
 
 - A triple-quoted f-string: it may span lines, and `{MOTTO}` is the only replacement field.
 - The content is an HTML comment (`<!-- … -->`): invisible on the page, visible to anyone who opens the page source. `head()` places it between `<!doctype html>` and `<html>`.
+- The second line points developers to the torch (`site.js`): the same view of the source, on the page. `sudo` switches it on; `?` opens the card with the keys. The console greeting in `site.js` says the same words, so whoever finds one finds the other.
 - The comment text must never contain `-->` – that would end the comment early and print the rest on the page.
-- Pitfall: the comment comes before `<meta charset="utf-8">`. Browsers look for the charset declaration only in the first 1024 bytes of the file; it currently sits at byte 232. Let the comment grow by several hundred bytes and the browser may have to guess the encoding – umlauts and the tree characters break.
-- `dots()` deliberately leaves this comment alone (section 28).
+- Pitfall: the comment comes before `<meta charset="utf-8">`. Browsers look for the charset declaration only in the first 1024 bytes of the file; it currently sits at byte 278. Let the comment grow by several hundred bytes and the browser may have to guess the encoding – umlauts and the tree characters break.
+- `dots()` deliberately leaves this comment alone (section 29).
 
 ---
 
@@ -833,13 +836,13 @@ def offsite(c, url, text, attrs="", mark=OUT_SVG, kind=""):
             f'<span class="sr-only"> ({said})</span></span></span></a>')
 ```
 
-- Every link that leaves the site goes through this function – 16 per page: the three company websites in Experience (section 24), GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
+- Every link that leaves the site goes through this function – 22 per page: nine company websites in Experience – six roles and three of the five early positions (section 24) –, GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
 - Why a new tab: whoever checks a certificate or a company website keeps the page open behind it and returns to the same spot. The marker announces the new tab before the click, for the eye (↗) and for screen readers (the hidden words).
 - The parameters:
   - `url` – inserted as it is. Every URL is one of your own constants.
   - `text` – HTML, not plain copy, like `title_html` in `section()` (section 22): callers pass `e(…)`, or a constant without special characters such as `"LinkedIn"`.
   - `attrs` – further attributes as one string with a leading space, written into the tag as they are – the convention of `rid` and `en_attr` (section 25). Empty by default.
-  - `mark`, `kind` – a different mark in place of the ↗, and the word for what it stands for. Only the map under Contact passes them: `mark=PIN_SVG, kind=c["map"]`. Keyword arguments with defaults, so the fifteen other calls stay as they are.
+  - `mark`, `kind` – a different mark in place of the ↗, and the word for what it stands for. Only the map under Contact passes them: `mark=PIN_SVG, kind=c["map"]`. Keyword arguments with defaults, so every other call stays as it is.
 
 The `rel` attribute:
 
@@ -850,10 +853,10 @@ The `rel` attribute:
 
 The text and its marker:
 
-- `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 28) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
-  - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 28).
+- `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 29) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
+  - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 29).
 - `<span class="nw">{last}…</span>` – the last word and the marker share one span, which the CSS sets to `white-space: nowrap` (chapter 3). The line may still break before the last word, never between it and the ↗. Without the span, the ↗ wrapped onto a line of its own at widths of 320 to 390 pixels: the marker is an inline-block, and an inline-block is a break opportunity on both sides. A word joiner (U+2060) between word and arrow did not stop the break in Chromium – measured.
-- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With fifteen per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers, the i, the ↓ – stay on the page; the muted ↗ leaves it.
+- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With twenty-one per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers and the ↓ – stay on the page; the muted ↗ leaves it.
 - `said` – what screen readers hear: `new_tab` alone, or `kind` in front of it – "Leipzig (map, opens in a new tab)". Both escaped, because both are copy.
 - `sym` – the class `sym` next to `newtab` when a symbol stands in for the ↗. The CSS draws a symbol larger, with a thinner line, so its detail stays legible at the size of a superscript and its strokes look as heavy as the arrow's (chapter 3). In `{mark}` the f-string inserts the SVG unescaped – it is markup, a constant.
 - `<span class="sr-only"> ({said})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge GmbH (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
@@ -865,9 +868,9 @@ The name:
 
 ---
 
-## 21 · chapter_no and info
+## 21 · chapter_no
 
-Two small helpers for headings: the chapter number in front, a toggletip behind.
+A small helper for headings: the chapter number in front.
 
 ```python
 def chapter_no(key):
@@ -882,35 +885,6 @@ def chapter_no(key):
 - The span holds the number from `num(key)` (section 12). P⁴ gets `<span class="no ghost">01</span>`: the number of its chapter, which the CSS makes invisible. It still takes up its width, so "P⁴" starts exactly where "Profile" does – an outline, without any measuring. An empty string counts as false, so `if num(key)` is enough.
   - `aria-hidden="true"` – screen readers skip the number and announce "Profile", not "zero one Profile". The number is a visual signpost; the order of headings already carries the structure.
   - The space after `</span>` sits outside the span, so the plain text of the heading still reads "01 Profile" for search engines and copy-paste.
-
-```python
-def info(c, key, text, lang=""):
-    """Toggletip: a superscript i after a heading, the note opens next to it as a popover – no JavaScript needed.
-    Returns the button (it goes into the heading; its i is drawn by CSS) and the note (it goes after the heading) – so the
-    heading's text stays its title for anything that reads the page as text. lang: the note's language where it differs
-    from the page's."""
-    tip = f"tip-{key}"
-    lang_attr = f' lang="{lang}"' if lang else ""
-    return (f'<button type="button" class="info" popovertarget="{tip}" aria-label="{e(c["info"])}"></button>',
-            f'<span class="tip" id="{tip}" popover{lang_attr}>{e(text)}</span>')
-```
-
-- A toggletip: a small button that shows a short note when clicked or tapped and hides it again on the next click. Unlike a tooltip, which appears on hover, it works the same with a mouse, a finger and the keyboard (Enter or Space on the focused button). The page has one, after the People heading in P⁴.
-- `tip = f"tip-{key}"` – the note's id: `tip-people`. Ids must be unique on a page, so every call needs its own key.
-- `lang_attr` – an optional `lang` attribute for the note, for where its language differs from the page's – a note in English on the German page (rule 5). The People note is copy in the page language and passes none.
-- The return value is a pair – a tuple of two strings, the button and the note, separated by the comma at the end of the first line. The caller unpacks it and puts the two in different places:
-  - the button into the heading, right after the title – the superscript i belongs there;
-  - the note after the heading, right after the `</h3>` (section 25).
-- Why apart: everything inside a heading is part of its text. Programs that read the HTML as text – search engines, tools that extract a profile from a page – take a heading as one string. With the i and the note inside, the People heading would read "PeopleiProcesses fit people, not the other way round." Now it reads "People": the title, nothing else. On screen nothing changes – `site.js` places the open note next to the i wherever the note sits in the HTML.
-- The button:
-  - `type="button"` – the safe habit (section 16).
-  - `popovertarget="{tip}"` – the HTML popover API. A button with this attribute opens and closes the element with that id, provided the element carries the `popover` attribute. The browser does it on its own, without JavaScript. The two do not need to be next to each other.
-  - It is empty in the HTML. The visible `i` comes from the CSS – `.info::after { content: "i"; }` – and is set as a superscript there. Text that CSS generates with `content` is drawn but is not part of the page's text, so the heading reads "People", not "Peoplei". `aria-label` gives the button its real name: "Info". The browser also tells screen readers whether the note is open or closed.
-- The note:
-  - `popover` – short for `popover="auto"`: the element stays hidden until its button opens it. Then it is drawn in the top layer – above everything else on the page, regardless of `z-index`, and never cut off by a parent element. "Auto" also brings light dismiss: a click outside the note or the Esc key closes it, and opening another auto popover closes the first.
-  - Where it appears: without JavaScript, the browser's default style centers it in the window. `site.js` places it right next to the i, keeps it there while the page scrolls and closes it once the i leaves the screen (chapter 4).
-  - `{e(text)}` – the note is copy, so it is escaped.
-- A browser without popover support does not know the attribute and shows the `<span>` as ordinary text. The CSS builds on that: `@supports not selector(:popover-open)` hides the i and sets the note as a muted line between the heading and the text (chapter 3). The note is never lost.
 
 ---
 
@@ -1065,22 +1039,24 @@ The jump control: a narrow vertical pill in the bottom-right corner of the windo
 ```python
 def steps(c, label, rows):
     """A disclosure with the steps inside one timeline entry, newest first like the timeline itself: title (and company,
-    where it changes), then dates and length. reversed: the list counts down, as the timeline does."""
-    lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {e(org)}</span>' if org else "")
-                  + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span in rows)
+    where it changes – linked to its website where there is one), then dates and length. reversed: the list counts down,
+    as the timeline does. rows: (title, company, dates, url) – company and url may be empty."""
+    lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {offsite(c, url, e(org)) if url else e(org)}</span>' if org else "")
+                  + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span, url in rows)
     return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n</details>\n'
 ```
 
 - One disclosure: a summary line and, behind it, the steps inside one timeline entry. Two entries have one – Posterlounge's promotions and the five positions before 2014. Both come from this function, so they look and behave the same.
 - `label` – the summary text: "Three promotions", "All five positions".
-- `rows` – a list of (title, company, range) triples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names.
+- `rows` – a list of (title, company, range, url) tuples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names. The url is `""` where there is none to link: the promotions, and the two early positions whose company has no website that could be verified.
 - `lis` – one `<li>` per row, three f-strings joined with `+`:
   - `<li>{e(title)}` – the title, escaped.
   - `(… if org else "")` – the company, only where there is one. The parentheses are needed: `+` binds more tightly than a conditional expression, so without them the `if … else` would take the whole sum as its two branches – a row with a company would lose its dates, a row without one its title.
-  - `&nbsp;<span class="muted">· {e(org)}</span>` – the company after a middle dot, set lighter by the class `muted` (chapter 3). The `&nbsp;` does what `dots()` cannot, as in the place line of `role()` below: a `<span>` tag sits between the space and the dot, so the plain sequence ` · ` never occurs, and the line brings its own non-breaking space.
+  - `{offsite(c, url, e(org)) if url else e(org)}` – the company as a link to its website, in a new tab with its ↗ (section 20), or as plain text where there is no url. A conditional expression inside the replacement field; it holds no quotes, so it can sit inside the single-quoted f-string.
+  - `&nbsp;<span class="muted">· …</span>` – the company after a middle dot, set lighter by the class `muted` (chapter 3). The `&nbsp;` does what `dots()` cannot, as in the place line of `role()` below: a `<span>` tag sits between the space and the dot, so the plain sequence ` · ` never occurs, and the line brings its own non-breaking space.
   - `<br><span class="at">{span} · {duration(c, months(span))}</span>` – a line break, then the range and its length: "04/2014 – 08/2014 · 5 months". `months()` counts the range, `duration()` puts the count into words (section 22) – the same two functions as for the role's own dates. This ` · ` is plain, so `dots()` glues it later.
   - `span` is the one value inserted without `e()`: digits, slashes and an en dash, nothing HTML reads as markup. A range with `&` or `<` in it would need `e(span)`.
-  - `for title, org, span in rows` – unpacks each triple. The generator spans two lines inside the parentheses of `join()`.
+  - `for title, org, span, url in rows` – unpacks each tuple. The generator spans two lines inside the parentheses of `join()`.
 - `<details class="more">` with `<summary>` – the native disclosure, as in the jump control (section 23): closed by default, opened by click or keyboard, announced as collapsed or expanded. `site.js` adds two things: it redraws the minimap when a disclosure opens, because the page just got longer, and it opens the disclosures for printing (chapter 4).
 - `<ol class="tree" reversed>` – an ordered list, because the steps have an order.
   - `reversed` – the list counts down, like the timeline's `<ol class="roles" reversed>` (section 25): the newest step at the top carries the highest number. The numbers are not shown; `reversed` only keeps the list's semantics in line with its order, for assistive technology and anything else that reads the list's numbering. Nothing changes on screen.
@@ -1103,10 +1079,10 @@ def role(c, ro):
     if ro.get("path"):                                 # promotions, one per contract: its start; it ends the month before the next
         label, path = ro["path"]
         ends = [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]] + [before(start) for start, _ in path[:-1]]
-        more += steps(c, label, [(title, "", f"{start} – {end}") for (start, title), end in zip(path, ends)])
+        more += steps(c, label, [(title, "", f"{start} – {end}", "") for (start, title), end in zip(path, ends)])
     if ro.get("positions"):                            # the positions it sums up, each at its own company
         label, positions = ro["positions"]
-        more += steps(c, label, [(title, org_, when_) for when_, title, org_ in positions])
+        more += steps(c, label, [(title, org_, when_, url) for when_, title, org_, url in positions])
     return f"""<p class="when">{when}</p>
 <div>
 <h3>{e(ro['title'])}</h3>
@@ -1142,13 +1118,13 @@ The disclosures:
   - `label, path = ro["path"]` – the summary text and the list of (start, title) pairs, newest first. Only the starts are stored, as the contracts give them (section 8): 09/2021, 10/2020, 11/2018, 10/2017.
   - `ends` – one end per step, in the same order as the steps. The newest step ends with the role: `re.findall(…)[-1]` is the last date of its `when`, 06/2023, in a list of its own. Every other step ends the month before the step above it in the list starts – the one that followed it in time: `before(start) for start, _ in path[:-1]` takes the starts of all steps but the oldest and steps each back by a month (section 22). `[:-1]` is a slice without the last item: the oldest start, 10/2017, is where the role begins, and no step ends before it. The underscore is the usual name for a value that is unpacked but not used, here the title. `+` joins the two lists: `["06/2023", "08/2021", "09/2020", "10/2018"]`.
   - `zip(path, ends)` – pairs the n-th step with the n-th end. `(start, title), end` unpacks each pair: the step's tuple on the left, its end on the right. Head of Marketing gets 06/2023; Senior Marketing Manager gets 08/2021, the month before Head of Marketing began.
-  - `(title, "", f"{start} – {end}")` – one row for `steps()`: the title, no company, and the range as text, "10/2017 – 10/2018". `steps()` adds the length; the four lengths add up to the role's 69 months.
+  - `(title, "", f"{start} – {end}", "")` – one row for `steps()`: the title, no company, the range as text and no url, "10/2017 – 10/2018". `steps()` adds the length; the four lengths add up to the role's 69 months.
   - Storing starts instead of ranges means one date per step, each written once: a corrected start moves the end of the step below it, the older one, as well.
   - The computation depends on the order. Stored oldest first, every step but the first would end before it starts – no error, only wrong ranges and lengths on the page.
   - The role itself must have ended: for a role still running, `[-1]` would be its start, and the newest step would end where the role begins.
 - `positions` – used by one entry: "10/2010 – 08/2014 · Five companies" keeps the timeline at one line for those years and holds the five single positions behind "All five positions".
-  - `label, positions = ro["positions"]` – the summary text and the list of (range, title, company) triples, newest first. Here every position carries its full range: the positions overlap (06/2013 – 05/2014 and 06/2013 – 12/2013) and leave gaps, so no end follows from the next start.
-  - `[(title, org_, when_) for when_, title, org_ in positions]` – a list comprehension that reorders each triple from the stored order (range, title, company) into the order `steps()` takes (title, company, range).
+  - `label, positions = ro["positions"]` – the summary text and the list of (range, title, company, url) tuples, newest first. Here every position carries its full range: the positions overlap (06/2013 – 05/2014 and 06/2013 – 12/2013) and leave gaps, so no end follows from the next start.
+  - `[(title, org_, when_, url) for when_, title, org_, url in positions]` – a list comprehension that reorders each tuple from the stored order (range, title, company, url) into the order `steps()` takes (title, company, range, url).
   - The trailing underscores: `org` and `when` are already local variables of `role()` – the company line and the dates line built above, both used again in the `return`. Python 3 gives a comprehension its own scope, so plain names would not overwrite them, but one function would then mean two things by each name, a few lines apart. The underscore is the usual way around a name that is taken, as with `months_` in `duration()` (section 22).
   - The `path` branch does reuse a name: in its comprehensions, `start` is a step's start, while the `start` above is the match object of the role's dates. The comprehension scope keeps the two apart, and the match is no longer needed by then.
   - Each position: title, company, range and length – "Marketing Consultant · SBS systems for business solutions Srl", "04/2014 – 08/2014 · 5 months". No place and no tree per position: the entry's own Scope line sums them up, and its company line says "Five companies · Rome".
@@ -1193,12 +1169,20 @@ def page(c):
 
 ```python
     out = [head(c, TITLE, c["desc"], URL + slug), jsonld(c), "</head>\n<body>\n", topbar(c)]
-    out.append('<div class="minimap" aria-hidden="true"></div>\n<main id="main">\n<div class="wrap">\n')
+    # data-torch: the torch's strings for site.js (sudo, ?), as JSON in an attribute – out of the page's text
+    torch = e(json.dumps(c["torch"], ensure_ascii=False))
+    out.append(f'<div class="minimap" aria-hidden="true"></div>\n<main id="main" data-torch="{torch}">\n<div class="wrap">\n')
 ```
 
 - The list starts with four parts: the head (canonical URL = `URL + slug`, for example `https://peterstieg.com/de/`), the JSON-LD block, the closing `</head>` with the opening `<body>`, and the header.
 - `<div class="minimap">` – empty; `site.js` fills it with bars drawn from the page on wide screens. `aria-hidden` because it is a purely visual navigation aid.
 - `<main id="main">` – the main landmark and the target of the skip link.
+- `data-torch` – the strings of the torch (chapter 4) in the page's language: the line under the light and the card that `?` opens, from `CONTENT["torch"]` (section 8).
+  - `json.dumps(…, ensure_ascii=False)` – the dict as JSON text, umlauts as they are rather than `\u00fc`. `e()` then escapes it for the attribute: every `"` becomes `&quot;`, and the browser turns them back before `site.js` reads `dataset.torch` and parses it with `JSON.parse`.
+  - Why an attribute and not hidden elements: the page's text stays what it says. A card with "sudo – HTML · build.py · off" in the HTML would end up in what search engines and CV parsers read; an attribute does not ("Plain text that reads right", decisions.md).
+  - The attribute is in the body, so `dots()` (section 29) reaches it like everything else there: the `·` in the strings arrive with a no-break space before them – in the card, too, a dot never starts a line.
+  - On `<main>` of the two CV pages only: the legal pages and the 404 write their own `<main>` without it, and `site.js` starts the torch only where it finds the attribute. Its second level shows lines of this file for the elements of the CV (section 28); those pages have none of them.
+  - `f'…'` – the line became an f-string for the one field; the `\n` inside stay line breaks.
 
 ### Hero
 
@@ -1233,7 +1217,7 @@ def page(c):
 </div>
 """
     # each result names its company; the name leads to the role under Experience
-    # ↓: superscript and in accent like the footnote numbers and the i – a link that stays on this page
+    # ↓: superscript and in accent like the footnote numbers – a link that stays on this page
     led = "".join(f'<div><dt>{t(c, a)}</dt><dd>{e(b)}<br><a href="#{k}">{e(COMPANIES[k])}'
                   f'<span class="jmp">{DOWN_SVG}</span></a></dd></div>\n' for a, b, k in c["ledger"])
     out.append(section(c, "profile", e(s["profile"]),
@@ -1248,7 +1232,7 @@ def page(c):
 - `led` – the results list as a description list: `<dt>` holds the label and the figure (through `t()` for the arrows; "Leads > 2×" becomes `Leads &gt; 2×`), `<dd>` the context and, after a `<br>`, the company. Every result reads the same way: label and figure on the first line – Leads, RoAS, Media budget –, one line of context, the company on a line of its own. A `<div>` around each `dt`/`dd` pair is valid inside `<dl>` and gives CSS one box per row.
   - `for a, b, k in c["ledger"]` – each entry is a 3-tuple: figure, context, company key. The generator spans two lines – two adjacent f-strings, joined into one; inside the parentheses of `join()` Python needs no line-continuation sign.
   - `<a href="#{k}">{e(COMPANIES[k])}…</a>` – the company's name from `COMPANIES` (section 7), as a link to the role with that `id` under Experience. In the CSS, `.role:target` colors the dates and title of the role the visitor arrived at (chapter 3).
-  - `<span class="jmp">{DOWN_SVG}</span>` – a small ↓ after the name, inside the link. The CSS sets it superscript and in the accent color, like the footnote numbers and the i: a mark that says "this link stays on this page and leads down". The ↗ says the opposite – by convention it marks a link that leaves the site, and the page uses it that way, muted, after every such link (section 20). The SVG is `aria-hidden`, so the link's name stays the company's name. The link's underline does not run under the arrow: the span is an inline-block, and text decoration does not reach into inline-blocks (chapter 3).
+  - `<span class="jmp">{DOWN_SVG}</span>` – a small ↓ after the name, inside the link. The CSS sets it superscript and in the accent color, like the footnote numbers: a mark that says "this link stays on this page and leads down". The ↗ says the opposite – by convention it marks a link that leaves the site, and the page uses it that way, muted, after every such link (section 20). The SVG is `aria-hidden`, so the link's name stays the company's name. The link's underline does not run under the arrow: the span is an inline-block, and text decoration does not reach into inline-blocks (chapter 3).
   - `<br>` instead of a separator: the company always starts its own line, so all three results are equally long – two lines under the figure on every screen from 360px up. In plain text the `<br>` becomes a line break, so a parser still gets context and company apart.
   - Pitfalls: a key missing from `COMPANIES` raises `KeyError` – loud. A key that no role carries as its `id` is silent: the link points at nothing and does not scroll.
 - `section(…)` – heading escaped, body = entry + profile paragraph + results list with its own `aria-label`.
@@ -1256,19 +1240,14 @@ def page(c):
 ### P⁴
 
 ```python
-    # P⁴ – four fields, each a P; People carries its principle as a note behind the i
-    p4 = []
-    for p, txt in zip(P4, c["fields"]):
-        button, note = info(c, "people", c["people_note"]) if p == "People" else ("", "")
-        p4.append(f'<div><h3{en_attr}>{e(p)}{button}</h3>{note}<p>{e(txt)}</p></div>\n')
-    out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{"".join(p4)}</div>\n'))
+    # P⁴ – four fields, each a P
+    p4 = "".join(f'<div><h3{en_attr}>{e(p)}</h3><p>{e(txt)}</p></div>\n' for p, txt in zip(P4, c["fields"]))
+    out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{p4}</div>\n'))
 ```
 
 - `zip(P4, c["fields"])` pairs each heading with its text; `for p, txt in …` unpacks each pair into the P-word and its text.
-- `button, note = … if p == "People" else ("", "")` – the toggletip for People (section 21), two empty strings for the other three fields. `p == "People"` compares with the English word from `P4`, which is the same on both pages.
-  - The conditional expression yields a pair either way, and the pair is unpacked into two names. Pitfall: `else ""` would not do – unpacking an empty string into two names raises `ValueError: not enough values to unpack`.
-  - No language argument: the note sits after the English `<h3>`, not inside it, so it inherits the page's language – German on the German page, English on the English one.
-  - `{e(p)}{button}</h3>{note}` – the i follows the word without a space, like a footnote number, inside the heading. The note follows the closing `</h3>`, between heading and text.
+- `"".join(…)` – a generator expression straight into the join: one `<div>` per field, heading and text, no list in between.
+- No note behind People any more: the *i* with "Processes fit people, not the other way round." was dropped (decisions.md), and with it the helper `info()` and the toggletip's CSS and script.
 - `<h3{en_attr}>` – the P-words are English on both pages.
 - The section key is `"fields"`, but `sec` has no `"fields"` heading: `title_of()` (section 23) returns the fixed markup `P<sup>4</sup>` in every language. The German anchor is `p-wie-peter`.
 
@@ -1525,7 +1504,86 @@ def not_found():
 
 ---
 
-## 28 · nbsp and dots – typography after the fact
+## 28 · TORCH and torch_map – what the torch shows second
+
+```python
+# ---------- torch ----------
+
+# What the torch's second level shows (site.js): for each CSS selector, a snippet that occurs on exactly one line of this
+# file – the line that writes the element – and how many lines to show from there. First match wins, so the narrower
+# selector comes first (Contact before Education). Selectors without ids: the ids differ between the languages.
+TORCH = [
+    (".hero h1", "<h1>{NAME}</h1>", 1),
+    (".hero .tagline", '<p class="tagline" lang="en">', 1),
+    (".hero .claim", '<p class="claim" lang="en">', 1),
+    (".hero .prompt", '<p class="prompt" lang="en">', 1),
+    (".sec > h2", '<h2 id="h-{i}">', 1),
+    (".hw", '<p class="hw">', 1),
+    (".def", '<p class="def">', 1),
+    (".entry + p", '{entry}<p>{e(c["profile"])}</p>', 1),
+    (".ledger dt, .ledger dd", "led = \"\".join(f'<div><dt>", 2),
+    (".fields h3, .fields p", "p4 = \"\".join(f'<div><h3", 1),
+    (".more summary", '<details class="more">', 1),
+    (".more .tree li", "lis = \"\".join(f'<li>{e(title)}'", 3),
+    (".role .when", '<p class="when">{when}</p>', 1),
+    (".role h3", "<h3>{e(ro['title'])}</h3>", 1),
+    (".role .org", '<p class="org">{org}{place}</p>', 1),
+    (".role .ctx", 'ctx = f\'<p class="ctx">', 1),
+    (".role .tree li", "items = \"\".join(f'<li><span class=\"k\"", 1),
+    (".lines li", 'val = \'<ul class="lines">\'', 1),
+    (".facts:has(a[href^='mailto:']) dt, .facts:has(a[href^='mailto:']) dd", "contact = '<dl class=\"facts\">", 1),
+    (".facts dt, .facts dd", 'fa.append(f"<div><dt>', 1),
+    (".group > h3", "groups.append(f'<div class=\"group\"><h3>", 1),
+    (".projects h4, .projects p", "lis.append(f'<li><h4>", 1),
+    (".principles p", "pr = \"\".join(f'<li><p>", 1),
+    (".notes li", "notes.append(f'<li id=\"fn-{key}\">", 3),
+]
+
+
+def torch_map():
+    """[selector, line number, code] for every TORCH rule, read from this file as it is now – so the numbers stay right
+    whatever changes above them. Stops the build if a snippet matches no line or several."""
+    src = Path(__file__).read_text(encoding="utf-8").split("\n")
+    start = src.index("TORCH = [")
+    end = src.index("]", start)                       # the list names every snippet once more: skip it
+    rows = []
+    for sel, snip, n in TORCH:
+        hits = [i for i, line in enumerate(src) if snip in line and not start <= i <= end]
+        if len(hits) != 1:
+            raise SystemExit(f"TORCH {sel}: {len(hits)} lines match {snip!r}")
+        lines = src[hits[0]:hits[0] + n]
+        pad = min(len(x) - len(x.lstrip()) for x in lines if x.strip())
+        rows.append([sel, hits[0] + 1, "\n".join(x[pad:] for x in lines)])
+    return rows
+```
+
+The torch (chapter 4) has two levels. The first shows each block of text as HTML – the browser has that at hand. The second shows the line of this file that wrote the block; that the browser cannot know, so the build tells it, in `site/assets/torch.json`.
+
+- `TORCH` – one rule per kind of element: a CSS selector, a snippet of this file, a number of lines.
+  - The selector names the elements on the page, as `site.js` will test them with `el.matches()`. `".ledger dt, .ledger dd"` – a selector list, either one.
+  - The snippet is a piece of the template line that writes those elements, long enough to occur on exactly one line: `'<p class="hw">'` finds the line in `page()` that writes the dictionary entry's headword.
+  - The number says how many lines to show from there: 2 for the ledger, whose f-string spans two lines; 3 for the steps behind a disclosure and the footnotes.
+  - Order matters, because `site.js` takes the first rule that matches: `.facts:has(a[href^='mailto:'])` – the list that holds the mail link, Contact – comes before `.facts`, which would also match Contact but means Education.
+  - No ids in the selectors: the ids are localized (`#contact` is `#kontakt` in German, section 8), the classes are not. `:has()` picks the list by what it contains instead.
+- Why a snippet and not a line number: line numbers move with every edit above them. A snippet stays with its line; `torch_map()` looks the number up on every build.
+
+`torch_map()`:
+
+- `Path(__file__).read_text(…)` – the script reads itself: `__file__` is its own path (section 3). `.split("\n")` gives the lines; index 0 is line 1.
+- `start = src.index("TORCH = [")` – the list's first line. `list.index` returns the position of the first element equal to the argument – a whole line, not a substring – and raises `ValueError` if there is none. So the line must read exactly `TORCH = [`, without a comment.
+- `end = src.index("]", start)` – the first line after it that is exactly `]`: the list's closing bracket, unindented. The second argument of `index` is where the search starts.
+- Why skip the list: every snippet occurs there too, as a string inside the rule. Without `not start <= i <= end` each snippet would match twice. `start <= i <= end` is a chained comparison: `start <= i and i <= end`.
+- `hits` – the line indexes that contain the snippet, outside the list. `snip in line` is a substring test.
+- `if len(hits) != 1: raise SystemExit(…)` – no line or several: the template has changed and the rule no longer finds its line. `SystemExit` ends the build with that message and exit status 1, before anything is written, instead of shipping a torch that shows the wrong line.
+- `lines = src[hits[0]:hits[0] + n]` – a slice: `n` lines from the hit.
+- `pad` – the smallest indentation among them (`len(x) - len(x.lstrip())`: the length of the leading spaces), skipping empty lines. `x[pad:]` cuts exactly that much from each, so the snippet keeps its inner indentation but starts at the left edge.
+- `rows.append([sel, hits[0] + 1, …])` – the line number counts from 1, as editors do; the list index counts from 0.
+- The result is a list of lists, not tuples: `json.dumps` writes both as JSON arrays, and the lists say what the file will hold.
+- Pitfall: the numbers are right for the build that wrote them. Change `build.py` without rebuilding, and the torch shows the old numbers – the same as every other file in `site/`.
+
+---
+
+## 29 · nbsp and dots – typography after the fact
 
 ```python
 def nbsp(html):
@@ -1557,7 +1615,7 @@ def dots(html):
 
 ---
 
-## 29 · build – writing to disk
+## 30 · build – writing to disk
 
 ```python
 def build():
@@ -1571,6 +1629,7 @@ def build():
     (SITE / "404.html").write_text(dots(not_found()), encoding="utf-8")
     (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\nAddType application/manifest+json .webmanifest\n",
                                     encoding="utf-8")
+    (SITE / "assets" / "torch.json").write_text(json.dumps(torch_map(), ensure_ascii=False), encoding="utf-8")
     (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n", encoding="utf-8")
     # The sitemap lists pages, not content: it changes when pages are added or removed. lastmod = build date.
     today = date.today().isoformat()
@@ -1599,6 +1658,7 @@ The other files:
   - `ErrorDocument 404 /404.html` – "for a 404, deliver `/404.html`".
   - `AddType application/manifest+json .webmanifest` – "send files ending in `.webmanifest` with this media type". Every response carries a `Content-Type` header that tells the browser what the bytes are. `application/manifest+json` is the registered type for web app manifests, but Apache's built-in list of extensions does not necessarily contain `.webmanifest`; without this line the manifest from `head()` (section 14) may go out under a generic type.
   - The call no longer fits on one line, so it continues inside the parentheses of `write_text(…)`, aligned under the first argument.
+- `assets/torch.json` – the torch's second level (section 28): for every rule, its selector, its line number in this file and the lines. About 3 KB, fetched by `site.js` only when the torch is first switched on. `ensure_ascii=False` keeps the `·` in the code as it is instead of `\u00b7`.
 - `robots.txt` – `User-agent: *` addresses all crawlers, `Allow: /` permits everything, `Sitemap:` gives the absolute URL of the sitemap.
 
 The sitemap:
@@ -1624,7 +1684,7 @@ if __name__ == "__main__":
 
 ---
 
-## 30 · Running it, output, and why site/ is committed
+## 31 · Running it, output, and why site/ is committed
 
 Run from the repository root:
 
@@ -1696,9 +1756,9 @@ Make each change in `src/build.py`, run `python3 src/build.py`, look at the resu
 - **Canonical and hreflang** – link annotations that tell search engines the preferred URL of a page and which language versions exist.
 - **JSON-LD** – structured data in a `<script type="application/ld+json">` block, using the schema.org vocabulary.
 - **Web app manifest** – a JSON file linked with `<link rel="manifest">` that describes a site as an installable app: name, colors, icons, display mode. Here it supplies the home-screen icons.
-- **Popover and toggletip** – a popover is an element with the `popover` attribute: hidden until a button with `popovertarget` opens it, then drawn above the whole page, closed again by a click outside or Esc. A toggletip is the pattern built from it here: a small button that shows a short note on click instead of on hover.
+- **Popover** – an element with the `popover` attribute: hidden until a button with `popovertarget` or a script opens it, then drawn above the whole page, closed again by a click outside or Esc. Here: the torch's keys card (chapter 4).
 - **Disclosure** – a control that shows and hides a block of content. HTML has one built in: `<details>` with its `<summary>`, used for the Posterlounge promotions and the five early positions (both written by `steps()`) and for the jump control's list.
-- **Generated content** – text that CSS inserts with `content` in `::before` or `::after`, such as the toggletip's i. It is drawn, but it is not part of the page's text: copy and paste, search engines and parsers do not get it. Words and punctuation that carry meaning belong in the HTML.
+- **Generated content** – text that CSS inserts with `content` in `::before` or `::after`, such as the bold copy of each menu label that reserves its width (`content: attr(data-label)`). It is drawn, but it is not part of the page's text: copy and paste, search engines and parsers do not get it. Words and punctuation that carry meaning belong in the HTML.
 - **Visually hidden text** – text that is in the HTML but shrunk out of sight by CSS (here the class `sr-only`), so screen readers and anything that reads the text still get it: the word behind each drawn arrow, the full motto in the hero, the "(opens in a new tab)" after each link that leaves the site.
 - **`target="_blank"` and `noopener`** – `target="_blank"` opens a link in a new tab; `rel="noopener"` keeps the new page from reaching back to the one that opened it through `window.opener`. Here both come from `offsite()`, for every link that leaves the site.
 - **Relative vs root-absolute path** – `assets/site.css` or `../assets/site.css` resolve from the current page's folder; `/assets/site.css` resolves from the domain root.

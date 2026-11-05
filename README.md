@@ -14,7 +14,7 @@ peterstieg.github.io
 │   ├── de/index.html     German
 │   ├── impressum.html · datenschutz.html
 │   ├── 404.html · .htaccess
-│   ├── assets/           site.css · site.js · fonts/
+│   ├── assets/           site.css · site.js · torch.json · fonts/
 │   ├── favicon.ico · favicon.svg · apple-touch-icon.png · icon-192/512.png · site.webmanifest
 │   └── og-image.png · robots.txt · sitemap.xml
 ├── docs/                 the code explained, line by line
@@ -28,7 +28,7 @@ peterstieg.github.io
 python3 src/build.py
 ```
 
-Python 3, nothing to install. The script overwrites every HTML page in `site/` plus `sitemap.xml`, `robots.txt` and `.htaccess`. Change copy in `src/build.py`, never in `site/*.html` – the next build would overwrite it.
+Python 3, nothing to install. The script overwrites every HTML page in `site/` plus `sitemap.xml`, `robots.txt`, `.htaccess` and `assets/torch.json`. Change copy in `src/build.py`, never in `site/*.html` – the next build would overwrite it.
 
 ## Deploy
 
