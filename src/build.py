@@ -22,6 +22,7 @@ Editorial rules this file follows:
 from datetime import date
 from html import escape as e
 from pathlib import Path
+import hashlib
 import json
 import re
 
@@ -104,9 +105,9 @@ CONTENT = {
             ("Media budget €6k → €240k", "per month, at a RoAS of 4.0", "posterlounge"),
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. Optimized for RoAS and cost per inquiry, quote and order.",
-            "Tracking with Google Tag Manager, then Python, SQL, BigQuery and Data Studio on Google Cloud. Internal web apps in Streamlit.",
-            "Corporate identity from claim to logo, websites, templates and employer branding. Mockups, vector graphics and videos. Inkscape, Canva – and Python wherever pixels can be generated.",
+            "Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. Optimized for RoAS and cost per lead.",
+            "Tracking with Google Tag Manager, then Python, SQL, BigQuery and Data Studio. Internal web apps in Streamlit.",
+            "Corporate identity from claim to logo, websites and employer branding. Mockups, vector graphics, videos.",
             "Teams of up to nine, from SEA to graphic design, including career changers from retail and fine arts.",
         ],
         "roles": [
@@ -146,8 +147,8 @@ CONTENT = {
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "export promotion, brand protection, competitive intelligence, web marketing")],
              "positions": ("All five positions", [
-                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://sbsbusiness.eu/"),
-                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl", ""),
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://it.sbsbusiness.eu/"),
+                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl", "https://innervalor.com/"),
                  ("06/2013 – 12/2013", "Marketing & export DACH", "Fontebona Srl", "http://www.fontebona.com/"),
                  ("04/2012 – 05/2013", "Market research", "Proactive Europe Srl", ""),
                  ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl", "https://www.paesionline.it/"),
@@ -179,7 +180,8 @@ CONTENT = {
         ],
         "reach": ("Email", "Based in", "Leipzig"),
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
-        "imprint": "Legal notice", "privacy": "Privacy",
+        "imprint": "Legal notice", "privacy": "Privacy", "legal_desc": "%s for peterstieg.com",
+        "lost": ("Page", "not found.", "Diese Seite gibt es nicht."),
         "jobtitle": "Head of Marketing",
     },
     # ------------------------------------------------------------------ DE
@@ -209,9 +211,9 @@ CONTENT = {
             ("Budget 6.000 → 240.000 €", "im Monat, bei einer KUR von 25 %", "posterlounge"),
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Meta, LinkedIn und Marktplätze. Gesteuert über KUR und Kosten je Anfrage, Angebot und Auftrag.",
-            "Tracking mit Google Tag Manager, danach Python, SQL, BigQuery und Data Studio auf Google Cloud. Interne Web-Apps mit Streamlit.",
-            "Corporate Identity vom Claim bis zum Logo, Websites, Vorlagen und Employer Branding. Mockups, Vektorgrafiken und Videos. Inkscape, Canva – und Python, wo sich Pixel generieren lassen.",
+            "Google Ads, Microsoft Advertising, Meta, LinkedIn, Marktplätze. Gesteuert über KUR und Kosten je Lead.",
+            "Tracking mit Google Tag Manager, dann Python, SQL, BigQuery und Data Studio. Interne Web-Apps mit Streamlit.",
+            "Corporate Identity vom Claim bis zum Logo, Websites und Employer Branding. Mockups, Vektorgrafiken, Videos.",
             "Teams mit bis zu neun Personen, von SEA bis Grafik, darunter Quereinsteiger aus Einzelhandel und bildender Kunst.",
         ],
         "roles": [
@@ -251,8 +253,8 @@ CONTENT = {
             {"when": "10/2010 – 08/2014", "title": "Marketing, Marktforschung, Export", "org": "Fünf Unternehmen", "place": "Rom",
              "tree": [("Scope", "Exportförderung, Brand Protection, Competitive Intelligence, Web Marketing")],
              "positions": ("Alle fünf Stationen", [
-                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://sbsbusiness.eu/"),
-                 ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor Srl", ""),
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://it.sbsbusiness.eu/"),
+                 ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor Srl", "https://innervalor.com/"),
                  ("06/2013 – 12/2013", "Marketing & Export DACH", "Fontebona Srl", "http://www.fontebona.com/"),
                  ("04/2012 – 05/2013", "Marktforschung", "Proactive Europe Srl", ""),
                  ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl", "https://www.paesionline.it/"),
@@ -284,7 +286,8 @@ CONTENT = {
         ],
         "reach": ("E-Mail", "Wohnort", "Leipzig"),
         "notes": {"issued": "ausgestellt am", "completed": "abgeschlossen am", "verify": "Nachweis prüfen", "course": "Kursseite", "back": "Zurück zum Text"},
-        "imprint": "Impressum", "privacy": "Datenschutz",
+        "imprint": "Impressum", "privacy": "Datenschutz", "legal_desc": "%s von peterstieg.com",
+        "lost": ("Seite", "nicht gefunden.", "This page does not exist."),
         "jobtitle": "Leiter Marketing",
     },
 }
@@ -305,6 +308,10 @@ SOURCE_NOTE = f"""<!--
 THEME_BOOT = ("<script>(function(){document.documentElement.classList.add('js');"
               "try{var t=localStorage.getItem('theme');"
               "if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>")
+
+# ?v= after the stylesheet and the script: the first 8 hex digits of the file's SHA-256. A changed file gets a new
+# address – browsers may keep each version for a year (.htaccess) and never pair a new page with an old stylesheet.
+VERSION = {name: hashlib.sha256((SITE / "assets" / name).read_bytes()).hexdigest()[:8] for name in ("site.css", "site.js")}
 
 # The arrow is not part of Atkinson Hyperlegible, so it is drawn.
 ARROW_SVG = ('<svg viewBox="0 0 16 10" aria-hidden="true" focusable="false">'
@@ -364,11 +371,14 @@ def t(c, text):
 
 
 def head(c, title, desc, canonical, alternates=True, root=None):
+    """alternates: the same page in every language – True for the start pages, a dict (code → path) for another
+    pair, False for none (404)."""
     r = c["root"] if root is None else root
     alt = ""
     if alternates:
-        alt = "".join(f'<link rel="alternate" hreflang="{code}" href="{URL}{slug}">\n' for code, _, _, _, slug in LANGS)
-        alt += f'<link rel="alternate" hreflang="x-default" href="{URL}">\n'
+        paths = alternates if isinstance(alternates, dict) else {code: slug for code, _, _, _, slug in LANGS}
+        alt = "".join(f'<link rel="alternate" hreflang="{code}" href="{URL}{paths[code]}">\n' for code, *_ in LANGS)
+        alt += f'<link rel="alternate" hreflang="x-default" href="{URL}{paths["en"]}">\n'
         alt += "".join(f'<meta property="og:locale:alternate" content="{CONTENT[code]["locale"]}">\n'
                        for code, *_ in LANGS if code != c["lang"])
     return f"""<!doctype html>
@@ -401,19 +411,25 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 <link rel="manifest" href="{r}site.webmanifest">
 <link rel="preload" href="{r}assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{r}assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{r}assets/site.css">
+<link rel="stylesheet" href="{r}assets/site.css?v={VERSION['site.css']}">
 """
 
 
-def lang_switch(c):
-    """EN · DE – the current language is marked, the other links to the same page in that language."""
+def script(r):
+    return f'<script src="{r}assets/site.js?v={VERSION["site.js"]}" defer></script>\n'
+
+
+def lang_switch(c, paths=None):
+    """EN · DE – the current language is marked, the other links to the same page in that language.
+    paths: code → path from the site root; without it, the start pages."""
     r = c["root"]
+    paths = paths or {code: path for code, _, _, path, _ in LANGS}
     items = []
-    for code, label, name, path, _ in LANGS:
+    for code, label, name, _, _ in LANGS:
         if code == c["lang"]:
             items.append(f'<span aria-current="page" title="{name}">{label}</span>')
         else:
-            items.append(f'<a href="{r}{path}" hreflang="{code}" lang="{code}" title="{name}">{label}</a>')
+            items.append(f'<a href="{r}{paths[code]}" hreflang="{code}" lang="{code}" title="{name}">{label}</a>')
     return f'<span class="langs" role="group" aria-label="{e(c["aria_lang"])}">{" ".join(items)}</span>'
 
 
@@ -426,12 +442,13 @@ def theme_switch(c):
 
 
 def topbar(c, sections=True, langs=True):
+    """langs: True – the switch to the other start page; a dict (code → path) – to that page; False – no switch."""
     r = c["root"]
     keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
     links = "\n".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
                      f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
-    switch = lang_switch(c) if langs else ""
+    switch = lang_switch(c, langs if isinstance(langs, dict) else None) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
     word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if sections else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
@@ -447,12 +464,13 @@ def topbar(c, sections=True, langs=True):
 
 
 def footer(c):
-    r = c["root"]
+    """The legal pages in the page's language."""
+    r, L = c["root"], c["lang"]
     return f"""<footer class="foot">
 <div class="wrap">
 <nav aria-label="{e(c['aria_legal'])}">
-<a href="{r}impressum.html" hreflang="de">{e(c['imprint'])}</a>
-<a href="{r}datenschutz.html" hreflang="de">{e(c['privacy'])}</a>
+<a href="{r}{LEGAL['imprint'][L][0]}">{e(c['imprint'])}</a>
+<a href="{r}{LEGAL['privacy'][L][0]}">{e(c['privacy'])}</a>
 <span>© {date.today().year} {NAME}</span>
 </nav>
 </div>
@@ -481,6 +499,11 @@ def jsonld(c):
         ],
     }
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>\n"
+
+
+def torch_data(c):
+    """data-torch on <main>: the torch's strings for site.js (sudo, ?), as JSON in an attribute – out of the page's text."""
+    return f' data-torch="{e(json.dumps(c["torch"], ensure_ascii=False))}"'
 
 
 def offsite(c, url, text, attrs="", mark=OUT_SVG, kind=""):
@@ -614,9 +637,7 @@ def page(c):
         return f'<sup class="fnref"><a href="#fn-{key}" id="ref-{key}" aria-describedby="h-{sid(c, "notes")}">{n}</a></sup>'
 
     out = [head(c, TITLE, c["desc"], URL + slug), jsonld(c), "</head>\n<body>\n", topbar(c)]
-    # data-torch: the torch's strings for site.js (sudo, ?), as JSON in an attribute – out of the page's text
-    torch = e(json.dumps(c["torch"], ensure_ascii=False))
-    out.append(f'<div class="minimap" aria-hidden="true"></div>\n<main id="main" data-torch="{torch}">\n<div class="wrap">\n')
+    out.append(f'<div class="minimap" aria-hidden="true"></div>\n<main id="main"{torch_data(c)}>\n<div class="wrap">\n')
 
     # hero – same order as the LinkedIn banner
     out.append(f"""<section class="hero" id="top">
@@ -704,11 +725,12 @@ def page(c):
     out.append("</div>\n</main>\n")
     out.append(footer(c))
     out.append(jump(c))
-    out.append(f'<script src="{c["root"]}assets/site.js" defer></script>\n</body>\n</html>\n')
+    out.append(script(c["root"]) + "</body>\n</html>\n")
     return "".join(out)
 
 
-# ---------- legal pages (German) ----------
+# ---------- legal pages: German and English ----------
+# One body line per element: the torch's second level finds each element's line by its place (torch_map).
 
 ADDRESS = """Peter Stieg<br>
 Heinrich-Budde-Str. 8<br>
@@ -734,7 +756,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 <p>Beim Aufruf der Website verarbeitet der Hosting-Anbieter automatisch Daten, die Ihr Browser übermittelt: IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Seite, Referrer-URL sowie Browser und Betriebssystem. Das ist technisch erforderlich, um die Seite auszuliefern und ihre Sicherheit zu gewährleisten. Rechtsgrundlage ist das berechtigte Interesse nach Art. 6 Abs. 1 lit. f DSGVO.</p>
 <p>Hosting-Anbieter: IONOS SE, Elgendorfer Str. 57, 56410 Montabaur. Mit ihm besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO. Die Speicherdauer der Logfiles richtet sich nach seinen Vorgaben.</p>
 <h2>Helles und dunkles Design</h2>
-<p>Ohne Ihr Zutun folgt die Website der Einstellung Ihres Geräts. Wählen Sie das Design über den Schalter oben selbst, speichert Ihr Browser diese Auswahl lokal (Local Storage), damit sie beim nächsten Besuch erhalten bleibt. Der Eintrag bleibt auf Ihrem Gerät und wird nicht an den Server übertragen. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Sie können den Eintrag jederzeit über die Einstellungen Ihres Browsers löschen.</p>
+<p>Ohne Ihr Zutun folgt die Website der Einstellung Ihres Geräts. Wählen Sie das Design über den Schalter oben selbst, speichert Ihr Browser diese Auswahl lokal (Local Storage), damit sie beim nächsten Besuch erhalten bleibt. Der Eintrag bleibt auf Ihrem Gerät und wird nicht an den Server übertragen. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Sie können den Eintrag jederzeit löschen: mit einem zweiten Klick auf das gewählte Design oder über die Einstellungen Ihres Browsers.</p>
 <h2>Kontakt per E-Mail</h2>
 <p>Wenn Sie eine E-Mail schreiben, werden Ihre Angaben verarbeitet, um die Anfrage zu beantworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Die Daten werden gelöscht, sobald sie dafür nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
 <h2>Links zu anderen Plattformen</h2>
@@ -744,35 +766,80 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 """
 
 
-def legal(title, body, path):
-    c = dict(CONTENT["de"], root="")
-    out = [head(c, f"{title} – {NAME}", f"{title} von peterstieg.com", URL + path, alternates=False),
-           '<meta name="robots" content="noindex, follow">\n</head>\n<body>\n',
-           topbar(c, sections=False, langs=False),
-           f'<main id="main">\n<div class="wrap legal">\n<div class="body">\n{body}<p>peterstieg.com: <a href="index.html" hreflang="en">English</a> · <a href="de/index.html">Deutsch</a></p>\n</div>\n</div>\n</main>\n',
-           footer(c), '<script src="assets/site.js" defer></script>\n</body>\n</html>\n']
-    return "".join(out)
+IMPRINT_EN = f"""<h1>Legal notice</h1>
+<p class="muted">Translation – the German <a href="impressum.html" hreflang="de" lang="de">Impressum</a> is legally binding.</p>
+<h2>Information pursuant to § 5 DDG</h2>
+<address>{ADDRESS.replace("Deutschland", "Germany")}</address>
+<h2>Contact</h2>
+<p>Email: <a href="mailto:{EMAIL}">{EMAIL}</a></p>
+<h2>Responsible for the content under § 18(2) MStV</h2>
+<p>Peter Stieg, address as above.</p>
+"""
+
+PRIVACY_EN = f"""<h1>Privacy policy</h1>
+<p class="muted">As of November 2026 · Translation – the German <a href="datenschutz.html" hreflang="de" lang="de">Datenschutzerklärung</a> is legally binding.</p>
+<h2>Controller</h2>
+<address>{ADDRESS.replace("Deutschland", "Germany")}<br>Email: <a href="mailto:{EMAIL}">{EMAIL}</a></address>
+<h2>In short</h2>
+<p>This website sets no cookies, uses no analytics or tracking tools and loads no content from third parties. Fonts, scripts and graphics are stored on the same server as the page itself. Only if you switch between the light and dark design yourself does your browser remember that choice (see below).</p>
+<h2>Hosting and server log files</h2>
+<p>When you visit the website, the hosting provider automatically processes data your browser transmits: IP address, date and time of access, the page requested, referrer URL, browser and operating system. This is technically necessary to deliver the page and keep it secure. The legal basis is legitimate interest under Art. 6(1)(f) GDPR.</p>
+<p>Hosting provider: IONOS SE, Elgendorfer Str. 57, 56410 Montabaur, Germany. A data processing agreement under Art. 28 GDPR is in place with it. How long the log files are kept is set by the provider.</p>
+<h2>Light and dark design</h2>
+<p>Unless you choose otherwise, the website follows your device's setting. If you choose the design yourself with the switch at the top, your browser stores this choice locally (Local Storage) so it is kept for your next visit. The entry stays on your device and is not sent to the server. The legal basis is § 25(2) no. 2 TDDDG. You can delete the entry at any time: with a second click on the chosen design, or in your browser's settings.</p>
+<h2>Contact by email</h2>
+<p>If you write an email, the details you provide are processed to answer your inquiry (Art. 6(1)(b) or (f) GDPR). The data is deleted as soon as it is no longer needed for this purpose, unless statutory retention obligations apply.</p>
+<h2>Links to other platforms</h2>
+<p>The site links to LinkedIn, GitHub, a map on OpenStreetMap, the course pages of Liora, the verification pages of DataScientest, thekey.career and edX, the demos of the capstone projects on Streamlit, and the websites of former and current employers. Only when you follow one of these links do the respective providers process data, under their own privacy policies.</p>
+<h2>Your rights</h2>
+<p>You have the right of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18) and data portability (Art. 20). You can object to processing based on Art. 6(1)(f) GDPR (Art. 21). You can also lodge a complaint with a data protection supervisory authority, for example the one responsible where you live.</p>
+"""
+
+# German law asks for both pages; the German text is binding, the English one is a translation and says so.
+# Per page and language: path, title, body. The footer links the pair in the page's language.
+LEGAL = {
+    "imprint": {"en": ("legal-notice.html", "Legal notice", IMPRINT_EN), "de": ("impressum.html", "Impressum", IMPRESSUM)},
+    "privacy": {"en": ("privacy.html", "Privacy policy", PRIVACY_EN), "de": ("datenschutz.html", "Datenschutzerklärung", DATENSCHUTZ)},
+}
 
 
-def not_found():
-    """404 with a Google Ads insider joke: Dynamic Keyword Insertion, {KeyWord:Default}."""
-    c = dict(CONTENT["en"], root="/")
+def legal(key, L):
+    """A legal page in one language. The language switch leads to the same page in the other language; the body's id
+    (the file name) tells the torch which page it is on."""
+    c = dict(CONTENT[L], root="")
+    path, title, body = LEGAL[key][L]
+    pair = {code: p[0] for code, p in LEGAL[key].items()}
     return "".join([
-        head(c, f"404 – {NAME}", "Page not found.", URL + "404.html", alternates=False, root="/"),
+        head(c, f"{title} – {NAME}", c["legal_desc"] % title, URL + path, alternates=pair),
+        '<meta name="robots" content="noindex, follow">\n</head>\n<body>\n',
+        topbar(c, sections=False, langs=pair),
+        f'<main id="main"{torch_data(c)}>\n<div class="wrap legal">\n<div class="body" id="{path[:-5]}">\n{body}</div>\n</div>\n</main>\n',
+        footer(c), script("") + "</body>\n</html>\n"])
+
+
+def not_found(c):
+    """404 with a Google Ads insider joke: Dynamic Keyword Insertion, {KeyWord:Default}. One per language – a missing
+    address under /de/ gets the German one (de/.htaccess) – each with a line in the other language and its start page."""
+    word, rest, line = c["lost"]
+    _, _, _, _, home = next(x for x in LANGS if x[0] == c["lang"])
+    other = next(x for x in LANGS if x[0] != c["lang"])           # code, label, name, path, slug
+    c = dict(c, root="/")
+    return "".join([
+        head(c, f"404 – {NAME}", f"{word} {rest}", f"{URL}{home}404.html", alternates=False, root="/"),
         '<meta name="robots" content="noindex">\n</head>\n<body>\n',
         topbar(c, sections=False, langs=False),
-        f"""<main id="main">
+        f"""<main id="main"{torch_data(c)}>
 <div class="wrap">
 <section class="lost">
 <p class="code">404</p>
-<h1><code class="dki">{{KeyWord:Page}}</code> not found.</h1>
-<p class="claim" lang="de">Diese Seite gibt es nicht.</p>
-<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/">cd ~</a> · <a href="/de/" lang="de">Deutsch</a></p>
+<h1><code class="dki">{{KeyWord:{e(word)}}}</code> {e(rest)}</h1>
+<p class="claim" lang="{other[0]}">{e(line)}</p>
+<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/{home}">cd ~</a> · <a href="/{other[4]}" lang="{other[0]}">{other[2]}</a></p>
 </section>
 </div>
 </main>
 """,
-        footer(c), '<script src="/assets/site.js" defer></script>\n</body>\n</html>\n'])
+        footer(c), script("/") + "</body>\n</html>\n"])
 
 
 # ---------- torch ----------
@@ -805,6 +872,10 @@ TORCH = [
     (".projects h4, .projects p", "lis.append(f'<li><h4>", 1),
     (".principles p", "pr = \"\".join(f'<li><p>", 1),
     (".notes li", "notes.append(f'<li id=\"fn-{key}\">", 3),
+    (".lost .code", '<p class="code">404</p>', 1),
+    (".lost h1", '<h1><code class="dki">', 1),
+    (".lost .claim", '<p class="claim" lang="{other[0]}">', 1),
+    (".lost .prompt", '<p class="prompt"><span class="caret"', 1),
 ]
 
 
@@ -822,6 +893,12 @@ def torch_map():
         lines = src[hits[0]:hits[0] + n]
         pad = min(len(x) - len(x.lstrip()) for x in lines if x.strip())
         rows.append([sel, hits[0] + 1, "\n".join(x[pad:] for x in lines)])
+    # legal pages: one line per element, so the n-th element in a page's body is the n-th line of its string
+    for pages in LEGAL.values():
+        for path, _, body in pages.values():
+            first = next(i for i, line in enumerate(src) if line.endswith('f"""' + body.split("\n")[0]))
+            rows += [[f"#{path[:-5]} > :nth-child({k + 1})", i + 1, src[i]]
+                     for k, i in enumerate(range(first, src.index('"""', first)))]
     return rows
 
 
@@ -837,17 +914,50 @@ def dots(html):
     return head_part + sep + body.replace(" · ", "&nbsp;· ")
 
 
+# Apache (IONOS): the error pages, one address for the site, the manifest's type, how long browsers keep what.
+HTACCESS = r"""ErrorDocument 404 /404.html
+ErrorDocument 403 /404.html
+AddType application/manifest+json .webmanifest
+
+# one address: https://peterstieg.com/ – www. and http:// forward there (the port check IONOS recommends)
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\. [NC,OR]
+RewriteCond %{SERVER_PORT} !=443
+RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# stylesheet and script change their address with their content (?v=), fonts never change: kept for a year.
+# Pages and torch.json are asked for on every visit – unchanged, the answer is a short 304.
+<IfModule mod_headers.c>
+<FilesMatch "\.(css|js|woff2)$">
+Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+<FilesMatch "\.(html|json)$">
+Header set Cache-Control "no-cache"
+</FilesMatch>
+</IfModule>
+
+# text goes out compressed – pages, stylesheet and script shrink to a quarter to a third
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml application/manifest+json
+</IfModule>
+"""
+
+
 def build():
     for key, *_ in LANGS:
         c = CONTENT[key]
         target = SITE / c["path"]
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(dots(page(c) if key == "en" else nbsp(page(c))), encoding="utf-8")
-    (SITE / "impressum.html").write_text(dots(legal("Impressum", IMPRESSUM, "impressum.html")), encoding="utf-8")
-    (SITE / "datenschutz.html").write_text(dots(legal("Datenschutzerklärung", DATENSCHUTZ, "datenschutz.html")), encoding="utf-8")
-    (SITE / "404.html").write_text(dots(not_found()), encoding="utf-8")
-    (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\nAddType application/manifest+json .webmanifest\n",
-                                    encoding="utf-8")
+        target.with_name("404.html").write_text(dots(not_found(c)), encoding="utf-8")   # 404.html, de/404.html
+    for key, pages in LEGAL.items():
+        for L, (path, _, _) in pages.items():
+            (SITE / path).write_text(dots(legal(key, L)), encoding="utf-8")
+    (SITE / ".htaccess").write_text(HTACCESS, encoding="utf-8")
+    (SITE / "de" / ".htaccess").write_text("# a missing address under /de/: the German 404\nErrorDocument 404 /de/404.html\n",
+                                           encoding="utf-8")
     (SITE / "assets" / "torch.json").write_text(json.dumps(torch_map(), ensure_ascii=False), encoding="utf-8")
     (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n", encoding="utf-8")
     # The sitemap lists pages, not content: it changes when pages are added or removed. lastmod = build date.

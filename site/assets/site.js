@@ -5,29 +5,30 @@
   const jsUrl = document.currentScript ? document.currentScript.src : "";   // where this file lives, for torch.json
   root.classList.add("js");
 
-  /* ---------- Theme: follows the system until the visitor picks one; the pick is remembered locally. */
-  const mqDark = window.matchMedia("(prefers-color-scheme: dark)");
+  /* ---------- Theme: follows the system until the visitor picks one; the pick is remembered locally.
+     A pressed button is a pick (and an entry in localStorage); pressed again, it lets go: the system decides again. */
   const COLORS = { light: "#F7F6F3", dark: "#181A1C" };
   const stored = () => { try { return localStorage.getItem("theme"); } catch (_) { return null; } };
-  const effective = () => root.getAttribute("data-theme") || (mqDark.matches ? "dark" : "light");
   const paintTheme = () => {
-    const now = effective();
+    const picked = root.getAttribute("data-theme");
     document.querySelectorAll("[data-theme-set]").forEach((b) =>
-      b.setAttribute("aria-pressed", String(b.dataset.themeSet === now)));
-    if (root.hasAttribute("data-theme")) {
-      document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", COLORS[now]));
-    }
+      b.setAttribute("aria-pressed", String(b.dataset.themeSet === picked)));
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) =>   // no pick: each tag's own media query
+      m.setAttribute("content", COLORS[picked || (m.media.includes("dark") ? "dark" : "light")]));
   };
   document.querySelectorAll("[data-theme-set]").forEach((b) => b.addEventListener("click", () => {
     const val = b.dataset.themeSet;
-    root.setAttribute("data-theme", val);
-    try { localStorage.setItem("theme", val); } catch (_) { /* private mode: the choice lasts for this page */ }
+    if (root.getAttribute("data-theme") === val) {
+      root.removeAttribute("data-theme");
+      try { localStorage.removeItem("theme"); } catch (_) { /* nothing was stored */ }
+    } else {
+      root.setAttribute("data-theme", val);
+      try { localStorage.setItem("theme", val); } catch (_) { /* private mode: the choice lasts for this page */ }
+    }
     paintTheme();
   }));
   const s0 = stored();
   if ((s0 === "light" || s0 === "dark") && !root.hasAttribute("data-theme")) root.setAttribute("data-theme", s0);
-  if (mqDark.addEventListener) mqDark.addEventListener("change", paintTheme);
-  else mqDark.addListener(paintTheme);              // Safari before 14
   paintTheme();
 
   /* ---------- Prompt: types the motto once. Full text stays in the HTML for no-JS and screen readers. */
@@ -467,11 +468,11 @@
   /* ---------- Torch: the page's code under a light that follows the pointer – desktop only.
      Type sudo: the HTML of every block of text. Once more: the lines of build.py that wrote it (assets/torch.json,
      written by the build). A third time, or Esc: off. ? lists the keys. */
-  const torchHost = document.querySelector("main[data-torch]");   // the two CV pages only
+  const torchHost = document.querySelector("main[data-torch]");   // every page: start pages, legal pages, 404
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
   if (torchHost && jsUrl) {
     const T = JSON.parse(torchHost.dataset.torch);   // the strings in the page's language
-    const SEL = "h1, h2, h3, h4, p, li, dt, dd, summary";
+    const SEL = "h1, h2, h3, h4, p, li, dt, dd, summary, address";
     const R = 160;                                    // the light's radius in px, as in the CSS
     let level = 0, map = null, px = innerWidth / 2, py = innerHeight / 2, typed = "", tf = 0, card = null;
 

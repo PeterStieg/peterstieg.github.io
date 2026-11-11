@@ -11,8 +11,9 @@ peterstieg.github.io
 ├── src/monogram/         the PS monogram: generator, SVG files, the link preview's source
 ├── site/                 generated – exactly what goes on the server
 │   ├── index.html        English (default)
-│   ├── de/index.html     German
-│   ├── impressum.html · datenschutz.html
+│   ├── de/               German: index.html · 404.html · .htaccess
+│   ├── legal-notice.html · privacy.html      legal pages, English
+│   ├── impressum.html · datenschutz.html     legal pages, German (binding)
 │   ├── 404.html · .htaccess
 │   ├── assets/           site.css · site.js · torch.json · fonts/
 │   ├── favicon.ico · favicon.svg · apple-touch-icon.png · icon-192/512.png · site.webmanifest
@@ -28,11 +29,11 @@ peterstieg.github.io
 python3 src/build.py
 ```
 
-Python 3, nothing to install. The script overwrites every HTML page in `site/` plus `sitemap.xml`, `robots.txt`, `.htaccess` and `assets/torch.json`. Change copy in `src/build.py`, never in `site/*.html` – the next build would overwrite it.
+Python 3, nothing to install. The script overwrites every HTML page in `site/` plus `sitemap.xml`, `robots.txt`, the two `.htaccess` files and `assets/torch.json`. Change copy in `src/build.py`, never in `site/*.html` – the next build would overwrite it. `site.css` and `site.js` are edited by hand; build after editing them too – the pages link them with a fingerprint of their content (`?v=`).
 
 ## Deploy
 
-Manual for now: upload the **contents** of `site/` to the web root at IONOS, keeping the folder structure. Afterwards, refresh the link preview with LinkedIn's Post Inspector.
+Manual for now: upload the **contents** of `site/` to the web root at IONOS, keeping the folder structure – including the two hidden `.htaccess` files. Afterwards, refresh the link preview with LinkedIn's Post Inspector.
 
 `peterstieg.github.io` is not a second copy: GitHub Pages serves only the forward page from the repo root – `index.html`, `404.html` and `forward/`. A two-second terminal scene (`mv -v peterstieg.github.io peterstieg.com`), then every path lands on peterstieg.com. `_config.yml` keeps `site/`, `src/` and `docs/` out of Pages. Changes go live on merge to `master`, no upload needed.
 

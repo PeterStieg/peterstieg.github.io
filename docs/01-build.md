@@ -2,7 +2,7 @@
 
 `src/build.py` is the whole site generator: one Python file that holds every line of copy in both languages, turns it into HTML strings and writes finished pages to `site/`. It runs on the Python standard library alone – no framework, no template engine, no `pip install`. Everything else in `site/` (CSS, JavaScript, fonts, images) is maintained by hand and covered in later chapters.
 
-The file reads top to bottom in this order: docstring · imports · constants · `CONTENT` · HTML fragments · small builder functions · `page()` · legal pages · typography fixes · `build()`. Every function returns a string of HTML; bigger functions call smaller ones and glue their strings together. Nothing touches the disk until `build()` at the very end.
+The file reads top to bottom in this order: docstring · imports · constants · `CONTENT` · HTML fragments · small builder functions · `page()` · legal pages and 404 · torch · typography fixes · `.htaccess` · `build()`. Every function returns a string of HTML; bigger functions call smaller ones and glue their strings together. Nothing touches the disk until `build()` at the very end.
 
 ```
 CONTENT["en"]  →  page(c)  →            dots()  →  site/index.html
@@ -48,7 +48,7 @@ Editorial rules this file follows:
 | 3 · Telegram style | Copy only. |
 | 4 · En dash, middle dot | Written into the strings. `dots()` keeps a ` · ` from starting a line, `nbsp()` keeps German numbers and units together. |
 | 5 · Brand elements stay English | They live outside `CONTENT` (`TAGLINE`, `CLAIM`, `MOTTO`, `P4`) or appear unchanged in both dictionaries (tree labels such as `"Scope"`). On the German page the code marks them with `lang="en"`. |
-| 6 · Google Cloud, Azure, AI | Copy only: Google Cloud in `STACK_DS` and the Pipelines text, Azure only in project entries, AI only in the third approach sentence ("AI is part of the toolbox – … Nothing goes out unchecked."). |
+| 6 · Google Cloud, Azure, AI | Copy only: Google Cloud in `STACK_DS` and the Scope of the Data Scientist training, Azure only in project entries, AI only in the third approach sentence ("AI is part of the toolbox – … Nothing goes out unchecked."). |
 | 7 · No foreign wordplay | Copy only. |
 | 8 · Four coined elements | Claim, motto, *marketinkerer*, P⁴ – nothing else on the page is a slogan. Ten were too many; the rest were cut, among them the three Approach slogans and the footer line. Copy only: a new slogan would break the rule, not the build. |
 
@@ -60,6 +60,7 @@ Editorial rules this file follows:
 from datetime import date
 from html import escape as e
 from pathlib import Path
+import hashlib
 import json
 import re
 ```
@@ -69,10 +70,11 @@ import re
 - Why escaping matters: unescaped, a `<` in the copy opens a tag, an `&` may start an entity, and a `"` inside an attribute value ends the attribute – the page breaks in ways that are hard to spot. If text ever comes from outside (a form, an API, a spreadsheet export), the same gap lets a `<script>` in that text run in the visitor's browser: cross-site scripting (XSS). All copy here is your own, so the practical risk is broken markup; the habit protects you the day content comes from elsewhere.
 - Pitfall: never use `e` as a variable name in this file. Inside a function, even `except Exception as e:` turns `e` into a local variable for the whole function, and every `e(...)` call in it fails with `UnboundLocalError`.
 - `Path` – object-oriented file paths: `/` joins parts, `.parent` goes up a level, `.mkdir()`, `.write_text()` and `.rglob()` do the file work.
-- `json` – serializes the structured-data block in `jsonld()`.
+- `hashlib` – SHA-256, for the fingerprints of `site.css` and `site.js` in their URLs (`VERSION`, section 10).
+- `json` – serializes the structured-data block in `jsonld()`, the torch's strings in `torch_data()` and `assets/torch.json`.
 - `re` – regular expressions for three text markers: `*italics*`, syllable dots and `[[footnotes]]` – and for the `MM/YYYY` dates of the roles.
 
-All five are standard library – that is what "no dependencies beyond Python 3" means.
+All six are standard library – that is what "no dependencies beyond Python 3" means.
 
 ---
 
@@ -264,8 +266,8 @@ CONTENT = {
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "…")],
              "positions": ("All five positions", [
-                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://sbsbusiness.eu/"),
-                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl", ""),
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://it.sbsbusiness.eu/"),
+                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl", "https://innervalor.com/"),
                  …
              ])},
         ],
@@ -291,7 +293,8 @@ CONTENT = {
         ],
         "reach": ("Email", "Based in", "Leipzig"),
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
-        "imprint": "Legal notice", "privacy": "Privacy",
+        "imprint": "Legal notice", "privacy": "Privacy", "legal_desc": "%s for peterstieg.com",
+        "lost": ("Page", "not found.", "Diese Seite gibt es nicht."),
         "jobtitle": "Head of Marketing",
     },
     # ------------------------------------------------------------------ DE
@@ -341,12 +344,14 @@ Interface labels:
 | `sec` | dict | section headings, keyed by internal section name |
 | `notes` | dict | labels in the Sources list, incl. the two date labels `issued` and `completed` |
 | `imprint`, `privacy` | str | footer links |
+| `lost` | 3-tuple | the 404 page in this language: the word inside `{KeyWord:…}`, the rest of the heading, the line in the other language (`not_found()`, section 27) |
 
 Metadata:
 
 | Key | Type | Feeds |
 |---|---|---|
 | `desc` | str | `meta description`, `og:description`, JSON-LD `description` |
+| `legal_desc` | str | the description of the legal pages; `%s` stands for the page title: "Legal notice for peterstieg.com", "Impressum von peterstieg.com" (`legal()`, section 26) |
 | `jobtitle` | str | JSON-LD `jobTitle` |
 
 Copy:
@@ -417,7 +422,7 @@ SOURCE_NOTE = f"""<!--
 
 ---
 
-## 10 · THEME_BOOT
+## 10 · THEME_BOOT and VERSION
 
 ```python
 # Runs before the stylesheet: marks JS as available and applies a stored theme without a flash.
@@ -445,6 +450,23 @@ Why it must run inline, in the head, before the stylesheet:
 - In the head: the attribute is set before anything is painted. If this logic lived only in `site.js` – loaded with `defer`, so it runs after the whole document is parsed – the page would first render in the system theme and then switch: a visible flash.
 - Before the `<link rel="stylesheet">`: a regular script that comes after a stylesheet still downloading has to wait until that stylesheet has loaded, because the script might read computed styles. Placed first, it runs immediately and does not wait for the CSS.
 - `site.js` repeats both steps (adds `js`, applies a stored theme if none is set yet). Redundant but harmless – a safety net.
+
+Right below it, the fingerprints of the two hand-written files:
+
+```python
+# ?v= after the stylesheet and the script: the first 8 hex digits of the file's SHA-256. A changed file gets a new
+# address – browsers may keep each version for a year (.htaccess) and never pair a new page with an old stylesheet.
+VERSION = {name: hashlib.sha256((SITE / "assets" / name).read_bytes()).hexdigest()[:8] for name in ("site.css", "site.js")}
+```
+
+- A dict comprehension: one entry per file name, for example `{"site.css": "5c417903", "site.js": "c18f8230"}`.
+- `.read_bytes()` – the file as bytes, not text: the hash covers exactly what the server sends.
+- `hashlib.sha256(…).hexdigest()` – 64 hex digits; `[:8]` keeps eight. 16⁸ is about 4.3 billion values – enough to tell two versions of one file apart.
+- `head()` (section 14) and `script()` (section 15) append the value to the URL: `assets/site.css?v=5c417903`. The server ignores the query and sends the same file; for the browser's cache, another query is another address.
+- Why a hash and not the build date: it changes only when the file changes. A rebuild for a copy edit keeps both addresses, so the copies browsers already hold stay valid.
+- Why it matters: `.htaccess` lets browsers keep CSS and JS for a year without asking again (section 30). Without a new address, a visitor would get new HTML with last month's stylesheet.
+- Pitfall: `VERSION` is computed when the module loads, from the files as they are on disk at that moment. Edit `site.css` or `site.js` first, build after. Build without an edit and the pages keep the old fingerprint – browsers that hold the old file keep using it.
+- `SITE / "assets" / name` – the same `SITE` as in section 3, so this line has to come after it.
 
 ---
 
@@ -540,7 +562,7 @@ def note_title(c, note):
 ```
 
 - `isinstance(x, dict)` – true when `x` is a dict. Most titles are one string for both languages; only the IHK certificate has a German and an English name.
-- Why not `title`: `head()` and `legal()` have a parameter called `title`. Inside those functions it would hide a function of the same name – the same trap as `t` in `topbar` (section 17).
+- Why not `title`: `head()` has a parameter called `title`, `legal()` a local variable of that name. Inside those functions it would hide a function of the same name – the same trap as `t` in `topbar` (section 17).
 
 `num` gives a section its chapter number. Headings and menu both call it, so the two can never disagree.
 
@@ -581,11 +603,14 @@ def t(c, text):
 
 ```python
 def head(c, title, desc, canonical, alternates=True, root=None):
+    """alternates: the same page in every language – True for the start pages, a dict (code → path) for another
+    pair, False for none (404)."""
     r = c["root"] if root is None else root
     alt = ""
     if alternates:
-        alt = "".join(f'<link rel="alternate" hreflang="{code}" href="{URL}{slug}">\n' for code, _, _, _, slug in LANGS)
-        alt += f'<link rel="alternate" hreflang="x-default" href="{URL}">\n'
+        paths = alternates if isinstance(alternates, dict) else {code: slug for code, _, _, _, slug in LANGS}
+        alt = "".join(f'<link rel="alternate" hreflang="{code}" href="{URL}{paths[code]}">\n' for code, *_ in LANGS)
+        alt += f'<link rel="alternate" hreflang="x-default" href="{URL}{paths["en"]}">\n'
         alt += "".join(f'<meta property="og:locale:alternate" content="{CONTENT[code]["locale"]}">\n'
                        for code, *_ in LANGS if code != c["lang"])
     return f"""<!doctype html>
@@ -618,21 +643,23 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 <link rel="manifest" href="{r}site.webmanifest">
 <link rel="preload" href="{r}assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{r}assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{r}assets/site.css">
+<link rel="stylesheet" href="{r}assets/site.css?v={VERSION['site.css']}">
 """
 ```
 
 Signature and setup:
 
-- `alternates=True` – the two main pages list their language versions; legal and 404 pages pass `False`.
+- `alternates` – three kinds of value, as the docstring says: `True` – the start pages, which list their language versions from `LANGS`; a dict code → path – another pair, the legal pages (section 26); `False` – none, the two 404s.
 - `root=None` – `None` means "not given". The default could not be `""`, because `""` is a real root value (the English page). `r = c["root"] if root is None else root` takes the caller's value only when one was passed.
 - `alt = ""` – stays empty when `alternates` is false.
 
 The alternates block:
 
-- `"".join(f'…' for code, _, _, _, slug in LANGS)` – a generator expression inside `join()`. It produces one `<link>` per language, one at a time; `"".join` glues them with no separator. `_` is the conventional name for values you do not need.
+- `paths = alternates if isinstance(alternates, dict) else {…}` – one dict code → path either way: the one passed in, or one built from `LANGS` (`{"en": "", "de": "de/"}`). The lines after it no longer need to know which kind of page they serve.
+- `"".join(f'…' for code, *_ in LANGS)` – a generator expression inside `join()`. It produces one `<link>` per language, one at a time; `"".join` glues them with no separator. The order comes from `LANGS`, the path from `paths[code]`.
 - `hreflang` links tell search engines "this page exists in English at …, in German at …". Every language version lists all versions, itself included.
-- `x-default` – the version for visitors whose language matches none of the listed ones: the English root.
+- `x-default` – the version for visitors whose language matches none of the listed ones: always the English one – `paths["en"]`, the root for the start pages, `legal-notice.html` and `privacy.html` for the legal pages.
+- Pitfall: a dict must name every language in `LANGS`. A missing code raises `KeyError` – loud, at build time.
 - `og:locale:alternate` – the other languages' locales for social platforms. `for code, *_ in LANGS` is star unpacking: the first value goes into `code`, the rest into a throwaway list. `if code != c["lang"]` filters out the current language. `CONTENT[code]["locale"]` reads from the *other* language's dict.
 - `+=` on strings creates a new string each time. Fine for three operations; for many pieces, collect in a list and join once (as `page()` does).
 
@@ -649,7 +676,7 @@ The returned document head, top to bottom:
 - `author` – the author's name.
 - `canonical` – the preferred URL of this page. It merges duplicates such as `/de/` and `/de/index.html` into one address for search engines.
 - `{alt}<meta name="theme-color"…` – `alt` either ends with `\n` or is empty, so the output never gets a blank line.
-- `theme-color` twice, with `media` – the browser UI color (for example the address bar on phones) for a light and a dark system setting. `site.js` overwrites both when the visitor picks a theme by hand. The two hex values also exist in `site.css` and `site.js` – change all three together.
+- `theme-color` twice, with `media` – the browser UI color (for example the address bar on phones) for a light and a dark system setting. `site.js` writes the picked color into both while a pick stands, and each tag's own color back when it is released. The two hex values also exist in `site.css` and `site.js` – change all three together.
 - `og:*` – Open Graph: what LinkedIn, Slack, WhatsApp and others show when the link is shared. `og:image` must be an absolute URL, because crawlers do not resolve relative paths. `width` and `height` let the platform lay out the preview before the image arrives.
 - `profile:first_name`, `profile:last_name` – Open Graph fields for the `profile` type.
 - `twitter:card` – asks X for a large image preview; title, description and image fall back to the `og:*` values.
@@ -659,31 +686,44 @@ The returned document head, top to bottom:
   - `apple-touch-icon` – the icon iOS shows when someone adds the page to the home screen: a 180 × 180 pixel PNG, because iOS takes neither the SVG nor the ICO here. The paper PS on a full-bleed bordeaux square; iOS rounds the corners itself.
   - `manifest` – `site.webmanifest`, a small JSON file that describes the site as a web app: its name, a short name, the colors, and two more icons (192 and 512 pixels). Android and Chrome take their home-screen and install icons from it. Its `"display": "browser"` keeps the site an ordinary page in a browser tab even when opened from the home screen – the manifest is here for the icons, not to turn the site into an app.
 - `rel="preload"` for two font files – starts the download immediately instead of after the CSS has been parsed and the fonts discovered there. `crossorigin` is required: fonts are always fetched in CORS mode, and a preload without it does not match the real request, so the font would download twice. The italic file is not preloaded; it is only needed for a few words.
-- `<link rel="stylesheet">` – the CSS, deliberately after `THEME_BOOT`.
+- `<link rel="stylesheet">` – the CSS, deliberately after `THEME_BOOT`. `?v={VERSION['site.css']}` – its fingerprint (section 10); single quotes inside the triple-double-quoted f-string.
 - No `</head>` at the end. Callers add more first (JSON-LD, `robots` meta) and close the head themselves. If you write a new page function, you must close it.
 
 ---
 
-## 15 · lang_switch
+## 15 · script and lang_switch
 
 ```python
-def lang_switch(c):
-    """EN · DE – the current language is marked, the other links to the same page in that language."""
+def script(r):
+    return f'<script src="{r}assets/site.js?v={VERSION["site.js"]}" defer></script>\n'
+```
+
+- The script tag of every page, with the fingerprint of `site.js` (section 10). One function instead of three copies of the line in `page()`, `legal()` and `not_found()`.
+- `r` – the root prefix: `c["root"]` on the start pages, `""` on the legal pages, `"/"` on the 404s.
+- `VERSION["site.js"]` – double quotes inside, because the f-string is delimited by single quotes (section 13).
+
+```python
+def lang_switch(c, paths=None):
+    """EN · DE – the current language is marked, the other links to the same page in that language.
+    paths: code → path from the site root; without it, the start pages."""
     r = c["root"]
+    paths = paths or {code: path for code, _, _, path, _ in LANGS}
     items = []
-    for code, label, name, path, _ in LANGS:
+    for code, label, name, _, _ in LANGS:
         if code == c["lang"]:
             items.append(f'<span aria-current="page" title="{name}">{label}</span>')
         else:
-            items.append(f'<a href="{r}{path}" hreflang="{code}" lang="{code}" title="{name}">{label}</a>')
+            items.append(f'<a href="{r}{paths[code]}" hreflang="{code}" lang="{code}" title="{name}">{label}</a>')
     return f'<span class="langs" role="group" aria-label="{e(c["aria_lang"])}">{" ".join(items)}</span>'
 ```
 
 - The docstring names the two current languages. The output itself follows `LANGS`, so a third entry there would appear in the switch automatically.
+- `paths` – where each language's version of this page lives, from the site root. The legal pages pass their pair (`{"en": "legal-notice.html", "de": "impressum.html"}`, section 26); the start pages pass nothing.
+- `paths = paths or {…}` – `or` returns its left side if that is truthy, else its right side. `None` (and an empty dict) are falsy, so a call without `paths` gets the start pages, built from the paths in `LANGS` (index 3).
 - `items = []` plus `append` – an explicit loop, because each language takes one of two shapes.
-- `for code, label, name, path, _ in LANGS` – full unpacking; the slug is not needed here.
+- `for code, label, name, _, _ in LANGS` – full unpacking; path and slug are not needed here – the path comes from `paths`.
 - Current language: a `<span>`, not a link – a link to the page you are on is noise. `aria-current="page"` tells screen readers "this is the current one"; the CSS rule `.langs [aria-current]` sets it in bold.
-- Other languages: `<a href="{r}{path}">` – from the English page `de/index.html`, from the German page `../index.html`. `hreflang` states the language of the target page; `lang` the language of the link text itself; `title` shows the full name on hover.
+- Other languages: `<a href="{r}{paths[code]}">` – from the English start page `de/index.html`, from the German one `../index.html`, from `legal-notice.html` `impressum.html`. `hreflang` states the language of the target page; `lang` the language of the link text itself; `title` shows the full name on hover.
 - The wrapper: `role="group"` with `aria-label` lets a screen reader announce "Language, group" before the links.
 - `{" ".join(items)}` – an expression inside the f-string. Double quotes inside, single quotes outside.
 - The space between the items is there for the text, not for the eye. Without it, copied or extracted text reads "ENDE"; with it, "EN DE". On screen it changes nothing: `.langs` is an inline flex container, and a flex container ignores text that is only whitespace. The visible spacing comes from CSS padding. No separator characters such as `|` – the CSS draws the pill around both.
@@ -715,12 +755,13 @@ def theme_switch(c):
 
 ```python
 def topbar(c, sections=True, langs=True):
+    """langs: True – the switch to the other start page; a dict (code → path) – to that page; False – no switch."""
     r = c["root"]
     keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
     links = "\n".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
                      f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
-    switch = lang_switch(c) if langs else ""
+    switch = lang_switch(c, langs if isinstance(langs, dict) else None) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
     word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if sections else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
@@ -735,7 +776,7 @@ def topbar(c, sections=True, langs=True):
 """
 ```
 
-- `sections`, `langs` – switches. The main pages get section links and the language switch; legal and 404 pages pass `False` for both.
+- `sections`, `langs` – switches. The start pages get section links and the language switch; the legal pages pass `sections=False` and their pair as `langs`; the 404s pass `False` for both.
 - `keys` – a dict comprehension that turns the lookup around. `nav` holds the localized ids (`"stationen"`), `num()` needs the section key (`"experience"`). Looping over `CHAPTERS` loops over its keys – the four sections the menu links to. So `keys` maps each id back to its key: `{"profil": "profile", "stationen": "experience", …}` on the German page; in English, id and key are the same.
 - `links = "\n".join(…) if sections else ""` – the conditional expression wraps the whole join, so the generator only runs when `sections` is true.
   - `"\n"` – a line break between the links. Like the space in the language switch (section 15), it is there for the text: the number span has no space before it, so without a separator the menu's text reads "01 Profile02 Experience". With it, copy and paste and search engines get "01 Profile 02 Experience …".
@@ -744,12 +785,12 @@ def topbar(c, sections=True, langs=True):
   - `href="#{i}"` – an in-page anchor.
   - `<span class="no" aria-hidden="true">{num(keys[i])}</span>` – the chapter number, the same as on the heading: "01 Profile", "02 Experience". Hidden from screen readers, so the link is still called "Profile".
   - `<span class="label" data-label="{e(t)}">` – the label in its own span, plus a copy as a data attribute. `site.js` marks the section being read in bold; the CSS uses the copy to reserve the bold width in advance (chapter 3, Navigation). The span is needed because the trick works on the label alone – the number stays regular.
-- `switch = lang_switch(c) if langs else ""` – same pattern.
+- `switch = lang_switch(c, langs if isinstance(langs, dict) else None) if langs else ""` – the same pattern, one level deeper: no switch for `False`; for a dict, the dict goes on as `paths`; for `True`, `None` – the start pages.
 - The skip link comes first in the page so it is the first thing the Tab key reaches. CSS keeps it off-screen until it receives keyboard focus; it jumps to `<main id="main">`.
 - `<header class="top">` and `<div class="wrap">` – the page header and a width-limiting layout container.
-- The home link: `{'#top' if sections else r + c['path']}` – a full conditional expression inside a replacement field. On the main page it jumps to the hero (`#top`). On other pages it links to that language's home page: `"" + "de/index.html"` on the legal pages, `"/" + "index.html"` on the 404 page.
+- The home link: `{'#top' if sections else r + c['path']}` – a full conditional expression inside a replacement field. On a start page it jumps to the hero (`#top`). On other pages it links to the start page of the page's language: `"" + "index.html"` or `"" + "de/index.html"` on the legal pages, `"/" + "index.html"` or `"/" + "de/index.html"` on the 404s.
 - `{word}{LOCKUP}` – the link holds two things:
-  - `word` – the old wordmark `>_ PETER STIEG`, on the main pages only. The CSS keeps it invisible; it is the target the hero name flies into, because `site.js` measures where its letters sit. `aria-hidden` on the whole span, so screen readers do not read "greater than underscore Peter Stieg" twice.
+  - `word` – the old wordmark `>_ PETER STIEG`, on the start pages only. The CSS keeps it invisible; it is the target the hero name flies into, because `site.js` measures where its letters sit. `aria-hidden` on the whole span, so screen readers do not read "greater than underscore Peter Stieg" twice.
   - `LOCKUP` – the logo `>_ P/S` (section 11), on every page. Its `role="img"` and `aria-label="Peter Stieg"` give the link its name: screen readers say "Peter Stieg, link".
   - `&gt;_` – `>` written as an entity, so the parser cannot mistake it for the end of a tag.
 - `<nav aria-label=…>` – a named navigation landmark. The name matters because the page has two navs (header and footer).
@@ -761,12 +802,13 @@ def topbar(c, sections=True, langs=True):
 
 ```python
 def footer(c):
-    r = c["root"]
+    """The legal pages in the page's language."""
+    r, L = c["root"], c["lang"]
     return f"""<footer class="foot">
 <div class="wrap">
 <nav aria-label="{e(c['aria_legal'])}">
-<a href="{r}impressum.html" hreflang="de">{e(c['imprint'])}</a>
-<a href="{r}datenschutz.html" hreflang="de">{e(c['privacy'])}</a>
+<a href="{r}{LEGAL['imprint'][L][0]}">{e(c['imprint'])}</a>
+<a href="{r}{LEGAL['privacy'][L][0]}">{e(c['privacy'])}</a>
 <span>© {date.today().year} {NAME}</span>
 </nav>
 </div>
@@ -775,12 +817,14 @@ def footer(c):
 ```
 
 - The footer holds the legal links and the copyright line, nothing else, all inside one `<nav>`.
-- The legal links get `{r}` (they live at the site root) and `hreflang="de"` – the legal pages exist only in German, and the link says so in advance.
+- `LEGAL['imprint'][L][0]` – the legal notice in the page's language: `LEGAL` maps page and language to (path, title, body) (section 26), `[0]` is the path. English pages link `legal-notice.html` and `privacy.html`, German pages `impressum.html` and `datenschutz.html`.
+- `{r}` in front, because all four live at the site root. No `hreflang`: link and target share the page's language.
+- `LEGAL` is defined much further down the file. That works: Python looks a global name up when the function runs, not when it is defined, and `footer()` first runs from `build()`, after the whole module has loaded.
 - `© {date.today().year}` – evaluated when you build, not when someone visits. The year changes only when you rebuild; a page built in December still shows the old year in January until the next build.
 
 ---
 
-## 19 · jsonld
+## 19 · jsonld and torch_data
 
 ```python
 def jsonld(c):
@@ -818,6 +862,21 @@ def jsonld(c):
 - Why no `e()` here: the content of a `<script>` element is raw text. The browser does not decode entities inside it, so `&amp;` would land literally in the JSON.
 - Pitfall: `json.dumps` does not protect against the sequence `</script>`. A string containing it would close the script element early. All values here are your own constants, so it cannot happen today. If outside data is ever fed in, replace `"</"` with `"<\/"` in the output.
 
+The torch's strings go into the page as JSON too, in an attribute:
+
+```python
+def torch_data(c):
+    """data-torch on <main>: the torch's strings for site.js (sudo, ?), as JSON in an attribute – out of the page's text."""
+    return f' data-torch="{e(json.dumps(c["torch"], ensure_ascii=False))}"'
+```
+
+- The strings of the torch (chapter 4) in the page's language: the line under the light and the card that `?` opens, from `CONTENT["torch"]` (section 8).
+- `page()`, `legal()` and `not_found()` write it into `<main id="main"{torch_data(c)}>` – all eight pages carry it, and `site.js` starts the torch wherever it finds the attribute.
+- The leading space belongs to the attribute string, the convention of `rid` and `en_attr` (section 25).
+- `json.dumps(…, ensure_ascii=False)` – the dict as JSON text, umlauts as they are rather than `\u00fc`. `e()` then escapes it for the attribute: every `"` becomes `&quot;`, and the browser turns them back before `site.js` reads `dataset.torch` and parses it with `JSON.parse`. Unlike the JSON-LD above, this JSON sits in an attribute, where entities are decoded – so here `e()` is required.
+- Why an attribute and not hidden elements: the page's text stays what it says. A card with "sudo – HTML · build.py · off" in the HTML would end up in what search engines and parsers read; an attribute does not ("Plain text that reads right", decisions.md).
+- The attribute is in the body, so `dots()` (section 29) reaches it like everything else there: the `·` in the strings arrive with a no-break space before them – in the card, too, a dot never starts a line.
+
 ---
 
 ## 20 · offsite – links that leave the site
@@ -836,7 +895,7 @@ def offsite(c, url, text, attrs="", mark=OUT_SVG, kind=""):
             f'<span class="sr-only"> ({said})</span></span></span></a>')
 ```
 
-- Every link that leaves the site goes through this function – 22 per page: nine company websites in Experience – six roles and three of the five early positions (section 24) –, GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
+- Every link that leaves the site goes through this function – 23 per page: ten company websites in Experience – six roles and four of the five early positions (section 24) –, GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
 - Why a new tab: whoever checks a certificate or a company website keeps the page open behind it and returns to the same spot. The marker announces the new tab before the click, for the eye (↗) and for screen readers (the hidden words).
 - The parameters:
   - `url` – inserted as it is. Every URL is one of your own constants.
@@ -856,7 +915,7 @@ The text and its marker:
 - `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 29) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
   - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 29).
 - `<span class="nw">{last}…</span>` – the last word and the marker share one span, which the CSS sets to `white-space: nowrap` (chapter 3). The line may still break before the last word, never between it and the ↗. Without the span, the ↗ wrapped onto a line of its own at widths of 320 to 390 pixels: the marker is an inline-block, and an inline-block is a break opportunity on both sides. A word joiner (U+2060) between word and arrow did not stop the break in Chromium – measured.
-- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With twenty-one per page, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers and the ↓ – stay on the page; the muted ↗ leaves it.
+- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With twenty-two per page – the map's pin is the twenty-third mark –, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers and the ↓ – stay on the page; the muted ↗ leaves it.
 - `said` – what screen readers hear: `new_tab` alone, or `kind` in front of it – "Leipzig (map, opens in a new tab)". Both escaped, because both are copy.
 - `sym` – the class `sym` next to `newtab` when a symbol stands in for the ↗. The CSS draws a symbol larger, with a thinner line, so its detail stays legible at the size of a superscript and its strokes look as heavy as the arrow's (chapter 3). In `{mark}` the f-string inserts the SVG unescaped – it is markup, a constant.
 - `<span class="sr-only"> ({said})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge GmbH (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
@@ -901,7 +960,7 @@ def section(c, key, title_html, body, cls="body"):
 """
 ```
 
-- The wrapper for every content section of the main page.
+- The wrapper for every content section of a start page.
 - `cls="body"` – a default parameter: used when the caller passes nothing. No caller currently passes another value.
 - `i = sid(c, key)` – the localized anchor.
 - `aria-labelledby="h-{i}"` – points at the heading's id: the text of the `<h2>` becomes the section's name, and a named `<section>` is exposed as a landmark that screen-reader users can jump between. The heading holds the number, hidden from screen readers (section 21), and the title, nothing else – so each section is called by its title: "Projects".
@@ -1048,7 +1107,7 @@ def steps(c, label, rows):
 
 - One disclosure: a summary line and, behind it, the steps inside one timeline entry. Two entries have one – Posterlounge's promotions and the five positions before 2014. Both come from this function, so they look and behave the same.
 - `label` – the summary text: "Three promotions", "All five positions".
-- `rows` – a list of (title, company, range, url) tuples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names. The url is `""` where there is none to link: the promotions, and the two early positions whose company has no website that could be verified.
+- `rows` – a list of (title, company, range, url) tuples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names. The url is `""` where there is none to link: the promotions, and the one early position whose company has no website that could be verified (Proactive Europe).
 - `lis` – one `<li>` per row, three f-strings joined with `+`:
   - `<li>{e(title)}` – the title, escaped.
   - `(… if org else "")` – the company, only where there is one. The parentheses are needed: `+` binds more tightly than a conditional expression, so without them the `if … else` would take the whole sum as its two branches – a row with a company would lose its dates, a row without one its title.
@@ -1096,7 +1155,7 @@ def role(c, ro):
 - `place` – optional field: `ro.get("place")` returns `None` when the key is missing and `""` when it is empty (Rapidobject). Both are falsy, so no place span appears.
 - `&nbsp;` before the span – the same job as `dots()`: "· Laucha" must not start a new line. `dots()` cannot do it here, because it only matches the plain sequence ` · `, and here a `<span>` tag sits between the space and the dot. So the place line brings its own non-breaking space.
 - `ctx` – the optional context line, same pattern.
-- `org` – the company name, as a link to its website when the role has a `url` (E+SERVICE+CHECK, Brandible, Posterlounge). The link leaves the site, so `offsite()` writes it (section 20): new tab, `noopener`, the ↗ after the last word – "Posterlounge GmbH" keeps "GmbH" and the ↗ together. `offsite()` takes HTML, so the name is escaped before it goes in; the URL is one of your own constants and goes in as it is.
+- `org` – the company name, as a link to its website when the role has a `url` (six roles, from E+SERVICE+CHECK to YOUniversal Media). The link leaves the site, so `offsite()` writes it (section 20): new tab, `noopener`, the ↗ after the last word – "Posterlounge GmbH" keeps "GmbH" and the ↗ together. `offsite()` takes HTML, so the name is escaped before it goes in; the URL is one of your own constants and goes in as it is.
 
 The dates and the duration:
 
@@ -1169,20 +1228,14 @@ def page(c):
 
 ```python
     out = [head(c, TITLE, c["desc"], URL + slug), jsonld(c), "</head>\n<body>\n", topbar(c)]
-    # data-torch: the torch's strings for site.js (sudo, ?), as JSON in an attribute – out of the page's text
-    torch = e(json.dumps(c["torch"], ensure_ascii=False))
-    out.append(f'<div class="minimap" aria-hidden="true"></div>\n<main id="main" data-torch="{torch}">\n<div class="wrap">\n')
+    out.append(f'<div class="minimap" aria-hidden="true"></div>\n<main id="main"{torch_data(c)}>\n<div class="wrap">\n')
 ```
 
 - The list starts with four parts: the head (canonical URL = `URL + slug`, for example `https://peterstieg.com/de/`), the JSON-LD block, the closing `</head>` with the opening `<body>`, and the header.
 - `<div class="minimap">` – empty; `site.js` fills it with bars drawn from the page on wide screens. `aria-hidden` because it is a purely visual navigation aid.
 - `<main id="main">` – the main landmark and the target of the skip link.
-- `data-torch` – the strings of the torch (chapter 4) in the page's language: the line under the light and the card that `?` opens, from `CONTENT["torch"]` (section 8).
-  - `json.dumps(…, ensure_ascii=False)` – the dict as JSON text, umlauts as they are rather than `\u00fc`. `e()` then escapes it for the attribute: every `"` becomes `&quot;`, and the browser turns them back before `site.js` reads `dataset.torch` and parses it with `JSON.parse`.
-  - Why an attribute and not hidden elements: the page's text stays what it says. A card with "sudo – HTML · build.py · off" in the HTML would end up in what search engines and CV parsers read; an attribute does not ("Plain text that reads right", decisions.md).
-  - The attribute is in the body, so `dots()` (section 29) reaches it like everything else there: the `·` in the strings arrive with a no-break space before them – in the card, too, a dot never starts a line.
-  - On `<main>` of the two CV pages only: the legal pages and the 404 write their own `<main>` without it, and `site.js` starts the torch only where it finds the attribute. Its second level shows lines of this file for the elements of the CV (section 28); those pages have none of them.
-  - `f'…'` – the line became an f-string for the one field; the `\n` inside stay line breaks.
+- `{torch_data(c)}` – the attribute `data-torch` with the torch's strings, leading space included (section 19). The legal pages and the 404s write the same attribute into their own `<main>`.
+- `f'…'` – an f-string for the one field; the `\n` inside stay line breaks.
 
 ### Hero
 
@@ -1385,11 +1438,12 @@ def page(c):
     out.append("</div>\n</main>\n")
     out.append(footer(c))
     out.append(jump(c))
-    out.append(f'<script src="{c["root"]}assets/site.js" defer></script>\n</body>\n</html>\n')
+    out.append(script(c["root"]) + "</body>\n</html>\n")
     return "".join(out)
 ```
 
 - Closes the `wrap` div and `<main>`, adds the footer.
+- `script(c["root"])` – the script tag with its fingerprint (section 15), then the end of the document.
 - `jump(c)` – the jump control (section 23) comes after the footer. The CSS fixes it to the corner of the window, so its place in the HTML does not decide where it appears. It decides two other things:
   - Tab order: keyboard focus reaches the control last, after the content and the footer links, instead of before the content.
   - The CSS fades it in with `.top.docked ~ .jump` – "a `.jump` that comes after the docked header, under the same parent". The `~` combinator only looks forward, so the control has to follow the header; both are direct children of `<body>`.
@@ -1401,12 +1455,10 @@ def page(c):
 ## 26 · Legal pages
 
 ```python
-# ---------- legal pages (German) ----------
+# ---------- legal pages: German and English ----------
+# One body line per element: the torch's second level finds each element's line by its place (torch_map).
 
-ADDRESS = """Peter Stieg<br>
-…<br>
-… Leipzig<br>
-Deutschland"""
+ADDRESS = """…"""
 
 IMPRESSUM = f"""<h1>Impressum</h1>
 <h2>Angaben gemäß § 5 DDG</h2>
@@ -1427,7 +1479,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 <p>Beim Aufruf der Website verarbeitet der Hosting-Anbieter automatisch Daten, die Ihr Browser übermittelt: IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Seite, Referrer-URL sowie Browser und Betriebssystem. Das ist technisch erforderlich, um die Seite auszuliefern und ihre Sicherheit zu gewährleisten. Rechtsgrundlage ist das berechtigte Interesse nach Art. 6 Abs. 1 lit. f DSGVO.</p>
 <p>Hosting-Anbieter: … Mit ihm besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO. Die Speicherdauer der Logfiles richtet sich nach seinen Vorgaben.</p>
 <h2>Helles und dunkles Design</h2>
-<p>Ohne Ihr Zutun folgt die Website der Einstellung Ihres Geräts. Wählen Sie das Design über den Schalter oben selbst, speichert Ihr Browser diese Auswahl lokal (Local Storage), damit sie beim nächsten Besuch erhalten bleibt. Der Eintrag bleibt auf Ihrem Gerät und wird nicht an den Server übertragen. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Sie können den Eintrag jederzeit über die Einstellungen Ihres Browsers löschen.</p>
+<p>Ohne Ihr Zutun folgt die Website der Einstellung Ihres Geräts. Wählen Sie das Design über den Schalter oben selbst, speichert Ihr Browser diese Auswahl lokal (Local Storage), damit sie beim nächsten Besuch erhalten bleibt. Der Eintrag bleibt auf Ihrem Gerät und wird nicht an den Server übertragen. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Sie können den Eintrag jederzeit löschen: mit einem zweiten Klick auf das gewählte Design oder über die Einstellungen Ihres Browsers.</p>
 <h2>Kontakt per E-Mail</h2>
 <p>Wenn Sie eine E-Mail schreiben, werden Ihre Angaben verarbeitet, um die Anfrage zu beantworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Die Daten werden gelöscht, sobald sie dafür nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
 <h2>Links zu anderen Plattformen</h2>
@@ -1437,70 +1489,128 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 """
 ```
 
-- The street address and the hosting provider's address are cut to `…` here; the real values are in `src/build.py`.
-- `ADDRESS` – a plain triple-quoted string (no `f`), with `<br>` line breaks. The legal notice requires a full postal address (§ 5 DDG), and the privacy notice names the same person as the one responsible, so the address is defined once and used by both pages. `<address>` marks it as contact information.
-- The privacy notice also names the hosting provider with its address, because the server logs are processed on its behalf (Art. 28 DSGVO). Change hosts and this line has to change too.
+- `ADDRESS` and the hosting provider's address are cut to `…` here; the real values are in `src/build.py`.
+- `ADDRESS` – a plain triple-quoted string (no `f`): four lines – name, street, postcode and city, country – joined by `<br>`. The legal notice requires a full postal address (§ 5 DDG), and the privacy notice names the same person as the one responsible, so the address is defined once and used by all four pages. `<address>` marks it as contact information.
+- The privacy notice also names the hosting provider with its address, because the server logs are processed on its behalf (Art. 28 DSGVO). Change hosts and this line has to change too – in both languages.
 - Trade-off: the address in `ADDRESS` stays in the git history for good, even if you change it later. If the repository is public, so is the address – which the Impressum publishes anyway.
-- `IMPRESSUM`, `DATENSCHUTZ` – f-strings that insert `ADDRESS` and `EMAIL`. They are HTML, inserted unescaped by `legal()`; a literal `&` in a new sentence must be written `&amp;`.
-- `Stand: November 2026` is typed by hand – update it when the text changes.
-- The privacy text describes what the code does: no cookies, no tracking, fonts and scripts on the same server, `localStorage` only for the theme choice. Code and text are coupled: anything that loads third-party content (a web font service, analytics, an embedded video) requires a change to this text as well.
+- `IMPRESSUM`, `DATENSCHUTZ` and the English pair below – f-strings that insert `ADDRESS` and `EMAIL`. They are HTML, inserted unescaped by `legal()`; a literal `&` in a new sentence must be written `&amp;`.
+- The comment at the top is a rule for these four strings: one element per line. `torch_map()` (section 28) finds the line of each element by its place – the third element of the body is the third line of its string. `ADDRESS` spans four lines of its own, but it enters every body through one line, `<address>{ADDRESS}</address>`: what counts is the line in this file, not in the output.
+- `Stand: November 2026` is typed by hand – update it when the text changes, and its English twin with it.
+- The privacy text describes what the code does: no cookies, no tracking, fonts and scripts on the same server, `localStorage` only for the theme choice – and a second click on the chosen design deletes the entry, which is exactly what `site.js` does (chapter 4). Code and text are coupled: anything that loads third-party content (a web font service, analytics, an embedded video) requires a change to this text as well.
+
+The English translations and the table that ties the four pages together:
 
 ```python
-def legal(title, body, path):
-    c = dict(CONTENT["de"], root="")
-    out = [head(c, f"{title} – {NAME}", f"{title} von peterstieg.com", URL + path, alternates=False),
-           '<meta name="robots" content="noindex, follow">\n</head>\n<body>\n',
-           topbar(c, sections=False, langs=False),
-           f'<main id="main">\n<div class="wrap legal">\n<div class="body">\n{body}<p>peterstieg.com: <a href="index.html" hreflang="en">English</a> · <a href="de/index.html">Deutsch</a></p>\n</div>\n</div>\n</main>\n',
-           footer(c), '<script src="assets/site.js" defer></script>\n</body>\n</html>\n']
-    return "".join(out)
+IMPRINT_EN = f"""<h1>Legal notice</h1>
+<p class="muted">Translation – the German <a href="impressum.html" hreflang="de" lang="de">Impressum</a> is legally binding.</p>
+<h2>Information pursuant to § 5 DDG</h2>
+<address>{ADDRESS.replace("Deutschland", "Germany")}</address>
+<h2>Contact</h2>
+<p>Email: <a href="mailto:{EMAIL}">{EMAIL}</a></p>
+<h2>Responsible for the content under § 18(2) MStV</h2>
+<p>Peter Stieg, address as above.</p>
+"""
+
+PRIVACY_EN = f"""<h1>Privacy policy</h1>
+<p class="muted">As of November 2026 · Translation – the German <a href="datenschutz.html" hreflang="de" lang="de">Datenschutzerklärung</a> is legally binding.</p>
+<h2>Controller</h2>
+<address>{ADDRESS.replace("Deutschland", "Germany")}<br>Email: <a href="mailto:{EMAIL}">{EMAIL}</a></address>
+<h2>In short</h2>
+…
+<h2>Light and dark design</h2>
+<p>Unless you choose otherwise, the website follows your device's setting. … You can delete the entry at any time: with a second click on the chosen design, or in your browser's settings.</p>
+…
+"""
+
+# German law asks for both pages; the German text is binding, the English one is a translation and says so.
+# Per page and language: path, title, body. The footer links the pair in the page's language.
+LEGAL = {
+    "imprint": {"en": ("legal-notice.html", "Legal notice", IMPRINT_EN), "de": ("impressum.html", "Impressum", IMPRESSUM)},
+    "privacy": {"en": ("privacy.html", "Privacy policy", PRIVACY_EN), "de": ("datenschutz.html", "Datenschutzerklärung", DATENSCHUTZ)},
+}
 ```
 
-- `c = dict(CONTENT["de"], root="")` – `dict(mapping, key=value)` creates a new dict with every entry of the German dict, then overrides `root`. The legal pages sit at the site root (`/impressum.html`), while the German dict's root is `"../"` (made for `/de/`).
+- `IMPRINT_EN`, `PRIVACY_EN` – the same structure, element for element, in English. Their second line says what they are: a translation, with the German original binding and linked. On that link, `hreflang="de"` names the target's language and `lang="de"` the language of the link text, a German word.
+- `ADDRESS.replace("Deutschland", "Germany")` – the country in English, the rest as it is. `replace` returns a new string; `ADDRESS` itself stays German for the German pages.
+- `As of November 2026` – typed by hand, like `Stand:`. The two dates move together.
+- Code and text are coupled across languages too: a sentence changed in `DATENSCHUTZ` is a sentence to change in `PRIVACY_EN`.
+- `LEGAL` – a dict of dicts: page → language → (path, title, body). The footer (section 18), `legal()` below and `build()` (section 30) read it; a third language would be one more entry per page.
+- All four pages sit at the site root, each under a file name in its own language: the German pages keep the addresses they had, the English ones read as English in the address bar.
+
+```python
+def legal(key, L):
+    """A legal page in one language. The language switch leads to the same page in the other language; the body's id
+    (the file name) tells the torch which page it is on."""
+    c = dict(CONTENT[L], root="")
+    path, title, body = LEGAL[key][L]
+    pair = {code: p[0] for code, p in LEGAL[key].items()}
+    return "".join([
+        head(c, f"{title} – {NAME}", c["legal_desc"] % title, URL + path, alternates=pair),
+        '<meta name="robots" content="noindex, follow">\n</head>\n<body>\n',
+        topbar(c, sections=False, langs=pair),
+        f'<main id="main"{torch_data(c)}>\n<div class="wrap legal">\n<div class="body" id="{path[:-5]}">\n{body}</div>\n</div>\n</main>\n',
+        footer(c), script("") + "</body>\n</html>\n"])
+```
+
+- `legal(key, L)` – one page: which one (`"imprint"`, `"privacy"`) in which language (`"en"`, `"de"`). `build()` calls it four times.
+- `c = dict(CONTENT[L], root="")` – `dict(mapping, key=value)` creates a new dict with every entry of the language's dict, then overrides `root`. The legal pages sit at the site root (`/impressum.html`), while the German dict's root is `"../"` (made for `/de/`).
   - Why a copy instead of `CONTENT["de"]["root"] = ""`: changing the original would leave the German dict broken for anything that uses it afterwards.
   - It is a shallow copy: nested lists and dicts are shared with the original. `c["root"]` is safe to replace; `c["nav"].append(…)` would change `CONTENT` itself.
-- The `out` list:
-  - `head(…)` – title "Impressum – Peter Stieg", a short description, canonical `URL + path`, and `alternates=False`, because these pages exist only in German.
+- `path, title, body = LEGAL[key][L]` – the three values of this page, unpacked.
+- `pair = {…}` – a dict comprehension over both languages of this page: code → path, `{"en": "legal-notice.html", "de": "impressum.html"}`. `p[0]` is the path in each tuple. Both pages of a pair build the same dict, so each names the other.
+- The parts:
+  - `head(…)` – title "Legal notice – Peter Stieg"; description `c["legal_desc"] % title` – the `%` operator fills `%s`: "Legal notice for peterstieg.com", "Impressum von peterstieg.com"; canonical `URL + path`; `alternates=pair` – the hreflang links to both versions, x-default the English one (section 14).
   - `robots` meta `noindex, follow` – keep the page out of search results, but follow its links. Then the head closes and the body opens.
-  - `topbar(c, sections=False, langs=False)` – no section links, no language switch; the home link goes to `"" + "de/index.html"`. The theme switch stays.
-  - The main block inserts `body` raw and adds a line with links to both language versions. The paths `index.html` and `de/index.html` are hard-coded relative paths – correct because the page sits at the root.
-  - `footer(c)` – German labels. The script path `assets/site.js` is hard-coded too, instead of `{c["root"]}assets/site.js`; it works only because `root` is `""` here.
+  - `topbar(c, sections=False, langs=pair)` – no section links; the language switch leads to the same page in the other language (section 15); the home link goes to the start page of the page's language, `"" + c["path"]`. The theme switch stays.
+  - `<main id="main"{torch_data(c)}>` – the torch works here too (section 19).
+  - `<div class="body" id="{path[:-5]}">` – the file name without `.html`: the slice `[:-5]` drops the last five characters. `legal-notice`, `privacy`, `impressum`, `datenschutz` – four different ids, so one `torch.json` can hold the rules of all four pages (`#impressum > :nth-child(3)`, section 28).
+  - `{body}` – inserted raw, followed directly by the closing tags. The line that once linked both start pages at the end of the body is gone: the logo leads to the start page, the switch to the other language.
+  - `footer(c)` – the legal links in the page's language. `script("")` – the root prefix spelled out: these pages sit at the root, whatever `CONTENT` says.
 
 ---
 
 ## 27 · not_found
 
 ```python
-def not_found():
-    """404 with a Google Ads insider joke: Dynamic Keyword Insertion, {KeyWord:Default}."""
-    c = dict(CONTENT["en"], root="/")
+def not_found(c):
+    """404 with a Google Ads insider joke: Dynamic Keyword Insertion, {KeyWord:Default}. One per language – a missing
+    address under /de/ gets the German one (de/.htaccess) – each with a line in the other language and its start page."""
+    word, rest, line = c["lost"]
+    _, _, _, _, home = next(x for x in LANGS if x[0] == c["lang"])
+    other = next(x for x in LANGS if x[0] != c["lang"])           # code, label, name, path, slug
+    c = dict(c, root="/")
     return "".join([
-        head(c, f"404 – {NAME}", "Page not found.", URL + "404.html", alternates=False, root="/"),
+        head(c, f"404 – {NAME}", f"{word} {rest}", f"{URL}{home}404.html", alternates=False, root="/"),
         '<meta name="robots" content="noindex">\n</head>\n<body>\n',
         topbar(c, sections=False, langs=False),
-        f"""<main id="main">
+        f"""<main id="main"{torch_data(c)}>
 <div class="wrap">
 <section class="lost">
 <p class="code">404</p>
-<h1><code class="dki">{{KeyWord:Page}}</code> not found.</h1>
-<p class="claim" lang="de">Diese Seite gibt es nicht.</p>
-<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/">cd ~</a> · <a href="/de/" lang="de">Deutsch</a></p>
+<h1><code class="dki">{{KeyWord:{e(word)}}}</code> {e(rest)}</h1>
+<p class="claim" lang="{other[0]}">{e(line)}</p>
+<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/{home}">cd ~</a> · <a href="/{other[4]}" lang="{other[0]}">{other[2]}</a></p>
 </section>
 </div>
 </main>
 """,
-        footer(c), '<script src="/assets/site.js" defer></script>\n</body>\n</html>\n'])
+        footer(c), script("/") + "</body>\n</html>\n"])
 ```
 
-- `c = dict(CONTENT["en"], root="/")` – the English dict with a root-absolute prefix.
+- One 404 per language: `build()` calls `not_found(c)` with each language's dict and writes `404.html` and `de/404.html` (section 30). Which one a visitor sees is up to the server: `.htaccess` names `/404.html`, and `de/.htaccess` names `/de/404.html` for every missing address under `/de/`.
+- `word, rest, line = c["lost"]` – the three strings of the page (section 8): `("Page", "not found.", "Diese Seite gibt es nicht.")` in English, `("Seite", "nicht gefunden.", "This page does not exist.")` in German.
+- `_, _, _, _, home = next(…)` – the slug of the page's own language: `""` or `"de/"`. `next()` takes the first `LANGS` entry with that code; the four `_` throw the other fields away.
+- `other = next(x for x in LANGS if x[0] != c["lang"])` – the whole tuple of the other language. The comment names its fields: `other[0]` is the code, `other[2]` the name, `other[4]` the slug. With two languages there is exactly one other; a third would need a list here.
+- `c = dict(c, root="/")` – the parameter rebound to a copy with a root-absolute prefix. The caller's dict stays as it was.
 - Why `"/"`: the server delivers this page for every missing URL, at any depth – `/de/old/page` included. A relative `assets/site.css` would then resolve to `/de/old/assets/site.css` and fail. A leading slash always resolves from the domain root.
-- Trade-off: opened straight from disk (`file://`), `/` means the root of your file system, so the 404 page looks unstyled locally. That is expected.
-- `root="/"` is passed to `head()` as well – redundant, since `c["root"]` is already `"/"`.
-- `"".join([...])` – the parts as a list literal, joined once.
+- Trade-off: opened straight from disk (`file://`), `/` means the root of your file system, so the 404 pages look unstyled locally. That is expected.
+- `head(…)` – description `f"{word} {rest}"`: "Page not found.", "Seite nicht gefunden."; canonical `f"{URL}{home}404.html"`: the page's own address. `root="/"` is passed as well – redundant, since `c["root"]` is already `"/"`.
 - `robots` `noindex` – error pages do not belong in search results.
-- `{{KeyWord:Page}}` – in an f-string, `{{` and `}}` produce literal braces. The output is `{KeyWord:Page}`: Google Ads Dynamic Keyword Insertion syntax, where the ad shows the searched keyword or, if that does not fit, the default text after the colon. Without the doubling, Python would try to evaluate `KeyWord` as a variable with the format spec `Page` and fail with `NameError`.
-- `lang="de"` on the German sentence of an English page.
-- `cd ~` links home (`/`), plus a link to the German version.
+- `<main id="main"{torch_data(c)}>` – the torch here too; `TORCH` has four rules for the lines below (section 28).
+- `{{KeyWord:{e(word)}}}` – in an f-string, `{{` and `}}` produce literal braces, and `{e(word)}` between them is a replacement field. The output is `{KeyWord:Page}` or `{KeyWord:Seite}`: Google Ads Dynamic Keyword Insertion syntax, where the ad shows the searched keyword or, if that does not fit, the default text after the colon. Without the doubling, Python would try to evaluate `KeyWord:…` as an expression and fail.
+- `lang="{other[0]}"` – the line in the other language is marked as such: `lang="de"` on the English page, `lang="en"` on the German one.
+- `cd ~` links to the start page of the page's language (`/` or `/de/`); after the dot, a link to the other start page, named in its own language ("Deutsch", "English").
+- `script("/")` – the script tag with a root-absolute path.
 
 ---
 
@@ -1537,6 +1647,10 @@ TORCH = [
     (".projects h4, .projects p", "lis.append(f'<li><h4>", 1),
     (".principles p", "pr = \"\".join(f'<li><p>", 1),
     (".notes li", "notes.append(f'<li id=\"fn-{key}\">", 3),
+    (".lost .code", '<p class="code">404</p>', 1),
+    (".lost h1", '<h1><code class="dki">', 1),
+    (".lost .claim", '<p class="claim" lang="{other[0]}">', 1),
+    (".lost .prompt", '<p class="prompt"><span class="caret"', 1),
 ]
 
 
@@ -1554,10 +1668,16 @@ def torch_map():
         lines = src[hits[0]:hits[0] + n]
         pad = min(len(x) - len(x.lstrip()) for x in lines if x.strip())
         rows.append([sel, hits[0] + 1, "\n".join(x[pad:] for x in lines)])
+    # legal pages: one line per element, so the n-th element in a page's body is the n-th line of its string
+    for pages in LEGAL.values():
+        for path, _, body in pages.values():
+            first = next(i for i, line in enumerate(src) if line.endswith('f"""' + body.split("\n")[0]))
+            rows += [[f"#{path[:-5]} > :nth-child({k + 1})", i + 1, src[i]]
+                     for k, i in enumerate(range(first, src.index('"""', first)))]
     return rows
 ```
 
-The torch (chapter 4) has two levels. The first shows each block of text as HTML – the browser has that at hand. The second shows the line of this file that wrote the block; that the browser cannot know, so the build tells it, in `site/assets/torch.json`.
+The torch (chapter 4) has two levels. The first shows each block of text as HTML – the browser has that at hand. The second shows the line of this file that wrote the block; that the browser cannot know, so the build tells it, in `site/assets/torch.json`. The torch runs on every page, so the file covers the start pages, the 404s and the legal pages.
 
 - `TORCH` – one rule per kind of element: a CSS selector, a snippet of this file, a number of lines.
   - The selector names the elements on the page, as `site.js` will test them with `el.matches()`. `".ledger dt, .ledger dd"` – a selector list, either one.
@@ -1565,6 +1685,7 @@ The torch (chapter 4) has two levels. The first shows each block of text as HTML
   - The number says how many lines to show from there: 2 for the ledger, whose f-string spans two lines; 3 for the steps behind a disclosure and the footnotes.
   - Order matters, because `site.js` takes the first rule that matches: `.facts:has(a[href^='mailto:'])` – the list that holds the mail link, Contact – comes before `.facts`, which would also match Contact but means Education.
   - No ids in the selectors: the ids are localized (`#contact` is `#kontakt` in German, section 8), the classes are not. `:has()` picks the list by what it contains instead.
+  - The four `.lost` rules are the 404 (section 27). Its claim and prompt need snippets of their own: `'<p class="claim" lang="{other[0]}">'` and the hero's `'<p class="claim" lang="en">'` each occur on one line only. The selectors keep them apart on the page – the hero's elements sit in `.hero`, the 404's in `.lost`.
 - Why a snippet and not a line number: line numbers move with every edit above them. A snippet stays with its line; `torch_map()` looks the number up on every build.
 
 `torch_map()`:
@@ -1579,6 +1700,17 @@ The torch (chapter 4) has two levels. The first shows each block of text as HTML
 - `pad` – the smallest indentation among them (`len(x) - len(x.lstrip())`: the length of the leading spaces), skipping empty lines. `x[pad:]` cuts exactly that much from each, so the snippet keeps its inner indentation but starts at the left edge.
 - `rows.append([sel, hits[0] + 1, …])` – the line number counts from 1, as editors do; the list index counts from 0.
 - The result is a list of lists, not tuples: `json.dumps` writes both as JSON arrays, and the lists say what the file will hold.
+
+The legal pages need no rules in `TORCH`: their bodies are written one element per line (section 26), so position does the work.
+
+- `for pages in LEGAL.values()` and `for path, _, body in pages.values()` – the four pages; the title is not needed.
+- `first` – the line where the body string starts. `body.split("\n")[0]` is the body's first line (`<h1>Legal notice</h1>`); the line in this file that ends with `f"""` plus that line is the one that opens the string: `IMPRINT_EN = f"""<h1>Legal notice</h1>`. `next()` takes the first such line.
+- `src.index('"""', first)` – the first line from there that is exactly `"""`: the end of the string. `range(first, …)` – every line of the body, the closing one excluded.
+- `enumerate(…)` – counts the lines: `k` from 0, `i` the line's index in the file.
+- `f"#{path[:-5]} > :nth-child({k + 1})"` – the selector of the element that line writes: the `(k + 1)`-th child of the body `<div>` whose id is the file name (section 26). `#impressum > :nth-child(3)` is the `<address>`. `:nth-child()` counts from 1 and counts every element, whatever its tag.
+- `i + 1`, `src[i]` – line number and line, one line per rule.
+- `rows += […]` – appends every item of the list, like `extend`.
+- Pitfall: the rule is one element per line. Two elements on one line, or one over two lines, shifts every rule after it – the torch shows the neighbour's line, without an error. The comment above `ADDRESS` states the rule where the text is edited.
 - Pitfall: the numbers are right for the build that wrote them. Change `build.py` without rebuilding, and the torch shows the old numbers – the same as every other file in `site/`.
 
 ---
@@ -1611,11 +1743,49 @@ def dots(html):
 - In the body, the space before each ` · ` becomes `&nbsp;`: the line may break after the dot, never before it, so no line starts with a dot.
 - The head stays untouched: an entity in an HTML comment is not decoded, so `SOURCE_NOTE` would show a literal `&nbsp;` in view-source.
 - `nbsp()` inserts the character, `dots()` the entity. Both render the same; the entity is visible in the source, the character is not.
-- `dots()` runs on every generated HTML page: both main pages, the two legal pages and the 404 page. `nbsp()` stays German-only.
+- `dots()` runs on every generated HTML page: the two start pages, the four legal pages and the two 404s. `nbsp()` stays on the German start page.
 
 ---
 
-## 30 · build – writing to disk
+## 30 · HTACCESS and build – writing to disk
+
+```python
+# Apache (IONOS): the error pages, one address for the site, the manifest's type, how long browsers keep what.
+HTACCESS = r"""ErrorDocument 404 /404.html
+ErrorDocument 403 /404.html
+AddType application/manifest+json .webmanifest
+
+# one address: https://peterstieg.com/ – www. and http:// forward there (the port check IONOS recommends)
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\. [NC,OR]
+RewriteCond %{SERVER_PORT} !=443
+RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# stylesheet and script change their address with their content (?v=), fonts never change: kept for a year.
+# Pages and torch.json are asked for on every visit – unchanged, the answer is a short 304.
+<IfModule mod_headers.c>
+<FilesMatch "\.(css|js|woff2)$">
+Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+<FilesMatch "\.(html|json)$">
+Header set Cache-Control "no-cache"
+</FilesMatch>
+</IfModule>
+
+# text goes out compressed – pages, stylesheet and script shrink to a quarter to a third
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml application/manifest+json
+</IfModule>
+"""
+```
+
+- The server configuration for Apache, as one string that `build()` writes to `site/.htaccess`. What each directive does is in chapter 2 (`.htaccess`); here only the Python.
+- `r"""…"""` – a raw string: backslashes stay as typed. `^www\.` and `"\.(css|js|woff2)$"` reach Apache with their `\.` – a literal dot in a regular expression. Without the `r`, Python would read `\.` as an unknown escape sequence: it keeps the backslash but warns (`SyntaxWarning` since Python 3.12).
+- Not an f-string: `%{HTTP_HOST}`, `%{SERVER_PORT}` and `%{REQUEST_URI}` are Apache's variables. In an f-string, their braces would be replacement fields.
+- Four blocks: the error pages and the manifest's type; one address (`mod_rewrite`); how long browsers keep what (`mod_headers`); compression (`mod_deflate`). Each `<IfModule>` block applies only where its module is loaded.
+- The caching block depends on `VERSION` (section 10): a year without asking again is safe only because the stylesheet and the script change their address when they change.
 
 ```python
 def build():
@@ -1624,11 +1794,13 @@ def build():
         target = SITE / c["path"]
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(dots(page(c) if key == "en" else nbsp(page(c))), encoding="utf-8")
-    (SITE / "impressum.html").write_text(dots(legal("Impressum", IMPRESSUM, "impressum.html")), encoding="utf-8")
-    (SITE / "datenschutz.html").write_text(dots(legal("Datenschutzerklärung", DATENSCHUTZ, "datenschutz.html")), encoding="utf-8")
-    (SITE / "404.html").write_text(dots(not_found()), encoding="utf-8")
-    (SITE / ".htaccess").write_text("ErrorDocument 404 /404.html\nAddType application/manifest+json .webmanifest\n",
-                                    encoding="utf-8")
+        target.with_name("404.html").write_text(dots(not_found(c)), encoding="utf-8")   # 404.html, de/404.html
+    for key, pages in LEGAL.items():
+        for L, (path, _, _) in pages.items():
+            (SITE / path).write_text(dots(legal(key, L)), encoding="utf-8")
+    (SITE / ".htaccess").write_text(HTACCESS, encoding="utf-8")
+    (SITE / "de" / ".htaccess").write_text("# a missing address under /de/: the German 404\nErrorDocument 404 /de/404.html\n",
+                                           encoding="utf-8")
     (SITE / "assets" / "torch.json").write_text(json.dumps(torch_map(), ensure_ascii=False), encoding="utf-8")
     (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n", encoding="utf-8")
     # The sitemap lists pages, not content: it changes when pages are added or removed. lastmod = build date.
@@ -1642,23 +1814,22 @@ def build():
     print("ok:", ", ".join(str(p.relative_to(SITE)) for p in sorted(SITE.rglob("*.html"))))
 ```
 
-The two main pages:
+The start pages and the 404s:
 
 - `for key, *_ in LANGS` – only the language code is needed.
 - `target = SITE / c["path"]` – the `/` operator on a `Path` joins path parts (Python calls `Path.__truediv__`). It uses the right separator for the operating system; `"de/index.html"` with a forward slash works on Windows too, because `pathlib` normalizes it.
 - `target.parent.mkdir(parents=True, exist_ok=True)` – creates `site/de/` if missing. `parents=True` also creates any missing folders above it; `exist_ok=True` means "no error if it already exists". Safe to run on every build.
 - `dots(page(c) if key == "en" else nbsp(page(c)))` – a conditional expression picks the pipeline: English gets `page(c)`, German `nbsp(page(c))`; both then go through `dots()`.
+- `target.with_name("404.html")` – the same folder, another file name: `site/index.html` gives `site/404.html`, `site/de/index.html` gives `site/de/404.html`. Each language's 404 lands next to its start page.
 - `.write_text(…, encoding="utf-8")` – opens, writes, closes. It overwrites without asking.
 - `encoding="utf-8"` matters most on Windows. Without it, Python uses the platform's default encoding, which on Windows has traditionally been a legacy code page such as cp1252. That code page has no →, no ├ and no └ – the build would crash with `UnicodeEncodeError`. The pages declare `<meta charset="utf-8">`, so the bytes must be UTF-8.
 
 The other files:
 
-- `impressum.html`, `datenschutz.html`, `404.html` – one line each: build the path with `/`, generate the HTML, pass it through `dots()`, write it. The calls nest from the inside out: `legal(…)` runs first, `dots()` gets its result, `write_text()` gets that. `(SITE / "…")` needs the parentheses so `.write_text` applies to the joined path, not to the string.
-- `.htaccess` – configuration for Apache web servers, two lines. Other servers ignore the file. The leading dot hides it by default in `ls` and in the macOS Finder.
-  - `ErrorDocument 404 /404.html` – "for a 404, deliver `/404.html`".
-  - `AddType application/manifest+json .webmanifest` – "send files ending in `.webmanifest` with this media type". Every response carries a `Content-Type` header that tells the browser what the bytes are. `application/manifest+json` is the registered type for web app manifests, but Apache's built-in list of extensions does not necessarily contain `.webmanifest`; without this line the manifest from `head()` (section 14) may go out under a generic type.
-  - The call no longer fits on one line, so it continues inside the parentheses of `write_text(…)`, aligned under the first argument.
-- `assets/torch.json` – the torch's second level (section 28): for every rule, its selector, its line number in this file and the lines. About 3 KB, fetched by `site.js` only when the torch is first switched on. `ensure_ascii=False` keeps the `·` in the code as it is instead of `\u00b7`.
+- The legal pages – two loops over `LEGAL` (section 26): every page, every language. `for L, (path, _, _) in pages.items()` unpacks a nested tuple in one step: the key into `L`, the (path, title, body) tuple into its parts. Then the same pattern as above: build the path with `/`, generate the HTML, pass it through `dots()`, write it. `(SITE / path)` needs the parentheses so `.write_text` applies to the joined path, not to the string.
+- `.htaccess` – `HTACCESS`, above. The leading dot hides the file by default in `ls` and in the macOS Finder.
+- `de/.htaccess` – two lines, a comment and `ErrorDocument 404 /de/404.html`: Apache reads an `.htaccess` per folder, and this one overrides the root's 404 page for everything under `/de/`. It is written after the loop, which has created `site/de/` by then. The call no longer fits on one line, so it continues inside the parentheses of `write_text(…)`, aligned under the first argument.
+- `assets/torch.json` – the torch's second level (section 28): for every rule, its selector, its line number in this file and the lines. About 12 KB, fetched by `site.js` only when the torch is first switched on. `ensure_ascii=False` keeps the `·` in the code as it is instead of `\u00b7`.
 - `robots.txt` – `User-agent: *` addresses all crawlers, `Allow: /` permits everything, `Sitemap:` gives the absolute URL of the sitemap.
 
 The sitemap:
@@ -1668,7 +1839,7 @@ The sitemap:
 - `urls` – one `<url>` per language. `for *_, slug in LANGS` puts the star first: everything except the last value goes into `_`, `slug` gets the last one.
 - The `<urlset>` declares two namespaces: the sitemap format itself and `xhtml`, which provides the `<xhtml:link>` elements for language versions.
 - Trade-off, as the comment says: `lastmod` is the build date. Every build on a new day changes `sitemap.xml`, even when no page changed – expect a diff in that file. Google states that it only uses `lastmod` when the value is consistently accurate, so the field carries little weight either way.
-- Legal pages and 404 are not in the sitemap – consistent with their `noindex`.
+- The legal pages and the 404s are not in the sitemap – consistent with their `noindex`.
 
 The report line:
 
@@ -1695,7 +1866,7 @@ python3 src/build.py
 On Windows: `py src\build.py`. Thanks to `SITE`, the working directory does not matter. The run takes a fraction of a second and prints:
 
 ```
-ok: 404.html, datenschutz.html, de/index.html, impressum.html, index.html
+ok: 404.html, datenschutz.html, de/404.html, de/index.html, impressum.html, index.html, legal-notice.html, privacy.html
 ```
 
 What it writes (and overwrites):
@@ -1704,10 +1875,13 @@ What it writes (and overwrites):
 |---|---|
 | `site/index.html` | `page(CONTENT["en"])` → `dots()` |
 | `site/de/index.html` | `page(CONTENT["de"])` → `nbsp()` → `dots()` |
-| `site/impressum.html` | `legal("Impressum", IMPRESSUM, …)` → `dots()` |
-| `site/datenschutz.html` | `legal("Datenschutzerklärung", DATENSCHUTZ, …)` → `dots()` |
-| `site/404.html` | `not_found()` → `dots()` |
-| `site/.htaccess` | fixed string, two lines |
+| `site/404.html` | `not_found(CONTENT["en"])` → `dots()` |
+| `site/de/404.html` | `not_found(CONTENT["de"])` → `dots()` |
+| `site/legal-notice.html` · `site/privacy.html` | `legal("imprint", "en")` · `legal("privacy", "en")` → `dots()` |
+| `site/impressum.html` · `site/datenschutz.html` | `legal("imprint", "de")` · `legal("privacy", "de")` → `dots()` |
+| `site/.htaccess` | `HTACCESS` |
+| `site/de/.htaccess` | fixed string, two lines |
+| `site/assets/torch.json` | `torch_map()` |
 | `site/robots.txt` | f-string with `URL` |
 | `site/sitemap.xml` | `LANGS` plus build date |
 
@@ -1719,9 +1893,12 @@ What it never touches: `site/assets/site.css`, `site/assets/site.js`, `site/asse
 
 `head()` only links these files. Changing an icon means regenerating it there, not editing `build.py`.
 
+Two of them the build reads: `VERSION` hashes `site.css` and `site.js` for the `?v=` in every page (section 10).
+
 Working rules:
 
 - Copy or markup change → edit `src/build.py` → run the build → check the result in `site/`.
+- `site.css` or `site.js` changed → run the build as well: every page carries their fingerprints, and without a new one, browsers keep the old file for up to a year.
 - Never edit the generated HTML files in `site/`. The next build overwrites them without warning.
 - Forgetting to rebuild leaves `src/` and `site/` out of sync – the live site keeps the old state. Commit `src/build.py` and the regenerated files together.
 - A build on a new day changes `sitemap.xml` (and in January the footer year) even when the content did not change.
@@ -1739,7 +1916,7 @@ Why the generated `site/` folder is committed:
 
 Make each change in `src/build.py`, run `python3 src/build.py`, look at the result, then undo the change and rebuild.
 
-1. **Change the motto.** Set `MOTTO = "sudo dream plan ship it"`. In `site/index.html` the new motto appears three times: in the source comment at the top and twice in the hero prompt (`.cmd` and `.sr-only`); `site/de/index.html` and `site/404.html` change too. Then search `site/assets/site.js` for "plan ship": the console greeting still shows the old motto, because `site.js` is not generated and its copy does not follow.
+1. **Change the motto.** Set `MOTTO = "sudo dream plan ship it"`. In `site/index.html` the new motto appears three times: in the source comment at the top and twice in the hero prompt (`.cmd` and `.sr-only`); `site/de/index.html`, the two 404s and the four legal pages change too. Then search `site/assets/site.js` for "plan ship": the console greeting still shows the old motto, because `site.js` is not generated and its copy does not follow.
 2. **Swap the footnotes.** In `CONTENT["en"]["facts"]`, change `"Data Scientist[[ds]] · MLOps Engineer[[mlops]]"` to `"MLOps Engineer[[mlops]] · Data Scientist[[ds]]"`. In `site/index.html` the MLOps reference is now 1 and Data Scientist 2, and the Sources list has swapped its order. `site/de/index.html` is unchanged – each language numbers its own footnotes.
 3. **Watch escaping and marker scope.** Add `R&D <beta> *test*` to the end of `CONTENT["en"]["profile"]` and to the end of a tree text, for example the SportSpar `"Scope"`. In `site/index.html` the profile paragraph shows `R&amp;D &lt;beta&gt; *test*` – escaped, asterisks untouched. The tree line shows `R&amp;D &lt;beta&gt; <i>test</i>` – the same escaping, but `t()` turned the asterisks into italics.
 
@@ -1761,6 +1938,7 @@ Make each change in `src/build.py`, run `python3 src/build.py`, look at the resu
 - **Generated content** – text that CSS inserts with `content` in `::before` or `::after`, such as the bold copy of each menu label that reserves its width (`content: attr(data-label)`). It is drawn, but it is not part of the page's text: copy and paste, search engines and parsers do not get it. Words and punctuation that carry meaning belong in the HTML.
 - **Visually hidden text** – text that is in the HTML but shrunk out of sight by CSS (here the class `sr-only`), so screen readers and anything that reads the text still get it: the word behind each drawn arrow, the full motto in the hero, the "(opens in a new tab)" after each link that leaves the site.
 - **`target="_blank"` and `noopener`** – `target="_blank"` opens a link in a new tab; `rel="noopener"` keeps the new page from reaching back to the one that opened it through `window.opener`. Here both come from `offsite()`, for every link that leaves the site.
+- **Fingerprint** – a short hash of a file's content in its URL (`site.css?v=5c417903`): a new version gets a new address, so browsers may keep each version as long as they like.
 - **Relative vs root-absolute path** – `assets/site.css` or `../assets/site.css` resolve from the current page's folder; `/assets/site.css` resolves from the domain root.
 - **Non-breaking space** – U+00A0 or `&nbsp;`: looks like a space, but a line never breaks there.
 
