@@ -1,6 +1,6 @@
 # site.css: look and layout
 
-`site/assets/site.css` is the single stylesheet behind every page: the English and German home pages, the 404 page and the two legal pages. It has no preprocessor, no framework and no build step, so the file you read is exactly what the browser receives. This chapter goes through it from top to bottom, rule by rule, and explains for each declaration what it does, which mechanism makes it work and what would break without it.
+`site/assets/site.css` is the single stylesheet behind every page: the two start pages, the two 404 pages and the four legal pages. It has no preprocessor, no framework and no build step, so the file you read is exactly what the browser receives. This chapter goes through it from top to bottom, rule by rule, and explains for each declaration what it does, which mechanism makes it work and what would break without it.
 
 Figures marked "measured" come from Chromium. Pixel values in brackets assume the browser default of 16px for 1rem.
 
@@ -149,7 +149,7 @@ Below this point the stylesheet contains no hex color at all – every color is 
 
 - `:root[data-theme="dark"]` – the root element with the attribute `data-theme="dark"`, whatever the OS says. Its (0,2,0) beats the bare `:root` (0,1,0), so these values replace the light defaults. Specificity decides on its own here; the rule would win even if it stood at the top of the file.
 
-Where the attribute comes from: every page has a one-line script in `<head>` that reads `localStorage.theme` and sets `data-theme` on `<html>` before the first paint, so a returning visitor never sees a flash of the wrong theme. The two theme buttons set it on click ([chapter 4](04-js.md)). No attribute means "follow the system".
+Where the attribute comes from: every page has a one-line script in `<head>` that reads `localStorage.theme` and sets `data-theme` on `<html>` before the first paint, so a returning visitor never sees a flash of the wrong theme. The two theme buttons set it on click, and a click on the pressed one removes it again ([chapter 4](04-js.md)). No attribute means "follow the system".
 
 ### The three states
 
@@ -258,7 +258,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 - `outline: 2px solid var(--accent);` – the focus ring. An outline is drawn outside the border and takes no space, so focusing never shifts the layout, which a border would. The accent reaches 9.7:1 and 6.0:1, far above the 3:1 needed for focus indicators.
 - `outline-offset: 3px;` – a gap between element and ring.
 - `border-radius: 2px;` – current browsers draw outlines along the border radius, so the ring gets soft corners. Side effect: it rounds the element itself too, and at (0,1,1) it beats any single-class rule. A round element therefore needs a rule of at least the same weight to stay round while focused. The jump control's ends have one: `.jump .up` and `.jump .down` weigh (0,2,0), beat (0,1,1), and keep their rounded ends under focus (see the jump control section). The theme buttons need nothing extra: `.themes button` is also (0,1,1), ties, and wins because it comes later.
-- `summary` – the clickable line of a `<details>` element, used three times on the home page (the jump control's number, "Three promotions" and "All five positions"). It is focusable like a button but is neither `a` nor `button`; without its own entry it would get the browser's default ring instead of the accent one.
+- `summary` – the clickable line of a `<details>` element, used three times on each start page (the jump control's number, "Three promotions" and "All five positions"). It is focusable like a button but is neither `a` nor `button`; without its own entry it would get the browser's default ring instead of the accent one.
 
 ## Skip link and visually hidden text
 
@@ -512,13 +512,13 @@ html:not(.js) .themes { display: none; }
   - `border-radius: 999px;` – rounds the focus ring, which follows the radius.
   - `color: var(--muted);` – the icon color, passed on through `currentColor` below.
   - `cursor: pointer;` – buttons get the arrow cursor by default; the hand matches the links.
-- `:hover` and `[aria-pressed="true"]` – ink. `site.js` sets `aria-pressed` on both buttons to reflect the active theme, and screen readers announce it as "pressed". Styling the ARIA attribute instead of a separate class means the visible state and the announced state come from one attribute and cannot drift apart.
+- `:hover` and `[aria-pressed="true"]` – ink. `site.js` sets `aria-pressed="true"` on the button of a stored pick – with no pick, neither is pressed – and screen readers announce it as "pressed". Styling the ARIA attribute instead of a separate class means the visible state and the announced state come from one attribute and cannot drift apart.
 - `.themes svg` – CSS can set SVG presentation properties directly:
   - `width: 1rem; height: 1rem;` – icon size.
   - `fill: none;` – outline icons, no filled shapes.
   - `stroke: currentColor;` – `currentColor` is the element's computed `color`. The SVG inherits it from the button, so hover and pressed states recolor the icon without rules of their own.
   - `stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;` – line weight in viewBox units (the icons use a 16 × 16 viewBox), with rounded ends and corners to match the rounded letterforms.
-- `.themes button[aria-pressed="true"] svg { stroke-width: 2; }` – the active theme's icon is drawn heavier. Muted versus ink alone is a subtle difference; a change in shape keeps the state recognizable without relying on color.
+- `.themes button[aria-pressed="true"] svg { stroke-width: 2; }` – the picked theme's icon is drawn heavier. Muted versus ink alone is a subtle difference; a change in shape keeps the state recognizable without relying on color.
 - `html:not(.js) .themes { display: none; }` – without JavaScript the buttons cannot work, so they are removed. The system preference still applies through the media query.
 - `@media (max-width: 47.99rem) { .nav .sect { display: none; } }` – on narrow screens the four section links disappear; logo, language pill and theme pill stay. The rule belongs to the navigation and only sits here by placement.
 - `@media (max-width: 55.99rem) { .nav .sect .no { display: none; } }` – between 48 and 56rem the links stay, but without numbers. With numbers, the English header needs a window about 800 px wide and overflows at 768 px (measured); without them, it fits with room to spare. The space between number and label disappears with the number: at the start of a line, white space is dropped.
@@ -647,15 +647,18 @@ Each content section is a `.sec`: heading left and body right on wide screens, s
   - `padding-block: 3.75rem;` – a little more space on large screens.
   - `.sec > h2 { position: sticky; top: 5rem; align-self: start; }` – the heading stays visible while you scroll through a long section; `top: 5rem` keeps it clear of the header. The child combinator `>` limits this to the section's own `h2`.
   - **Why `align-self: start` is essential:** grid items stretch to the full height of their row by default. The row is as tall as the section body, so a stretched heading would already fill its whole area and have no room to move – sticky would do nothing. With `start`, the heading is only as tall as its text and can slide down inside the tall grid area. It stops at the end of the section, because a sticky element never leaves its containing block.
-- `.sec > h2` – no margin, 1.25rem, line height 1.3, bold. This unconditional rule comes after the media query; the two set different properties, so the order doesn't matter.
+- `.sec > h2` – no margin, 1.25rem (20px; on phones 1.625rem, below), line height 1.3, bold. This unconditional rule comes after the media query; the two set different properties, so the order doesn't matter.
 
 ```css
 /* phones: the heading of the section being read sticks under the header, as one bar with it – a heading
-   is always in view. site.js marks the stuck one (.stuck): it takes over the header's hairline (.ext). */
+   is always in view. site.js marks the stuck one (.stuck): it takes over the header's hairline (.ext).
+   Stacked above its content, the heading is larger than on desktop, where its own column sets it apart:
+   26 px, above the headword (24 px) and the P⁴ headings (22 px). */
 @media (max-width: 47.99rem) {
   html { scroll-padding-top: 3.5rem; }            /* a jump to a section lands its border on the header's */
   .sec { padding-top: 2.5rem; }
   .sec > h2 {
+    font-size: 1.625rem;
     position: sticky; top: calc(3.5rem + 1px); z-index: 3;
     margin-inline: -1rem; padding: 0.5rem 1rem;
     background: color-mix(in srgb, var(--paper) 92%, transparent);
@@ -664,7 +667,7 @@ Each content section is a `.sec`: heading left and body right on wide screens, s
   }
   .sec > h2.stuck { border-bottom-color: var(--line); }
   .top.ext { border-bottom-color: transparent; }
-  .role, .fnref a, .notes li { scroll-margin-top: 3.25rem; }   /* targets inside a section clear the stuck heading */
+  .role, .fnref a, .notes li { scroll-margin-top: 3.75rem; }   /* targets inside a section clear the stuck heading */
 }
 ```
 
@@ -674,15 +677,16 @@ On wide screens the heading column keeps the current heading in view. On phones 
 - `html { scroll-padding-top: 3.5rem; }` – replaces the 4.5rem of the base rules. 3.5rem is 56px, one pixel less than the header with its border. A jump to a section therefore puts the section's 1px top border exactly on the header's hairline (measured: the section starts at 56px). With 4.5rem, a 15px strip of the previous section would stay visible between the two. `site.js` reads the same computed value to decide which section counts as "above" for the jump control (see [chapter 4](04-js.md)).
 - `.sec { padding-top: 2.5rem; }` – 0.5rem less than the base 3rem above the heading. The heading's own top padding (below) adds the 0.5rem back, so the title still starts 3rem below the section's line.
 - `.sec > h2 { … }` – the heading becomes a bar:
+  - `font-size: 1.625rem;` – 26px instead of the 20px of the base rule. On wide screens the heading has a column of its own, and the column sets it apart; on phones it stands above its content, and only size ranks it there. 26px puts it above the headword of the dictionary entry (24px on phones, see Dictionary entry) and the P⁴ headings (22px). Wide screens keep 20px: at 26px, "02 Experience" wraps to two lines in the 11rem column (measured).
   - `position: sticky; top: calc(3.5rem + 1px);` – it sticks right under the header: 3.5rem of header height plus the header's 1px border. `calc()` can add rem and px. As on wide screens, it sticks only while its own section is on screen; at the section's end it scrolls away and the next heading takes its place.
   - No `align-self: start` is needed here. With a single column, every grid item gets a row of its own, as tall as its content, so there is nothing to stretch into. Measured: in the middle of Experience, its heading sits at 57px.
   - `z-index: 3;` – sticky elements are positioned, so `z-index` applies. Positioned elements without a z-index are painted in document order, and the section body contains some: the tree items (`position: relative`, see the #JobAlert tree) come after the heading and would be painted over it as they scroll underneath. 3 keeps the bar above the content and below the header and the jump control (5).
-  - `margin-inline: -1rem; padding: 0.5rem 1rem;` – the negative margins pull the heading's box 1rem out on both sides, over the 1rem gutter of `.wrap`, and the side padding puts the text back where it was. The background now spans the full screen width like the header's (measured: 390px on a 390px screen). The 0.5rem above and below give the bar its height: 43px around the 26px line (measured).
+  - `margin-inline: -1rem; padding: 0.5rem 1rem;` – the negative margins pull the heading's box 1rem out on both sides, over the 1rem gutter of `.wrap`, and the side padding puts the text back where it was. The background now spans the full screen width like the header's (measured: 390px on a 390px screen). The 0.5rem above and below give the bar its height: 51px around the 34px line – 26px × 1.3, plus the 1px border (measured: 50.8px).
   - `background: …; backdrop-filter: blur(6px);` – the same frosted surface as the header, so header and heading look like one piece.
   - `border-bottom: 1px solid transparent;` – reserves the hairline, as in the header.
 - `.sec > h2.stuck { border-bottom-color: var(--line); }` – `site.js` gives `.stuck` to the heading that currently sits at the header's lower edge (see [chapter 4](04-js.md)). Only that heading shows the hairline, at the bottom of the combined bar.
 - `.top.ext { border-bottom-color: transparent; }` – at the same time `site.js` gives the header `.ext`, and the header drops its own hairline: the bar has one line at its bottom instead of one in the middle. `.top.scrolled` sets the line with the same (0,2,0); this rule comes later in the file, so it wins while both classes are present.
-- `.role, .fnref a, .notes li { scroll-margin-top: 3.25rem; }` – targets *inside* a section: a role reached from the ledger, a footnote number reached from its back link `^`, a source reached from its footnote. Scroll padding alone would put them directly under the header – behind the stuck heading of their own section. `scroll-margin-top` is set on the target instead of the scroll container, and the browser adds the two: 3.5rem + 3.25rem = 6.75rem (108px). The bar ends at 100px (57 + 43), which leaves 8px of air (measured: `#posterlounge` lands at 108px, under the stuck "02 Experience").
+- `.role, .fnref a, .notes li { scroll-margin-top: 3.75rem; }` – targets *inside* a section: a role reached from the ledger, a footnote number reached from its back link `^`, a source reached from its footnote. Scroll padding alone would put them directly under the header – behind the stuck heading of their own section. `scroll-margin-top` is set on the target instead of the scroll container, and the browser adds the two: 3.5rem + 3.75rem = 7.25rem (116px). The bar ends at 108px (57 + 51), which leaves 8px of air (measured: `#posterlounge` lands at 116px, under the stuck "02 Experience"). The value grew with the heading: 3.25rem left the same 8px around the 20px heading.
   - Sections themselves get no scroll margin: when a section has just been reached, its heading is still in the flow, not stuck.
 
 ```css
@@ -789,13 +793,13 @@ a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 .ledger .jmp svg, .newtab svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 ```
 
-Twenty-two links lead off the site: nine company websites in Experience, GitHub and Demo in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources. They open in a new tab (`target="_blank"`), so peterstieg.com stays open behind them; `build.py` writes all of them with one helper, `offsite()` ([chapter 1](01-build.md)). The end of such a link reads `E+SERVICE+CHECK <span class="nw">GmbH<span class="newtab"><svg …></svg><span class="sr-only"> (opens in a new tab)</span></span></span>`: the last word and the marker share a span, and the marker holds a drawn ↗ (`aria-hidden`) and the words for screen readers. The mail link, the menus, the language switch and the legal pages stay in the same tab and carry no marker.
+Twenty-three links lead off the site: ten company websites in Experience, GitHub and Demo in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources. They open in a new tab (`target="_blank"`), so peterstieg.com stays open behind them; `build.py` writes all of them with one helper, `offsite()` ([chapter 1](01-build.md)). The end of such a link reads `E+SERVICE+CHECK <span class="nw">GmbH<span class="newtab"><svg …></svg><span class="sr-only"> (opens in a new tab)</span></span></span>`: the last word and the marker share a span, and the marker holds a drawn ↗ (`aria-hidden`) and the words for screen readers. The mail link, the menus, the language switch and the legal pages stay in the same tab and carry no marker.
 
 - `.newtab` – the ↗, built like the ↓. Named `newtab`, not `ext` for "external": on phones `site.js` already gives the header a state class `ext` (see Sections), and a rule `.ext` – one class, written later in the file – would also hit the header and override `.top`: it lost its sticky position (found before release). Class names share one namespace across the stylesheet and the script.
   - `display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.1em;` – a square box in the line, a hair of space after the word. 0.55em is 9.9px next to body text and 8.4px in the smaller technology line and in Sources (measured).
   - `position: relative; top: -0.5em;` – superscript, the technique of the ↓: the box keeps its place on the baseline and is only drawn 0.5em higher, so the line keeps its height (measured: 27.9px with and without the ↗). The hidden words inside the box are absolutely positioned, like the "to" of `.arr`: they form no line, so the box still has no text of its own and sits with its bottom edge on the baseline.
   - `color: var(--muted);` – grey, not bordeaux.
-- **Why quieter than the ↓.** Twenty-one arrows on one page can clutter it, so the ↗ is deliberately the quieter of the two markers: muted instead of accent, and 0.55em instead of 0.6em. The colour also keeps the vocabulary apart: the accent superscripts – the footnote numbers and the ↓ – stay on this page; the muted ↗ leaves it. Muted still reaches 6.4:1 against the paper (7.3:1 in dark mode), far above the 3:1 that WCAG asks of graphics.
+- **Why quieter than the ↓.** Twenty-two arrows on one page can clutter it, so the ↗ is deliberately the quieter of the two markers: muted instead of accent, and 0.55em instead of 0.6em. The colour also keeps the vocabulary apart: the accent superscripts – the footnote numbers and the ↓ – stay on this page; the muted ↗ leaves it. Muted still reaches 6.4:1 against the paper (7.3:1 in dark mode), far above the 3:1 that WCAG asks of graphics.
 - As with the ↓, the underline stops under the last letter: an inline-block takes no text decoration from the link.
 - `a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }` – while the link is hovered or has keyboard focus, its ↗ turns bordeaux, together with the underline (`a:hover`) or next to the focus ring. The selector starts at the link: any `.newtab` inside an `a` in that state. (0,2,1) beats `.ext` (0,1,0).
 - `.nw { white-space: nowrap; }` – keeps the last word and its ↗ on one line. An inline-block is a soft wrap opportunity on both sides (see `.ledger dd a` above), so without the span the browser may break between the word and the arrow, and the ↗ starts a line on its own. Measured at 320 to 390px, in steps of 5px: depending on the width, it happened after "GitHub", "GmbH", "credential" and "page". A word joiner (U+2060), the character that forbids a break between its neighbours, did not prevent it in Chromium (measured): the wrap opportunity at an inline-block exists even next to characters that would normally suppress one. `nowrap` on a span around both removes every wrap opportunity inside it; the space before the last word stays outside the span, so the line can still break there, and the word moves down together with its arrow. With the rule, no ↗ starts a line at any of those widths, on either page (measured).
@@ -971,6 +975,7 @@ Opening a disclosure makes the page taller, so `site.js` redraws the minimap on 
 .entry { margin: 0 0 1.75rem; }
 .hw { margin: 0 0 0.4rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 0.8rem; }
 .hw dfn { font-style: normal; font-weight: 700; font-size: clamp(1.7rem, 4.4vw, 2.3rem); line-height: 1.15; }
+@media (max-width: 47.99rem) { .hw dfn { font-size: 1.5rem; } }   /* phones: below the section heading above it */
 .hw .syl { color: var(--muted); font-weight: 400; margin: 0 0.03em; }
 .pos { font-style: italic; color: var(--muted); }
 .ety { color: var(--muted); font-size: 1rem; }
@@ -988,6 +993,7 @@ The Profile section opens like a dictionary entry: headword with syllable dots, 
   - `align-items: baseline;` – the large headword and the small labels share a baseline, as in a printed dictionary.
   - `gap: 0.1rem 0.8rem;` – a small row gap when wrapped, 0.8rem between items.
 - `.hw dfn` – `<dfn>` marks the term being defined. Browsers italicize it by default, so `font-style: normal` undoes that. Bold, fluid between 1.7rem and 2.3rem, line height 1.15.
+- `@media (max-width: 47.99rem) { .hw dfn { font-size: 1.5rem; } }` – phones: a fixed 24px. The clamp never goes below 1.7rem (27.2px), and on a phone the headword would outrank the section heading above it, "01 Profile" at 26px (see Sections). A media rule of its own, right after `.hw dfn`: both weigh (0,1,1), so the later one wins below 48rem. Placed before it, the base rule would override it at every width (measured on a 390px screen: 24px).
 - `.hw .syl` – the middle dots between syllables (mar·ke·tin·ker·er): muted, regular weight inside the bold word, with a hair of space (0.03em) on each side.
 - `.pos` – the part of speech ("noun"), italic and muted, as dictionaries set it. One of the two reasons the italic font file loads.
 - `.ety` – the etymology "[marketer × tinkerer]", muted, at 1rem.
@@ -1109,12 +1115,12 @@ The Education section has footnote numbers (`<sup class="fnref">`) that link to 
 .dki { font-family: inherit; font-size: inherit; color: var(--accent); }
 ```
 
-`404.html` reuses the hero's rhythm, without docking.
+The two 404 pages, `404.html` and `de/404.html`, reuse the hero's rhythm, without docking.
 
-- `.lost` – the same vertical padding as `.hero` (the values are repeated, not shared), so the error page has the home page's proportions.
+- `.lost` – the same vertical padding as `.hero` (the values are repeated, not shared), so the error page has the start page's proportions.
 - `.lost .code` – the large "404", fluid and bold, with slight letter spacing.
 - `.lost h1` – the message, sized like the tagline, in regular weight so it reads as a sentence. The page also reuses `.claim` and `.prompt` from the hero.
-- `.dki` – the `{KeyWord:Page}` placeholder, a nod to Google Ads keyword insertion, marked up as `<code>`. Browsers render `<code>` in a monospace font at a smaller size; `font-family: inherit` and `font-size: inherit` make it match the heading, and the accent color marks it.
+- `.dki` – the `{KeyWord:Page}` placeholder (German `{KeyWord:Seite}`), a nod to Google Ads keyword insertion, marked up as `<code>`. Browsers render `<code>` in a monospace font at a smaller size; `font-family: inherit` and `font-size: inherit` make it match the heading, and the accent color marks it.
 
 ## Jump control
 
@@ -1282,7 +1288,7 @@ The footer holds only the legal links and the copyright, in one `<nav>`.
 .legal ul { padding-left: 1.2em; }
 ```
 
-On `impressum.html` and `datenschutz.html`, the frame carries both classes (`class="wrap legal"`) and contains a `.body`.
+On the four legal pages – `legal-notice.html`, `privacy.html`, `impressum.html`, `datenschutz.html` – the frame carries both classes (`class="wrap legal"`) and contains a `.body`.
 
 - `.legal` – vertical padding in place of a hero.
 - `.legal h1` – a fluid page title, tight leading, 2rem below.

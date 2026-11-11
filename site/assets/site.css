@@ -246,11 +246,14 @@ html:not(.js) .themes { display: none; }
   font-weight: 700;
 }
 /* phones: the heading of the section being read sticks under the header, as one bar with it – a heading
-   is always in view. site.js marks the stuck one (.stuck): it takes over the header's hairline (.ext). */
+   is always in view. site.js marks the stuck one (.stuck): it takes over the header's hairline (.ext).
+   Stacked above its content, the heading is larger than on desktop, where its own column sets it apart:
+   26 px, above the headword (24 px) and the P⁴ headings (22 px). */
 @media (max-width: 47.99rem) {
   html { scroll-padding-top: 3.5rem; }            /* a jump to a section lands its border on the header's */
   .sec { padding-top: 2.5rem; }
   .sec > h2 {
+    font-size: 1.625rem;
     position: sticky; top: calc(3.5rem + 1px); z-index: 3;
     margin-inline: -1rem; padding: 0.5rem 1rem;
     background: color-mix(in srgb, var(--paper) 92%, transparent);
@@ -259,7 +262,7 @@ html:not(.js) .themes { display: none; }
   }
   .sec > h2.stuck { border-bottom-color: var(--line); }
   .top.ext { border-bottom-color: transparent; }
-  .role, .fnref a, .notes li { scroll-margin-top: 3.25rem; }   /* targets inside a section clear the stuck heading */
+  .role, .fnref a, .notes li { scroll-margin-top: 3.75rem; }   /* targets inside a section clear the stuck heading */
 }
 /* chapter number, like a slide deck's parts: "01 Profile" – equal-width digits keep the titles aligned.
    The other sections of a chapter carry the same number invisibly (.ghost), so their titles line up with it. */
@@ -365,6 +368,7 @@ a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 .entry { margin: 0 0 1.75rem; }
 .hw { margin: 0 0 0.4rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 0.8rem; }
 .hw dfn { font-style: normal; font-weight: 700; font-size: clamp(1.7rem, 4.4vw, 2.3rem); line-height: 1.15; }
+@media (max-width: 47.99rem) { .hw dfn { font-size: 1.5rem; } }   /* phones: below the section heading above it */
 .hw .syl { color: var(--muted); font-weight: 400; margin: 0 0.03em; }
 .pos { font-style: italic; color: var(--muted); }
 .ety { color: var(--muted); font-size: 1rem; }

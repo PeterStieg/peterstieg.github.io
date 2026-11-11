@@ -1,2 +1,27 @@
 ErrorDocument 404 /404.html
+ErrorDocument 403 /404.html
 AddType application/manifest+json .webmanifest
+
+# one address: https://peterstieg.com/ – www. and http:// forward there (the port check IONOS recommends)
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\. [NC,OR]
+RewriteCond %{SERVER_PORT} !=443
+RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# stylesheet and script change their address with their content (?v=), fonts never change: kept for a year.
+# Pages and torch.json are asked for on every visit – unchanged, the answer is a short 304.
+<IfModule mod_headers.c>
+<FilesMatch "\.(css|js|woff2)$">
+Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+<FilesMatch "\.(html|json)$">
+Header set Cache-Control "no-cache"
+</FilesMatch>
+</IfModule>
+
+# text goes out compressed – pages, stylesheet and script shrink to a quarter to a third
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml application/manifest+json
+</IfModule>

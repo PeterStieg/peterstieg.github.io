@@ -1,6 +1,6 @@
 # The HTML: what the browser receives
 
-Every HTML page in `site/` is generated: `src/build.py` writes them, together with `robots.txt`, `sitemap.xml` and `.htaccess`, from the texts and templates it contains. Never edit the HTML by hand – the next build overwrites it; change `src/build.py` and run `python3 src/build.py`. This chapter reads `site/index.html` from top to bottom, compares it with `site/de/index.html` where the two differ, and ends with the small files around it.
+Every HTML page in `site/` is generated: `src/build.py` writes them, together with `robots.txt`, `sitemap.xml` and the two `.htaccess` files, from the texts and templates it contains. Never edit the HTML by hand – the next build overwrites it; change `src/build.py` and run `python3 src/build.py`. This chapter reads `site/index.html` from top to bottom, compares it with `site/de/index.html` where the two differ, and ends with the small files around it.
 
 ---
 
@@ -114,6 +114,7 @@ Why inline, and why exactly here:
 - `rel="alternate" hreflang="en"` and `"de"` – "the same content exists in this language, at this URL". A German searcher then gets `/de/`, an English one `/`. The rules: absolute URLs, each page lists every version including itself, and the pairing must be confirmed from both sides – the German page carries the identical three lines. If page A names B as its alternate but B does not name A, Google ignores the pair.
 - `hreflang="x-default"` – the fallback for everyone else: a visitor searching in Italian or French gets the English page.
 - `og:locale:alternate` – the Open Graph counterpart for social networks: "this page also exists as `de_DE`". `build.py` emits one tag per other language, so the German page says `en_GB`. Facebook's crawler is the main reader of this tag.
+- The legal pages carry the same block for their pair – `legal-notice.html` and `impressum.html`, `privacy.html` and `datenschutz.html`, x-default the English one (see "The legal pages"). The 404s carry none.
 
 ### Theme color
 
@@ -124,7 +125,7 @@ Why inline, and why exactly here:
 
 - `theme-color` – browsers that tint their own interface (address bar, status bar) with the page's color read this. Chrome on Android does; Safari has done so in several versions.
 - Two tags with `media` – the browser uses the tag whose media query matches the system setting: the paper white in light mode, the dark background in dark mode. The values equal `--paper` in `site.css`, so the browser frame and the page blend.
-- A media query only knows the system setting, not the theme buttons. That is why `site.js` overwrites the `content` of both tags with the chosen color as soon as a visitor picks a theme.
+- A media query only knows the system setting, not the theme buttons. That is why `site.js` writes the picked color into the `content` of both tags as soon as a visitor picks a theme – and gives each tag its own color back when the pick is released by a second click.
 
 ### Link preview: Open Graph, profile, Twitter
 
@@ -174,14 +175,14 @@ Three lines for three kinds of reader. All of them show the same mark: the PS mo
 - **Why a disc.** Until October 2026 the icon was the bare bordeaux mark on a transparent ground. On a dark tab strip – Chrome `#35363A`, Firefox `#2B2A33` – that reached 1.2 : 1 and nearly disappeared. The disc brings its own ground: on a light tab the disc carries the shape (10.4 : 1 on white), on a dark tab the paper letters do (11.2 : 1 on Chrome's dark tab), and inside the disc it is always paper on bordeaux, 9.7 : 1. One version works for both colour schemes. The old SVG switched colour with `prefers-color-scheme`, but that query follows the operating system, not the colour of the browser's tab strip.
 - `rel="apple-touch-icon"` – the icon iOS and iPadOS show when someone adds the page to the home screen. iOS does not take SVG here, so it is a 180 × 180 px PNG: the paper PS on a full-bleed bordeaux square. iOS rounds the corners itself; a disc inside that rounded square would be a second shape with a ring around it.
 - `rel="manifest"` – the web app manifest, a small JSON file with the site's name and two larger icons. Android reads it when someone adds the page to the home screen (see `site.webmanifest` under "The other files").
-- Relative paths – `favicon.ico` resolves against the page's own address. The German page, one folder deeper, writes `../favicon.ico`, `../apple-touch-icon.png` and `../site.webmanifest`. `build.py` handles this with the value `root` per language (`""` or `"../"`). Relative paths make the site work anywhere: on the domain, in a subfolder, or opened straight from disk. The 404 page is the exception, for reasons explained there.
+- Relative paths – `favicon.ico` resolves against the page's own address. The German page, one folder deeper, writes `../favicon.ico`, `../apple-touch-icon.png` and `../site.webmanifest`. `build.py` handles this with the value `root` per language (`""` or `"../"`). Relative paths make the site work anywhere: on the domain, in a subfolder, or opened straight from disk. The 404 pages are the exception, for reasons explained there.
 
 ### Font preload and stylesheet
 
 ```html
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/site.css?v=…">
 ```
 
 Without a hint, a web font is discovered late: the browser downloads the HTML, then the CSS, reads the `@font-face` rules, lays out the page, notices that text needs "Atkinson Hyperlegible" – and only then requests the font file. Until it arrives, the text appears in a fallback font (`font-display: swap` in the CSS) and visibly jumps when the real font replaces it.
@@ -191,7 +192,8 @@ Without a hint, a web font is discovered late: the browser downloads the HTML, t
 - `type="font/woff2"` – a browser that cannot read WOFF2 skips the preload instead of wasting bandwidth.
 - `crossorigin` – the non-obvious one. Fonts are always requested in CORS mode, even from your own server; the CSS Fonts specification demands it. A preload without `crossorigin` is made in "no-cors" mode. The two requests differ in mode, the browser treats them as different resources, and the font is downloaded twice – Chrome then warns in the console that a preloaded resource was not used. The bare attribute means `crossorigin="anonymous"`: CORS mode without cookies, exactly what `@font-face` does.
 - Only two of the three font files are preloaded: bold (name, headings, ledger figures) and regular (body text). The italic appears only in a few words of the dictionary entry and loads on demand. Every preload competes with the stylesheet for bandwidth, so preloads are limited to what the first screen needs.
-- `rel="stylesheet"` – the CSS, one file of about 23 KB, no third-party styles. It is render-blocking: the browser paints nothing until it has arrived, which prevents a flash of unstyled content.
+- `rel="stylesheet"` – the CSS, one file of about 26 KB, no third-party styles. It is render-blocking: the browser paints nothing until it has arrived, which prevents a flash of unstyled content.
+- `?v=…` – eight hex digits of the file's SHA-256, written by the build (`VERSION` in `build.py`). The server ignores the query and sends the same file; for the browser's cache, the query is part of the address. A changed stylesheet gets a new address, so `.htaccess` can let browsers keep each version for a year without ever pairing a new page with an old stylesheet (see `.htaccess`).
 
 ### Structured data: JSON-LD
 
@@ -320,6 +322,7 @@ The content of the block, indented for reading (in the file it is one line):
   - `lang="de"` – the link text itself is German, so a screen reader pronounces it with German rules. The convention for language switches: each language is named in that language.
   - `title="Deutsch"` – tooltip, again in its own language.
 - On the German page the roles swap: `EN` is the link (`../index.html`, `hreflang="en" lang="en"`), `DE` is the `aria-current` span.
+- On the legal pages the switch leads to the same page in the other language: from `legal-notice.html`, `DE` goes to `impressum.html`; from `datenschutz.html`, `EN` goes to `privacy.html`.
 
 ```html
 <span class="themes" role="group" aria-label="Theme"><button type="button" data-theme-set="light" aria-pressed="false" aria-label="Light" title="Light"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15…"/></svg></button><button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Dark" title="Dark"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg></button></span></nav>
@@ -330,7 +333,7 @@ The content of the block, indented for reading (in the file it is one line):
 - `<span class="themes" role="group" aria-label="Theme">` – the same group pattern as the languages. German: "Darstellung".
 - `<button type="button">` – a real button, not a clickable `<div>`: focusable, reacts to Enter and Space, announced as a button – all built in. `type="button"` states that it submits nothing; the default type is `submit`, which would matter inside a form.
 - `data-theme-set="light"` – a custom data attribute. Any attribute that starts with `data-` is valid HTML and reserved for the page's own scripts. `site.js` reads it as `button.dataset.themeSet` and copies the value to `<html data-theme>`.
-- `aria-pressed="false"` – makes the button a toggle button. A screen reader says "Light, toggle button, not pressed". `site.js` sets `"true"` on the button that matches the active theme – chosen or inherited from the system – and updates both on every click. The CSS styles `[aria-pressed="true"]`, so again one attribute drives both the announcement and the look. Both start as `"false"` in the HTML because the build cannot know the visitor's theme.
+- `aria-pressed="false"` – makes the button a toggle button. A screen reader says "Light, toggle button, not pressed". `site.js` sets `"true"` on the button of a stored pick and updates both on every click; a click on the pressed button releases the pick, and the page follows the system again. With no pick, neither button is pressed – the device decides. The CSS styles `[aria-pressed="true"]`, so again one attribute drives both the announcement and the look. Both start as `"false"` in the HTML because the build cannot know the visitor's pick.
 - `aria-label="Light"` – the accessible name. The button contains only an icon; without a label it would be announced as "button" and nothing else. German: "Hell", "Dunkel".
 - `title="Light"` – the tooltip for mouse users. It does not replace `aria-label`: tooltips need a hover, which touch and keyboard users do not have, and screen readers handle `title` inconsistently.
 - `<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">` – an icon drawn inline:
@@ -365,8 +368,8 @@ The content of the block, indented for reading (in the file it is one line):
 - `id="main"` – the target of the skip link.
 - `data-torch` – the strings of the torch, in the page's language, as JSON. The torch is `site.js`'s view of the page's code (chapter 4): typing `sudo` anywhere on the page lays a light over it that follows the pointer and shows, where it falls, the HTML of every block of text; typed again, the lines of `build.py` that wrote it; a third time, off. Esc ends it, `?` opens a card with the keys. Only with a mouse or trackpad – a light that follows the pointer needs one.
   - Inside an attribute every `"` must be written `&quot;`; the browser decodes them, and `site.js` reads clean JSON from `dataset.torch`. The `&nbsp;` before each `·` comes from `dots()`, as everywhere in the body.
-  - As an attribute the strings stay out of the page's text – nothing for search engines or CV parsers to read as content.
-  - The legal pages and the 404 have a plain `<main id="main">`: no strings, no torch.
+  - As an attribute the strings stay out of the page's text – nothing for search engines or parsers to read as content.
+  - Every page carries it – the start pages, the four legal pages and the two 404s – so the torch works everywhere.
 
 ### Hero
 
@@ -447,7 +450,7 @@ The section opens with the word "marketinkerer", set like an entry in a dictiona
 - `<dl>` – a description list: pairs of a term (`<dt>`) and its description (`<dd>`). The classic use is a glossary, but any name–value pairing qualifies – here result → context. A table would claim rows and columns that are not there; a `<ul>` would lose the pairing.
 - `aria-label="Selected results"` – a name for the list. Screen readers differ in whether they announce a name on a `<dl>`, so it is a bonus; the section heading carries the context anyway.
 - `<div>` around each `<dt>`/`<dd>` pair – allowed inside `<dl>`, but only `<div>` and only around complete groups. It gives CSS one box per row for the dividing lines.
-- `<dt>Leads &gt; 2×</dt>` – what was measured, then the figure: the escaped `>` and the multiplication sign, "more than twice". All three results open this way – Leads, RoAS, Media budget –, so the word a recruiter scans for stands first.
+- `<dt>Leads &gt; 2×</dt>` – what was measured, then the figure: the escaped `>` and the multiplication sign, "more than twice". All three results open this way – Leads, RoAS, Media budget –, so the word a reader scans for stands first.
 - `<dd>` – one line of context, then `<br>` and the company. The three contexts are about equally long, so every result takes the same two lines under its figure. The `<br>` also separates them in plain text.
 - The rows run newest first, in the order of the timeline they link into: E+SERVICE+CHECK, Brandible, Posterlounge. That puts the strongest figure, the media budget, last; one order throughout the page weighed more.
 
@@ -479,7 +482,7 @@ The drawn arrow:
 <h2 id="h-fields"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
 <div class="fields">
-<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. Optimized for RoAS and cost per inquiry, quote and order.</p></div>
+<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. Optimized for RoAS and cost per lead.</p></div>
 …
 <div><h3>People</h3><p>Teams of up to nine, from SEA to graphic design, including career changers from retail and fine arts.</p></div>
 </div>
@@ -491,6 +494,7 @@ The drawn arrow:
 - `P<sup>4</sup>` – "P to the power of four" for the four Ps. `<sup>` is meant for typographic conventions that need superscript (exponents, footnote marks), so this is correct use. Screen readers usually ignore the superscript and say "P4"; that is also the section's name in the landmark list.
 - `<div class="fields">` – the section starts straight with its grid: 2 × 2 on wider screens. Four `<div>`s, each with an `<h3>` and a `<p>`. Not a list: each block stands on its own with a heading, and headings are more useful for navigation than list items.
 - On the German page the four `<h3>` carry `lang="en"`, because the four Ps stay English.
+- Each text runs to three lines, on a wide screen and on a phone alike (measured at 1440, 1024, 390 and 360 px; at 768 px, where section and fields both split into columns, four to six).
 
 
 ### Experience: a reversed timeline
@@ -521,7 +525,7 @@ Nine entries; the first stands for all.
 - `data-from="2025-11"` and `data-units="year,years,month,months"` – only on the role that is still running, the one whose period has a single date. The build counts it up to the build date, so the "1 year" in the file is the count of 29 October 2026. `site.js` recounts it from `data-from` when the page loads, with the words from `data-units` – the German page carries `Jahr,Jahre,Monat,Monate`, so the script itself contains no language. The duration never goes stale between two uploads; without JavaScript, the build's count stands.
 - `<div>` – groups everything else into the right column, so the CSS grid gets exactly two columns: date | details.
 - `<h3>` – the job title. As a heading, every role is reachable through heading navigation.
-- `<a href="https://www.e-service-check.de/" target="_blank" rel="noopener">` – the company name links to its website, in a new tab; the next section takes the link apart. E+SERVICE+CHECK, Brandible and Posterlounge have links; the two Liora trainings link through their footnotes instead, and the earlier employers have none.
+- `<a href="https://www.e-service-check.de/" target="_blank" rel="noopener">` – the company name links to its website, in a new tab; the next section takes the link apart. All six roles at a company link it; the two Liora trainings link through their footnotes instead, and the 2010–2014 entry links four of its five companies behind its disclosure.
 - `<p class="org">` with `<span class="place">· Laucha</span>` – employer and location; the span mutes the location. The `&nbsp;` before the span glues the dot to the end of the link, "GmbH" with its ↗, so the location can wrap to the next line but the dot never starts it (see "Non-breaking spaces and middle dots").
 - `<p class="ctx">` – one line of company context. Optional: `build.py` emits it only for roles that have a `ctx`, and the `place` span only for roles that have a place (Rapidobject has none).
 - `<ul class="tree">` – the details as an unordered list, styled like the output of the Unix `tree` command – the format of the #JobAlert posts. The branches `├──` and `└──` are not characters in the HTML but CSS borders on `::before` and `::after`. They align in any font, and screen readers do not read out box-drawing characters.
@@ -536,7 +540,7 @@ Nine entries; the first stands for all.
 <a href="https://www.e-service-check.de/" target="_blank" rel="noopener">E+SERVICE+CHECK <span class="nw">GmbH<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>
 ```
 
-The company name is the first of 22 links on each page that lead to another website: nine company websites in Experience – six roles and three of the five early positions –, GitHub and Demo under Projects, LinkedIn, GitHub and the map under Contact, "Verify credential" and "Course page" under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
+The company name is the first of 23 links on each page that lead to another website: ten company websites in Experience – six roles and four of the five early positions –, GitHub and Demo under Projects, LinkedIn, GitHub and the map under Contact, "Verify credential" and "Course page" under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
 
 - `target="_blank"` – opens the target in a new tab (some browser settings make it a new window). peterstieg.com stays open in the tab behind it, at the same scroll position: a visitor checks a company or a credential and comes back to the place they left. The price: the new tab has no history to go back to, and the link no longer leaves the choice of tab to the visitor. That is why it announces itself, to the eye and to the ear (the next points).
 - `rel="noopener"` – a page opened in a new tab normally receives a reference to the page that opened it, `window.opener`, and can use it to send that tab to another address – for example to a copy of a login page while the visitor reads the new tab, known as reverse tabnabbing. `noopener` withholds the reference. Current browsers already treat every `target="_blank"` link this way (Chrome since version 88, Firefox 79, Safari 12.1); the attribute states it explicitly and covers older browsers. `noreferrer` is not set, so the target still learns which site the visitor came from.
@@ -580,7 +584,7 @@ The heading of the role names the last title, Head of Marketing. The way there t
 <ul class="tree"><li><span class="k">Scope:</span> export promotion, brand protection, competitive intelligence, web marketing</li></ul>
 <details class="more">
 <summary>All five positions</summary>
-<ol class="tree" reversed><li>Marketing Consultant&nbsp;<span class="muted">· <a href="https://sbsbusiness.eu/" target="_blank" rel="noopener">SBS systems for business solutions <span class="nw">Srl<span class="newtab">…</span></span></a></span><br><span class="at">04/2014 – 08/2014&nbsp;· 5 months</span></li><li>Corporate investigations&nbsp;<span class="muted">· Inner Valor Srl</span><br><span class="at">06/2013 – 05/2014&nbsp;· 1 year</span></li>…</ol>
+<ol class="tree" reversed><li>Marketing Consultant&nbsp;<span class="muted">· <a href="https://it.sbsbusiness.eu/" target="_blank" rel="noopener">SBS systems for business solutions <span class="nw">Srl<span class="newtab">…</span></span></a></span><br><span class="at">04/2014 – 08/2014&nbsp;· 5 months</span></li><li>Corporate investigations&nbsp;<span class="muted">· <a href="https://innervalor.com/" target="_blank" rel="noopener">Inner Valor <span class="nw">Srl<span class="newtab">…</span></span></a></span><br><span class="at">06/2013 – 05/2014&nbsp;· 1 year</span></li>…</ol>
 </details>
 </div>
 </li>
@@ -591,7 +595,7 @@ The years 2010 to 2014 stay one entry in the timeline: five positions in and aro
 - `<details class="more">` – HTML's built-in disclosure widget. Closed, it shows only its `<summary>`; a click, Enter or Space opens it, and the browser announces the summary as a control that is collapsed or expanded. No JavaScript, no ARIA. The content of a closed `<details>` is not rendered, so screen readers skip it too until it is opened.
 - `<summary>All five positions</summary>` – the label of the toggle, as visible text. Browsers draw a small triangle in front of it; the CSS replaces that with a chevron that turns down when the disclosure is open. German: "Alle fünf Stationen".
 - `<ol class="tree" reversed>` – the same list as the promotions, written by the same function, `steps()`: one item per position, newest first, counted down like the timeline. Each item is the title, the company, a `<br>`, and in `<span class="at">` the dates and length.
-- `&nbsp;<span class="muted">· Inner Valor Srl</span>` – the company, in grey like the issuers under Education. Where its website could be verified, the name is a link like every company's in Experience, with its ↗: SBS, Fontebona and PaesiOnLine. Inner Valor and Proactive Europe stay text. The promotions have no such span: all four steps were at one company, named in the role's own line, and `steps()` writes the company only where a row has one. The `&nbsp;` before the span glues the dot to the title, as in the employer line, where a tag sits between space and dot too (see "Non-breaking spaces and middle dots").
+- `&nbsp;<span class="muted">· …</span>` – the company, in grey like the issuers under Education. Where its website could be verified, the name is a link like every company's in Experience, with its ↗: SBS (its Italian site), Inner Valor, Fontebona and PaesiOnLine. Proactive Europe stays text. The promotions have no such span: all four steps were at one company, named in the role's own line, and `steps()` writes the company only where a row has one. The `&nbsp;` before the span glues the dot to the title, as in the employer line, where a tag sits between space and dot too (see "Non-breaking spaces and middle dots").
 - No place and no Scope per position: the entry's own lines sum them up, "Five companies · Rome" and the Scope above the disclosure.
 - No heading per position: each title is a list item, not an `<h4>`. Under Experience the outline ends at the entries' `<h3>`.
 - In `build.py` the entry's key `positions` holds the label and one (period, title, company) row per position, newest first. Unlike the promotions, each row carries its full period: the positions overlap and leave gaps, so no end can be derived from the next start.
@@ -714,8 +718,8 @@ The footnote reference, piece by piece:
 <footer class="foot">
 <div class="wrap">
 <nav aria-label="Legal">
-<a href="impressum.html" hreflang="de">Legal notice</a>
-<a href="datenschutz.html" hreflang="de">Privacy</a>
+<a href="legal-notice.html">Legal notice</a>
+<a href="privacy.html">Privacy</a>
 <span>© 2026 Peter Stieg</span>
 </nav>
 </div>
@@ -725,7 +729,7 @@ The footnote reference, piece by piece:
 - `</div></main>` – end of the content.
 - `<footer>` – directly inside `<body>`, it becomes the contentinfo landmark: copyright and legal links.
 - `<nav aria-label="Legal">` – a second navigation landmark, named so screen readers can tell "Main" from "Legal". German: "Rechtliches".
-- `hreflang="de"` – the legal pages exist only in German. On the English page the link text says "Legal notice", the attribute says the target is German.
+- The legal pages in the page's language: `legal-notice.html` and `privacy.html` from the English pages, `impressum.html` and `datenschutz.html` (`../impressum.html` from `/de/`) from the German ones. No `hreflang`: link and target share the page's language.
 - Here the tags sit on separate lines. The nav is a flex container (CSS), so the line breaks do not create extra spaces.
 - `© 2026` – `build.py` inserts the current year at build time (`date.today().year`). The year changes with the next build, not on its own.
 
@@ -769,14 +773,14 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 ### The script
 
 ```html
-<script src="assets/site.js" defer></script>
+<script src="assets/site.js?v=…" defer></script>
 </body>
 </html>
 ```
 
-- `src` – an external file, so the browser can cache it between visits.
+- `src` – an external file, so the browser can cache it between visits. `?v=…` – its fingerprint, as with the stylesheet: browsers keep it for a year and fetch a new address when it changes.
 - `defer` – download without stopping the parser, run after the whole document has been parsed, just before the `DOMContentLoaded` event; several deferred scripts run in source order. `site.js` can therefore rely on every element being present. `defer` only works on external scripts.
-- Position: a deferred script could also sit in the head, where its download would start earlier. At the end of the body, the download starts only when the parser gets there. For a 26 KB page the difference is milliseconds, and the time-critical part – the theme – already ran in the head.
+- Position: a deferred script could also sit in the head, where its download would start earlier. At the end of the body, the download starts only when the parser gets there. For a 32 KB page the difference is milliseconds, and the time-critical part – the theme – already ran in the head.
 - Everything `site.js` adds is an enhancement. Without it the page is complete: the motto stands untyped, the theme follows the system, the jump control leads to the top and to every section, the two disclosures work, and the running role shows the duration counted at the build.
 
 ---
@@ -785,7 +789,7 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 
 `&nbsp;` is the entity for U+00A0, the no-break space. It looks like a space but forbids a line break at that point. The site uses it for two typographic rules.
 
-**Middle dots never start a line.** The copy in `build.py` uses " · " as a separator. Before writing any page – the two home pages, the legal pages and the 404 page – the function `dots()` replaces every " · " after `<body>` with `&nbsp;· `. The dot is now glued to the word before it, and the only break opportunity is after it:
+**Middle dots never start a line.** The copy in `build.py` uses " · " as a separator. Before writing any page – the two start pages, the four legal pages and the two 404s – the function `dots()` replaces every " · " after `<body>` with `&nbsp;· `. The dot is now glued to the word before it, and the only break opportunity is after it:
 
 ```html
 <p class="stack">Python&nbsp;· BigQuery&nbsp;· Data Studio</p>
@@ -823,7 +827,7 @@ The no-break space works across the tag boundaries: "GmbH", its ↗ (held to the
 
 - The mechanism: a screen reader switches voice at every `lang` change. Without the attribute, a German voice would read "Marketing leadership with root access" with German pronunciation rules – recognizable at best. Spell-checkers and hyphenation use the same attribute.
 - On the English page some of these attributes are left out: `build.py` adds them to the P⁴ headings, the tree keys and the italic words only when the page language is not English (variables `en_attr` and `lang`). Others are written into the shared template and therefore appear on both pages – tagline, claim and prompt. On the English page they are redundant and harmless.
-- The mirror case is on the 404 page: an English page with one German line, marked `lang="de"`.
+- The mirror cases: the two 404 pages – each has one line in the other language, marked with its `lang` – and the English legal pages, whose link to the German original carries `lang="de"`.
 
 ## The page as plain text
 
@@ -835,24 +839,26 @@ Not every reader renders the page. A search engine indexes its text, a parser pu
 
 The durations under the dates follow the same rule: the `<br>` keeps "10/2017 – 06/2023" and "5 years 9 months" apart. To see the result, select the ledger, copy it and paste it into a plain text editor.
 
-One addition goes the other way. The notice behind each ↗ is real text, like the "to" in the arrows, so the extraction now reads "LinkedIn (opens in a new tab)" and "Verify credential (opens in a new tab)" – 15 times per page, on the German page "(öffnet in neuem Tab)". Screen readers need the notice as text inside the link (see "Links that leave the site"), and an extraction takes it along with the link text.
+One addition goes the other way. The notice behind each ↗ is real text, like the "to" in the arrows, so the extraction now reads "LinkedIn (opens in a new tab)" and "Verify credential (opens in a new tab)" – 22 times per page, plus "Leipzig (map, opens in a new tab)" once, on the German page "(öffnet in neuem Tab)". Screen readers need the notice as text inside the link (see "Links that leave the site"), and an extraction takes it along with the link text.
 
 ---
 
 ## The other files
 
-### `404.html`
+### `404.html` and `de/404.html`
 
 ```html
 <title>404 – Peter Stieg</title>
 <meta name="description" content="Page not found.">
+<meta name="author" content="Peter Stieg">
+<link rel="canonical" href="https://peterstieg.com/404.html">
 …
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 …
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/site.css?v=…">
 <meta name="robots" content="noindex">
 </head>
 ```
@@ -863,7 +869,7 @@ One addition goes the other way. The notice behind each ↗ is real text, like t
 
 <span class="themes" role="group" aria-label="Theme">…</span></nav>
 …
-<main id="main">
+<main id="main" data-torch="…">
 <div class="wrap">
 <section class="lost">
 <p class="code">404</p>
@@ -874,32 +880,104 @@ One addition goes the other way. The notice behind each ↗ is real text, like t
 </div>
 </main>
 …
-<script src="/assets/site.js" defer></script>
+<script src="/assets/site.js?v=…" defer></script>
 ```
 
-- Absolute paths (`/…`) – the server answers a missing URL such as `https://peterstieg.com/de/old/page` with the content of `404.html`, but the browser still believes it is at `/de/old/page`. Relative paths resolve against that address: `assets/site.css` would become `/de/old/assets/site.css`, which does not exist, and the error page would appear unstyled. A path starting with `/` always begins at the domain root. The trade-off: opened from disk, `/assets/…` points to the root of your file system, so the 404 page only looks right on a server. `build.py` passes `root="/"` for this page alone.
+The German one, `de/404.html`, mirrors it:
+
+```html
+<h1><code class="dki">{KeyWord:Seite}</code> nicht gefunden.</h1>
+<p class="claim" lang="en">This page does not exist.</p>
+<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/de/">cd ~</a>&nbsp;· <a href="/" lang="en">English</a></p>
+```
+
+- One error page per language. The server picks: `.htaccess` sends every missing address to `/404.html`, `de/.htaccess` every missing address under `/de/` to `/de/404.html` (next section). Each page has one line in the other language and a link to the other start page, for a visitor who landed in the wrong one.
+- Absolute paths (`/…`) – the server answers a missing URL such as `https://peterstieg.com/de/old/page` with the content of the 404 page, but the browser still believes it is at `/de/old/page`. Relative paths resolve against that address: `assets/site.css` would become `/de/old/assets/site.css`, which does not exist, and the error page would appear unstyled. A path starting with `/` always begins at the domain root. The trade-off: opened from disk, `/assets/…` points to the root of your file system, so the 404 pages only look right on a server. `build.py` passes `root="/"` for these pages alone.
+- `canonical` – the page's own address, `https://peterstieg.com/404.html` or `…/de/404.html`.
 - `<meta name="robots" content="noindex">` – error pages do not belong in search results.
-- No `hreflang` alternates, no section links, no language switch (`alternates=False`, `sections=False`, `langs=False` in `build.py`): there is nothing to switch to. The line breaks that separate the parts of the header menu stay, around empty parts, which leaves an empty line in the `<nav>`; in a flex container it renders nothing. The legal pages have the same.
-- The logo links to `/index.html`, because there is no `#top` on this page.
-- `{KeyWord:Page}` – Google Ads syntax for Dynamic Keyword Insertion: `{KeyWord:Default}` puts the searched keyword into an ad, or the default text when the keyword does not fit. The capitalization of `KeyWord` even controls the case of the inserted words. Here the "default" won – a joke for anyone who has run search campaigns. `<code>` marks it as code; the CSS keeps the regular font and sets it in the accent color.
-- `lang="de"` – the German line inside the English page.
-- `cd ~` – the shell command "change to the home directory", linked to `/`.
+- No `hreflang` alternates, no section links, no language switch (`alternates=False`, `sections=False`, `langs=False` in `build.py`): a missing page has no counterpart; the link in the prompt line leads to the other start page instead. The line breaks that separate the parts of the header menu stay, around empty parts, which leaves an empty line in the `<nav>`; in a flex container it renders nothing.
+- The logo links to `/index.html` (German: `/de/index.html`), because there is no `#top` on this page.
+- `{KeyWord:Page}` – Google Ads syntax for Dynamic Keyword Insertion: `{KeyWord:Default}` puts the searched keyword into an ad, or the default text when the keyword does not fit. The capitalization of `KeyWord` even controls the case of the inserted words. Here the "default" won – a joke for anyone who has run search campaigns; German: `{KeyWord:Seite}`. `<code>` marks it as code; the CSS keeps the regular font and sets it in the accent color.
+- `lang="de"` – the German line inside the English page; on the German page, `lang="en"` on the English one. The link to the other start page carries the same attribute: its text, "Deutsch" or "English", is in that language.
+- `cd ~` – the shell command "change to the home directory", linked to the start page of the page's language: `/` or `/de/`.
+- `data-torch` – the torch works here too; its second level shows the four lines of `not_found()` that write the section.
 - The page has no minimap and no jump control. `site.js` checks whether elements exist before using them, so it runs here without errors.
 - Like every page, this one passes through `dots()`: the `&nbsp;` glues the dot to `cd ~`.
 
-### `.htaccess`
+### `.htaccess` and `de/.htaccess`
 
 ```apache
 ErrorDocument 404 /404.html
+ErrorDocument 403 /404.html
 AddType application/manifest+json .webmanifest
+
+# one address: https://peterstieg.com/ – www. and http:// forward there (the port check IONOS recommends)
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\. [NC,OR]
+RewriteCond %{SERVER_PORT} !=443
+RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# stylesheet and script change their address with their content (?v=), fonts never change: kept for a year.
+# Pages and torch.json are asked for on every visit – unchanged, the answer is a short 304.
+<IfModule mod_headers.c>
+<FilesMatch "\.(css|js|woff2)$">
+Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+<FilesMatch "\.(html|json)$">
+Header set Cache-Control "no-cache"
+</FilesMatch>
+</IfModule>
+
+# text goes out compressed – pages, stylesheet and script shrink to a quarter to a third
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml application/manifest+json
+</IfModule>
 ```
 
-- A configuration file for the Apache web server, read per directory. The first line says: for every "not found" error, deliver `/404.html`.
-- With a local path, Apache keeps the status code 404, so browsers and crawlers learn that the page does not exist. With a full `https://` URL, Apache would send a redirect instead, and the error status would be lost.
-- Only Apache and compatible servers read `.htaccess`, and only if the host allows overrides. GitHub Pages ignores it and serves a `404.html` from the site root automatically. With both in place, the error page works on either kind of host.
-- `AddType application/manifest+json .webmanifest` – the second line is about the `Content-Type` header. A web server sends every file with a media type that tells the browser what it is receiving, and Apache picks that type from a table of file extensions. `.webmanifest` is a young extension; a server whose table lacks it sends the manifest with a generic type, or with none. `application/manifest+json` is the type the Web App Manifest specification registers for these files.
-- Why it belongs here: the site runs on shared hosting at IONOS, where Apache's own configuration – including its table of types – is out of reach. `.htaccess` is the one place where a site can add an entry, and `AddType` adds exactly one: files ending in `.webmanifest` go out as `application/manifest+json`. Browsers are forgiving and read a manifest under a generic type as well; the line makes the server state correctly what the file is.
-- The leading dot makes it a hidden file on Unix systems; some FTP clients and file managers do not show it. Since `site/` is uploaded by hand (see `decisions.md`), check that it arrived.
+A configuration file for the Apache web server, read per directory on every request. The site runs on shared hosting at IONOS, where Apache's own configuration is out of reach; `.htaccess` is the one place where a site can add to it. `build.py` writes it from the constant `HTACCESS`.
+
+**Error pages.**
+
+- `ErrorDocument 404 /404.html` – for every "not found" error, deliver `/404.html`. With a local path, Apache keeps the status code 404, so browsers and crawlers learn that the page does not exist. With a full `https://` URL, Apache would send a redirect instead, and the error status would be lost.
+- `ErrorDocument 403 /404.html` – "forbidden" gets the same page, for example a folder without an `index.html` when the server does not list folders. The visitor sees the site's own page instead of Apache's; the status stays 403.
+
+**The manifest's type.**
+
+- `AddType application/manifest+json .webmanifest` – about the `Content-Type` header. A web server sends every file with a media type that tells the browser what it is receiving, and Apache picks that type from a table of file extensions. `.webmanifest` is a young extension; a server whose table lacks it sends the manifest with a generic type, or with none. `application/manifest+json` is the type the Web App Manifest specification registers for these files. Browsers are forgiving and read a manifest under a generic type as well; the line makes the server state correctly what the file is.
+
+**One address.** The site answers under one address only: `https://peterstieg.com/`, the one every canonical tag names.
+
+- `<IfModule mod_rewrite.c>` – the lines inside apply only if Apache has loaded the module. Without the wrapper, a missing module would turn every request into a 500 error; with it, the block is skipped.
+- `RewriteEngine On` – switches rewriting on for this directory and below.
+- `RewriteCond %{HTTP_HOST} ^www\. [NC,OR]` – the host the browser asked for starts with `www.`. `NC` – no case: `WWW.` counts too. `OR` – this condition or the next one; conditions are joined by AND otherwise.
+- `RewriteCond %{SERVER_PORT} !=443` – the request did not arrive on port 443, the HTTPS port: it came over plain `http://`. The port is the check IONOS recommends for its hosting.
+- `RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]` – `^` matches every path; the target is the one address with the requested path appended, and Apache carries the query string over. `R=301` – a permanent redirect: browsers and search engines may remember it and move links to the new address. `L` – last rule, stop here.
+- Result: `http://www.peterstieg.com/de/` reaches `https://peterstieg.com/de/` in one step, not via `https://www.…` first. Search engines see one host, and nothing is served over plain HTTP.
+
+**How long browsers keep what.**
+
+- `<IfModule mod_headers.c>` – the same safeguard for the module that sets response headers.
+- `<FilesMatch "\.(css|js|woff2)$">` – a regular expression on the file name: names that end in `.css`, `.js` or `.woff2`.
+- `Cache-Control "public, max-age=31536000, immutable"` – `public`: any cache may store the file. `max-age=31536000`: fresh for 31,536,000 seconds – 365 × 24 × 60 × 60, one year. `immutable`: no check with the server even when the visitor reloads. Safe for exactly these files: the stylesheet and the script change their address when they change (`?v=`, see "Font preload and stylesheet"), and the font files never change.
+- `<FilesMatch "\.(html|json)$">` with `no-cache` – despite its name, not "do not store" but "store, and ask before every use". The browser sends what it knows about its copy (`If-Modified-Since`, `If-None-Match`); if nothing changed, the server answers `304 Not Modified` without the file. Pages and `torch.json` – which has no fingerprint – are therefore always current, and an unchanged one costs a short answer.
+- Files neither block names – icons, `og-image.png`, `sitemap.xml`, `robots.txt`, the manifest – get no header from here; browsers then estimate a lifetime themselves from the file's age.
+
+**Compression.**
+
+- `<IfModule mod_deflate.c>` – the module that compresses responses on the fly.
+- `AddOutputFilterByType DEFLATE …` – compress responses of these media types: HTML, CSS, JavaScript (under both names in use), JSON, SVG and the manifest. Only when the browser announces that it can unpack (`Accept-Encoding: gzip` – every current browser does); the answer then carries `Content-Encoding: gzip`.
+- Text compresses well. Measured on a local Apache: the start page 32 → 8 KB, `site.js` 34 → 12 KB, `site.css` 26 → 7 KB. PNG, ICO and WOFF2 are compressed formats already, so they are not on the list; SVG is text, so it is.
+
+```apache
+# a missing address under /de/: the German 404
+ErrorDocument 404 /de/404.html
+```
+
+- `site/de/.htaccess` – Apache reads the `.htaccess` files from the root down to the folder of the requested file, and a later one overrides an earlier one directive by directive. For every address under `/de/`, this line replaces the root's `ErrorDocument 404`; everything else comes from the root's file. A 403 under `/de/` still shows the English `/404.html`.
+- Only Apache and compatible servers read `.htaccess`, and only if the host allows overrides. GitHub Pages ignores it; it serves only the forward page from the repository root ([chapter 5](05-forward.md)).
+- The leading dot makes it a hidden file on Unix systems; some FTP clients and file managers do not show it. Since `site/` is uploaded by hand (see `decisions.md`), check that both arrived.
 
 ### `robots.txt`
 
@@ -921,57 +999,64 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>https://peterstieg.com/</loc><lastmod>2026-11-04</lastmod>
+<url><loc>https://peterstieg.com/</loc><lastmod>…</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
-<url><loc>https://peterstieg.com/de/</loc><lastmod>2026-11-04</lastmod>
+<url><loc>https://peterstieg.com/de/</loc><lastmod>…</lastmod>
 <xhtml:link rel="alternate" hreflang="en" href="https://peterstieg.com/"/><xhtml:link rel="alternate" hreflang="de" href="https://peterstieg.com/de/"/></url>
 </urlset>
 ```
 
 - `<?xml …?>` – XML declaration: version and encoding.
 - `<urlset xmlns="…sitemap/0.9">` – the root element of the sitemap protocol. `xmlns:xhtml="…"` declares the prefix `xhtml:`, so the file may borrow the `<link>` element from XHTML.
-- `<url><loc>` – one entry per page that should be found: only the two home pages. The legal pages and the 404 page carry `noindex`, so they are left out.
-- `<lastmod>` – the build date (`date.today()` in `build.py`). It changes with every build, even when no text changed. Google uses `lastmod` only from sites where it proves consistently accurate.
+- `<url><loc>` – one entry per page that should be found: only the two start pages. The legal pages and the 404 pages carry `noindex`, so they are left out.
+- `<lastmod>` – the build date (`date.today()` in `build.py`), as `YYYY-MM-DD`. It changes with every build, even when no text changed. Google uses `lastmod` only from sites where it proves consistently accurate.
 - `<xhtml:link rel="alternate" hreflang="…">` – the same language pairing as the `<link>` tags in the head, delivered a second way. Each entry lists every version including itself, as the head does. The `x-default` from the head is not repeated here; the head already declares it.
 
-### `impressum.html` and `datenschutz.html`
+### The legal pages
 
 ```html
-<html lang="de">
+<html lang="en">
 …
-<title>Impressum – Peter Stieg</title>
+<title>Legal notice – Peter Stieg</title>
+<meta name="description" content="Legal notice for peterstieg.com">
 …
-<link rel="canonical" href="https://peterstieg.com/impressum.html">
+<link rel="canonical" href="https://peterstieg.com/legal-notice.html">
+<link rel="alternate" hreflang="en" href="https://peterstieg.com/legal-notice.html">
+<link rel="alternate" hreflang="de" href="https://peterstieg.com/impressum.html">
+<link rel="alternate" hreflang="x-default" href="https://peterstieg.com/legal-notice.html">
 …
 <meta name="robots" content="noindex, follow">
 </head>
 <body>
-<a class="skip" href="#main">Zum Inhalt springen</a>
+<a class="skip" href="#main">Skip to content</a>
 …
-<a class="home" href="de/index.html">…</a>
+<a class="home" href="index.html">…</a>
 …
-<main id="main">
+<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="impressum.html" hreflang="de" lang="de" title="Deutsch">DE</a></span>
+…
+<main id="main" data-torch="…">
 <div class="wrap legal">
-<div class="body">
-<h1>Impressum</h1>
-<h2>Angaben gemäß § 5 DDG</h2>
-<address>Peter Stieg<br>
+<div class="body" id="legal-notice">
+<h1>Legal notice</h1>
+<p class="muted">Translation – the German <a href="impressum.html" hreflang="de" lang="de">Impressum</a> is legally binding.</p>
+<h2>Information pursuant to § 5 DDG</h2>
+<address>…</address>
 …
-Deutschland</address>
-…
-<p>peterstieg.com: <a href="index.html" hreflang="en">English</a>&nbsp;· <a href="de/index.html">Deutsch</a></p>
 </div>
 </div>
 </main>
 ```
 
-- German pages, built from the German settings with `root=""`, because they sit in the site root next to `index.html`.
+- Four pages, all in the site root: `impressum.html` and `datenschutz.html` in German, legally binding; `legal-notice.html` and `privacy.html` in English, translations. Each is built from its language's settings with `root=""`.
+- `<title>` and description name the page: "Legal notice – Peter Stieg", "Legal notice for peterstieg.com"; German "Impressum von peterstieg.com".
+- `canonical` – the page's own address. The `alternate` links pair it with its counterpart in the other language, by the same rules as the start pages: both pages of a pair list both, x-default is the English one.
 - `<meta name="robots" content="noindex, follow">` – "do not show this page in search results, but do follow its links". `follow` is the default; it is written out for clarity. Why `noindex`: legal pages answer no search query, and the legal notice carries a full postal address that should not turn up when someone searches the name.
-- No alternates, no language switch, no section links – the header shows only the logo (linking to the German home page) and the theme buttons.
-- `<address>` – contact information for the owner of the page: the right element for a legal notice. Browsers set it in italics by default; the CSS resets that.
-- `<br>` – line breaks that belong to the content: an address is the textbook case for `<br>`.
-- The closing line links back to both language versions.
-- The privacy page has the same structure with more `<h2>` sections and a dated line `<p class="muted">Stand: Oktober 2026</p>`, which is fixed text in `build.py` and needs a manual update when the policy changes.
+- The header: the logo, linking to the start page of the page's language (`index.html`, `de/index.html`); the language switch, leading to the same page in the other language – here `impressum.html`; the theme buttons. No section links.
+- `data-torch` – the torch works here too. `<div class="body" id="legal-notice">` – the file name as id: the torch's second level finds the line of `build.py` that wrote each element by its place in the body – `#legal-notice > :nth-child(4)` is the `<address>` (chapter 1, `torch_map()`).
+- `<p class="muted">Translation – …</p>` – the English pages say what they are and link the German original. On that link, `hreflang="de"` says the target is German, `lang="de"` that the link text is a German word.
+- `<address>` – contact information for the owner of the page: the right element for a legal notice. Its lines – name, street, postcode and city, country – are separated by `<br>`, the textbook case for that element; on the English pages the country reads "Germany". Browsers set `<address>` in italics by default; the CSS resets that.
+- The privacy pages have the same structure with more `<h2>` sections and a dated line – `<p class="muted">Stand: November 2026</p>`, in English "As of November 2026 · Translation – …". The date is fixed text in `build.py` and needs a manual update in both languages when the policy changes.
+- The body ends with its last section. The logo and the language switch lead on.
 
 ### `site.webmanifest`
 
@@ -1035,7 +1120,7 @@ The PS monogram: P and S from Atkinson Hyperlegible Bold, the site's own font. T
 
 ## Try it
 
-1. **Source vs DOM.** Open https://peterstieg.com/ and press Ctrl+U (view-source). Find the comment and the theme boot script. Then open DevTools (F12) → Elements and compare: `<html>` now has `class="js"`, one theme button has `aria-pressed="true"`, and on a wide screen `.minimap` is full of `span.mm-bar`. Click the moon and check `<html data-theme="dark">` and, under Application → Local Storage, the key `theme`; Application → Manifest shows the name and the two icons from `site.webmanifest`. Finally press Ctrl+Shift+P, run "Disable JavaScript" and reload: theme buttons gone, motto static, the jump control visible from the start with up and the section list but without down.
+1. **Source vs DOM.** Open https://peterstieg.com/ and press Ctrl+U (view-source). Find the comment and the theme boot script. Then open DevTools (F12) → Elements and compare: `<html>` now has `class="js"`, both theme buttons have `aria-pressed="false"` until one is clicked, and on a wide screen `.minimap` is full of `span.mm-bar`. Click the moon and check `<html data-theme="dark">` and, under Application → Local Storage, the key `theme`; click it again, and both are gone; Application → Manifest shows the name and the two icons from `site.webmanifest`. Finally press Ctrl+Shift+P, run "Disable JavaScript" and reload: theme buttons gone, motto static, the jump control visible from the start with up and the section list but without down.
 2. **Accessibility tree.** In Elements, select a `span.arr` and open the Accessibility pane: the SVG is not in the tree, the only thing below the span is the text "to" from its `.sr-only` span. Select a theme button and click it – watch "pressed" flip. Select the footnote link "1" and find its description "Sources". Select the LinkedIn link under Contact: its name is "LinkedIn (opens in a new tab)", and the ↗'s SVG is not in the tree. Scroll to 2010–2014, open "All five positions" and watch the attribute `open` appear on `<details class="more">`. Then open the Network panel, filter by "Font" and reload: the two preloaded fonts start early, the italic only after `site.css` has been read.
 3. **Link preview and structured data.** Paste https://peterstieg.com/ into LinkedIn's Post Inspector (https://www.linkedin.com/post-inspector/) and compare title, description and image with the `og:` tags; repeat with https://peterstieg.com/de/. The Inspector fetches fresh, which also refreshes LinkedIn's cached card. Then paste the URL into https://validator.schema.org/ and find the Person with its `sameAs` and `hasCredential` entries.
 

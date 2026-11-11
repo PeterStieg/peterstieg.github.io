@@ -1,0 +1,2 @@
+# a missing address under /de/: the German 404
+ErrorDocument 404 /de/404.html
