@@ -251,7 +251,8 @@ html:not(.js) .themes { display: none; }
    26 px, above the headword (24 px) and the P⁴ headings (22 px). */
 @media (max-width: 47.99rem) {
   html { scroll-padding-top: 3.5rem; }            /* a jump to a section lands its border on the header's */
-  .sec { padding-top: 2.5rem; }
+  .hero { padding-block: 2.5rem; }                /* the first screen reaches the profile text */
+  .sec { padding-block: 2rem; }
   .sec > h2 {
     font-size: 1.625rem;
     position: sticky; top: calc(3.5rem + 1px); z-index: 3;

@@ -228,7 +228,7 @@ CONTENT = {
         "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "new_tab": "opens in a new tab", "map": "map",
         "torch": {"tags": ["", "HTML · again: build.py", "build.py · again: off"],
                   "keys": "Keyboard shortcuts", "close": "Close",
-                  "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], ["?", "Show this list"]]},
+                  "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], [["?", "F1"], "Show this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: …",
@@ -249,13 +249,17 @@ CONTENT = {
             …
         ],
         "roles": [
-            {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
+            {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
              "tree": [("Team", "…"),
                       ("Scope", "…"),
                       ("Result", "…")]},
+            {"when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
+             "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
+             "tree": [("Scope", "…"),
+                      ("Result", "…")]},
             …
-            {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
+            {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Art prints online in more than 15 European countries.",
              "tree": [("Team", "…"),
                       ("Scope", "…"),
@@ -265,9 +269,9 @@ CONTENT = {
             …
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "…")],
-             "positions": ("All five positions", [
-                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://it.sbsbusiness.eu/"),
-                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl", "https://innervalor.com/"),
+             "positions": ("Five positions", [
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
+                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor", "https://innervalor.com/"),
                  …
              ])},
         ],
@@ -286,7 +290,7 @@ CONTENT = {
             …
         ],
         "facts": [
-            ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in partnership with Université Paris 1 Panthéon-Sorbonne"),
+            ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora (formerly DataScientest) in partnership with Université Paris 1 Panthéon-Sorbonne"),
             ("2023", "Agile project management specialist[[ihk]]", "IHK"),
             …
             ("Languages", ["German (native)", "English C2", "Italian C2", "Spanish B1", "French A2"], ""),
@@ -294,7 +298,7 @@ CONTENT = {
         "reach": ("Email", "Based in", "Leipzig"),
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
         "imprint": "Legal notice", "privacy": "Privacy", "legal_desc": "%s for peterstieg.com",
-        "lost": ("Page", "not found.", "Diese Seite gibt es nicht."),
+        "lost": ("Page", "not found.", "Diese Seite gibt es nicht.", "start page"),
         "jobtitle": "Head of Marketing",
     },
     # ------------------------------------------------------------------ DE
@@ -313,6 +317,10 @@ CONTENT = {
 - Every list with a time order runs newest first: the ledger (E+SERVICE+CHECK, Brandible, Posterlounge), the roles, the steps inside a role (`path`, `positions`), the dated facts in Education and the project groups. One direction throughout, so nothing reads as reversed. The trade-off, accepted for that consistency: the largest figure, the media budget from €6k to €240k, stands last in the ledger.
 - No code sorts anything. The order in the dict is the order on the page, and `role()` even relies on it to compute the ends of the promotions (section 24). A new entry goes where it belongs in time.
 - The two Liora courses stand in `roles` as well: full-time from 02 to 07/2025, between Brandible (until 12/2024) and E+SERVICE+CHECK (from 11/2025), they show what that stretch was. Their titles say what they were, "MLOps Engineer training (full-time)" and "Data Scientist training (full-time)", so they do not read as jobs.
+  - `"org": "Liora", "url": NOTES["mlops"]["course"]` – the school links the course page of that training, the same URL as the footnote's "Course page" (section 7): defined once, in `NOTES`. `CONTENT` comes after `NOTES` in the file, so the name is already bound when the dict is built.
+  - `"with"` – the partner, written after the link and outside it: "Liora ↗ · Université Paris 1 Panthéon-Sorbonne". The ↗ promises Liora's page; inside the link the Sorbonne would seem to be the target too.
+  - "(formerly DataScientest)" stands in Education, not here: there it also explains why the verification links in Sources lead to datascientest.com.
+- Company names carry no legal form – "Posterlounge", not "Posterlounge GmbH"; "SBS systems for business solutions", not "… Srl": the names people know, the ones references and LinkedIn use. The ↗ already leads to the website, so no domain stands in as a label either. "Brandible by KSi International" keeps its "by": the commercial register still lists KSI International GmbH, so "formerly" would claim a rename.
 
 ### Every key and what it feeds
 
@@ -335,7 +343,7 @@ Interface labels:
 | `arrow` | str | the word behind a drawn → (`"to"` / `"auf"`): what screen readers say and what copied text reads |
 | `to_top` | str | label of the jump control's up link while it leads to the top of the page (`"Back to top"` / `"Nach oben"`) |
 | `new_tab` | str | what screen readers hear after every link that leaves the site: `"opens in a new tab"` / `"öffnet in neuem Tab"`, in parentheses, as visually hidden text (`offsite()`, section 20) |
-| `torch` | dict | the strings of the torch (`sudo`, chapter 4), which `site.js` cannot generate in two languages: `tags` – the line under the light at levels 1 and 2 (level 0 shows none, hence the empty string); `keys`, `close` and `rows` – the card that `?` opens: its title, the name of its close button, and per shortcut the key and what it does. Written into `<main>` as JSON in one attribute (section 25) |
+| `torch` | dict | the strings of the torch (`sudo`, chapter 4), which `site.js` cannot generate in two languages: `tags` – the line under the light at levels 1 and 2 (level 0 shows none, hence the empty string); `keys`, `close` and `rows` – the card that `?` or F1 opens: its title, the name of its close button, and per shortcut the key – or a list of keys, `["?", "F1"]` – and what it does. Written into `<main>` as JSON in one attribute (section 25) |
 | `map` | str | read out before `new_tab` on the place under Contact, which opens a map: "map, opens in a new tab" / "Karte, öffnet in neuem Tab" |
 | `dur` | 4-tuple | the words for the durations under the role dates: year, years, month, months (`duration()`, section 22). Joined by commas, they also go to `site.js`, which recounts the running role |
 | `jump` | dict | the jump control: `label` names its `<nav>`, `menu` the button that opens the section list, `up` and `down` are templates in which `%s` stands for a section name (`"Up: %s"` → "Up: Experience") |
@@ -344,7 +352,7 @@ Interface labels:
 | `sec` | dict | section headings, keyed by internal section name |
 | `notes` | dict | labels in the Sources list, incl. the two date labels `issued` and `completed` |
 | `imprint`, `privacy` | str | footer links |
-| `lost` | 3-tuple | the 404 page in this language: the word inside `{KeyWord:…}`, the rest of the heading, the line in the other language (`not_found()`, section 27) |
+| `lost` | 4-tuple | the 404 page in this language: the word inside `{KeyWord:…}`, the rest of the heading, the line in the other language, the name of the start page that screen readers hear after `cd ~` (`not_found()`, section 27) |
 
 Metadata:
 
@@ -362,7 +370,7 @@ Copy:
 | `profile` | str | the profile paragraph |
 | `ledger_label`, `ledger` | str, list of (figure, context, company key) | the results list in the profile; the key looks up the name in `COMPANIES` and links to the role with that `id` |
 | `fields` | list of 4 str | the P⁴ section, paired with `P4` |
-| `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`, or `"since MM/YYYY"` for the role that is still running – `months()` reads the dates), `title`, `org`, `url` (optional: the company's website, behind the company name, in a new tab), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (start `"MM/YYYY"`, title)), newest first – the promotions within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts), `positions` (optional: (label, list of (range `"MM/YYYY – MM/YYYY"`, title, company)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates) |
+| `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`, or `"since MM/YYYY"` for the role that is still running – `months()` reads the dates), `title`, `org` (the name without legal form), `url` (optional: the company's website – for the two trainings the course page –, behind the name, in a new tab), `with` (optional: a partner named after the link, outside it – the Sorbonne for the two trainings), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (start `"MM/YYYY"`, title)), newest first – the promotions within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts), `positions` (optional: (label, list of (range `"MM/YYYY – MM/YYYY"`, title, company, url – `""` without one)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates) |
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link; each link opens in a new tab |
 | `approach` | list of 3 str | Approach, one list item per sentence |
 | `facts` | list of (label, value, sub-line or `""`) | Education; the value is a string, or a list of strings shown one per line (the languages) |
@@ -374,7 +382,7 @@ Copy:
 - Localized, not translated: German uses KUR, English RoAS (rule 2), job titles follow German usage ("Leiter Marketing"), number formats follow each language ("6.000 → 240.000 €" vs "€6k → €240k"), and trade terms follow each language's habit – "marketing automation" (Brandible, Rapidobject) is "Marketing Automation" in German, the English term German marketing uses, capitalized as a German noun. The two trainings follow each language's word order: "MLOps Engineer training (full-time)", "Weiterbildung MLOps Engineer (Vollzeit)".
 - English inside German: the tree labels `"Team"`, `"Scope"` and `"Result"` stay English in the DE dict (rule 5). Every role uses the same three, in that order, wherever there is something to say – a role without a team simply has no `"Team"` row.
 - Not localized at all: the company keys at the end of each `ledger` entry and the role `id`s they point to. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates.
-- Nested lists mirror too: the four titles under `"path"` and the five positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Three promotions", "Drei Beförderungen"; "All five positions", "Alle fünf Stationen"). The promotions keep their titles in both, because they are the titles that were held – only the market in the oldest one is localized: "SEO Manager Italy", "SEO Manager Italien". The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical.
+- Nested lists mirror too: the four titles under `"path"` and the five positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Three promotions", "Drei Beförderungen"; "Five positions", "Fünf Stationen") and follow one pattern, number and noun. The promotions keep their titles in both, because they are the titles that were held – only the market in the oldest one is localized: "SEO Manager Italy", "SEO Manager Italien". The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical.
 - Nothing checks parity. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A missing list item – a role or project only added in EN – is silent: the German page simply shows one entry fewer. Edit both languages in the same sitting.
 - Quick parity check from the repository root (importing does not build anything, see section 30):
 
@@ -402,7 +410,7 @@ Pitfall: the markers only work where the code runs the text through the matching
 ```python
 SOURCE_NOTE = f"""<!--
   Hallo · Hi · Ciao – view-source counts as root access, too.
-  On the page: type sudo · ? lists the keys.
+  On the page: type sudo · ? or F1 lists the keys.
 
   peterstieg.com
   ├── no tracking
@@ -415,7 +423,7 @@ SOURCE_NOTE = f"""<!--
 
 - A triple-quoted f-string: it may span lines, and `{MOTTO}` is the only replacement field.
 - The content is an HTML comment (`<!-- … -->`): invisible on the page, visible to anyone who opens the page source. `head()` places it between `<!doctype html>` and `<html>`.
-- The second line points developers to the torch (`site.js`): the same view of the source, on the page. `sudo` switches it on; `?` opens the card with the keys. The console greeting in `site.js` says the same words, so whoever finds one finds the other.
+- The second line points developers to the torch (`site.js`): the same view of the source, on the page. `sudo` switches it on; `?` or F1 opens the card with the keys. The console greeting in `site.js` says the same words, so whoever finds one finds the other.
 - The comment text must never contain `-->` – that would end the comment early and print the rest on the page.
 - Pitfall: the comment comes before `<meta charset="utf-8">`. Browsers look for the charset declaration only in the first 1024 bytes of the file; it currently sits at byte 278. Let the comment grow by several hundred bytes and the browser may have to guess the encoding – umlauts and the tree characters break.
 - `dots()` deliberately leaves this comment alone (section 29).
@@ -718,12 +726,12 @@ def lang_switch(c, paths=None):
 ```
 
 - The docstring names the two current languages. The output itself follows `LANGS`, so a third entry there would appear in the switch automatically.
-- `paths` – where each language's version of this page lives, from the site root. The legal pages pass their pair (`{"en": "legal-notice.html", "de": "impressum.html"}`, section 26); the start pages pass nothing.
+- `paths` – where each language's version of this page lives, from the site root. The legal pages pass their pair (`{"en": "legal-notice.html", "de": "impressum.html"}`, section 26); the start pages and the 404s pass nothing.
 - `paths = paths or {…}` – `or` returns its left side if that is truthy, else its right side. `None` (and an empty dict) are falsy, so a call without `paths` gets the start pages, built from the paths in `LANGS` (index 3).
 - `items = []` plus `append` – an explicit loop, because each language takes one of two shapes.
 - `for code, label, name, _, _ in LANGS` – full unpacking; path and slug are not needed here – the path comes from `paths`.
 - Current language: a `<span>`, not a link – a link to the page you are on is noise. `aria-current="page"` tells screen readers "this is the current one"; the CSS rule `.langs [aria-current]` sets it in bold.
-- Other languages: `<a href="{r}{paths[code]}">` – from the English start page `de/index.html`, from the German one `../index.html`, from `legal-notice.html` `impressum.html`. `hreflang` states the language of the target page; `lang` the language of the link text itself; `title` shows the full name on hover.
+- Other languages: `<a href="{r}{paths[code]}">` – from the English start page `de/index.html`, from the German one `../index.html`, from `legal-notice.html` `impressum.html`, from the English 404 `/de/index.html` (root `"/"`, section 27). `hreflang` states the language of the target page; `lang` the language of the link text itself; `title` shows the full name on hover.
 - The wrapper: `role="group"` with `aria-label` lets a screen reader announce "Language, group" before the links.
 - `{" ".join(items)}` – an expression inside the f-string. Double quotes inside, single quotes outside.
 - The space between the items is there for the text, not for the eye. Without it, copied or extracted text reads "ENDE"; with it, "EN DE". On screen it changes nothing: `.langs` is an inline flex container, and a flex container ignores text that is only whitespace. The visible spacing comes from CSS padding. No separator characters such as `|` – the CSS draws the pill around both.
@@ -754,20 +762,23 @@ def theme_switch(c):
 ## 17 · topbar
 
 ```python
-def topbar(c, sections=True, langs=True):
-    """langs: True – the switch to the other start page; a dict (code → path) – to that page; False – no switch."""
+def topbar(c, start=True, langs=True):
+    """The header, the same on every page. start: a start page – the menu jumps within it, the hero's name docks into
+    the logo; on the other pages the menu leads to the start page's sections.
+    langs: True – the switch to the other start page; a dict (code → path) – to that page; False – no switch."""
     r = c["root"]
+    to = "" if start else r + c["path"]               # the start page the menu's sections are on
     keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
-    links = "\n".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
-                     f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
+    links = "\n".join(f'<a class="sect" href="{to}#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
+                     f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"])
     switch = lang_switch(c, langs if isinstance(langs, dict) else None) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
-    word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if sections else ""
+    word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if start else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
 <div class="wrap">
-<a class="home" href="{'#top' if sections else r + c['path']}">{word}{LOCKUP}</a>
+<a class="home" href="{'#top' if start else r + c['path']}">{word}{LOCKUP}</a>
 <nav class="nav" aria-label="{e(c['aria_main'])}">{links}
 {switch}
 {theme_switch(c)}</nav>
@@ -776,19 +787,22 @@ def topbar(c, sections=True, langs=True):
 """
 ```
 
-- `sections`, `langs` – switches. The start pages get section links and the language switch; the legal pages pass `sections=False` and their pair as `langs`; the 404s pass `False` for both.
+- One header for every page: logo, the four chapters, language switch, theme switch. Two switches set what differs:
+  - `start` – a start page (`True`, the default) or not. On a start page the menu jumps within the page and the logo to the hero; on the legal pages and the 404s both lead to the start page of the page's language. Before 13.11.2026 the parameter was called `sections`, and `False` dropped the menu: on the legal pages and the 404s, the logo was the only way to a chapter.
+  - `langs` – which language switch: `True` (the default) the other start page, a dict the given pages, `False` none. The start pages and the 404s take the default; the legal pages pass their pair. `False` is no longer passed anywhere.
+- `to = "" if start else r + c["path"]` – the page the menu's sections are on: nothing on a start page, so the links stay in-page anchors; elsewhere the start page, from the page's root – `index.html`, `de/index.html` on the legal pages, `/index.html`, `/de/index.html` on the 404s.
 - `keys` – a dict comprehension that turns the lookup around. `nav` holds the localized ids (`"stationen"`), `num()` needs the section key (`"experience"`). Looping over `CHAPTERS` loops over its keys – the four sections the menu links to. So `keys` maps each id back to its key: `{"profil": "profile", "stationen": "experience", …}` on the German page; in English, id and key are the same.
-- `links = "\n".join(…) if sections else ""` – the conditional expression wraps the whole join, so the generator only runs when `sections` is true.
+- `links = "\n".join(…)` – the four menu links, on every page.
   - `"\n"` – a line break between the links. Like the space in the language switch (section 15), it is there for the text: the number span has no space before it, so without a separator the menu's text reads "01 Profile02 Experience". With it, copy and paste and search engines get "01 Profile 02 Experience …".
   - Two f-strings in a row, without a `+` between them, are joined into one string by Python itself. That splits a long line without changing the result.
   - `for i, t in c["nav"]` – unpacks each (id, label) pair. Here `t` is a loop variable that shadows the function `t()`. It works because a generator expression has its own scope – outside it, `t()` is untouched – but it is confusing. Do not copy the pattern.
-  - `href="#{i}"` – an in-page anchor.
+  - `href="{to}#{i}"` – an in-page anchor on a start page (`#profile`), the start page plus the anchor elsewhere (`index.html#profile`, `/de/index.html#stationen`). `site.js` marks the chapter being read only where its section is on the page: on the other pages the links find no target, and nothing is marked (chapter 4, You are here).
   - `<span class="no" aria-hidden="true">{num(keys[i])}</span>` – the chapter number, the same as on the heading: "01 Profile", "02 Experience". Hidden from screen readers, so the link is still called "Profile".
   - `<span class="label" data-label="{e(t)}">` – the label in its own span, plus a copy as a data attribute. `site.js` marks the section being read in bold; the CSS uses the copy to reserve the bold width in advance (chapter 3, Navigation). The span is needed because the trick works on the label alone – the number stays regular.
-- `switch = lang_switch(c, langs if isinstance(langs, dict) else None) if langs else ""` – the same pattern, one level deeper: no switch for `False`; for a dict, the dict goes on as `paths`; for `True`, `None` – the start pages.
+- `switch = lang_switch(c, langs if isinstance(langs, dict) else None) if langs else ""` – the same pattern, one level deeper: no switch for `False`; for a dict, the dict goes on as `paths`; for `True`, `None` – links to the start pages, the switch on the start pages and the 404s.
 - The skip link comes first in the page so it is the first thing the Tab key reaches. CSS keeps it off-screen until it receives keyboard focus; it jumps to `<main id="main">`.
 - `<header class="top">` and `<div class="wrap">` – the page header and a width-limiting layout container.
-- The home link: `{'#top' if sections else r + c['path']}` – a full conditional expression inside a replacement field. On a start page it jumps to the hero (`#top`). On other pages it links to the start page of the page's language: `"" + "index.html"` or `"" + "de/index.html"` on the legal pages, `"/" + "index.html"` or `"/" + "de/index.html"` on the 404s.
+- The home link: `{'#top' if start else r + c['path']}` – a full conditional expression inside a replacement field. On a start page it jumps to the hero (`#top`). On other pages it links to the start page of the page's language: `"" + "index.html"` or `"" + "de/index.html"` on the legal pages, `"/" + "index.html"` or `"/" + "de/index.html"` on the 404s.
 - `{word}{LOCKUP}` – the link holds two things:
   - `word` – the old wordmark `>_ PETER STIEG`, on the start pages only. The CSS keeps it invisible; it is the target the hero name flies into, because `site.js` measures where its letters sit. `aria-hidden` on the whole span, so screen readers do not read "greater than underscore Peter Stieg" twice.
   - `LOCKUP` – the logo `>_ P/S` (section 11), on every page. Its `role="img"` and `aria-label="Peter Stieg"` give the link its name: screen readers say "Peter Stieg, link".
@@ -870,7 +884,7 @@ def torch_data(c):
     return f' data-torch="{e(json.dumps(c["torch"], ensure_ascii=False))}"'
 ```
 
-- The strings of the torch (chapter 4) in the page's language: the line under the light and the card that `?` opens, from `CONTENT["torch"]` (section 8).
+- The strings of the torch (chapter 4) in the page's language: the line under the light and the card that `?` or F1 opens, from `CONTENT["torch"]` (section 8).
 - `page()`, `legal()` and `not_found()` write it into `<main id="main"{torch_data(c)}>` – all eight pages carry it, and `site.js` starts the torch wherever it finds the attribute.
 - The leading space belongs to the attribute string, the convention of `rid` and `en_attr` (section 25).
 - `json.dumps(…, ensure_ascii=False)` – the dict as JSON text, umlauts as they are rather than `\u00fc`. `e()` then escapes it for the attribute: every `"` becomes `&quot;`, and the browser turns them back before `site.js` reads `dataset.torch` and parses it with `JSON.parse`. Unlike the JSON-LD above, this JSON sits in an attribute, where entities are decoded – so here `e()` is required.
@@ -895,7 +909,7 @@ def offsite(c, url, text, attrs="", mark=OUT_SVG, kind=""):
             f'<span class="sr-only"> ({said})</span></span></span></a>')
 ```
 
-- Every link that leaves the site goes through this function – 23 per page: ten company websites in Experience – six roles and four of the five early positions (section 24) –, GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
+- Every link that leaves the site goes through this function – 25 per page: twelve in Experience – six company websites and the two Liora course pages in the roles, four of the five early positions (section 24) –, GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
 - Why a new tab: whoever checks a certificate or a company website keeps the page open behind it and returns to the same spot. The marker announces the new tab before the click, for the eye (↗) and for screen readers (the hidden words).
 - The parameters:
   - `url` – inserted as it is. Every URL is one of your own constants.
@@ -912,13 +926,13 @@ The `rel` attribute:
 
 The text and its marker:
 
-- `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 29) from the right: it splits at the last space into before, the space itself, after. `"Posterlounge GmbH"` gives `("Posterlounge", " ", "GmbH")`. Without a space, the whole text lands in the last part: `"LinkedIn"` gives `("", "", "LinkedIn")` – the mirror image of `partition`, which puts it in the first. For a single word `{head}{space}` is empty and the whole word goes into the span; no special case needed.
+- `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 29) from the right: it splits at the last space into before, the space itself, after. `"YOUniversal Media"` gives `("YOUniversal", " ", "Media")`. Without a space, the whole text lands in the last part: `"Posterlounge"` gives `("", "", "Posterlounge")` – the mirror image of `partition`, which puts it in the first. For a single word `{lead}{space}` is empty and the whole word goes into the span; no special case needed.
   - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 29).
 - `<span class="nw">{last}…</span>` – the last word and the marker share one span, which the CSS sets to `white-space: nowrap` (chapter 3). The line may still break before the last word, never between it and the ↗. Without the span, the ↗ wrapped onto a line of its own at widths of 320 to 390 pixels: the marker is an inline-block, and an inline-block is a break opportunity on both sides. A word joiner (U+2060) between word and arrow did not stop the break in Chromium – measured.
-- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With twenty-two per page – the map's pin is the twenty-third mark –, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers and the ↓ – stay on the page; the muted ↗ leaves it.
+- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With twenty-four per page – the map's pin is the twenty-fifth mark –, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers and the ↓ – stay on the page; the muted ↗ leaves it.
 - `said` – what screen readers hear: `new_tab` alone, or `kind` in front of it – "Leipzig (map, opens in a new tab)". Both escaped, because both are copy.
 - `sym` – the class `sym` next to `newtab` when a symbol stands in for the ↗. The CSS draws a symbol larger, with a thinner line, so its detail stays legible at the size of a superscript and its strokes look as heavy as the arrow's (chapter 3). In `{mark}` the f-string inserts the SVG unescaped – it is markup, a constant.
-- `<span class="sr-only"> ({said})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge GmbH (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
+- `<span class="sr-only"> ({said})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
 - Pitfall: `rpartition` sees characters, not markup. A `text` with a tag that has a space in it (`<i lang="en">`) would be split inside the tag, and the span would cut it in two. All link texts today are plain escaped copy.
 
 The name:
@@ -1106,7 +1120,7 @@ def steps(c, label, rows):
 ```
 
 - One disclosure: a summary line and, behind it, the steps inside one timeline entry. Two entries have one – Posterlounge's promotions and the five positions before 2014. Both come from this function, so they look and behave the same.
-- `label` – the summary text: "Three promotions", "All five positions".
+- `label` – the summary text: "Three promotions", "Five positions" – number and noun, the same pattern for both (German "Drei Beförderungen", "Fünf Stationen").
 - `rows` – a list of (title, company, range, url) tuples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names. The url is `""` where there is none to link: the promotions, and the one early position whose company has no website that could be verified (Proactive Europe).
 - `lis` – one `<li>` per row, three f-strings joined with `+`:
   - `<li>{e(title)}` – the title, escaped.
@@ -1129,6 +1143,8 @@ def role(c, ro):
     place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
     ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
     org = offsite(c, ro["url"], e(ro["org"])) if ro.get("url") else e(ro["org"])
+    if ro.get("with"):                                 # a partner named after the company, outside its link
+        org += f' · {e(ro["with"])}'
     # the duration under the dates; a role that is still running carries its start, so site.js can recount it
     start = re.search(r"(\d{2})/(\d{4})", ro["when"])
     live = (f' data-from="{start[2]}-{start[1]}" data-units="{",".join(c["dur"])}"'
@@ -1155,7 +1171,9 @@ def role(c, ro):
 - `place` – optional field: `ro.get("place")` returns `None` when the key is missing and `""` when it is empty (Rapidobject). Both are falsy, so no place span appears.
 - `&nbsp;` before the span – the same job as `dots()`: "· Laucha" must not start a new line. `dots()` cannot do it here, because it only matches the plain sequence ` · `, and here a `<span>` tag sits between the space and the dot. So the place line brings its own non-breaking space.
 - `ctx` – the optional context line, same pattern.
-- `org` – the company name, as a link to its website when the role has a `url` (six roles, from E+SERVICE+CHECK to YOUniversal Media). The link leaves the site, so `offsite()` writes it (section 20): new tab, `noopener`, the ↗ after the last word – "Posterlounge GmbH" keeps "GmbH" and the ↗ together. `offsite()` takes HTML, so the name is escaped before it goes in; the URL is one of your own constants and goes in as it is.
+- `org` – the company name, as a link when the role has a `url`: eight of the nine roles – six company websites from E+SERVICE+CHECK to YOUniversal Media, and for the two trainings Liora's course page. The link leaves the site, so `offsite()` writes it (section 20): new tab, `noopener`, the ↗ after the last word – "YOUniversal Media" keeps "Media" and the ↗ together. `offsite()` takes HTML, so the name is escaped before it goes in; the URL is one of your own constants and goes in as it is.
+  - The Liora link reaches the same English course page as the footnote's "Course page" (section 25), but without its `hreflang="en"`: `role()` passes no `attrs`.
+- `if ro.get("with"): org += …` – the partner, appended after the finished link, so it stays outside it: `<a …>Liora…</a> · Université Paris 1 Panthéon-Sorbonne`. The ` · ` is plain, so `dots()` glues the dot to the ↗ before it (section 29). Only the two trainings have a `with`.
 
 The dates and the duration:
 
@@ -1181,12 +1199,12 @@ The disclosures:
   - Storing starts instead of ranges means one date per step, each written once: a corrected start moves the end of the step below it, the older one, as well.
   - The computation depends on the order. Stored oldest first, every step but the first would end before it starts – no error, only wrong ranges and lengths on the page.
   - The role itself must have ended: for a role still running, `[-1]` would be its start, and the newest step would end where the role begins.
-- `positions` – used by one entry: "10/2010 – 08/2014 · Five companies" keeps the timeline at one line for those years and holds the five single positions behind "All five positions".
+- `positions` – used by one entry: "10/2010 – 08/2014 · Five companies" keeps the timeline at one line for those years and holds the five single positions behind "Five positions".
   - `label, positions = ro["positions"]` – the summary text and the list of (range, title, company, url) tuples, newest first. Here every position carries its full range: the positions overlap (06/2013 – 05/2014 and 06/2013 – 12/2013) and leave gaps, so no end follows from the next start.
   - `[(title, org_, when_, url) for when_, title, org_, url in positions]` – a list comprehension that reorders each tuple from the stored order (range, title, company, url) into the order `steps()` takes (title, company, range, url).
   - The trailing underscores: `org` and `when` are already local variables of `role()` – the company line and the dates line built above, both used again in the `return`. Python 3 gives a comprehension its own scope, so plain names would not overwrite them, but one function would then mean two things by each name, a few lines apart. The underscore is the usual way around a name that is taken, as with `months_` in `duration()` (section 22).
   - The `path` branch does reuse a name: in its comprehensions, `start` is a step's start, while the `start` above is the match object of the role's dates. The comprehension scope keeps the two apart, and the match is no longer needed by then.
-  - Each position: title, company, range and length – "Marketing Consultant · SBS systems for business solutions Srl", "04/2014 – 08/2014 · 5 months". No place and no tree per position: the entry's own Scope line sums them up, and its company line says "Five companies · Rome".
+  - Each position: title, company, range and length – "Marketing Consultant · SBS systems for business solutions", "04/2014 – 08/2014 · 5 months". No place and no tree per position: the entry's own Scope line sums them up, and its company line says "Five companies · Rome".
 - `<h3>{e(ro['title'])}</h3>` – every role gets a heading of the same level under the `<h2>` of Experience. The steps behind a disclosure are list items, not headings, so the outline stays flat: Experience (h2) › each role (h3).
 - Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly. `tree` may be an empty list; `tree()` then returns `""`. `when` must hold at least one `MM/YYYY` date, for `months()` (section 22).
 - `{ctx}{tree(c, ro['tree'])}` – context line and tree directly after each other, then the disclosures, if there are any.
@@ -1547,7 +1565,7 @@ def legal(key, L):
     return "".join([
         head(c, f"{title} – {NAME}", c["legal_desc"] % title, URL + path, alternates=pair),
         '<meta name="robots" content="noindex, follow">\n</head>\n<body>\n',
-        topbar(c, sections=False, langs=pair),
+        topbar(c, start=False, langs=pair),
         f'<main id="main"{torch_data(c)}>\n<div class="wrap legal">\n<div class="body" id="{path[:-5]}">\n{body}</div>\n</div>\n</main>\n',
         footer(c), script("") + "</body>\n</html>\n"])
 ```
@@ -1561,7 +1579,7 @@ def legal(key, L):
 - The parts:
   - `head(…)` – title "Legal notice – Peter Stieg"; description `c["legal_desc"] % title` – the `%` operator fills `%s`: "Legal notice for peterstieg.com", "Impressum von peterstieg.com"; canonical `URL + path`; `alternates=pair` – the hreflang links to both versions, x-default the English one (section 14).
   - `robots` meta `noindex, follow` – keep the page out of search results, but follow its links. Then the head closes and the body opens.
-  - `topbar(c, sections=False, langs=pair)` – no section links; the language switch leads to the same page in the other language (section 15); the home link goes to the start page of the page's language, `"" + c["path"]`. The theme switch stays.
+  - `topbar(c, start=False, langs=pair)` – the menu leads to the sections of the start page in the page's language (`de/index.html#stationen`), and so does the home link, without an anchor (`"" + c["path"]`); the language switch leads to the same page in the other language (section 15). The theme switch stays.
   - `<main id="main"{torch_data(c)}>` – the torch works here too (section 19).
   - `<div class="body" id="{path[:-5]}">` – the file name without `.html`: the slice `[:-5]` drops the last five characters. `legal-notice`, `privacy`, `impressum`, `datenschutz` – four different ids, so one `torch.json` can hold the rules of all four pages (`#impressum > :nth-child(3)`, section 28).
   - `{body}` – inserted raw, followed directly by the closing tags. The line that once linked both start pages at the end of the body is gone: the logo leads to the start page, the switch to the other language.
@@ -1575,21 +1593,21 @@ def legal(key, L):
 def not_found(c):
     """404 with a Google Ads insider joke: Dynamic Keyword Insertion, {KeyWord:Default}. One per language – a missing
     address under /de/ gets the German one (de/.htaccess) – each with a line in the other language and its start page."""
-    word, rest, line = c["lost"]
+    word, rest, line, home_name = c["lost"]
     _, _, _, _, home = next(x for x in LANGS if x[0] == c["lang"])
     other = next(x for x in LANGS if x[0] != c["lang"])           # code, label, name, path, slug
     c = dict(c, root="/")
     return "".join([
         head(c, f"404 – {NAME}", f"{word} {rest}", f"{URL}{home}404.html", alternates=False, root="/"),
         '<meta name="robots" content="noindex">\n</head>\n<body>\n',
-        topbar(c, sections=False, langs=False),
+        topbar(c, start=False),
         f"""<main id="main"{torch_data(c)}>
 <div class="wrap">
 <section class="lost">
 <p class="code">404</p>
 <h1><code class="dki">{{KeyWord:{e(word)}}}</code> {e(rest)}</h1>
 <p class="claim" lang="{other[0]}">{e(line)}</p>
-<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/{home}">cd ~</a> · <a href="/{other[4]}" lang="{other[0]}">{other[2]}</a></p>
+<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/{home}">cd ~<span class="sr-only"> – {e(home_name)}</span></a></p>
 </section>
 </div>
 </main>
@@ -1598,18 +1616,19 @@ def not_found(c):
 ```
 
 - One 404 per language: `build()` calls `not_found(c)` with each language's dict and writes `404.html` and `de/404.html` (section 30). Which one a visitor sees is up to the server: `.htaccess` names `/404.html`, and `de/.htaccess` names `/de/404.html` for every missing address under `/de/`.
-- `word, rest, line = c["lost"]` – the three strings of the page (section 8): `("Page", "not found.", "Diese Seite gibt es nicht.")` in English, `("Seite", "nicht gefunden.", "This page does not exist.")` in German.
+- `word, rest, line, home_name = c["lost"]` – the four strings of the page (section 8): `("Page", "not found.", "Diese Seite gibt es nicht.", "start page")` in English, `("Seite", "nicht gefunden.", "This page does not exist.", "Startseite")` in German.
 - `_, _, _, _, home = next(…)` – the slug of the page's own language: `""` or `"de/"`. `next()` takes the first `LANGS` entry with that code; the four `_` throw the other fields away.
-- `other = next(x for x in LANGS if x[0] != c["lang"])` – the whole tuple of the other language. The comment names its fields: `other[0]` is the code, `other[2]` the name, `other[4]` the slug. With two languages there is exactly one other; a third would need a list here.
+- `other = next(x for x in LANGS if x[0] != c["lang"])` – the whole tuple of the other language. The comment names its fields; only `other[0]`, the code, is still used – for the `lang` of the line in the other language. With two languages there is exactly one other; a third would need a list here.
 - `c = dict(c, root="/")` – the parameter rebound to a copy with a root-absolute prefix. The caller's dict stays as it was.
 - Why `"/"`: the server delivers this page for every missing URL, at any depth – `/de/old/page` included. A relative `assets/site.css` would then resolve to `/de/old/assets/site.css` and fail. A leading slash always resolves from the domain root.
 - Trade-off: opened straight from disk (`file://`), `/` means the root of your file system, so the 404 pages look unstyled locally. That is expected.
 - `head(…)` – description `f"{word} {rest}"`: "Page not found.", "Seite nicht gefunden."; canonical `f"{URL}{home}404.html"`: the page's own address. `root="/"` is passed as well – redundant, since `c["root"]` is already `"/"`.
 - `robots` `noindex` – error pages do not belong in search results.
+- `topbar(c, start=False)` – the header as on the legal pages: the menu leads to the start page's sections (`/index.html#profile`), the logo to the start page. `langs` keeps its default, `True`: the switch leads to the other start page – `/de/index.html` from the English 404, `/index.html` from the German one –, because a missing page has no counterpart in the other language.
 - `<main id="main"{torch_data(c)}>` – the torch here too; `TORCH` has four rules for the lines below (section 28).
 - `{{KeyWord:{e(word)}}}` – in an f-string, `{{` and `}}` produce literal braces, and `{e(word)}` between them is a replacement field. The output is `{KeyWord:Page}` or `{KeyWord:Seite}`: Google Ads Dynamic Keyword Insertion syntax, where the ad shows the searched keyword or, if that does not fit, the default text after the colon. Without the doubling, Python would try to evaluate `KeyWord:…` as an expression and fail.
 - `lang="{other[0]}"` – the line in the other language is marked as such: `lang="de"` on the English page, `lang="en"` on the German one.
-- `cd ~` links to the start page of the page's language (`/` or `/de/`); after the dot, a link to the other start page, named in its own language ("Deutsch", "English").
+- `cd ~` links to the start page of the page's language (`/` or `/de/`). `<span class="sr-only"> – {e(home_name)}</span>` – visually hidden (section 13), inside the link: on screen the shell command, for screen readers "cd ~ – start page", "cd ~ – Startseite" – a name that says where the link goes. The link to the other start page that stood after it until 13.11.2026 is now the header's language switch.
 - `script("/")` – the script tag with a root-absolute path.
 
 ---
@@ -1889,7 +1908,7 @@ What it never touches: `site/assets/site.css`, `site/assets/site.js`, `site/asse
 
 - `src/monogram/README.md` – the mark's construction, colors, sizes and the full file list.
 - `src/monogram/source/` – the generator (`ps_monogram.py`) and the hand-drawn pixel grids for the 16 and 32 pixel favicons (`favicons.py`). The generator writes the favicon set to `out/final/favicon/` (`python3 ps_monogram.py --favicons` writes only that set, to `out/`, and draws a preview sheet with `favicon_preview.py`); from there the files are copied to `site/` by hand.
-- `src/monogram/og/og.html` – the source of `og-image.png`: a 1200 × 630 page with the hero text and the monogram on the right. Open it at exactly that size and take a screenshot; the comment at the top of the file shows how.
+- `src/monogram/og/og.html` – the source of `og-image.png`: a 1200 × 630 page with the hero text and the monogram on the right, as tall as the text block (274 px, cap height of the name to the prompt), the two centred on the card with 72 px margins (13.11.2026; `src/monogram/CHANGELOG.md`). Open it at exactly that size and take a screenshot; the comment at the top of the file shows how.
 
 `head()` only links these files. Changing an icon means regenerating it there, not editing `build.py`.
 

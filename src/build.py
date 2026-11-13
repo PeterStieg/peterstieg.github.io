@@ -87,7 +87,7 @@ CONTENT = {
         "theme": ("Theme", "Light", "Dark"), "arrow": "to", "to_top": "Back to top", "new_tab": "opens in a new tab", "map": "map",
         "torch": {"tags": ["", "HTML · again: build.py", "build.py · again: off"],
                   "keys": "Keyboard shortcuts", "close": "Close",
-                  "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], ["?", "Show this list"]]},
+                  "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], [["?", "F1"], "Show this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
         "desc": "Marketinkerer from Leipzig: performance marketing and data science. Four leadership roles, up to €240k media budget a month, certified Data Scientist.",
@@ -111,47 +111,47 @@ CONTENT = {
             "Teams of up to nine, from SEA to graphic design, including career changers from retail and fine arts.",
         ],
         "roles": [
-            {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
+            {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
              "tree": [("Team", "functional lead for content, marketing and project management"),
                       ("Scope", "marketing, lead generation, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding"),
                       ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark")]},
             {"when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
-             "org": "Liora (formerly DataScientest) · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
+             "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "containers, orchestration, tracking, APIs and monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "certified MLOps Engineer; capstone: the Rakuten model as a production pipeline – training, tracking, serving, monitoring")]},
-            {"when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject GmbH", "url": "https://www.rapidobject.com/en/", "place": "",
+            {"when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject", "url": "https://www.rapidobject.com/en/", "place": "",
              "tree": [("Scope", "UI concepts, usability tests, support for the marketing automation migration from ActiveCampaign to Salesforce"),
                       ("Result", "Salesforce dashboards, built into the sales process")]},
             {"when": "02/2025 – 05/2025", "title": "Data Scientist training (full-time)",
-             "org": "Liora (formerly DataScientest) · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
+             "org": "Liora", "url": NOTES["ds"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "machine learning and deep learning with Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "certified Data Scientist; capstone: multimodal classification of e-commerce products with NLP and computer vision")]},
-            {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
+            {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B promotional products for Germany, Austria and Switzerland.",
              "tree": [("Team", "five – marketing, graphic design, project management"),
                       ("Scope", "SEO, performance marketing and lead generation – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM, newsletters and marketing automation"),
                       ("Result", "RoAS 7.6 → 7.8 while spend grew; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
-            {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar GmbH", "url": "https://www.sportspar.com/", "place": "Leipzig",
+            {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.com/", "place": "Leipzig",
              "tree": [("Team", "nine – four in design, five in marketing"),
                       ("Scope", "e-commerce operations for discounted sporting goods in DE, COM, FR, IT, NL, ES and PL – email automation, WhatsApp and Telegram")]},
-            {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
+            {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Art prints online in more than 15 European countries.",
              "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
                       ("Scope", "SEA, social media, marketplaces, creator relations and print partnerships"),
                       ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")],
              "path": ("Three promotions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                            ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy")])},
-            {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "url": "https://www.youniversal.com/", "place": "Rome",
+            {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rome",
              "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social, native, retargeting")]},
             {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
              "tree": [("Scope", "export promotion, brand protection, competitive intelligence, web marketing")],
-             "positions": ("All five positions", [
-                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://it.sbsbusiness.eu/"),
-                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor Srl", "https://innervalor.com/"),
-                 ("06/2013 – 12/2013", "Marketing & export DACH", "Fontebona Srl", "http://www.fontebona.com/"),
-                 ("04/2012 – 05/2013", "Market research", "Proactive Europe Srl", ""),
-                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl", "https://www.paesionline.it/"),
+             "positions": ("Five positions", [
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
+                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor", "https://innervalor.com/"),
+                 ("06/2013 – 12/2013", "Marketing & export DACH", "Fontebona", "http://www.fontebona.com/"),
+                 ("04/2012 – 05/2013", "Market research", "Proactive Europe", ""),
+                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine", "https://www.paesionline.it/"),
              ])},
         ],
         "groups": [
@@ -172,7 +172,7 @@ CONTENT = {
             "AI for code, copy and graphics – nothing goes out unchecked.",
         ],
         "facts": [
-            ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in partnership with Université Paris 1 Panthéon-Sorbonne"),
+            ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora (formerly DataScientest) in partnership with Université Paris 1 Panthéon-Sorbonne"),
             ("2023", "Agile project management specialist[[ihk]]", "IHK"),
             ("2018", "Introduction to Artificial Intelligence[[edx]]", "Microsoft on edX"),
             ("2010", "Bachelor’s degree in economics", "Università degli Studi di Trento"),
@@ -181,7 +181,7 @@ CONTENT = {
         "reach": ("Email", "Based in", "Leipzig"),
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
         "imprint": "Legal notice", "privacy": "Privacy", "legal_desc": "%s for peterstieg.com",
-        "lost": ("Page", "not found.", "Diese Seite gibt es nicht."),
+        "lost": ("Page", "not found.", "Diese Seite gibt es nicht.", "start page"),
         "jobtitle": "Head of Marketing",
     },
     # ------------------------------------------------------------------ DE
@@ -191,7 +191,7 @@ CONTENT = {
         "theme": ("Darstellung", "Hell", "Dunkel"), "arrow": "auf", "to_top": "Nach oben", "new_tab": "öffnet in neuem Tab", "map": "Karte",
         "torch": {"tags": ["", "HTML · noch mal: build.py", "build.py · noch mal: aus"],
                   "keys": "Tastenkürzel", "close": "Schließen",
-                  "rows": [["sudo", "Code-Ansicht: HTML · build.py · aus"], ["Esc", "Schließen"], ["?", "Diese Liste zeigen"]]},
+                  "rows": [["sudo", "Code-Ansicht: HTML · build.py · aus"], ["Esc", "Schließen"], [["?", "F1"], "Diese Liste zeigen"]]},
         "dur": ("Jahr", "Jahre", "Monat", "Monate"),
         "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
         "desc": "Marketinkerer aus Leipzig: Performance Marketing und Data Science. Vier Führungsrollen, bis 240.000 € Mediabudget im Monat, zertifizierter Data Scientist.",
@@ -217,47 +217,47 @@ CONTENT = {
             "Teams mit bis zu neun Personen, von SEA bis Grafik, darunter Quereinsteiger aus Einzelhandel und bildender Kunst.",
         ],
         "roles": [
-            {"id": "e-service-check", "when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK GmbH", "url": "https://www.e-service-check.de/", "place": "Laucha",
+            {"id": "e-service-check", "when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-zertifizierte Prüfungen der elektrischen Sicherheit (DGUV V3/V4), bundesweit, 349 Mitarbeitende.",
              "tree": [("Team", "fachliche Führung in Content, Marketing und Projektmanagement"),
                       ("Scope", "Marketing, Leadgenerierung, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, CRM, Events, Employer Branding"),
                       ("Result", "Anfragen im Jahresvergleich mehr als verdoppelt; neue Corporate Identity samt Grundlage der EUIPO-Markenanmeldung")]},
             {"when": "05/2025 – 07/2025", "title": "Weiterbildung MLOps Engineer (Vollzeit)",
-             "org": "Liora (ehemals DataScientest) · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
+             "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "zertifizierter MLOps Engineer; Abschlussprojekt: das Rakuten-Modell als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
-            {"when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject GmbH", "url": "https://www.rapidobject.com/", "place": "",
+            {"when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject", "url": "https://www.rapidobject.com/", "place": "",
              "tree": [("Scope", "UI-Konzeption, Usability-Tests, Begleitung der Migration der Marketing Automation von ActiveCampaign zu Salesforce"),
                       ("Result", "Salesforce-Dashboards, eingebunden in den Vertriebsprozess")]},
             {"when": "02/2025 – 05/2025", "title": "Weiterbildung Data Scientist (Vollzeit)",
-             "org": "Liora (ehemals DataScientest) · Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
+             "org": "Liora", "url": NOTES["ds"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Machine Learning und Deep Learning mit Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "zertifizierter Data Scientist; Abschlussprojekt: multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
-            {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International GmbH", "url": "https://www.brandible.de/", "place": "Dresden",
+            {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B-Werbeartikel für Deutschland, Österreich und die Schweiz.",
              "tree": [("Team", "fünf Personen – Marketing, Grafik, Projektmanagement"),
                       ("Scope", "SEO, Performance Marketing und Leadgenerierung – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM, Newsletter und Marketing Automation"),
                       ("Result", "KUR 13,2 → 12,8 % bei ausgebautem Budget; Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %")]},
-            {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar GmbH", "url": "https://www.sportspar.de/", "place": "Leipzig",
+            {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.de/", "place": "Leipzig",
              "tree": [("Team", "neun Personen – vier im Design, fünf im Marketing"),
                       ("Scope", "E-Commerce-Betrieb für Sportartikel im Rabattsegment in DE, COM, FR, IT, NL, ES und PL – E-Mail-Automatisierung, WhatsApp und Telegram")]},
-            {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge GmbH", "url": "https://posterlounge.com/shop", "place": "Leipzig",
+            {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Kunstdrucke online in über 15 europäischen Ländern.",
              "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
                       ("Scope", "SEA, Social Media, Marktplätze, Creator Relations und Print-Kooperationen"),
                       ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")],
              "path": ("Drei Beförderungen", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                              ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italien")])},
-            {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media Srl", "url": "https://www.youniversal.com/", "place": "Rom",
+            {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rom",
              "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social, Native, Retargeting")]},
             {"when": "10/2010 – 08/2014", "title": "Marketing, Marktforschung, Export", "org": "Fünf Unternehmen", "place": "Rom",
              "tree": [("Scope", "Exportförderung, Brand Protection, Competitive Intelligence, Web Marketing")],
-             "positions": ("Alle fünf Stationen", [
-                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions Srl", "https://it.sbsbusiness.eu/"),
-                 ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor Srl", "https://innervalor.com/"),
-                 ("06/2013 – 12/2013", "Marketing & Export DACH", "Fontebona Srl", "http://www.fontebona.com/"),
-                 ("04/2012 – 05/2013", "Marktforschung", "Proactive Europe Srl", ""),
-                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine Srl", "https://www.paesionline.it/"),
+             "positions": ("Fünf Stationen", [
+                 ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
+                 ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor", "https://innervalor.com/"),
+                 ("06/2013 – 12/2013", "Marketing & Export DACH", "Fontebona", "http://www.fontebona.com/"),
+                 ("04/2012 – 05/2013", "Marktforschung", "Proactive Europe", ""),
+                 ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine", "https://www.paesionline.it/"),
              ])},
         ],
         "groups": [
@@ -278,7 +278,7 @@ CONTENT = {
             "KI für Code, Text und Grafik – nichts geht ungeprüft raus.",
         ],
         "facts": [
-            ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora in Partnerschaft mit der Université Paris 1 Panthéon-Sorbonne"),
+            ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora (ehemals DataScientest) in Partnerschaft mit der Université Paris 1 Panthéon-Sorbonne"),
             ("2023", "Fachkraft für agiles Projektmanagement[[ihk]]", "IHK"),
             ("2018", "Introduction to Artificial Intelligence[[edx]]", "Microsoft auf edX"),
             ("2010", "Bachelor in Wirtschaftswissenschaften", "Università degli Studi di Trento"),
@@ -287,14 +287,14 @@ CONTENT = {
         "reach": ("E-Mail", "Wohnort", "Leipzig"),
         "notes": {"issued": "ausgestellt am", "completed": "abgeschlossen am", "verify": "Nachweis prüfen", "course": "Kursseite", "back": "Zurück zum Text"},
         "imprint": "Impressum", "privacy": "Datenschutz", "legal_desc": "%s von peterstieg.com",
-        "lost": ("Seite", "nicht gefunden.", "This page does not exist."),
+        "lost": ("Seite", "nicht gefunden.", "This page does not exist.", "Startseite"),
         "jobtitle": "Leiter Marketing",
     },
 }
 
 SOURCE_NOTE = f"""<!--
   Hallo · Hi · Ciao – view-source counts as root access, too.
-  On the page: type sudo · ? lists the keys.
+  On the page: type sudo · ? or F1 lists the keys.
 
   peterstieg.com
   ├── no tracking
@@ -441,20 +441,23 @@ def theme_switch(c):
             f'</span>')
 
 
-def topbar(c, sections=True, langs=True):
-    """langs: True – the switch to the other start page; a dict (code → path) – to that page; False – no switch."""
+def topbar(c, start=True, langs=True):
+    """The header, the same on every page. start: a start page – the menu jumps within it, the hero's name docks into
+    the logo; on the other pages the menu leads to the start page's sections.
+    langs: True – the switch to the other start page; a dict (code → path) – to that page; False – no switch."""
     r = c["root"]
+    to = "" if start else r + c["path"]               # the start page the menu's sections are on
     keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
-    links = "\n".join(f'<a class="sect" href="#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
-                     f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"]) if sections else ""
+    links = "\n".join(f'<a class="sect" href="{to}#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
+                     f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"])
     switch = lang_switch(c, langs if isinstance(langs, dict) else None) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
-    word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if sections else ""
+    word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if start else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
 <div class="wrap">
-<a class="home" href="{'#top' if sections else r + c['path']}">{word}{LOCKUP}</a>
+<a class="home" href="{'#top' if start else r + c['path']}">{word}{LOCKUP}</a>
 <nav class="nav" aria-label="{e(c['aria_main'])}">{links}
 {switch}
 {theme_switch(c)}</nav>
@@ -601,6 +604,8 @@ def role(c, ro):
     place = f'&nbsp;<span class="place">· {e(ro["place"])}</span>' if ro.get("place") else ""
     ctx = f'<p class="ctx">{e(ro["ctx"])}</p>' if ro.get("ctx") else ""
     org = offsite(c, ro["url"], e(ro["org"])) if ro.get("url") else e(ro["org"])
+    if ro.get("with"):                                 # a partner named after the company, outside its link
+        org += f' · {e(ro["with"])}'
     # the duration under the dates; a role that is still running carries its start, so site.js can recount it
     start = re.search(r"(\d{2})/(\d{4})", ro["when"])
     live = (f' data-from="{start[2]}-{start[1]}" data-units="{",".join(c["dur"])}"'
@@ -812,7 +817,7 @@ def legal(key, L):
     return "".join([
         head(c, f"{title} – {NAME}", c["legal_desc"] % title, URL + path, alternates=pair),
         '<meta name="robots" content="noindex, follow">\n</head>\n<body>\n',
-        topbar(c, sections=False, langs=pair),
+        topbar(c, start=False, langs=pair),
         f'<main id="main"{torch_data(c)}>\n<div class="wrap legal">\n<div class="body" id="{path[:-5]}">\n{body}</div>\n</div>\n</main>\n',
         footer(c), script("") + "</body>\n</html>\n"])
 
@@ -820,21 +825,21 @@ def legal(key, L):
 def not_found(c):
     """404 with a Google Ads insider joke: Dynamic Keyword Insertion, {KeyWord:Default}. One per language – a missing
     address under /de/ gets the German one (de/.htaccess) – each with a line in the other language and its start page."""
-    word, rest, line = c["lost"]
+    word, rest, line, home_name = c["lost"]
     _, _, _, _, home = next(x for x in LANGS if x[0] == c["lang"])
     other = next(x for x in LANGS if x[0] != c["lang"])           # code, label, name, path, slug
     c = dict(c, root="/")
     return "".join([
         head(c, f"404 – {NAME}", f"{word} {rest}", f"{URL}{home}404.html", alternates=False, root="/"),
         '<meta name="robots" content="noindex">\n</head>\n<body>\n',
-        topbar(c, sections=False, langs=False),
+        topbar(c, start=False),
         f"""<main id="main"{torch_data(c)}>
 <div class="wrap">
 <section class="lost">
 <p class="code">404</p>
 <h1><code class="dki">{{KeyWord:{e(word)}}}</code> {e(rest)}</h1>
 <p class="claim" lang="{other[0]}">{e(line)}</p>
-<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/{home}">cd ~</a> · <a href="/{other[4]}" lang="{other[0]}">{other[2]}</a></p>
+<p class="prompt"><span class="caret" aria-hidden="true">&gt;_</span><a href="/{home}">cd ~<span class="sr-only"> – {e(home_name)}</span></a></p>
 </section>
 </div>
 </main>

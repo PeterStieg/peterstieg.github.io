@@ -1,5 +1,9 @@
 # Changelog
 
+## Link preview · 13.11.2026 – the monogram as tall as the text
+
+- **og/og.html, site/og-image.png:** the monogram grows from 210 to 274 px, the height of the text block (cap height of the name to the prompt), so the two read as one line-up. Text and monogram are centred on the card, margins 72 px instead of 96. Between the tagline and the P stay 57 px – above the clear space of one stem (16 % of 328 px width = 52 px).
+
 ## Favicons v2 · 30.10.2026 – legible in dark browser themes
 
 - **New favicon:** paper PS (#F7F6F3) on a bordeaux disc (#7A1A2C), based on `avatar/avatar-bordeaux.svg`. It replaces the bare bordeaux mark on transparent, which nearly disappeared on dark tab strips (1.2 : 1 on #35363A, 1.4 : 1 on #2B2A33).

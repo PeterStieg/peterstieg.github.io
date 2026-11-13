@@ -467,7 +467,7 @@
 
   /* ---------- Torch: the page's code under a light that follows the pointer – desktop only.
      Type sudo: the HTML of every block of text. Once more: the lines of build.py that wrote it (assets/torch.json,
-     written by the build). A third time, or Esc: off. ? lists the keys. */
+     written by the build). A third time, or Esc: off. ? or F1 lists the keys. */
   const torchHost = document.querySelector("main[data-torch]");   // every page: start pages, legal pages, 404
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
   if (torchHost && jsUrl) {
@@ -567,7 +567,7 @@
         card.innerHTML = `<p class="head"><strong id="keys-title">${esc(T.keys)}</strong>` +
           `<button type="button" class="close" popovertarget="keys" popovertargetaction="hide" aria-label="${esc(T.close)}">` +
           '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></p><dl>' +
-          T.rows.map(([k, v]) => `<div><dt>${esc(v)}</dt><dd><kbd>${esc(k)}</kbd></dd></div>`).join("") + "</dl>";
+          T.rows.map(([k, v]) => `<div><dt>${esc(v)}</dt><dd>${[].concat(k).map((x) => `<kbd>${esc(x)}</kbd>`).join(" ")}</dd></div>`).join("") + "</dl>";
         nav.appendChild(card);                        // in the header's nav: inside a landmark, like all content
       }
       if (!card.showPopover) return;                  // no popover API, no card
@@ -582,6 +582,7 @@
       if (ev.ctrlKey || ev.metaKey || ev.altKey || ev.isComposing) return;
       if (ev.target.closest && ev.target.closest("input, textarea, select, [contenteditable]")) return;
       if (ev.key === "Escape") { if (level) set(0); return; }
+      if (ev.key === "F1" && !ev.shiftKey && fine.matches) { ev.preventDefault(); keys(); return; }   // the help key, instead of the browser's help
       if (!fine.matches || ev.key.length !== 1) return;
       if (ev.key === "?") { keys(); return; }
       typed = (typed + ev.key.toLowerCase()).slice(-4);
@@ -598,6 +599,6 @@
   /* {KeyWord:Developer}: Google Ads Dynamic Keyword Insertion – the default shows when nothing better matches. */
   console.log("%c>_ sudo dream plan ship", "color:#7A1A2C;font-weight:700;font-size:14px",
     "\nHi {KeyWord:Developer} – view-source counts as root access, too." +
-    "\nOn the page: type sudo · ? lists the keys." +
+    "\nOn the page: type sudo · ? or F1 lists the keys." +
     "\n\npeterstieg.com\n├── no tracking\n├── no cookies\n└── no framework");
 })();
