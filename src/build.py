@@ -22,6 +22,7 @@ Editorial rules this file follows:
 from datetime import date
 from html import escape as e
 from pathlib import Path
+import base64
 import hashlib
 import json
 import re
@@ -141,12 +142,19 @@ CONTENT = {
                       ("Scope", "SEA, social media, marketplaces, creator relations and print partnerships"),
                       ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")],
              "path": ("Three promotions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
-                                           ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy")])},
+                                           ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy"),
+                                           ("07/2017", "SEO, freelance")])},
+            {"when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
+             "tree": [("Scope", "Google Ads and Microsoft Advertising; international marketing for portals such as LuxuryEstate")]},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rome",
              "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social, native, retargeting")]},
-            {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
-             "tree": [("Scope", "export promotion, brand protection, competitive intelligence, web marketing")],
-             "positions": ("Five positions", [
+            {"when": "2013 – 2020", "title": "Freelance: websites, design, translation", "org": "Alongside employment",
+             "tree": [("Scope", "WordPress websites incl. photography and copy in three languages – among them a music school and a "
+                                "kiteboarding school in Rome; logos, catalogues and posters in Adobe Creative Cloud; translations via TextMaster")]},
+            {"when": "10/2010 – 09/2014", "title": "Marketing, market research, export", "org": "Six companies", "place": "Rome",
+             "tree": [("Scope", "export promotion, brand protection, competitive intelligence, lead generation, web marketing")],
+             "positions": ("Six positions", [
+                 ("09/2014", "Business Development Specialist", "3D2B", "http://www.3d2b.com/"),
                  ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
                  ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor", "https://innervalor.com/"),
                  ("06/2013 – 12/2013", "Marketing & export DACH", "Fontebona", "http://www.fontebona.com/"),
@@ -179,6 +187,7 @@ CONTENT = {
             ("Languages", ["German (native)", "English C2", "Italian C2", "Spanish B1", "French A2"], ""),
         ],
         "reach": ("Email", "Based in", "Leipzig"),
+        "ask": "Questions about performance, pipelines, pixels or people:",
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
         "imprint": "Legal notice", "privacy": "Privacy", "legal_desc": "%s for peterstieg.com",
         "lost": ("Page", "not found.", "Diese Seite gibt es nicht.", "start page"),
@@ -247,12 +256,19 @@ CONTENT = {
                       ("Scope", "SEA, Social Media, Marktplätze, Creator Relations und Print-Kooperationen"),
                       ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")],
              "path": ("Drei Beförderungen", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
-                                             ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italien")])},
+                                             ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italien"),
+                                             ("07/2017", "SEO, freiberuflich")])},
+            {"when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/", "place": "Rom",
+             "tree": [("Scope", "Google Ads und Microsoft Advertising; internationales Marketing für Portale wie LuxuryEstate")]},
             {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rom",
              "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social, Native, Retargeting")]},
-            {"when": "10/2010 – 08/2014", "title": "Marketing, Marktforschung, Export", "org": "Fünf Unternehmen", "place": "Rom",
-             "tree": [("Scope", "Exportförderung, Brand Protection, Competitive Intelligence, Web Marketing")],
-             "positions": ("Fünf Stationen", [
+            {"when": "2013 – 2020", "title": "Freiberuflich: Websites, Design, Übersetzung", "org": "Neben der Anstellung",
+             "tree": [("Scope", "WordPress-Websites inkl. Fotografie und Texten in drei Sprachen – darunter eine Musikschule und eine "
+                                "Kiteboarding-Schule in Rom; Logos, Kataloge und Plakate mit Adobe Creative Cloud; Übersetzungen über TextMaster")]},
+            {"when": "10/2010 – 09/2014", "title": "Marketing, Marktforschung, Export", "org": "Sechs Unternehmen", "place": "Rom",
+             "tree": [("Scope", "Exportförderung, Brand Protection, Competitive Intelligence, Lead-Generierung, Web Marketing")],
+             "positions": ("Sechs Stationen", [
+                 ("09/2014", "Business Development Specialist", "3D2B", "http://www.3d2b.com/"),
                  ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
                  ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor", "https://innervalor.com/"),
                  ("06/2013 – 12/2013", "Marketing & Export DACH", "Fontebona", "http://www.fontebona.com/"),
@@ -285,6 +301,7 @@ CONTENT = {
             ("Sprachen", ["Deutsch (Muttersprache)", "Englisch C2", "Italienisch C2", "Spanisch B1", "Französisch A2"], ""),
         ],
         "reach": ("E-Mail", "Wohnort", "Leipzig"),
+        "ask": "Fragen zu Performance, Pipelines, Pixels oder People:",
         "notes": {"issued": "ausgestellt am", "completed": "abgeschlossen am", "verify": "Nachweis prüfen", "course": "Kursseite", "back": "Zurück zum Text"},
         "imprint": "Impressum", "privacy": "Datenschutz", "legal_desc": "%s von peterstieg.com",
         "lost": ("Seite", "nicht gefunden.", "This page does not exist.", "Startseite"),
@@ -305,9 +322,21 @@ SOURCE_NOTE = f"""<!--
 -->"""
 
 # Runs before the stylesheet: marks JS as available and applies a stored theme without a flash.
-THEME_BOOT = ("<script>(function(){document.documentElement.classList.add('js');"
+THEME_BOOT = ("<script>(function(){var r=document.documentElement;r.classList.add('js');"
               "try{var t=localStorage.getItem('theme');"
-              "if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>")
+              "if(t==='light'||t==='dark'){r.setAttribute('data-theme',t);"
+              "document.querySelector('meta[name=color-scheme]').content=t}}catch(e){}})()</script>")
+
+# Chrome and Edge fetch a page of this site while the pointer rests on a link to it (prefetch, not prerender:
+# the start page's typing and docking should run in view). Other browsers ignore the script.
+SPECULATION = ('<script type="speculationrules">'
+               '{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script>')
+
+
+def csp_hash(tag):
+    """'sha256-…' of an inline script's content – the content security policy allows exactly these two."""
+    body = re.search(r"<script[^>]*>(.*)</script>", tag, re.S)[1]
+    return f"'sha256-{base64.b64encode(hashlib.sha256(body.encode()).digest()).decode()}'"
 
 # ?v= after the stylesheet and the script: the first 8 hex digits of the file's SHA-256. A changed file gets a new
 # address – browsers may keep each version for a year (.htaccess) and never pair a new page with an old stylesheet.
@@ -343,7 +372,8 @@ MOON_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
 LOCKUP = re.sub(r"<svg ([^>]*)>(.*)</svg>",
                 r'<svg class="lockup" \1><g class="still">\2</g></svg>',
                 (Path(__file__).resolve().parent / "lockup" / "out" / "lockup.svg").read_text(encoding="utf-8").strip(),
-                flags=re.S)
+                flags=re.S).replace('style="fill:var(--accent,#7A1A2C)"', 'class="acc"').replace('style="fill:var(--ink,#1A1C1E)"', 'class="ink"')
+# (the inline fills become classes: site.css colours them, high-contrast mode can recolour them, no inline styles left)
 
 
 def sid(c, key):
@@ -387,7 +417,9 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 {THEME_BOOT}
+{SPECULATION}
 <title>{e(title)}</title>
 <meta name="description" content="{e(desc)}">
 <meta name="author" content="{NAME}">
@@ -549,7 +581,11 @@ def months(when):
     """Length of a role in months, counted like LinkedIn: first and last month included (10/2017 – 06/2023: 69).
     "since 11/2025" runs to the build date; site.js recounts it when the page loads."""
     dates = [(int(y), int(m)) for m, y in re.findall(r"(\d{2})/(\d{4})", when)]
-    (y1, m1), (y2, m2) = dates[0], dates[1] if len(dates) > 1 else (date.today().year, date.today().month)
+    if not dates:                                      # years only, "2013 – 2020": January to December
+        dates = [(int(y), m) for y, m in zip(re.findall(r"\d{4}", when), (1, 12))]
+    if len(dates) == 1:                                # "since 11/2025" runs to today; "09/2014" is one month
+        dates.append((date.today().year, date.today().month) if not when[:1].isdigit() else dates[0])
+    (y1, m1), (y2, m2) = dates
     return (y2 - y1) * 12 + m2 - m1 + 1
 
 
@@ -712,7 +748,8 @@ def page(c):
         address = re.sub(r"^https://(www\.)?|/$", "", url)               # the address is the link text
         rows.append((name, offsite(c, url, address, ' rel="me noopener"')))  # both profiles are Pete's own
     rows.append((e(based), offsite(c, MAP, e(city), mark=PIN_SVG, kind=c["map"])))
-    contact = '<dl class="facts">\n' + "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>\n" for k, v in rows) + "</dl>\n"
+    contact = f'<p class="ask">{e(c["ask"])}</p>\n'                  # what to write about, leading into the rows
+    contact += '<dl class="facts">\n' + "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>\n" for k, v in rows) + "</dl>\n"
     out.append(section(c, "contact", e(s["contact"]), contact))
 
     # sources – footnotes in order of appearance, each with a way back
@@ -871,7 +908,8 @@ TORCH = [
     (".role .ctx", 'ctx = f\'<p class="ctx">', 1),
     (".role .tree li", "items = \"\".join(f'<li><span class=\"k\"", 1),
     (".lines li", 'val = \'<ul class="lines">\'', 1),
-    (".facts:has(a[href^='mailto:']) dt, .facts:has(a[href^='mailto:']) dd", "contact = '<dl class=\"facts\">", 1),
+    (".ask", "contact = f'<p class=\"ask\">", 1),
+    (".facts:has(a[href^='mailto:']) dt, .facts:has(a[href^='mailto:']) dd", "contact += '<dl class=\"facts\">", 1),
     (".facts dt, .facts dd", 'fa.append(f"<div><dt>', 1),
     (".group > h3", "groups.append(f'<div class=\"group\"><h3>", 1),
     (".projects h4, .projects p", "lis.append(f'<li><h4>", 1),
@@ -932,6 +970,18 @@ RewriteCond %{SERVER_PORT} !=443
 RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
 </IfModule>
 
+# security: HTTPS only for a year, no content sniffing, no framing, no camera, microphone or location; the referrer
+# leaves the site as the origin only. The content security policy allows this server and the two inline scripts
+# (by hash) – report-only for now: violations show in the browser console, nothing is blocked.
+<IfModule mod_headers.c>
+Header always set Strict-Transport-Security "max-age=31536000"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "DENY"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' __HASHES__; style-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+</IfModule>
+
 # stylesheet and script change their address with their content (?v=), fonts never change: kept for a year.
 # Pages and torch.json are asked for on every visit – unchanged, the answer is a short 304.
 <IfModule mod_headers.c>
@@ -960,7 +1010,8 @@ def build():
     for key, pages in LEGAL.items():
         for L, (path, _, _) in pages.items():
             (SITE / path).write_text(dots(legal(key, L)), encoding="utf-8")
-    (SITE / ".htaccess").write_text(HTACCESS, encoding="utf-8")
+    (SITE / ".htaccess").write_text(HTACCESS.replace("__HASHES__", f"{csp_hash(THEME_BOOT)} {csp_hash(SPECULATION)}"),
+                                    encoding="utf-8")
     (SITE / "de" / ".htaccess").write_text("# a missing address under /de/: the German 404\nErrorDocument 404 /de/404.html\n",
                                            encoding="utf-8")
     (SITE / "assets" / "torch.json").write_text(json.dumps(torch_map(), ensure_ascii=False), encoding="utf-8")

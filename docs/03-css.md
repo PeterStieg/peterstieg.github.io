@@ -86,8 +86,9 @@ Media queries and `@supports` add nothing to specificity; they only decide wheth
   --bar: #C4C6C9;
   --bar-lit: #6E7378;
   --lit: #FFFFFF;                                     /* the paper under the torch's light */
-  color-scheme: light;
+  color-scheme: light dark;                         /* the browser's own surfaces (scrollbars, canvas) follow the system */
 }
+:root[data-theme="light"] { color-scheme: light; }  /* a pick pins them */
 ```
 
 - `:root` – matches the root element of the document, `<html>`. Same element as the selector `html`, but as a pseudo-class it weighs (0,1,0) instead of (0,0,1).
@@ -103,9 +104,10 @@ Media queries and `@supports` add nothing to specificity; they only decide wheth
   - `--accent-soft` – the text-selection highlight.
   - `--bar`, `--bar-lit` – minimap bars, normal and highlighted.
   - `--lit` – the paper where the torch's light falls: white on the light page, a lighter grey (#25282C) on the dark one. A light makes the paper brighter in both themes.
-- `color-scheme: light;` – a real property, not a variable. It tells the browser which scheme the page is drawn in, so the parts the browser draws itself match: the default canvas color, scrollbars, form controls and system colors.
+- `color-scheme: light dark;` – a real property, not a variable. It tells the browser which schemes the page supports, so the parts the browser draws itself match: the default canvas color, scrollbars, form controls and system colors. With both, the browser picks the system's scheme – as long as no theme is picked, that is the scheme the page shows too. The media block below sets `dark` on a dark system anyway; the base value states the support where a reader looks first, and it says what the `<meta name="color-scheme">` in the HTML says (until 17.11.2026 it read `light`).
+- `:root[data-theme="light"] { color-scheme: light; }` – with `light dark` as the base, a light pick on a dark system would get dark scrollbars under a light page. This rule pins the browser's parts to light. (0,2,0) beats `:root`. A pick of dark needs no rule of its own: both dark blocks below set `color-scheme: dark`. The `<meta name="color-scheme">` in the HTML says the same before the stylesheet has arrived ([chapter 2](02-html.md)).
 
-Below this point the stylesheet contains no hex color at all – every color is a `var()` or `transparent`. That is why three small blocks are enough to re-theme the whole site.
+Below this point the stylesheet contains no hex color at all – every color is a `var()` or `transparent`, and in high-contrast mode a system colour (see High contrast). That is why three small blocks are enough to re-theme the whole site.
 
 ### Dark by system preference
 
@@ -158,6 +160,8 @@ Where the attribute comes from: every page has a one-line script in `<head>` tha
 | none – system | `:root` → light | media block → dark |
 | `light` | `:root` → light | `:root` → light; the media block is excluded by `:not()` |
 | `dark` | `:root[data-theme="dark"]` → dark | both dark rules match, with identical values |
+
+`color-scheme` follows the same three states: `light dark` with no pick, so the browser's parts follow the system; `light` with a light pick, from `:root[data-theme="light"]`; `dark` with a dark pick.
 
 ### Why the dark values appear twice
 
@@ -258,7 +262,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 - `outline: 2px solid var(--accent);` – the focus ring. An outline is drawn outside the border and takes no space, so focusing never shifts the layout, which a border would. The accent reaches 9.7:1 and 6.0:1, far above the 3:1 needed for focus indicators.
 - `outline-offset: 3px;` – a gap between element and ring.
 - `border-radius: 2px;` – current browsers draw outlines along the border radius, so the ring gets soft corners. Side effect: it rounds the element itself too, and at (0,1,1) it beats any single-class rule. A round element therefore needs a rule of at least the same weight to stay round while focused. The jump control's ends have one: `.jump .up` and `.jump .down` weigh (0,2,0), beat (0,1,1), and keep their rounded ends under focus (see the jump control section). The theme buttons need nothing extra: `.themes button` is also (0,1,1), ties, and wins because it comes later.
-- `summary` – the clickable line of a `<details>` element, used three times on each start page (the jump control's number, "Three promotions" and "Five positions"). It is focusable like a button but is neither `a` nor `button`; without its own entry it would get the browser's default ring instead of the accent one.
+- `summary` – the clickable line of a `<details>` element, used three times on each start page (the jump control's number, "Three promotions" and "Six positions"). It is focusable like a button but is neither `a` nor `button`; without its own entry it would get the browser's default ring instead of the accent one.
 
 ## Skip link and visually hidden text
 
@@ -380,7 +384,7 @@ Visually hidden, still read by screen readers. In the hero, the visible typed te
   - `height: 1.75rem` – 28 px. `width: auto` follows from the `viewBox` ratio: 28 × 1971 / 813 = 67.9 px (measured). The lockup's minimum is 24 px; at 28 px its three gaps are 1.7 px wide and stay sharp on ordinary screens too.
   - **Clear space:** the design asks for one stem – 158 of 813 units, 5.4 px at this size – on every side. The 56 px header leaves 14 px above and below, the `gap` of the header row at least 12 px to the right.
   - `overflow: visible` – an `<svg>` clips everything outside its box by default. While the wordmark condenses, it is wider than the final lockup and reaches out to the right; without this rule, `PETER STIEG` would be cut off after "PE".
-- `.lockup .acc` and `.lockup .ink` – the two colours for what `site.js` draws while condensing: the prompt in the accent colour, the letters in ink. The finished lockup carries the same two colours in its own paths.
+- `.lockup .acc` and `.lockup .ink` – the two colours of the logo: the prompt in the accent colour, the letters in ink. They serve the finished lockup, whose two paths carry the classes `acc` and `ink` (`build.py` swaps the file's inline fills for them), and the wordmark `site.js` draws while condensing, whose groups carry the same classes. One pair of rules for both, and one place where high-contrast mode recolours them (see High contrast).
 - `.home .word` – the old wordmark, kept only as a measuring target.
   - `position: absolute; left: 0; top: 50%; transform: translateY(-50%)` – takes it out of the flow, so the link is only as wide as the lockup, and centres it vertically on the header line: `top: 50%` puts its top edge at the middle, `translateY(-50%)` pulls it up by half its own height.
   - `visibility: hidden` – invisible, but still laid out, so `getClientRects` can measure every letter. `display: none` would leave nothing to measure.
@@ -499,6 +503,11 @@ These rules continue the header after the docking block.
 .themes button[aria-pressed="true"] { color: var(--ink); }
 .themes svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .themes button[aria-pressed="true"] svg { stroke-width: 2; }
+/* touch screens: the language and theme buttons take taps 44 px high – the header has room above and below them */
+@media (pointer: coarse) {
+  .themes button, .langs a { position: relative; }
+  .themes button::after, .langs a::after { content: ""; position: absolute; inset: -10px 0; }
+}
 html:not(.js) .themes { display: none; }
 @media (max-width: 47.99rem) { .nav .sect { display: none; } }
 @media (max-width: 55.99rem) { .nav .sect .no { display: none; } }  /* narrow desktops: labels only, so the header fits */
@@ -519,6 +528,12 @@ html:not(.js) .themes { display: none; }
   - `stroke: currentColor;` – `currentColor` is the element's computed `color`. The SVG inherits it from the button, so hover and pressed states recolor the icon without rules of their own.
   - `stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;` – line weight in viewBox units (the icons use a 16 × 16 viewBox), with rounded ends and corners to match the rounded letterforms.
 - `.themes button[aria-pressed="true"] svg { stroke-width: 2; }` – the picked theme's icon is drawn heavier. Muted versus ink alone is a subtle difference; a change in shape keeps the state recognizable without relying on color.
+- `@media (pointer: coarse)` – the primary pointer is imprecise: a finger. The theme buttons are 24 px high (1.5rem), the language link about as high; enough for a mouse, small for a fingertip. The block enlarges where they react, not how they look:
+  - `::after` with `content: ""` – an empty box inside each button and each language link. A pseudo-element is part of its element, so a tap on it is a tap on the button.
+  - `position: absolute; inset: -10px 0;` – `inset` sets `top`, `right`, `bottom` and `left` at once; here 10 px beyond the top and the bottom edge, none to the sides. The box reaches 10 px above and below: 24 + 20 = 44 px of tap height, the size Apple and WCAG 2.5.5 recommend. The width stays: the buttons sit side by side, and wider boxes would overlap their neighbours.
+  - `position: relative` on the button and the link – the box is placed against them, not against the next positioned ancestor, the header.
+  - Room for it: the header is 56 px high and the pills sit in its middle, so 10 px above and below stay inside it.
+  - The language switch's current language is a `<span>`, not a link – it gets no box, there is nothing to tap.
 - `html:not(.js) .themes { display: none; }` – without JavaScript the buttons cannot work, so they are removed. The system preference still applies through the media query.
 - `@media (max-width: 47.99rem) { .nav .sect { display: none; } }` – on narrow screens the four section links disappear; logo, language pill and theme pill stay. The rule belongs to the navigation and only sits here by placement.
 - `@media (max-width: 55.99rem) { .nav .sect .no { display: none; } }` – between 48 and 56rem the links stay, but without numbers. With numbers, the English header needs a window about 800 px wide and overflows at 768 px (measured); without them, it fits with room to spare. The space between number and label disappears with the number: at the start of a line, white space is dropped.
@@ -605,7 +620,7 @@ html:not(.js) .themes { display: none; }
 
 - `@keyframes blink { to { visibility: hidden; } }` – defines an animation named `blink`. Only the end state is written; the start is the element's normal value, `visible`.
 - `.typed .cursor` – `site.js` adds `.typed` to `<html>` when the text is fully typed. An animation starts the moment its `animation` declaration begins to apply, so the blinking starts exactly then.
-- `animation: blink 1.1s steps(2, start) 4;` – shorthand for name, length of one cycle, timing function and number of cycles.
+- `animation: blink 1.1s steps(2, start) 3;` – shorthand for name, length of one cycle, timing function and number of cycles.
   - `visibility` cannot fade. Between `visible` and `hidden` it stays `visible` at any progress strictly between 0 and 1 and becomes `hidden` only at the end. With a smooth timing function, the cursor would be visible almost all the time.
   - `steps(2, start)` cuts each cycle into two jumps and takes the first jump immediately: progress is 0.5 in the first half (visible) and 1 in the second (hidden) – 0.55s on, 0.55s off (measured). With `steps(2, end)` the values would be 0 and 0.5, both visible, and the cursor would never blink.
   - `3` – three cycles; then the animation ends, the cursor returns to its normal style and stays solid. Endless blinking distracts from reading. The number stays under a limit: WCAG 2.2.2 (Pause, Stop, Hide) asks for a pause control when blinking content runs longer than 5 seconds. Three cycles last 3.3 seconds. (Until November 2026 it was four, 4.4 seconds; a version with a `?` in the third blink was tried and dropped.)
@@ -661,35 +676,42 @@ Each content section is a `.sec`: heading left and body right on wide screens, s
   .sec { padding-block: 2rem; }
   .sec > h2 {
     font-size: 1.625rem;
-    position: sticky; top: calc(3.5rem + 1px); z-index: 3;
     margin-inline: -1rem; padding: 0.5rem 1rem;
     background: color-mix(in srgb, var(--paper) 92%, transparent);
     -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
     border-bottom: 1px solid transparent;
   }
+}
+/* the bar sticks only where the screen is tall enough – in landscape, header and bar would cover a third of it */
+@media (max-width: 47.99rem) and (min-height: 30rem) {
+  .sec > h2 { position: sticky; top: calc(3.5rem + 1px); z-index: 3; }
   .sec > h2.stuck { border-bottom-color: var(--line); }
   .top.ext { border-bottom-color: transparent; }
-  .role, .fnref a, .notes li { scroll-margin-top: 3.75rem; }   /* targets inside a section clear the stuck heading */
+  /* jump targets and focused links clear the stuck heading – Shift+Tab no longer hides a link behind it */
+  .role, .fnref a, .notes li, .sec .body :is(a[href], summary) { scroll-margin-top: 3.75rem; }
 }
 ```
 
-On wide screens the heading column keeps the current heading in view. On phones there is no such column – heading and body stack – and without this block a long section such as Experience would scroll its heading away after the first screen. Here the heading of the section being read sticks directly under the header, and the two read as one bar.
+On wide screens the heading column keeps the current heading in view. On phones there is no such column – heading and body stack – and without these blocks a long section such as Experience would scroll its heading away after the first screen. Here the heading of the section being read sticks directly under the header, and the two read as one bar – on a phone held upright. Two blocks: the first gives the heading the look of a bar on every phone, the second makes it stick where the screen is tall enough.
 
-- `@media (max-width: 47.99rem)` – phones; the counterpart of the `min-width: 48rem` block above. Every width gets exactly one kind of sticky heading.
+- `@media (max-width: 47.99rem)` – phones; the counterpart of the `min-width: 48rem` block above.
 - `html { scroll-padding-top: 3.5rem; }` – replaces the 4.5rem of the base rules. 3.5rem is 56px, one pixel less than the header with its border. A jump to a section therefore puts the section's 1px top border exactly on the header's hairline (measured: the section starts at 56px). With 4.5rem, a 15px strip of the previous section would stay visible between the two. `site.js` reads the same computed value to decide which section counts as "above" for the jump control (see [chapter 4](04-js.md)).
 - `.hero { padding-block: 2.5rem; }` – 40px above the name and below the prompt, instead of the clamps of the base rule (at least 3.5rem and 3rem). Measured at 360 × 700: the gaps above the name, below the prompt and above "01 Profile" took 195px, 28 % of the first screen, and the profile text did not reach it. Now its first lines show on the first screen.
 - `.sec { padding-block: 2rem; }` – 2rem above and below instead of the base 3rem. The heading's own top padding (below) adds 0.5rem, so the title starts 2.5rem below the section's line. Sections now sit about 64px apart (2rem + 2rem), instead of 89 to 123px (measured at 360 × 700, 13.11.2026). Wide screens keep their 3.75rem; the desktop layout is unchanged.
-- `.sec > h2 { … }` – the heading becomes a bar:
+- `.sec > h2 { … }` in the first block – the heading becomes a bar, on every phone:
   - `font-size: 1.625rem;` – 26px instead of the 20px of the base rule. On wide screens the heading has a column of its own, and the column sets it apart; on phones it stands above its content, and only size ranks it there. 26px puts it above the headword of the dictionary entry (24px on phones, see Dictionary entry) and the P⁴ headings (22px). Wide screens keep 20px: at 26px, "02 Experience" wraps to two lines in the 11rem column (measured).
-  - `position: sticky; top: calc(3.5rem + 1px);` – it sticks right under the header: 3.5rem of header height plus the header's 1px border. `calc()` can add rem and px. As on wide screens, it sticks only while its own section is on screen; at the section's end it scrolls away and the next heading takes its place.
-  - No `align-self: start` is needed here. With a single column, every grid item gets a row of its own, as tall as its content, so there is nothing to stretch into. Measured: in the middle of Experience, its heading sits at 57px.
-  - `z-index: 3;` – sticky elements are positioned, so `z-index` applies. Positioned elements without a z-index are painted in document order, and the section body contains some: the tree items (`position: relative`, see the #JobAlert tree) come after the heading and would be painted over it as they scroll underneath. 3 keeps the bar above the content and below the header and the jump control (5).
   - `margin-inline: -1rem; padding: 0.5rem 1rem;` – the negative margins pull the heading's box 1rem out on both sides, over the 1rem gutter of `.wrap`, and the side padding puts the text back where it was. The background now spans the full screen width like the header's (measured: 390px on a 390px screen). The 0.5rem above and below give the bar its height: 51px around the 34px line – 26px × 1.3, plus the 1px border (measured: 50.8px).
   - `background: …; backdrop-filter: blur(6px);` – the same frosted surface as the header, so header and heading look like one piece.
   - `border-bottom: 1px solid transparent;` – reserves the hairline, as in the header.
+- `@media (max-width: 47.99rem) and (min-height: 30rem)` – phones at least 30rem (480px) tall: held upright. Held sideways, a phone is about 375px tall; header and stuck bar took 29 % of a 667 × 375 screen (measured), and the text ran in the strip left over. There the heading keeps the look of the bar and scrolls away with its section, like the hero. `site.js` asks the same query before it marks a stuck heading (chapter 4).
+- `.sec > h2 { position: sticky; top: calc(3.5rem + 1px); z-index: 3; }` – the sticking itself:
+  - `position: sticky; top: calc(3.5rem + 1px);` – it sticks right under the header: 3.5rem of header height plus the header's 1px border. `calc()` can add rem and px. As on wide screens, it sticks only while its own section is on screen; at the section's end it scrolls away and the next heading takes its place.
+  - No `align-self: start` is needed here. With a single column, every grid item gets a row of its own, as tall as its content, so there is nothing to stretch into. Measured: in the middle of Experience, its heading sits at 57px.
+  - `z-index: 3;` – sticky elements are positioned, so `z-index` applies. Positioned elements without a z-index are painted in document order, and the section body contains some: the tree items (`position: relative`, see the #JobAlert tree) come after the heading and would be painted over it as they scroll underneath. 3 keeps the bar above the content and below the header and the jump control (5).
 - `.sec > h2.stuck { border-bottom-color: var(--line); }` – `site.js` gives `.stuck` to the heading that currently sits at the header's lower edge (see [chapter 4](04-js.md)). Only that heading shows the hairline, at the bottom of the combined bar.
 - `.top.ext { border-bottom-color: transparent; }` – at the same time `site.js` gives the header `.ext`, and the header drops its own hairline: the bar has one line at its bottom instead of one in the middle. `.top.scrolled` sets the line with the same (0,2,0); this rule comes later in the file, so it wins while both classes are present.
-- `.role, .fnref a, .notes li { scroll-margin-top: 3.75rem; }` – targets *inside* a section: a role reached from the ledger, a footnote number reached from its back link `^`, a source reached from its footnote. Scroll padding alone would put them directly under the header – behind the stuck heading of their own section. `scroll-margin-top` is set on the target instead of the scroll container, and the browser adds the two: 3.5rem + 3.75rem = 7.25rem (116px). The bar ends at 108px (57 + 51), which leaves 8px of air (measured: `#posterlounge` lands at 116px, under the stuck "02 Experience"; checked again with the smaller phone paddings, 13.11.2026). The value grew with the heading: 3.25rem left the same 8px around the 20px heading.
+- `.role, .fnref a, .notes li, .sec .body :is(a[href], summary) { scroll-margin-top: 3.75rem; }` – targets *inside* a section: a role reached from the ledger, a footnote number reached from its back link `^`, a source reached from its footnote. Scroll padding alone would put them directly under the header – behind the stuck heading of their own section. `scroll-margin-top` is set on the target instead of the scroll container, and the browser adds the two: 3.5rem + 3.75rem = 7.25rem (116px). The bar ends at 108px (57 + 51), which leaves 8px of air (measured: `#posterlounge` lands at 116px, under the stuck "02 Experience"; checked again with the smaller phone paddings, 13.11.2026). The value grew with the heading: 3.25rem left the same 8px around the 20px heading.
+  - `.sec .body :is(a[href], summary)` – every link and every disclosure toggle in a section's content: the elements that take keyboard focus. When focus moves to an element outside the view, the browser scrolls it in, and it honours the same scroll margin. Without it, Shift+Tab upwards stopped on a link right under the header – behind the stuck bar: measured at 390 × 844, the Contact email link sat at y 75, the bar ends at 108 (WCAG 2.4.11, Focus Not Obscured). With it, the link lands at 121. `:is()` takes a list and matches any of it: `a[href]`, links with a target, and `summary`.
   - Sections themselves get no scroll margin: when a section has just been reached, its heading is still in the flow, not stuck.
 
 ```css
@@ -706,13 +728,28 @@ On wide screens the heading column keeps the current heading in view. On phones 
   - Hidden text is not selected when you copy the heading, and the minimap skips it (`site.js` filters `.ghost`).
 
 ```css
-.body { max-width: 42rem; }
+.body { max-width: 42rem; container: body / inline-size; }   /* its grids switch on its own width, not the window's */
+/* line breaks: headings in lines of even length, paragraphs without a lone word on the last line.
+   Not the section headings (the phone bar has a background) and not the hero's name (one line). Ignored where unsupported. */
+h3, h4, .tagline, .claim, .lost h1, .legal h1, .legal h2 { text-wrap: balance; }
+:where(.body) p, .tree li, .notes li, .facts dd { text-wrap: pretty; }
 .body > :first-child { margin-top: 0; }
 .body > :last-child { margin-bottom: 0; }
 :where(.body) p { margin: 0 0 1em; }
 ```
 
-- `.body { max-width: 42rem; }` – caps the content column for a comfortable line length; on wide screens it doesn't use the whole grid track.
+- `.body { max-width: 42rem; … }` – caps the content column for a comfortable line length; on wide screens it doesn't use the whole grid track.
+- `container: body / inline-size;` – makes the content column a **container**: the grids inside it – P⁴, the roles, Education and Contact – switch their columns on its width, not on the window's (see Fields of work).
+  - The shorthand reads name, slash, type. `body` is the name the queries use, `@container body (…)`; it has nothing to do with the `<body>` element.
+  - `inline-size` – the width in horizontal text can be queried. In exchange, the column's width must not depend on its content (size containment on that axis). It never did: a block takes its width from its parent, here the grid track, capped at 42rem.
+  - Why the column and not the window: from 48rem the section splits into an 11rem heading column and the content column. Just above that, the window is wide but the column is narrow – at 768px it is 472px. Media queries saw 768px and set two columns of P⁴ into 472px. The column's own width is the measure that matters.
+  - The legal pages' `.body` is a container too; nothing in it queries it.
+  - The Nu Html Checker (26.9.30) does not know `container` and `@container` yet and reports them as CSS errors. Browsers know them: Chrome and Edge since 105, Safari since 16, Firefox since 110.
+- `text-wrap` – how the browser breaks lines inside a block. The default fills each line as far as it goes and breaks where the next word no longer fits, line by line.
+  - `balance` on headings and short lines – h3, h4, the tagline, the claim, the 404's heading, the legal pages' h1 and h2. The browser evens out the line lengths, so a heading that wraps does not leave one word on its second line. Balancing compares the lines with each other, so browsers limit it to blocks of a few lines (Chromium: six).
+  - `pretty` on running text – paragraphs in the content column, tree items, the sources and the values in Education and Contact. The browser takes more care over the end of a paragraph and avoids a last line with a single word. Measured before the change, across 360 to 1280px: 9 to 26 paragraphs ending in a single word on the English start page, 10 to 20 on the German one; expected after: 4–6 and 6–9.
+  - Not on the section headings: on phones they are a bar with a background. Not on the hero's name: it is one line.
+  - A browser that knows neither value ignores the declaration and breaks lines as before; nothing depends on it.
 - `.body > :first-child { margin-top: 0; }` – `:first-child` without an element name means `*:first-child`: whatever comes first. Its top margin goes, so the first line of the body aligns with the heading. (0,2,0).
 - `.body > :last-child { margin-bottom: 0; }` – the same at the end; the section padding alone sets the spacing.
 - `:where(.body) p { margin: 0 0 1em; }` – paragraphs inside `.body` get space only below: 1em of their own font size. It matches exactly the same elements as `.body p` would; only its weight differs.
@@ -730,7 +767,7 @@ h3 { margin: 0 0 0.3rem; font-size: 1.125rem; line-height: 1.35; font-weight: 70
 ```
 
 - `h3` – a type selector at (0,0,1): the base for every h3, easy to override (`.fields h3`, `.role h3` and `.group > h3` do). No top margin, a small one below, size, leading and weight.
-- `.muted` – a utility class for secondary text, used for the issuers in Education, the line under the heading of three legal pages and the companies in the list behind "Five positions" (see Experience timeline).
+- `.muted` – a utility class for secondary text, used for the issuers in Education, the line under the heading of three legal pages and the companies in the list behind "Six positions" (see Experience timeline).
 
 ## Ledger of results
 
@@ -796,13 +833,13 @@ a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 .ledger .jmp svg, .newtab svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 ```
 
-Twenty-five links lead off the site: ten company websites and the two Liora course pages in Experience, GitHub and Demo in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources. They open in a new tab (`target="_blank"`), so peterstieg.com stays open behind them; `build.py` writes all of them with one helper, `offsite()` ([chapter 1](01-build.md)). The end of such a link reads `YOUniversal <span class="nw">Media<span class="newtab"><svg …></svg><span class="sr-only"> (opens in a new tab)</span></span></span>`: the last word and the marker share a span, and the marker holds a drawn ↗ (`aria-hidden`) and the words for screen readers. The mail link, the menus, the language switch and the legal pages stay in the same tab and carry no marker.
+Twenty-seven links lead off the site: twelve company websites and the two Liora course pages in Experience, GitHub and Demo in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources. They open in a new tab (`target="_blank"`), so peterstieg.com stays open behind them; `build.py` writes all of them with one helper, `offsite()` ([chapter 1](01-build.md)). The end of such a link reads `YOUniversal <span class="nw">Media<span class="newtab"><svg …></svg><span class="sr-only"> (opens in a new tab)</span></span></span>`: the last word and the marker share a span, and the marker holds a drawn ↗ (`aria-hidden`) and the words for screen readers. The mail link, the menus, the language switch and the legal pages stay in the same tab and carry no marker.
 
 - `.newtab` – the ↗, built like the ↓. Named `newtab`, not `ext` for "external": on phones `site.js` already gives the header a state class `ext` (see Sections), and a rule `.ext` – one class, written later in the file – would also hit the header and override `.top`: it lost its sticky position (found before release). Class names share one namespace across the stylesheet and the script.
   - `display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.1em;` – a square box in the line, a hair of space after the word. 0.55em is 9.9px next to body text and 8.4px in the smaller technology line and in Sources (measured).
   - `position: relative; top: -0.5em;` – superscript, the technique of the ↓: the box keeps its place on the baseline and is only drawn 0.5em higher, so the line keeps its height (measured: 27.9px with and without the ↗). The hidden words inside the box are absolutely positioned, like the "to" of `.arr`: they form no line, so the box still has no text of its own and sits with its bottom edge on the baseline.
   - `color: var(--muted);` – grey, not bordeaux.
-- **Why quieter than the ↓.** Twenty-four arrows on one page can clutter it, so the ↗ is deliberately the quieter of the two markers: muted instead of accent, and 0.55em instead of 0.6em. The colour also keeps the vocabulary apart: the accent superscripts – the footnote numbers and the ↓ – stay on this page; the muted ↗ leaves it. Muted still reaches 6.4:1 against the paper (7.3:1 in dark mode), far above the 3:1 that WCAG asks of graphics.
+- **Why quieter than the ↓.** Twenty-six arrows on one page can clutter it, so the ↗ is deliberately the quieter of the two markers: muted instead of accent, and 0.55em instead of 0.6em. The colour also keeps the vocabulary apart: the accent superscripts – the footnote numbers and the ↓ – stay on this page; the muted ↗ leaves it. Muted still reaches 6.4:1 against the paper (7.3:1 in dark mode), far above the 3:1 that WCAG asks of graphics.
 - As with the ↓, the underline stops under the last letter: an inline-block takes no text decoration from the link.
 - `a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }` – while the link is hovered or has keyboard focus, its ↗ turns bordeaux, together with the underline (`a:hover`) or next to the focus ring. The selector starts at the link: any `.newtab` inside an `a` in that state. (0,2,1) beats `.ext` (0,1,0).
 - `.nw { white-space: nowrap; }` – keeps the last word and its ↗ on one line. An inline-block is a soft wrap opportunity on both sides (see `.ledger dd a` above), so without the span the browser may break between the word and the arrow, and the ↗ starts a line on its own. Measured at 320 to 390px, in steps of 5px: depending on the width, it happened after "GitHub", "credential", "page" and "GmbH" (the legal form, then still part of the company names). A word joiner (U+2060), the character that forbids a break between its neighbours, did not prevent it in Chromium (measured): the wrap opportunity at an inline-block exists even next to characters that would normally suppress one. `nowrap` on a span around both removes every wrap opportunity inside it; the space before the last word stays outside the span, so the line can still break there, and the word moves down together with its arrow. With the rule, no ↗ starts a line at any of those widths, on either page (measured).
@@ -817,11 +854,13 @@ Twenty-five links lead off the site: ten company websites and the two Liora cour
 ```css
 /* fields of work */
 .fields { display: grid; gap: 1.75rem 2.5rem; }
-@media (min-width: 40rem) { .fields { grid-template-columns: 1fr 1fr; } }
+@container body (inline-size >= 34rem) { .fields { grid-template-columns: 1fr 1fr; } }
 .fields p { margin: 0; color: var(--muted); }
 ```
 
-- `.fields` – the four P⁴ fields as a grid: one column on phones, two equal columns from 40rem. `1fr 1fr` splits the free space in half.
+- `.fields` – the four P⁴ fields as a grid: one column, two equal columns once the content column is at least 34rem (544px) wide. `1fr 1fr` splits the free space in half.
+- `@container body (inline-size >= 34rem)` – a **container query**: like a media query, but it asks about the nearest ancestor that is a container named `body` – the `.body` column (see Sections) – instead of the window. `inline-size >= 34rem` is the range syntax: no `min-` prefix, and no gap between ranges as with `max-width: 47.99rem`. rem in a container query refers to the root element's font size; the site sets none, so it is the visitor's default, as in a media query.
+- Until 17.11.2026 a media query, `min-width: 40rem`, decided. Measured at 768px: the content column is 472px, and P⁴ stood in two columns of 216px; now in one of 472px. At 810px one column of 514px; at 900px two. On phones and wide screens nothing changes: on a phone the column is the screen minus its gutters, on a wide screen 42rem.
 - `.fields p` – (0,1,1) beats the default `:where(.body) p` (0,0,1). Spacing comes from the grid gap instead of margins.
 
 ## Experience timeline
@@ -832,11 +871,12 @@ Twenty-five links lead off the site: ten company websites and the two Liora cour
 .role { display: grid; gap: 0.2rem 1.5rem; padding-bottom: 2rem; }
 .role + .role { padding-top: 2rem; border-top: 1px solid var(--line); }
 .role:last-child { padding-bottom: 0; }
-@media (min-width: 36rem) { .role { grid-template-columns: 9.5rem 1fr; } }
+@container body (inline-size >= 30rem) { .role { grid-template-columns: 9.5rem 1fr; } }
 ```
 
 - `.roles` – the `<ol reversed>` loses its numbers, margin and indent.
-- `.role` – each job is a grid: date and content stacked on phones, side by side from 36rem (`9.5rem 1fr`). 2rem of space below.
+- `.role` – each job is a grid: date and content stacked, side by side (`9.5rem 1fr`) once the content column is at least 30rem (480px) wide – the container query of P⁴, with its own threshold. 2rem of space below.
+  - Until 17.11.2026 a media query, `min-width: 36rem`. Measured at 768px: the role text had 296px next to the dates; now dates and text stack in 472px. At 810px the column is 514px: 152px of dates, 338px of text. From 900px both grids have two columns.
 - `.role + .role` – the adjacent sibling combinator: a `.role` directly after another `.role`. Every role except the first gets a line and space above, so lines appear only *between* roles.
 - `.role:last-child { padding-bottom: 0; }` – no trailing space after the last role.
 
@@ -862,7 +902,7 @@ Twenty-five links lead off the site: ten company websites and the two Liora cour
   - `white-space: nowrap;` – a date range never wraps.
 - `.when .dur` – the length of the role, in words ("5 years 9 months"), on a line of its own under the dates. `build.py` counts it, and `site.js` recounts the running role when the page loads ([chapter 1](01-build.md), [chapter 4](04-js.md)). The line break is a `<br>` in the HTML, which also keeps dates and duration apart in plain text.
   - `font-size: 0.85rem;` – 13.6px, a step below the 0.95rem dates. Colour, tabular digits and `nowrap` are inherited from `.when`. In rem, so the size does not depend on the 0.95rem of `.when` around it.
-  - `nowrap` and `<br>` do not conflict: `nowrap` removes the soft wrap opportunities, the places where the browser *may* break; a `<br>` is a forced break and still applies. The longest duration, "3 years 11 months", is 113px wide, 116px in German ("3 Jahre 11 Monate"), and fits the 152px of the 9.5rem column (measured).
+  - `nowrap` and `<br>` do not conflict: `nowrap` removes the soft wrap opportunities, the places where the browser *may* break; a `<br>` is a forced break and still applies. A duration with two-digit months such as "3 years 11 months", the widest form, is 113px wide, 116px in German ("3 Jahre 11 Monate"), and fits the 152px of the 9.5rem column (measured).
 - `.role h3 { margin-bottom: 0.1rem; }` – job title close to the company line.
 - `.org` – the company line, 0.5rem above the next line. `.org .place` – the city, muted.
 - `.ctx` – a context line (industry, size), muted at 1rem, 0.6rem above the tree. Both margins apply because `:where(.body) p` is weaker than any class.
@@ -888,7 +928,7 @@ Twenty-five links lead off the site: ten company websites and the two Liora cour
 @media (prefers-reduced-motion: no-preference) { .more summary::before { transition: transform 0.2s, margin 0.2s; } }
 ```
 
-Two entries in the timeline hold more than their tree shows. Posterlounge is one role with four titles: below its tree, a `<details class="more">` whose `<summary>` reads "Three promotions" opens them. The years 2010–2014 appear as one entry, "Five companies · Rome"; its disclosure, "Five positions", opens the single positions. A click opens either; both hold the same kind of list (see the next block). `<details>` is the browser's built-in disclosure: it opens and closes without JavaScript, keyboard and screen readers included, and the browser sets the attribute `open` on the element while it is open. No rule shows or hides the content: a closed `<details>` renders only its `<summary>`.
+Two entries in the timeline hold more than their tree shows. Posterlounge is one role with four titles and the freelance work before them: below its tree, a `<details class="more">` whose `<summary>` reads "Three promotions" opens them. The years 2010–2014 appear as one entry, "Six companies · Rome"; its disclosure, "Six positions", opens the single positions. A click opens either; both hold the same kind of list (see the next block). `<details>` is the browser's built-in disclosure: it opens and closes without JavaScript, keyboard and screen readers included, and the browser sets the attribute `open` on the element while it is open. No rule shows or hides the content: a closed `<details>` renders only its `<summary>`.
 
 - `.more { margin-top: 0.75rem; }` – space between the entry's tree and the disclosure.
 - `.more summary`:
@@ -911,7 +951,7 @@ Two entries in the timeline hold more than their tree shows. Posterlounge is one
 .more .tree .at { color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; }   /* dates · duration */
 ```
 
-Both disclosures hold one list, built by the same function in `build.py` (see [chapter 1](01-build.md)): an `<ol class="tree" reversed>` with one `<li>` per step – its title, for the positions followed by the company, and on a second line its dates and length. The steps run newest first, like the timeline: from "Head of Marketing" down to "SEO Manager Italy", from the position of 2014 back to 2010. `reversed` makes the list count down, as the timeline's `<ol class="roles" reversed>` does. The numbers are never shown, so nothing changes on screen; the attribute keeps the list's numbering in line with its order for anything that reads it, such as a screen reader. The three rules serve both lists.
+Both disclosures hold one list, built by the same function in `build.py` (see [chapter 1](01-build.md)): an `<ol class="tree" reversed>` with one `<li>` per step – its title, for the positions followed by the company, and on a second line its dates and length. The steps run newest first, like the timeline: from "Head of Marketing" down to "SEO, freelance", from the positions of 2014 back to 2010. `reversed` makes the list count down, as the timeline's `<ol class="roles" reversed>` does. The numbers are never shown, so nothing changes on screen; the attribute keeps the list's numbering in line with its order for anything that reads it, such as a screen reader. The three rules serve both lists.
 
 - `.more .tree { margin-top: 0.5rem; }` – job titles are terms people search for; behind the disclosure they are part of the page's text without lengthening the entry. The list is ordered because the steps follow one another, and the tree rules draw it with the same lines as the facts above it (see #JobAlert tree); `list-style: none` in `.tree` removes the numbers as it removes bullets. The rule itself only sets the space below the summary: 0.5rem (8px, measured) instead of the 0.35rem of `.tree`, which it beats at (0,2,0) against (0,1,0).
 - `.more .tree li { padding-bottom: 0.45rem; }` – each step has two lines, title and dates; a little more space than the 0.2rem of `.tree li` keeps the steps apart. The branch lines follow: `::before` runs the full height of each item, padding included.
@@ -957,16 +997,16 @@ Opening a disclosure makes the page taller, so `site.js` redraws the minimap on 
 .facts { margin: 0; }
 .facts div { display: grid; gap: 0.1rem 1.5rem; padding-block: 0.75rem; border-top: 1px solid var(--line); }
 .facts div:first-child { border-top: 0; padding-top: 0; }
-@media (min-width: 36rem) { .facts div { grid-template-columns: 9.5rem 1fr; } }
+@container body (inline-size >= 30rem) { .facts div { grid-template-columns: 9.5rem 1fr; } }
 .facts dt { color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; padding-top: 0.15rem; }
 .facts dd { margin: 0; }
 .lines { list-style: none; margin: 0; padding: 0; }    /* languages: one per line */
 ```
 
-- `.facts` – another `<dl>` with div-wrapped pairs. Contact uses the same list – Email, LinkedIn, GitHub, Based in – so it needs no rules of its own, and the two sections share one look: a label column, a value column, a line between the rows.
+- `.facts` – another `<dl>` with div-wrapped pairs. Contact uses the same list – Email, LinkedIn, GitHub, Based in – so it needs no rules of its own (the line before it, `<p class="ask">`, is a plain paragraph of the column), and the two sections share one look: a label column, a value column, a line between the rows.
 - `.facts div` – each row a grid, ruled with a line above.
 - `.facts div:first-child` – no line and no top padding on the first row, so the list starts flush with the section heading.
-- From 36rem, `9.5rem 1fr` – the same column width as the experience dates, so the years in Education line up with the dates in Experience.
+- From a content column of 30rem, `9.5rem 1fr` – the same container query and the same column width as the experience dates, so the years in Education line up with the dates in Experience (until 17.11.2026 a media query, `min-width: 36rem`).
 - `.facts dt` – the year or label: muted, smaller, tabular digits, lowered 0.15rem like `.when`.
 - `.facts dd { margin: 0; }` – removes the default indent.
 - `.lines` – the languages, one per line: the value of that row is a `<ul class="lines">` inside the `<dd>`. A list rather than lines separated by `<br>`, because the five languages are a list: the markup says what they are, the CSS decides how they look. Bullets, margins and the 40px indent are removed, so the list looks like plain lines of text that start where the other values start.
@@ -1187,7 +1227,7 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
   - `color: var(--ink); text-decoration: none; cursor: pointer;` – ink icons, no underline, and the hand cursor on all three – the summary included, which is not a link.
 - `.jump .up` and `.jump .down` – rounded ends that match the pill: at the top for up, at the bottom for down. The parts have no background, so the rounding is invisible until they get focus: the focus ring follows `border-radius` (see `.jump :focus-visible` below). The pill cannot simply clip its parts with `overflow: hidden` instead – the list opens outside the pill and would be clipped too.
 - `.jump summary` – the middle part:
-  - `list-style: none;` – no disclosure triangle. As with the "Five positions" disclosure, `display: grid` already removes the marker; `::-webkit-details-marker` in the next rule covers older Safari.
+  - `list-style: none;` – no disclosure triangle. As with the "Six positions" disclosure, `display: grid` already removes the marker; `::-webkit-details-marker` in the next rule covers older Safari.
   - `background: linear-gradient(…) top / 1.25rem 1px no-repeat, …` – the two short hairlines between the parts. A border always runs along the full side of its box and would cut the pill into three boxes. A background image can be sized and placed: `linear-gradient(var(--line), var(--line))` is a gradient from one colour to the same colour – a solid image of any size. After the position (`top` or `bottom`; the other axis defaults to the centre), the slash introduces the size: 1.25rem wide, 1px high. `no-repeat` keeps one copy. Two comma-separated layers give the two lines.
 
 ```css
@@ -1381,7 +1421,7 @@ The torch (chapter 4) lays a light over the page: a circle that follows the poin
 - `.torch-tag` – the line under the light ("HTML · again: build.py"), small, in the accent. Its `span` sits on the lit paper, so it can be read over the page's text.
 - Reduced motion: no fade.
 
-- `.keys` – the card that `?` or F1 opens, a popover, laid out like the shortcut cards of Instagram or GitHub: a title with a close button, a line under it, then one row per shortcut – what it does on the left, the key on the right. `inset: auto; margin: 0;` undoes the browser's centring of popovers; `site.js` places the card under the header's right end, below the theme switch, with `top` and `right`. `padding: 0` – the head and the list bring their own, so the line under the head runs from edge to edge.
+- `.keys` – the card that `?` or F1 opens, a `<dialog>` shown as a popover, laid out like the shortcut cards of Instagram or GitHub: a title with a close button, a line under it, then one row per shortcut – what it does on the left, the key on the right. `inset: auto; margin: 0;` undoes the browser's centring of popovers and dialogs; `site.js` places the card under the header's right end, below the theme switch, with `top` and `right`. `padding: 0` – the head and the list bring their own, so the line under the head runs from edge to edge. `border`, `background` and `color` replace the dialog defaults as well (a heavier frame, the system's canvas colours).
 - `.keys .head` – a flex row: the title at the start, the close button at the end (`justify-content: space-between`). Less padding on the right: the round button has its own room.
 - `.keys .close` – a round button (`border-radius: 50%`) on a faint tint of the ink, the × drawn as two strokes like every icon here. It needs no script: `popovertarget="keys"` with `popovertargetaction="hide"` closes the popover with that id – the browser does it, as it would open one with `popovertarget` alone.
 - `.keys dl` – a grid of two columns, `auto auto`: as wide as the longest description and the widest key. `.keys dl div { display: contents; }` makes each `div` step aside, so its `dt` and `dd` become grid items of the `dl` directly and all rows share the same two columns.
@@ -1465,7 +1505,33 @@ On wide screens, a rail at the right edge shows the page as lines of code, like 
   - `border: 1px solid var(--line);` – a hairline frame.
   - `pointer-events: none;` – the box ignores the mouse; clicks reach the rail beneath it.
 
-## Print
+## High contrast
+
+```css
+/* Windows high-contrast mode: the browser repaints with system colours and drops backgrounds. The logo takes the
+   text colour, the minimap's bars become borders in system colours, and the picked theme gets an outline –
+   a thicker stroke alone tells nothing apart. */
+@media (forced-colors: active) {
+  .lockup .acc, .lockup .ink { fill: CanvasText; }
+  .mm-bar { background: none; border-top: 2px solid GrayText; }
+  .mm-bar.h, .mm-bar.lit, .mm-bar.h.lit { border-top-color: CanvasText; }
+  .mm-bar.ch, .mm-bar.ch.lit { border-top-color: Highlight; }
+  .mm-view { border-color: CanvasText; }
+  .themes button[aria-pressed="true"] { outline: 1px solid ButtonText; }
+}
+```
+
+Windows offers contrast themes – a few colours chosen by the user, for example white text on black. With one active, the browser runs in **forced colours** mode: it replaces the page's colours with the theme's – text, links, borders and outlines take the system colours, and backgrounds are dropped. The media feature `forced-colors: active` lets a page adjust what that leaves broken. Outside that mode the block does nothing.
+
+- **System colours** are keywords for the colours of the active theme: `CanvasText` the text, `GrayText` disabled text, `Highlight` the selection, `ButtonText` the text on buttons. In forced-colours mode they are the user's colours, so whatever this block sets fits the theme.
+- `.lockup .acc, .lockup .ink { fill: CanvasText; }` – bordeaux and ink belong to the page's palette, not to the user's. In the theme's text colour, the logo reads on the theme's background like the text. The rule can reach both paths because their fills are classes, not inline styles (chapter 1, section 11).
+- The minimap: its bars are spans with a background, and backgrounds are dropped – the map would go blank. So the bars become borders:
+  - `.mm-bar { background: none; border-top: 2px solid GrayText; }` – a 2px line at the top of each bar, in the colour for inactive text. `site.js` sets each bar's height inline; the border takes the same 2px the bars have in the normal theme.
+  - `.mm-bar.h, .mm-bar.lit, .mm-bar.h.lit { border-top-color: CanvasText; }` – headings and the lines in view in the text colour.
+  - `.mm-bar.ch, .mm-bar.ch.lit { border-top-color: Highlight; }` – the four chapters in the selection colour, as they are in the accent otherwise.
+  - `.mm-view { border-color: CanvasText; }` – the frame of the visible part, in the text colour; its tinted background is gone.
+  - Not `forced-color-adjust: none`, which would exempt the map and keep the page's own colours in it: the `color` guide of Chrome's modern-web-guidance advises against it "just to preserve aesthetics". The map uses the user's colours like the rest of the page.
+- `.themes button[aria-pressed="true"] { outline: 1px solid ButtonText; }` – both icons turn the same colour, so the heavier stroke of the picked one is the only difference left, and too slight to see. A 1px outline around the button marks the pick.
 
 ```css
 @media print {
@@ -1494,7 +1560,7 @@ Open peterstieg.com (or `site/index.html` locally) and the DevTools (F12).
 
 1. **Change the accent.** In the Elements panel, select `<html>`. In the Styles pane, find the `:root` rule and change `--accent` to `#1A5A7A`. Prompt caret, cursor, hover underlines, footnote numbers and focus ring change at once – one variable, inherited everywhere. Then click the moon button: your color is gone, because `:root[data-theme="dark"]` (0,2,0) defines its own `--accent` and beats `:root` (0,1,0). Change it there to see it come back.
 2. **Walk through the three theme states.** Remove the `data-theme` attribute from `<html>` (double-click it in the Elements panel). Open the Rendering tool (Ctrl+Shift+P, type "Rendering") and switch "Emulate CSS media feature prefers-color-scheme" between light and dark – the page follows. Now add `data-theme="light"` to `<html>` and emulate dark again: the page stays light, because `:not()` excludes it from the media block. Finally set `data-theme="dark"` and emulate light: dark wins without any media query.
-3. **Remove subgrid.** Make the window wider than 36rem and select one of the `<div>`s inside `<dl class="ledger">`. In the `.ledger div` rule, untick `grid-template-columns: subgrid`: every row collapses to one column, figure above text. Then add `grid-template-columns: max-content 1fr` to the same rule: each row is now its own grid with its own first column, and the four explanations start at four different positions (measured: 410px to 545px). Click the "grid" badge next to `<dl class="ledger">` to see the tracks.
+3. **Watch the container query.** Open the device toolbar (Ctrl+Shift+M) and set the width to 768px. Select `<div class="body">` in Profile: the Elements panel marks it with a `container` badge, and the Styles pane of `<div class="fields">` shows the rule under `@container body (inline-size >= 34rem)`, crossed out – the column is 472px wide, the fields stand in one column. Widen the window step by step: once the column reaches 544px (34rem), at 840px of window, P⁴ splits into two. Then change the threshold in the Styles pane to `30rem`: the fields split at 776px of window, where the column reaches 480px. A media query at the same width would not see the difference between the window and the column.
 
 ## Key terms
 
@@ -1512,6 +1578,9 @@ Open peterstieg.com (or `site/index.html` locally) and the DevTools (F12).
 - **Popover and top layer** – an element with the `popover` attribute opens and closes from a button with `popovertarget`, without script. While open, it is drawn in the top layer: above every z-index and stacking context, positioned against the viewport. A click outside it or Esc closes it.
 - **Transition and animation** – a transition interpolates between two values when a value changes; an animation runs keyframes on its own timeline, can repeat and needs no trigger.
 - **User-preference media query** – `prefers-color-scheme` and `prefers-reduced-motion` read OS or browser settings, so the page can follow the visitor's choices live.
+- **Container query** – `@container name (condition)`: a rule that applies by the size of an ancestor declared as a container (`container: name / inline-size`), not by the window's.
+- **text-wrap** – `balance` evens out the lines of a short block, `pretty` avoids a lone word on the last line of a paragraph; browsers that do not know a value keep the default breaking.
+- **Forced colours** – a mode, Windows' contrast themes, in which the browser replaces the page's colours with the user's system colours and drops backgrounds; `@media (forced-colors: active)` adjusts the page for it.
 
 ---
 

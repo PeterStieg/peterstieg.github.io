@@ -54,31 +54,46 @@ The `<head>` holds information about the page, not content. Of all its lines, on
 - `<meta name="viewport">` – without it, phone browsers lay the page out for an imaginary desktop screen (typically 980 px wide) and shrink the result. `width=device-width` makes the layout width equal to the screen width in CSS pixels, so the media queries in `site.css` see the real width. `initial-scale=1` starts at 100 % zoom.
 - No `maximum-scale=1`, no `user-scalable=no`. Both would stop visitors from pinch-zooming. People with low vision depend on zoom, and WCAG (the accessibility standard behind the EU accessibility rules) requires that text can be enlarged to 200 %. Some sites block zoom to avoid layout glitches; this one is built to survive zoom instead.
 
+### Colour scheme
+
+```html
+<meta name="color-scheme" content="light dark">
+```
+
+- `color-scheme` – which colour schemes the page supports. The browser draws some parts itself: scrollbars, the canvas behind the page, form controls. With `light dark` it draws them in the scheme of the system – dark scrollbars on a dark system.
+- Why a tag when `site.css` says the same (`color-scheme: light dark` on `:root`): the tag works from the first bytes of the HTML, before the stylesheet has arrived. Without it, the browser may paint its white default canvas on a dark system until the CSS is in – a flash.
+- A stored pick changes it: the boot script below writes `light` or `dark` into `content`, `site.js` does so on every click and writes `light dark` back when the pick is released. Light scrollbars on a page picked dark would look like a mistake.
+- It stands before the boot script, so the script finds it.
+
 ### The theme boot script
 
 ```html
-<script>(function(){document.documentElement.classList.add('js');try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
+<script>(function(){var r=document.documentElement;r.classList.add('js');try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){r.setAttribute('data-theme',t);document.querySelector('meta[name=color-scheme]').content=t}}catch(e){}})()</script>
 ```
 
 The same code, indented for reading (`build.py` writes it on one line, from the constant `THEME_BOOT`):
 
 ```js
 (function () {
-  document.documentElement.classList.add('js');
+  var r = document.documentElement;
+  r.classList.add('js');
   try {
     var t = localStorage.getItem('theme');
-    if (t === 'light' || t === 'dark')
-      document.documentElement.setAttribute('data-theme', t);
+    if (t === 'light' || t === 'dark') {
+      r.setAttribute('data-theme', t);
+      document.querySelector('meta[name=color-scheme]').content = t;
+    }
   } catch (e) {}
 })()
 ```
 
-- `(function () { … })()` – an IIFE ("immediately invoked function expression"): a function that is defined and called in one go. The outer parentheses make the parser read `function` as an expression instead of a declaration; the final `()` calls it. Its purpose is scope: variables declared inside, such as `t`, exist only within the function. A plain `var t` at the top level of a script would land on the global object as `window.t`, where any other script could overwrite or read it.
-- `document.documentElement` – the `<html>` element.
-- `.classList.add('js')` – turns it into `<html lang="en" class="js">`. CSS uses the class to tell "JavaScript runs" from "JavaScript is off": `html:not(.js) .themes` hides the theme buttons (without JavaScript they would do nothing), `html:not(.js) .jump .down` hides the down link of the jump control, which only the script can point at the right section.
+- `(function () { … })()` – an IIFE ("immediately invoked function expression"): a function that is defined and called in one go. The outer parentheses make the parser read `function` as an expression instead of a declaration; the final `()` calls it. Its purpose is scope: variables declared inside, such as `r` and `t`, exist only within the function. A plain `var t` at the top level of a script would land on the global object as `window.t`, where any other script could overwrite or read it.
+- `var r = document.documentElement` – the `<html>` element.
+- `r.classList.add('js')` – turns it into `<html lang="en" class="js">`. CSS uses the class to tell "JavaScript runs" from "JavaScript is off": `html:not(.js) .themes` hides the theme buttons (without JavaScript they would do nothing), `html:not(.js) .jump .down` hides the down link of the jump control, which only the script can point at the right section.
 - `localStorage.getItem('theme')` – reads the theme a visitor picked on an earlier visit. `site.js` stores it when someone clicks a theme button.
 - `if (t === 'light' || t === 'dark')` – accepts only the two known values. Anything else (empty, outdated, edited by hand) is ignored, and the page follows the system setting.
 - `setAttribute('data-theme', t)` – writes `data-theme="dark"` or `data-theme="light"` on `<html>`. The CSS has rules for `:root[data-theme="dark"]` and `:root:not([data-theme="light"])`, so this one attribute switches every color variable at once.
+- `document.querySelector('meta[name=color-scheme]').content = t` – the colour-scheme tag above, narrowed to the pick before the first paint. The attribute value needs no quotes in the selector: `color-scheme` is a valid identifier.
 - `try { … } catch (e) {}` – reading `localStorage` throws an error when the browser blocks storage, which some privacy settings do. The empty `catch` swallows the error; the page then simply follows the system theme.
 - `var t` – a local variable, thanks to the IIFE. `site.js` uses the same pattern: its whole code sits inside one arrow function that runs immediately.
 
@@ -87,6 +102,19 @@ Why inline, and why exactly here:
 - **Before the first paint.** The browser paints nothing until the stylesheet in the head has arrived. A script in the head runs within that window, so the very first frame already has the right `data-theme`. If the same code lived in `site.js` (loaded with `defer`, after parsing), a visitor who chose dark on a light system would see a light page flash before it turns dark.
 - **Inline, not a file.** An external script costs a network request, and a plain `<script src>` stops the parser until it has downloaded. Four short statements are cheaper inline.
 - **Before the stylesheet `<link>`.** A script that comes after a stylesheet has to wait until that stylesheet has downloaded, because scripts are allowed to ask for computed styles. Placed before the `<link>`, the script runs immediately.
+- **Allowed by its hash.** The content security policy in `.htaccess` names this script's SHA-256 (see `.htaccess`). Change one character, rebuild, and the build writes the new hash with it.
+
+### Speculation rules
+
+```html
+<script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script>
+```
+
+- `type="speculationrules"` – not a program but rules, in JSON: which pages the browser may load before the visitor clicks. Chrome and Edge read them; other browsers do not know the type and skip the element, as every browser skips the JSON-LD block.
+- `"prefetch"` – fetch the next page's HTML and keep it ready; the click then needs no network round trip. Not `"prerender"`, which would also run the page out of sight: the start page's typing and docking would be over before anyone saw them.
+- `"href_matches":"/*"` – every path on this site: the language switch, the legal pages, the menu on the legal pages and the 404s. Links to other sites do not match.
+- `"eagerness":"moderate"` – only once the pointer rests on a link for a moment (about 200 ms in Chrome) or presses it, so the browser fetches what is likely to be clicked, not every link on the page.
+- Inline, so the content security policy allows it by hash, like the boot script.
 
 ### Title, description, author
 
@@ -192,7 +220,7 @@ Without a hint, a web font is discovered late: the browser downloads the HTML, t
 - `type="font/woff2"` – a browser that cannot read WOFF2 skips the preload instead of wasting bandwidth.
 - `crossorigin` – the non-obvious one. Fonts are always requested in CORS mode, even from your own server; the CSS Fonts specification demands it. A preload without `crossorigin` is made in "no-cors" mode. The two requests differ in mode, the browser treats them as different resources, and the font is downloaded twice – Chrome then warns in the console that a preloaded resource was not used. The bare attribute means `crossorigin="anonymous"`: CORS mode without cookies, exactly what `@font-face` does.
 - Only two of the three font files are preloaded: bold (name, headings, ledger figures) and regular (body text). The italic appears only in a few words of the dictionary entry and loads on demand. Every preload competes with the stylesheet for bandwidth, so preloads are limited to what the first screen needs.
-- `rel="stylesheet"` – the CSS, one file of about 26 KB, no third-party styles. It is render-blocking: the browser paints nothing until it has arrived, which prevents a flash of unstyled content.
+- `rel="stylesheet"` – the CSS, one file of about 29 KB, no third-party styles. It is render-blocking: the browser paints nothing until it has arrived, which prevents a flash of unstyled content.
 - `?v=…` – eight hex digits of the file's SHA-256, written by the build (`VERSION` in `build.py`). The server ignores the query and sends the same file; for the browser's cache, the query is part of the address. A changed stylesheet gets a new address, so `.htaccess` can let browsers keep each version for a year without ever pairing a new page with an old stylesheet (see `.htaccess`).
 
 ### Structured data: JSON-LD
@@ -272,14 +300,14 @@ The content of the block, indented for reading (in the file it is one line):
 ```html
 <header class="top">
 <div class="wrap">
-<a class="home" href="#top"><span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">Peter Stieg</span></span><svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="40 -668 1971.03 813" role="img" aria-label="Peter Stieg"><g class="still"><path style="fill:var(--accent,#7A1A2C)" d="…"/><path style="fill:var(--ink,#1A1C1E)" d="…"/></g></svg></a>
+<a class="home" href="#top"><span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">Peter Stieg</span></span><svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="40 -668 1971.03 813" role="img" aria-label="Peter Stieg"><g class="still"><path class="acc" d="…"/><path class="ink" d="…"/></g></svg></a>
 ```
 
 - `<header>` – directly inside `<body>`, it becomes the page's banner landmark. Screen readers keep a list of landmarks (banner, navigation, main, regions, contentinfo) and let the user jump between them, the way a sighted reader scans a layout.
 - `class="top"` – the hook for CSS: sticky position, translucent background, a hairline that appears once the page scrolls.
 - `<div class="wrap">` – no meaning, only layout: maximum width and side padding. The same wrapper sits in `<main>` and `<footer>`, so all three align.
 - `<a class="home" href="#top">` – the logo links to the hero section (`id="top"`), not to `index.html`. On a one-page site, "home" means "back to the beginning" and needs no reload. A side note: `#top` would scroll to the top even without an element of that id, because the HTML specification treats the fragment `top` specially. Here the id exists, so the browser scrolls to the hero.
-- **The logo** is the lockup `>_ P/S`, an inline `<svg>`: the prompt `>_` and the P/S monogram, built from the outlines of the site's own font (`src/lockup/`). Inline rather than an `<img>`, because only inline SVG can take its colours from the page's CSS variables: `fill:var(--accent,#7A1A2C)` paints the prompt Bordeaux, `fill:var(--ink,#1A1C1E)` the letters – and both switch with the theme. The second value in `var()` is the fallback if the variable is missing.
+- **The logo** is the lockup `>_ P/S`, an inline `<svg>`: the prompt `>_` and the P/S monogram, built from the outlines of the site's own font (`src/lockup/`). Inline rather than an `<img>`, because only inline SVG can take its colours from the page's CSS: `class="acc"` and `class="ink"` on the two paths, and `site.css` fills them with `var(--accent)` – the prompt in Bordeaux – and `var(--ink)` – the letters. Both switch with the theme, and in Windows high-contrast mode both take the system's text colour (03-css, High contrast). The file in `src/lockup/` fills the paths with inline `style` attributes; `build.py` swaps them for the two classes, so no page carries an inline style (01-build, section 11).
 - `viewBox="40 -668 1971.03 813"` – the drawing in font units: it starts at x = 40 (where the `>` begins) and y = −668 (the top of the P, since SVG's y axis points down), 1971 wide and 813 tall. The CSS sets the height to 28 px; the width follows from the ratio, 2.42 : 1.
 - `role="img"` and `aria-label="Peter Stieg"` – to screen readers the drawing is one image with that name, and it gives the link its name: "Peter Stieg, link".
 - `<g class="still">` – a group around the two paths, so `site.js` can hide them while it draws the condensing wordmark into the same SVG.
@@ -493,9 +521,9 @@ The drawn arrow:
 
 - `id="fields"` – not linked from the navigation, but addressable. German: `p-wie-peter`.
 - `P<sup>4</sup>` – "P to the power of four" for the four Ps. `<sup>` is meant for typographic conventions that need superscript (exponents, footnote marks), so this is correct use. Screen readers usually ignore the superscript and say "P4"; that is also the section's name in the landmark list.
-- `<div class="fields">` – the section starts straight with its grid: 2 × 2 on wider screens. Four `<div>`s, each with an `<h3>` and a `<p>`. Not a list: each block stands on its own with a heading, and headings are more useful for navigation than list items.
+- `<div class="fields">` – the section starts straight with its grid: 2 × 2 once the content column is wide enough (a container query, see 03-css). Four `<div>`s, each with an `<h3>` and a `<p>`. Not a list: each block stands on its own with a heading, and headings are more useful for navigation than list items.
 - On the German page the four `<h3>` carry `lang="en"`, because the four Ps stay English.
-- Each text runs to three lines, on a wide screen and on a phone alike (measured at 1440, 1024, 390 and 360 px; at 768 px, where section and fields both split into columns, four to six).
+- Each text runs to three lines, on a wide screen and on a phone alike (measured at 1440, 1024, 390 and 360 px). At 768 px the four fields stand in one column, 472 px wide: the section has split into heading and content there, and two field columns of 216 px each were too narrow (03-css, Fields of work).
 
 
 ### Experience: a reversed timeline
@@ -514,19 +542,19 @@ The drawn arrow:
 </ol>
 ```
 
-Nine entries; the first stands for all.
+Eleven entries; the first stands for all.
 
 - `<ol>` – an ordered list, because the order carries meaning: it is a timeline. A `<ul>` would say "these items could come in any order".
-- `reversed` – an attribute only `<ol>` has: the numbering counts down instead of up. Without it the first item is number 1; with it the first item gets the highest number, here 9, and the last number 1. The list runs newest first, so counting down makes the numbers chronological: the oldest entry is number 1, the newest number 9. The CSS hides the numbers (`list-style: none`), so nothing changes on screen; you see them only if the stylesheet fails to load. The attribute keeps the list's numbering in line with its order for everything that reads it – assistive technology, a browser without the stylesheet, a parser. The two lists behind the disclosures further down run newest first as well and carry it for the same reason.
+- `reversed` – an attribute only `<ol>` has: the numbering counts down instead of up. Without it the first item is number 1; with it the first item gets the highest number, here 11, and the last number 1. The list runs newest first, so counting down makes the numbers chronological: the oldest entry is number 1, the newest number 11. The CSS hides the numbers (`list-style: none`), so nothing changes on screen; you see them only if the stylesheet fails to load. The attribute keeps the list's numbering in line with its order for everything that reads it – assistive technology, a browser without the stylesheet, a parser. The two lists behind the disclosures further down run newest first as well and carry it for the same reason.
 - A known quirk: Safari has, in many versions, stopped announcing lists as lists in VoiceOver once CSS sets `list-style: none`. The usual fix is `role="list"` on the list. It applies to all unstyled lists on this page.
 - `<li class="role" id="e-service-check">` – one position. The `id` makes it a link target: three roles carry one – E+SERVICE+CHECK, Brandible and Posterlounge, the three companies the ledger in the Profile links to. The value comes from the role's `id` field in `build.py`; the other roles have none.
 - `<p class="when">` – the period, in the left column on wide screens, and under it the role's length.
 - `<br>` – puts the duration on a line of its own. It also keeps dates and duration apart in plain text: text extraction turns a `<br>` into a line break, so the two do not run together as "since 11/20251 year".
 - `<span class="dur">1 year</span>` – the duration in full words, "5 years 9 months" rather than abbreviations to decode; German "5 Jahre 9 Monate". It is counted like LinkedIn counts: first and last month included, so 10/2017 – 06/2023 makes 69 months, 5 years 9 months. `build.py` reads the dates from the period (`months()`) and writes the words (`duration()`, with the singular and plural from the key `dur` of each language). The CSS sets the line a little smaller.
-- `data-from="2025-11"` and `data-units="year,years,month,months"` – only on the role that is still running, the one whose period has a single date. The build counts it up to the build date, so the "1 year" in the file is the count of 29 October 2026. `site.js` recounts it from `data-from` when the page loads, with the words from `data-units` – the German page carries `Jahr,Jahre,Monat,Monate`, so the script itself contains no language. The duration never goes stale between two uploads; without JavaScript, the build's count stands.
+- `data-from="2025-11"` and `data-units="year,years,month,months"` – only on the role that is still running, the one whose period has a single date. The build counts it up to the build date, so the "1 year 1 month" in the file is the count of the build day, 17 November 2026. `site.js` recounts it from `data-from` when the page loads, with the words from `data-units` – the German page carries `Jahr,Jahre,Monat,Monate`, so the script itself contains no language. The duration never goes stale between two uploads; without JavaScript, the build's count stands.
 - `<div>` – groups everything else into the right column, so the CSS grid gets exactly two columns: date | details.
 - `<h3>` – the job title. As a heading, every role is reachable through heading navigation.
-- `<a href="https://www.e-service-check.de/" target="_blank" rel="noopener">` – the company name links to its website, in a new tab; the next section takes the link apart. All six roles at a company link it; the two Liora trainings link the course page of each (below), and the 2010–2014 entry links four of its five companies behind its disclosure. The names carry no legal form – "E+SERVICE+CHECK", not "E+SERVICE+CHECK GmbH": the names people know, and the ↗ already leads to the website.
+- `<a href="https://www.e-service-check.de/" target="_blank" rel="noopener">` – the company name links to its website, in a new tab; the next section takes the link apart. All seven roles at a company link it; the two Liora trainings link the course page of each (below), and the 2010–2014 entry links five of its six companies behind its disclosure. The freelance entry links nothing: the client sites are offline. The names carry no legal form – "E+SERVICE+CHECK", not "E+SERVICE+CHECK GmbH": the names people know, and the ↗ already leads to the website.
 - `<p class="org">` with `<span class="place">· Laucha</span>` – employer and location; the span mutes the location. The `&nbsp;` before the span glues the dot to the end of the link, the name with its ↗, so the location can wrap to the next line but the dot never starts it (see "Non-breaking spaces and middle dots").
 - `<p class="ctx">` – one line of company context. Optional: `build.py` emits it only for roles that have a `ctx`, and the `place` span only for roles that have a place (Rapidobject has none).
 - `<ul class="tree">` – the details as an unordered list, styled like the output of the Unix `tree` command – the format of the #JobAlert posts. The branches `├──` and `└──` are not characters in the HTML but CSS borders on `::before` and `::after`. They align in any font, and screen readers do not read out box-drawing characters.
@@ -542,7 +570,19 @@ Nine entries; the first stands for all.
   - The link leads to the course page of that training – the same page as "Course page" in its footnote under Sources, but without `hreflang="en"` there.
   - "· Université Paris 1 Panthéon-Sorbonne" stands outside the link: the ↗ belongs to Liora's page, and the partner is not part of that target. `build.py` writes it from the role's key `with`; the `&nbsp;` comes from `dots()`.
   - "(formerly DataScientest)" stands in Education, not here (see "Education and footnote references").
-- Variants among the nine entries: some have no `ctx`, one has no place, some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. Two entries hold more behind a disclosure: Posterlounge its promotions, the last entry five positions.
+- Variants among the eleven entries: some have no `ctx`, two have no place (Rapidobject, the freelance entry), some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. Two entries hold more behind a disclosure: Posterlounge its promotions, the last entry six positions.
+- The freelance entry is the one without months and without a link:
+
+  ```html
+  <p class="when">2013 – 2020<br><span class="dur">8 years</span></p>
+  <div>
+  <h3>Freelance: websites, design, translation</h3>
+  <p class="org">Alongside employment</p>
+  ```
+
+  - Years only, counted January to December: 2013 – 2020 is eight whole years.
+  - "Alongside employment" in the company line, where the other entries name an employer: the work ran next to the jobs of those years, so the entry overlaps them in the timeline.
+  - Its Scope names TextMaster, the platform the translations went through, without a link: TextMaster now belongs to Acolad.
 
 ### Links that leave the site
 
@@ -550,10 +590,10 @@ Nine entries; the first stands for all.
 <a href="https://www.e-service-check.de/" target="_blank" rel="noopener"><span class="nw">E+SERVICE+CHECK<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>
 ```
 
-The company name is the first of 25 links on each page that lead to another website: twelve in Experience – six company websites and the two Liora course pages in the roles, four of the five early positions –, GitHub and Demo under Projects, LinkedIn, GitHub and the map under Contact, "Verify credential" and "Course page" under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
+The company name is the first of 27 links on each page that lead to another website: fourteen in Experience – seven company websites and the two Liora course pages in the roles, five of the six early positions –, GitHub and Demo under Projects, LinkedIn, GitHub and the map under Contact, "Verify credential" and "Course page" under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
 
 - `target="_blank"` – opens the target in a new tab (some browser settings make it a new window). peterstieg.com stays open in the tab behind it, at the same scroll position: a visitor checks a company or a credential and comes back to the place they left. The price: the new tab has no history to go back to, and the link no longer leaves the choice of tab to the visitor. That is why it announces itself, to the eye and to the ear (the next points).
-- `rel="noopener"` – a page opened in a new tab normally receives a reference to the page that opened it, `window.opener`, and can use it to send that tab to another address – for example to a copy of a login page while the visitor reads the new tab, known as reverse tabnabbing. `noopener` withholds the reference. Current browsers already treat every `target="_blank"` link this way (Chrome since version 88, Firefox 79, Safari 12.1); the attribute states it explicitly and covers older browsers. `noreferrer` is not set, so the target still learns which site the visitor came from.
+- `rel="noopener"` – a page opened in a new tab normally receives a reference to the page that opened it, `window.opener`, and can use it to send that tab to another address – for example to a copy of a login page while the visitor reads the new tab, known as reverse tabnabbing. `noopener` withholds the reference. Current browsers already treat every `target="_blank"` link this way (Chrome since version 88, Firefox 79, Safari 12.1); the attribute states it explicitly and covers older browsers. `noreferrer` is not set, so the target still learns which site the visitor came from – the site, not the page: the referrer policy in `.htaccess` sends only the origin to other sites.
 - `<span class="newtab">` – the marker for the eye: a small ↗, an arrow pointing out of the page, drawn as an SVG (the constant `OUT_SVG` in `build.py`) and `aria-hidden` like every icon here. Its path `M4 12 12.5 3.5M6 3.5h6.5V10` draws the shaft from bottom left to top right, then the head as one corner: along the top to the tip, and down. WCAG recommends warning before a link opens a new window (technique G201), and the ↗ is the common sign for it. It is the counterpart of the ↓ in the ledger and built the same way – raised, an `inline-block`, so the link's underline does not run under it – but quieter: muted instead of the accent colour, a little smaller, in the accent only on hover and keyboard focus. The accent marks belong to what stays on the page – footnote numbers, the ↓; the muted ↗ leaves it. The details are in 03-css.
 - `<span class="sr-only"> (opens in a new tab)</span>` – the same notice for screen readers, as text: hidden on screen by the `.sr-only` class from the hero, present in the accessibility tree. It sits inside the link, so it becomes part of the link's accessible name, "E+SERVICE+CHECK (opens in a new tab)" – also when a screen-reader user tabs from link to link or calls up a list of all links, where the text around a link is not read. After the `</a>` it would be ordinary text that only reading on reaches. The leading space keeps it apart from the last word. German: "öffnet in neuem Tab", the UI string `new_tab`.
 - `<span class="nw">E+SERVICE+CHECK…</span>` – the last word of the link text and the ↗ share a span with `white-space: nowrap`. An `inline-block` is a break opportunity on both sides, so without the span the ↗ could wrap onto a line of its own – on phones 320 to 390 px wide it did. Inside the span, it moves to the next line together with the word. `offsite()` splits the text at its last space (`rpartition(" ")`): "YOUniversal Media" keeps "YOUniversal " outside the span, a one-word text such as "E+SERVICE+CHECK" or "LinkedIn" goes in whole. A word joiner (U+2060) between word and arrow, the usual way to forbid a break, did not stop it in Chromium.
@@ -568,48 +608,49 @@ The company name is the first of 25 links on each page that lead to another webs
 <p class="ctx">Art prints online in more than 15 European countries.</p><ul class="tree">…</ul>
 <details class="more">
 <summary>Three promotions</summary>
-<ol class="tree" reversed><li>Head of Marketing<br><span class="at">09/2021 – 06/2023&nbsp;· 1 year 10 months</span></li><li>Senior Marketing Manager<br><span class="at">10/2020 – 08/2021&nbsp;· 11 months</span></li><li>Online Marketing Manager<br><span class="at">11/2018 – 09/2020&nbsp;· 1 year 11 months</span></li><li>SEO Manager Italy<br><span class="at">10/2017 – 10/2018&nbsp;· 1 year 1 month</span></li></ol>
+<ol class="tree" reversed><li>Head of Marketing<br><span class="at">09/2021 – 06/2023&nbsp;· 1 year 10 months</span></li><li>Senior Marketing Manager<br><span class="at">10/2020 – 08/2021&nbsp;· 11 months</span></li><li>Online Marketing Manager<br><span class="at">11/2018 – 09/2020&nbsp;· 1 year 11 months</span></li><li>SEO Manager Italy<br><span class="at">10/2017 – 10/2018&nbsp;· 1 year 1 month</span></li><li>SEO, freelance<br><span class="at">07/2017 – 09/2017&nbsp;· 3 months</span></li></ol>
 </details>
 </div>
 </li>
 ```
 
-The heading of the role names the last title, Head of Marketing. The way there took four titles, and each is a real job title that people search for by name. In the HTML they are text that any search engine or parser finds; behind the disclosure they stay out of the way of a reader who skims the timeline.
+The heading of the role names the last title, Head of Marketing. The way there took four titles, and each is a real job title that people search for by name. Before the first contract came three months of freelance SEO for the same company, the last row. In the HTML they are text that any search engine or parser finds; behind the disclosure they stay out of the way of a reader who skims the timeline.
 
 - `<details class="more">` – the same disclosure as under 2010–2014 (next section), with the same kind of list inside: one item per step.
-- `<summary>Three promotions</summary>` – four titles, three steps between them. German: "Drei Beförderungen".
-- `<ol class="tree" reversed>` – ordered, because the titles are a sequence. It runs newest first, like the timeline around it: Head of Marketing on top, the title the role's heading names, SEO Manager Italy at the bottom. `reversed` counts it down, as on the timeline (see "Experience: a reversed timeline"): Head of Marketing is number 4, SEO Manager Italy number 1. The class gives it the branches of the Team/Scope/Result list; it has no keys, each item is one title. The CSS adds a little space under the summary (`.more .tree`).
-- Each step: the title, a `<br>`, and in `<span class="at">` its dates and length – the same pattern as the role's own dates with their duration. The dates come from the contracts; the four lengths add up to the role's 5 years 9 months. German: "SEO Manager Italien", "1 Jahr 1 Monat".
-- In `build.py` this is the role key `path`: a label and a list of (start, title) pairs, newest first. `role()` computes the ends: the newest step ends with the role, every earlier one the month before the step above it starts. It then hands the rows to the function `steps()`, which writes the disclosure; the five positions in the next section go through the same function.
+- `<summary>Three promotions</summary>` – four titles, three steps up between them. The freelance row does not change the count: being hired is not a promotion. German: "Drei Beförderungen".
+- `<ol class="tree" reversed>` – ordered, because the steps are a sequence. It runs newest first, like the timeline around it: Head of Marketing on top, the title the role's heading names, "SEO, freelance" at the bottom. `reversed` counts it down, as on the timeline (see "Experience: a reversed timeline"): Head of Marketing is number 5, "SEO, freelance" number 1. The class gives it the branches of the Team/Scope/Result list; it has no keys, each item is one step. The CSS adds a little space under the summary (`.more .tree`).
+- Each step: the title, a `<br>`, and in `<span class="at">` its dates and length – the same pattern as the role's own dates with their duration. The dates come from the contracts; the four contract steps add up to the role's 5 years 9 months. The freelance row, 07/2017 – 09/2017, lies before the role's own dates, which count the employment. German: "SEO Manager Italien", "SEO, freiberuflich", "1 Jahr 1 Monat".
+- In `build.py` this is the role key `path`: a label and a list of (start, title) pairs, newest first. `role()` computes the ends: the newest step ends with the role, every earlier one the month before the step above it starts – the freelance row 09/2017. It then hands the rows to the function `steps()`, which writes the disclosure; the six positions in the next section go through the same function.
 - `site.js` treats it like every `details.more`: it redraws the minimap when the disclosure opens, and printing shows it open.
 
-### Experience: five positions behind a disclosure
+### Experience: six positions behind a disclosure
 
 ```html
 <li class="role">
-<p class="when">10/2010 – 08/2014<br><span class="dur">3 years 11 months</span></p>
+<p class="when">10/2010 – 09/2014<br><span class="dur">4 years</span></p>
 <div>
 <h3>Marketing, market research, export</h3>
-<p class="org">Five companies&nbsp;<span class="place">· Rome</span></p>
-<ul class="tree"><li><span class="k">Scope:</span> export promotion, brand protection, competitive intelligence, web marketing</li></ul>
+<p class="org">Six companies&nbsp;<span class="place">· Rome</span></p>
+<ul class="tree"><li><span class="k">Scope:</span> export promotion, brand protection, competitive intelligence, lead generation, web marketing</li></ul>
 <details class="more">
-<summary>Five positions</summary>
-<ol class="tree" reversed><li>Marketing Consultant&nbsp;<span class="muted">· <a href="https://it.sbsbusiness.eu/" target="_blank" rel="noopener">SBS systems for business <span class="nw">solutions<span class="newtab">…</span></span></a></span><br><span class="at">04/2014 – 08/2014&nbsp;· 5 months</span></li><li>Corporate investigations&nbsp;<span class="muted">· <a href="https://innervalor.com/" target="_blank" rel="noopener">Inner <span class="nw">Valor<span class="newtab">…</span></span></a></span><br><span class="at">06/2013 – 05/2014&nbsp;· 1 year</span></li>…</ol>
+<summary>Six positions</summary>
+<ol class="tree" reversed><li>Business Development Specialist&nbsp;<span class="muted">· <a href="http://www.3d2b.com/" target="_blank" rel="noopener"><span class="nw">3D2B<span class="newtab">…</span></span></a></span><br><span class="at">09/2014&nbsp;· 1 month</span></li><li>Marketing Consultant&nbsp;<span class="muted">· <a href="https://it.sbsbusiness.eu/" target="_blank" rel="noopener">SBS systems for business <span class="nw">solutions<span class="newtab">…</span></span></a></span><br><span class="at">04/2014 – 08/2014&nbsp;· 5 months</span></li>…</ol>
 </details>
 </div>
 </li>
 ```
 
-The years 2010 to 2014 stay one entry in the timeline: five positions in and around Rome, summed up as "Five companies" with one Scope line. The single positions are there for anyone who wants them, without making the timeline longer for everyone else. The entry's period runs from the first month of the earliest position to the last month of the latest, 10/2010 – 08/2014, with months like every other entry: a duration needs them.
+The years 2010 to 2014 stay one entry in the timeline: six positions in and around Rome, summed up as "Six companies" with one Scope line. The single positions are there for anyone who wants them, without making the timeline longer for everyone else. The entry's period runs from the first month of the earliest position to the last month of the latest, 10/2010 – 09/2014, with months like every other employment.
 
 - `<details class="more">` – HTML's built-in disclosure widget. Closed, it shows only its `<summary>`; a click, Enter or Space opens it, and the browser announces the summary as a control that is collapsed or expanded. No JavaScript, no ARIA. The content of a closed `<details>` is not rendered, so screen readers skip it too until it is opened.
-- `<summary>Five positions</summary>` – the label of the toggle, as visible text: number and noun, like "Three promotions". Browsers draw a small triangle in front of it; the CSS replaces that with a chevron that turns down when the disclosure is open. German: "Fünf Stationen".
+- `<summary>Six positions</summary>` – the label of the toggle, as visible text: number and noun, like "Three promotions". Browsers draw a small triangle in front of it; the CSS replaces that with a chevron that turns down when the disclosure is open. German: "Sechs Stationen".
 - `<ol class="tree" reversed>` – the same list as the promotions, written by the same function, `steps()`: one item per position, newest first, counted down like the timeline. Each item is the title, the company, a `<br>`, and in `<span class="at">` the dates and length.
-- `&nbsp;<span class="muted">· …</span>` – the company, in grey like the issuers under Education. Where its website could be verified, the name is a link like every company's in Experience, with its ↗: SBS (its Italian site), Inner Valor, Fontebona and PaesiOnLine. Proactive Europe stays text. The promotions have no such span: all four steps were at one company, named in the role's own line, and `steps()` writes the company only where a row has one. The `&nbsp;` before the span glues the dot to the title, as in the employer line, where a tag sits between space and dot too (see "Non-breaking spaces and middle dots").
-- No place and no Scope per position: the entry's own lines sum them up, "Five companies · Rome" and the Scope above the disclosure.
+- The newest row, 3D2B, is one month in Rome, right after SBS: "09/2014 · 1 month", a single date. In the disclosure rather than as an entry of its own, which would weigh like a role of several years.
+- `&nbsp;<span class="muted">· …</span>` – the company, in grey like the issuers under Education. Where its website could be verified, the name is a link like every company's in Experience, with its ↗: 3D2B, SBS (its Italian site), Inner Valor, Fontebona and PaesiOnLine. Proactive Europe stays text. The promotions have no such span: all four steps were at one company, named in the role's own line, and `steps()` writes the company only where a row has one. The `&nbsp;` before the span glues the dot to the title, as in the employer line, where a tag sits between space and dot too (see "Non-breaking spaces and middle dots").
+- No place and no Scope per position: the entry's own lines sum them up, "Six companies · Rome" and the Scope above the disclosure.
 - No heading per position: each title is a list item, not an `<h4>`. Under Experience the outline ends at the entries' `<h3>`.
-- In `build.py` the entry's key `positions` holds the label and one (period, title, company, url) row per position, newest first. Unlike the promotions, each row carries its full period: the positions overlap and leave gaps, so no end can be derived from the next start.
-- Opening the disclosure makes the page taller, so `site.js` redraws the minimap on the `toggle` event. For printing, it opens the closed ones before and closes them again afterwards (`beforeprint`, `afterprint`), so paper shows all five; see 04-js.
+- In `build.py` the entry's key `positions` holds the label and one (dates, title, company, url) row per position, newest first. Unlike the promotions, each row carries its own dates – a range, or the single month of 3D2B: the positions overlap and leave gaps, so no end can be derived from the next start.
+- Opening the disclosure makes the page taller, so `site.js` redraws the minimap on the `toggle` event. For printing, it opens the closed ones before and closes them again afterwards (`beforeprint`, `afterprint`), so paper shows all six; see 04-js.
 
 ### Education and footnote references
 
@@ -678,6 +719,7 @@ The footnote reference, piece by piece:
 ### Contact
 
 ```html
+<p class="ask">Questions about performance, pipelines, pixels or people:</p>
 <dl class="facts">
 <div><dt>Email</dt><dd><a href="mailto:info@peterstieg.com"><span class="nw">info@peterstieg.com<span class="newtab sym"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.8 3.6h12.4v8.8H1.8zM2.2 4 8 8.8 13.8 4"/></svg></span></span></a></dd></div>
 <div><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/peterstieg/" target="_blank" rel="me noopener"><span class="nw">linkedin.com/in/peterstieg<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a></dd></div>
@@ -686,6 +728,7 @@ The footnote reference, piece by piece:
 </dl>
 ```
 
+- `<p class="ask">` – one line before the rows: what to write about, in the four words of P⁴. German: "Fragen zu Performance, Pipelines, Pixels oder People:". A plain paragraph – the colon leads into the list, and in plain text the line stands before the addresses as it does on screen. The class has no style of its own; it gives the torch a rule for the line (01-build, section 28).
 - `<dl class="facts">` – the same pattern as Education: a label in the `<dt>`, the value in the `<dd>`, each pair in a `<div>`. Four rows: Email, LinkedIn, GitHub, Based in. Like a table, but without `<table>`: there are no columns to compare, just labels and their values, which is what a description list is for. A screen reader announces the pairs as term and description.
 - The link texts are the addresses themselves – `linkedin.com/in/peterstieg`, `github.com/PeterStieg` – without `https://`, `www.` and the closing slash. They can be read off a printout or a screenshot and typed, and a parser that reads only the text still finds the profiles.
 - `href="mailto:…"` – opens the visitor's mail program with the address filled in. The address is in clear text here and in the JSON-LD: convenient for people, readable for address harvesters. The site accepts that trade-off. The link has no `target`: it opens no page, so there is no tab to keep.
@@ -790,7 +833,7 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 
 - `src` – an external file, so the browser can cache it between visits. `?v=…` – its fingerprint, as with the stylesheet: browsers keep it for a year and fetch a new address when it changes.
 - `defer` – download without stopping the parser, run after the whole document has been parsed, just before the `DOMContentLoaded` event; several deferred scripts run in source order. `site.js` can therefore rely on every element being present. `defer` only works on external scripts.
-- Position: a deferred script could also sit in the head, where its download would start earlier. At the end of the body, the download starts only when the parser gets there. For a 32 KB page the difference is milliseconds, and the time-critical part – the theme – already ran in the head.
+- Position: a deferred script could also sit in the head, where its download would start earlier. At the end of the body, the download starts only when the parser gets there. For a 35 KB page the difference is milliseconds, and the time-critical part – the theme – already ran in the head.
 - Everything `site.js` adds is an enhancement. Without it the page is complete: the motto stands untyped, the theme follows the system, the jump control leads to the top and to every section, the two disclosures work, and the running role shows the duration counted at the build.
 
 ---
@@ -807,7 +850,7 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 
 On a narrow screen a list like this breaks as "Python · BigQuery ·" / "Data Studio" – never with a dot at the start of a line, where it would look like a bullet point. The tagline adds two more `&nbsp;` so that "Performance Marketing" and "Data Science" stay in one piece each.
 
-`dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag – and `steps()` does the same before the company of each position behind "Five positions":
+`dots()` is a plain text replacement, so it only finds the pattern space – dot – space. In the employer line, a tag sits between the space and the dot. There the role template in `build.py` writes the `&nbsp;` itself, in front of the tag – and `steps()` does the same before the company of each position behind "Six positions":
 
 ```html
 <p class="org"><a href="https://posterlounge.com/shop" target="_blank" rel="noopener"><span class="nw">Posterlounge<span class="newtab">…</span></span></a>&nbsp;<span class="place">· Leipzig</span></p>
@@ -849,7 +892,7 @@ Not every reader renders the page. A search engine indexes its text, a parser pu
 
 The durations under the dates follow the same rule: the `<br>` keeps "10/2017 – 06/2023" and "5 years 9 months" apart. To see the result, select the ledger, copy it and paste it into a plain text editor.
 
-One addition goes the other way. The notice behind each ↗ is real text, like the "to" in the arrows, so the extraction now reads "LinkedIn (opens in a new tab)" and "Verify credential (opens in a new tab)" – 24 times per page, plus "Leipzig (map, opens in a new tab)" once, on the German page "(öffnet in neuem Tab)". Screen readers need the notice as text inside the link (see "Links that leave the site"), and an extraction takes it along with the link text.
+One addition goes the other way. The notice behind each ↗ is real text, like the "to" in the arrows, so the extraction now reads "LinkedIn (opens in a new tab)" and "Verify credential (opens in a new tab)" – 26 times per page, plus "Leipzig (map, opens in a new tab)" once, on the German page "(öffnet in neuem Tab)". Screen readers need the notice as text inside the link (see "Links that leave the site"), and an extraction takes it along with the link text.
 
 ---
 
@@ -858,6 +901,9 @@ One addition goes the other way. The notice behind each ↗ is real text, like t
 ### `404.html` and `de/404.html`
 
 ```html
+<meta name="color-scheme" content="light dark">
+<script>…</script>
+<script type="speculationrules">…</script>
 <title>404 – Peter Stieg</title>
 <meta name="description" content="Page not found.">
 <meta name="author" content="Peter Stieg">
@@ -904,6 +950,7 @@ The German one, `de/404.html`, mirrors it:
 
 - One error page per language. The server picks: `.htaccess` sends every missing address to `/404.html`, `de/.htaccess` every missing address under `/de/` to `/de/404.html` (next section). Each page has one line in the other language and, in the header's language switch, a link to the other start page, for a visitor who landed in the wrong one.
 - Absolute paths (`/…`) – the server answers a missing URL such as `https://peterstieg.com/de/old/page` with the content of the 404 page, but the browser still believes it is at `/de/old/page`. Relative paths resolve against that address: `assets/site.css` would become `/de/old/assets/site.css`, which does not exist, and the error page would appear unstyled. A path starting with `/` always begins at the domain root. The trade-off: opened from disk, `/assets/…` points to the root of your file system, so the 404 pages only look right on a server. `build.py` passes `root="/"` for these pages alone.
+- The head opens like every page's: the colour-scheme tag, the boot script, the speculation rules. `"/*"` in the rules is an absolute path pattern, so it matches the site's pages from any address the 404 is served under.
 - `canonical` – the page's own address, `https://peterstieg.com/404.html` or `…/de/404.html`.
 - `<meta name="robots" content="noindex">` – error pages do not belong in search results.
 - No `hreflang` alternates (`alternates=False` in `build.py`): a missing page has no counterpart.
@@ -931,6 +978,18 @@ RewriteCond %{SERVER_PORT} !=443
 RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
 </IfModule>
 
+# security: HTTPS only for a year, no content sniffing, no framing, no camera, microphone or location; the referrer
+# leaves the site as the origin only. The content security policy allows this server and the two inline scripts
+# (by hash) – report-only for now: violations show in the browser console, nothing is blocked.
+<IfModule mod_headers.c>
+Header always set Strict-Transport-Security "max-age=31536000"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "DENY"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'sha256-…' 'sha256-…'; style-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+</IfModule>
+
 # stylesheet and script change their address with their content (?v=), fonts never change: kept for a year.
 # Pages and torch.json are asked for on every visit – unchanged, the answer is a short 304.
 <IfModule mod_headers.c>
@@ -948,7 +1007,7 @@ AddOutputFilterByType DEFLATE text/html text/css text/javascript application/jav
 </IfModule>
 ```
 
-A configuration file for the Apache web server, read per directory on every request. The site runs on shared hosting at IONOS, where Apache's own configuration is out of reach; `.htaccess` is the one place where a site can add to it. `build.py` writes it from the constant `HTACCESS`.
+A configuration file for the Apache web server, read per directory on every request. The site runs on shared hosting at IONOS, where Apache's own configuration is out of reach; `.htaccess` is the one place where a site can add to it. `build.py` writes it from the constant `HTACCESS`, with the hashes of the two inline scripts filled into the policy.
 
 **Error pages.**
 
@@ -968,9 +1027,25 @@ A configuration file for the Apache web server, read per directory on every requ
 - `RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]` – `^` matches every path; the target is the one address with the requested path appended, and Apache carries the query string over. `R=301` – a permanent redirect: browsers and search engines may remember it and move links to the new address. `L` – last rule, stop here.
 - Result: `http://www.peterstieg.com/de/` reaches `https://peterstieg.com/de/` in one step, not via `https://www.…` first. Search engines see one host, and nothing is served over plain HTTP.
 
+**Security headers.** Rules for the browser, sent with every response. A static site has no login and no form, so the risks are small; the headers close what is left and cost nothing.
+
+- `Header always set` – `set` replaces a header of the same name; `always` sends it with error and redirect responses too (the 404 page, the 301), not only with successful ones.
+- `Strict-Transport-Security "max-age=31536000"` – HSTS: for a year after a visit, the browser goes to `https://peterstieg.com` directly, even when someone types `http://`. The redirect above then never sees that request, and nobody on the network can intercept it before the switch to HTTPS. Browsers take the header only over HTTPS. Without `includeSubDomains` it covers peterstieg.com alone, not its subdomains.
+- `X-Content-Type-Options "nosniff"` – the browser takes a file for what its `Content-Type` says and does not guess from the content. A file that claims to be text is never run as a script.
+- `X-Frame-Options "DENY"` – no other site may show these pages in a frame, so nobody can lay an invisible copy over a page of their own to catch clicks (clickjacking).
+- `Referrer-Policy "strict-origin-when-cross-origin"` – another site learns only `https://peterstieg.com/` as the origin of a visit, not the page; pages of this site get the full address, and nothing goes from HTTPS to HTTP. Current browsers use this as their default; the header makes it the rule for all.
+- `Permissions-Policy "camera=(), microphone=(), geolocation=()"` – the empty list `()` allows these features to no one: neither the page nor anything embedded in it can ask for camera, microphone or location.
+- `Content-Security-Policy-Report-Only` – the content security policy: where the page may load what from.
+  - `default-src 'self'` – everything from this server and nowhere else: fonts, `torch.json`, the manifest, the prefetched pages. The directives after it narrow it further.
+  - `script-src 'self' 'sha256-…' 'sha256-…'` – `site.js`, and two inline scripts, each named by the SHA-256 of its content: the boot script and the speculation rules. Any other inline script, an injected one included, does not match. The JSON-LD block is data and never runs, so the policy does not cover it. `build.py` writes the two hashes at build time (`csp_hash()`, 01-build).
+  - `style-src 'self'` – `site.css` and no inline style. The pages carry no `style` attribute since the logo's inline fills became classes. What `site.js` sets through `element.style` – the docking transforms, the minimap's bars – is not covered: the policy governs styles in the markup, not those set by script.
+  - `img-src 'self'` – images from this server: the icons. The inline SVGs are part of the HTML, not images loaded.
+  - `object-src 'none'` – no plugins. `base-uri 'none'` – no `<base>` that could redirect the relative links. `form-action 'none'` – no form may send anywhere. `frame-ancestors 'none'` – the policy's version of `X-Frame-Options`.
+  - **Report-only:** the browser checks the policy and reports each violation in the console, but blocks nothing. A mistake in the policy cannot break the live site while it is being tested. Tested on a local Apache: no violation on all eight pages, with torch, keys card, theme switch and minimap used. Once the live site shows none either, the header's name becomes `Content-Security-Policy`, and the policy blocks.
+
 **How long browsers keep what.**
 
-- `<IfModule mod_headers.c>` – the same safeguard for the module that sets response headers.
+- `<IfModule mod_headers.c>` – the same safeguard for the module that sets response headers; the security block above has its own.
 - `<FilesMatch "\.(css|js|woff2)$">` – a regular expression on the file name: names that end in `.css`, `.js` or `.woff2`.
 - `Cache-Control "public, max-age=31536000, immutable"` – `public`: any cache may store the file. `max-age=31536000`: fresh for 31,536,000 seconds – 365 × 24 × 60 × 60, one year. `immutable`: no check with the server even when the visitor reloads. Safe for exactly these files: the stylesheet and the script change their address when they change (`?v=`, see "Font preload and stylesheet"), and the font files never change.
 - `<FilesMatch "\.(html|json)$">` with `no-cache` – despite its name, not "do not store" but "store, and ask before every use". The browser sends what it knows about its copy (`If-Modified-Since`, `If-None-Match`); if nothing changed, the server answers `304 Not Modified` without the file. Pages and `torch.json` – which has no fingerprint – are therefore always current, and an unchanged one costs a short answer.
@@ -1029,6 +1104,9 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```html
 <html lang="en">
 …
+<meta name="color-scheme" content="light dark">
+<script>…</script>
+<script type="speculationrules">…</script>
 <title>Legal notice – Peter Stieg</title>
 <meta name="description" content="Legal notice for peterstieg.com">
 …
@@ -1060,6 +1138,7 @@ Sitemap: https://peterstieg.com/sitemap.xml
 ```
 
 - Four pages, all in the site root: `impressum.html` and `datenschutz.html` in German, legally binding; `legal-notice.html` and `privacy.html` in English, translations. Each is built from its language's settings with `root=""`.
+- The head starts as on the start pages: colour scheme, boot script, speculation rules – `head()` writes all three for every page.
 - `<title>` and description name the page: "Legal notice – Peter Stieg", "Legal notice for peterstieg.com"; German "Impressum von peterstieg.com".
 - `canonical` – the page's own address. The `alternate` links pair it with its counterpart in the other language, by the same rules as the start pages: both pages of a pair list both, x-default is the English one.
 - `<meta name="robots" content="noindex, follow">` – "do not show this page in search results, but do follow its links". `follow` is the default; it is written out for clarity. Why `noindex`: legal pages answer no search query, and the legal notice carries a full postal address that should not turn up when someone searches the name.
@@ -1132,8 +1211,8 @@ The PS monogram: P and S from Atkinson Hyperlegible Bold, the site's own font. T
 
 ## Try it
 
-1. **Source vs DOM.** Open https://peterstieg.com/ and press Ctrl+U (view-source). Find the comment and the theme boot script. Then open DevTools (F12) → Elements and compare: `<html>` now has `class="js"`, both theme buttons have `aria-pressed="false"` until one is clicked, and on a wide screen `.minimap` is full of `span.mm-bar`. Click the moon and check `<html data-theme="dark">` and, under Application → Local Storage, the key `theme`; click it again, and both are gone; Application → Manifest shows the name and the two icons from `site.webmanifest`. Finally press Ctrl+Shift+P, run "Disable JavaScript" and reload: theme buttons gone, motto static, the jump control visible from the start with up and the section list but without down.
-2. **Accessibility tree.** In Elements, select a `span.arr` and open the Accessibility pane: the SVG is not in the tree, the only thing below the span is the text "to" from its `.sr-only` span. Select a theme button and click it – watch "pressed" flip. Select the footnote link "1" and find its description "Sources". Select the LinkedIn link under Contact: its name is "LinkedIn (opens in a new tab)", and the ↗'s SVG is not in the tree. Scroll to 2010–2014, open "Five positions" and watch the attribute `open` appear on `<details class="more">`. Then open the Network panel, filter by "Font" and reload: the two preloaded fonts start early, the italic only after `site.css` has been read.
+1. **Source vs DOM.** Open https://peterstieg.com/ and press Ctrl+U (view-source). Find the comment and the theme boot script. Then open DevTools (F12) → Elements and compare: `<html>` now has `class="js"`, both theme buttons have `aria-pressed="false"` until one is clicked, and on a wide screen `.minimap` is full of `span.mm-bar`. Click the moon and check `<html data-theme="dark">`, `<meta name="color-scheme" content="dark">` and, under Application → Local Storage, the key `theme`; click it again, and the attribute and the key are gone and the meta tag reads `light dark` again; Application → Manifest shows the name and the two icons from `site.webmanifest`. Finally press Ctrl+Shift+P, run "Disable JavaScript" and reload: theme buttons gone, motto static, the jump control visible from the start with up and the section list but without down.
+2. **Accessibility tree.** In Elements, select a `span.arr` and open the Accessibility pane: the SVG is not in the tree, the only thing below the span is the text "to" from its `.sr-only` span. Select a theme button and click it – watch "pressed" flip. Select the footnote link "1" and find its description "Sources". Select the LinkedIn link under Contact: its name is "LinkedIn (opens in a new tab)", and the ↗'s SVG is not in the tree. Scroll to 2010–2014, open "Six positions" and watch the attribute `open` appear on `<details class="more">`. Then open the Network panel, filter by "Font" and reload: the two preloaded fonts start early, the italic only after `site.css` has been read.
 3. **Link preview and structured data.** Paste https://peterstieg.com/ into LinkedIn's Post Inspector (https://www.linkedin.com/post-inspector/) and compare title, description and image with the `og:` tags; repeat with https://peterstieg.com/de/. The Inspector fetches fresh, which also refreshes LinkedIn's cached card. Then paste the URL into https://validator.schema.org/ and find the Person with its `sameAs` and `hasCredential` entries.
 
 ## Key terms
@@ -1151,6 +1230,9 @@ The PS monogram: P and S from Atkinson Hyperlegible Bold, the site's own font. T
 - **Popover** – an element with the `popover` attribute: hidden until a button with `popovertarget` (or a script) opens it, shown in the top layer above everything else, closed by a click outside or Esc (light dismiss).
 - **Disclosure** – content that opens and closes under a visible label; in HTML, `<details>` with its `<summary>`.
 - **Web app manifest** – a JSON file, linked with `<link rel="manifest">`, that gives the site a name and icons for home screens.
+- **color-scheme** – the colour schemes a page supports, as a meta tag or a CSS property; the browser draws its own parts – scrollbars, canvas, form controls – to match.
+- **Speculation rules** – JSON in a `<script type="speculationrules">` that lets Chrome and Edge prefetch or prerender likely next pages.
+- **Security headers** – HTTP response headers that restrict what the browser does with a page: HSTS, `nosniff`, frame and referrer rules, permissions, and the content security policy, which names where scripts, styles and other resources may come from.
 
 ---
 

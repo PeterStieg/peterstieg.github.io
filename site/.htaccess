@@ -10,6 +10,18 @@ RewriteCond %{SERVER_PORT} !=443
 RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
 </IfModule>
 
+# security: HTTPS only for a year, no content sniffing, no framing, no camera, microphone or location; the referrer
+# leaves the site as the origin only. The content security policy allows this server and the two inline scripts
+# (by hash) – report-only for now: violations show in the browser console, nothing is blocked.
+<IfModule mod_headers.c>
+Header always set Strict-Transport-Security "max-age=31536000"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "DENY"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'sha256-1JLsTt+NuNFaQH3AYHa37xi7UqyP/1+qXt16uNTlRoE=' 'sha256-jzL/1/GTulrXmexS7t+xwD6/mcoLbttEH/AZRIOv8OY='; style-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+</IfModule>
+
 # stylesheet and script change their address with their content (?v=), fonts never change: kept for a year.
 # Pages and torch.json are asked for on every visit – unchanged, the answer is a short 304.
 <IfModule mod_headers.c>

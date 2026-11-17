@@ -29,11 +29,11 @@ peterstieg.github.io
 python3 src/build.py
 ```
 
-Python 3, nothing to install. The script overwrites every HTML page in `site/` plus `sitemap.xml`, `robots.txt`, the two `.htaccess` files and `assets/torch.json`. Change copy in `src/build.py`, never in `site/*.html` – the next build would overwrite it. `site.css` and `site.js` are edited by hand; build after editing them too – the pages link them with a fingerprint of their content (`?v=`).
+Python 3, nothing to install. The script overwrites every HTML page in `site/` plus `sitemap.xml`, `robots.txt`, the two `.htaccess` files and `assets/torch.json`. Change copy in `src/build.py`, never in `site/*.html` – the next build would overwrite it. `site.css` and `site.js` are edited by hand; build after editing them too – the pages link them with a fingerprint of their content (`?v=`). `.htaccess` carries the hashes of the two inline scripts for the content security policy, so it changes with them.
 
 ## Deploy
 
-Manual for now: upload the **contents** of `site/` to the web root at IONOS, keeping the folder structure – including the two hidden `.htaccess` files. Afterwards, refresh the link preview with LinkedIn's Post Inspector.
+Manual for now: upload the **contents** of `site/` to the web root at IONOS, keeping the folder structure – including the two hidden `.htaccess` files. Afterwards, refresh the link preview with LinkedIn's Post Inspector. The content security policy is report-only: while the browser console on the live site shows violations, it stays so; once it shows none, the header in `HTACCESS` (`src/build.py`) becomes `Content-Security-Policy` and the policy blocks.
 
 `peterstieg.github.io` is not a second copy: GitHub Pages serves only the forward page from the repo root – `index.html`, `404.html` and `forward/`. A two-second terminal scene (`mv -v peterstieg.github.io peterstieg.com`), then every path lands on peterstieg.com. `_config.yml` keeps `site/`, `src/` and `docs/` out of Pages. Changes go live on merge to `master`, no upload needed.
 
