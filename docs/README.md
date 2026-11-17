@@ -5,8 +5,8 @@ Four chapters, one per file type, in the order the site comes to life: Python wr
 | Chapter | File | What you learn |
 |---|---|---|
 | [1 · build.py](01-build.md) | `src/build.py` | how copy, templates and footnotes become static pages |
-| [2 · HTML](02-html.md) | `site/index.html` and friends | what the browser, screen readers, search engines and LinkedIn read – and what Apache is told (`.htaccess`) |
-| [3 · CSS](03-css.md) | `site/assets/site.css` | tokens, light/dark, grid, sticky header and headings, drawn tree lines, the torch |
+| [2 · HTML](02-html.md) | `site/index.html` and friends | what the browser, screen readers, search engines and LinkedIn read – and what Apache is told (`.htaccess`, security headers included) |
+| [3 · CSS](03-css.md) | `site/assets/site.css` | tokens, light/dark, grid, container queries, sticky header and headings, drawn tree lines, high contrast, the torch |
 | [4 · JavaScript](04-js.md) | `site/assets/site.js` | theme switch, typing prompt, docking animation, minimap, jump control, torch |
 | [5 · Forward page](05-forward.md) | `index.html`, `404.html`, `forward/` | how peterstieg.github.io types two shell lines and forwards every path |
 

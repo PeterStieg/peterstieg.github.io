@@ -15,6 +15,8 @@
       b.setAttribute("aria-pressed", String(b.dataset.themeSet === picked)));
     document.querySelectorAll('meta[name="theme-color"]').forEach((m) =>   // no pick: each tag's own media query
       m.setAttribute("content", COLORS[picked || (m.media.includes("dark") ? "dark" : "light")]));
+    const scheme = document.querySelector('meta[name="color-scheme"]');      // the browser's own surfaces, too
+    if (scheme) scheme.content = picked || "light dark";
   };
   document.querySelectorAll("[data-theme-set]").forEach((b) => b.addEventListener("click", () => {
     const val = b.dataset.themeSet;
@@ -30,6 +32,12 @@
   const s0 = stored();
   if ((s0 === "light" || s0 === "dark") && !root.hasAttribute("data-theme")) root.setAttribute("data-theme", s0);
   paintTheme();
+  addEventListener("storage", (ev) => {              // picked in another tab of this site: follow it here
+    if (ev.key !== "theme") return;
+    if (ev.newValue === "light" || ev.newValue === "dark") root.setAttribute("data-theme", ev.newValue);
+    else root.removeAttribute("data-theme");
+    paintTheme();
+  });
 
   /* ---------- Prompt: types the motto once. Full text stays in the HTML for no-JS and screen readers. */
   const cmd = document.querySelector(".hero .prompt .cmd");
@@ -422,7 +430,7 @@
 
   /* ---------- Phones: the heading stuck under the header takes over the header's hairline (see site.css). */
   const heads = [...document.querySelectorAll(".sec > h2")];
-  const narrow = window.matchMedia("(max-width: 47.99rem)");
+  const narrow = window.matchMedia("(max-width: 47.99rem) and (min-height: 30rem)");   // where the bar sticks (site.css)
   let stuck = null;
   const stick = () => {
     let h = null;
@@ -558,14 +566,13 @@
     const nav = document.querySelector(".top .nav");
     const keys = () => {                              // ? – the shortcuts, in a card under the header's right end
       if (!card) {
-        card = document.createElement("div");
+        card = document.createElement("dialog");     // a non-modal dialog shown as a popover: Esc and outside clicks close it
         card.className = "keys";
         card.id = "keys";
         card.setAttribute("popover", "");
-        card.setAttribute("role", "dialog");          // non-modal, with its own close button
         card.setAttribute("aria-labelledby", "keys-title");
         card.innerHTML = `<p class="head"><strong id="keys-title">${esc(T.keys)}</strong>` +
-          `<button type="button" class="close" popovertarget="keys" popovertargetaction="hide" aria-label="${esc(T.close)}">` +
+          `<button type="button" class="close" popovertarget="keys" popovertargetaction="hide" aria-label="${esc(T.close)}" autofocus>` +
           '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></p><dl>' +
           T.rows.map(([k, v]) => `<div><dt>${esc(v)}</dt><dd>${[].concat(k).map((x) => `<kbd>${esc(x)}</kbd>`).join(" ")}</dd></div>`).join("") + "</dl>";
         nav.appendChild(card);                        // in the header's nav: inside a landmark, like all content

@@ -60,6 +60,7 @@ Editorial rules this file follows:
 from datetime import date
 from html import escape as e
 from pathlib import Path
+import base64
 import hashlib
 import json
 import re
@@ -70,11 +71,12 @@ import re
 - Why escaping matters: unescaped, a `<` in the copy opens a tag, an `&` may start an entity, and a `"` inside an attribute value ends the attribute – the page breaks in ways that are hard to spot. If text ever comes from outside (a form, an API, a spreadsheet export), the same gap lets a `<script>` in that text run in the visitor's browser: cross-site scripting (XSS). All copy here is your own, so the practical risk is broken markup; the habit protects you the day content comes from elsewhere.
 - Pitfall: never use `e` as a variable name in this file. Inside a function, even `except Exception as e:` turns `e` into a local variable for the whole function, and every `e(...)` call in it fails with `UnboundLocalError`.
 - `Path` – object-oriented file paths: `/` joins parts, `.parent` goes up a level, `.mkdir()`, `.write_text()` and `.rglob()` do the file work.
-- `hashlib` – SHA-256, for the fingerprints of `site.css` and `site.js` in their URLs (`VERSION`, section 10).
+- `base64` – turns the SHA-256 of the two inline scripts into the text form the content security policy expects (`csp_hash()`, section 10).
+- `hashlib` – SHA-256, for the fingerprints of `site.css` and `site.js` in their URLs (`VERSION`, section 10) and for the two script hashes.
 - `json` – serializes the structured-data block in `jsonld()`, the torch's strings in `torch_data()` and `assets/torch.json`.
-- `re` – regular expressions for three text markers: `*italics*`, syllable dots and `[[footnotes]]` – and for the `MM/YYYY` dates of the roles.
+- `re` – regular expressions for three text markers: `*italics*`, syllable dots and `[[footnotes]]` – for the dates of the roles, and for the content of an inline script in `csp_hash()`.
 
-All six are standard library – that is what "no dependencies beyond Python 3" means.
+All seven are standard library – that is what "no dependencies beyond Python 3" means.
 
 ---
 
@@ -265,11 +267,17 @@ CONTENT = {
                       ("Scope", "…"),
                       ("Result", "…")],
              "path": ("Three promotions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
-                                           ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy")])},
+                                           ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy"),
+                                           ("07/2017", "SEO, freelance")])},
+            {"when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
+             "tree": [("Scope", "…")]},
             …
-            {"when": "10/2010 – 08/2014", "title": "Marketing, market research, export", "org": "Five companies", "place": "Rome",
+            {"when": "2013 – 2020", "title": "Freelance: websites, design, translation", "org": "Alongside employment",
+             "tree": [("Scope", "…")]},
+            {"when": "10/2010 – 09/2014", "title": "Marketing, market research, export", "org": "Six companies", "place": "Rome",
              "tree": [("Scope", "…")],
-             "positions": ("Five positions", [
+             "positions": ("Six positions", [
+                 ("09/2014", "Business Development Specialist", "3D2B", "http://www.3d2b.com/"),
                  ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
                  ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor", "https://innervalor.com/"),
                  …
@@ -296,6 +304,7 @@ CONTENT = {
             ("Languages", ["German (native)", "English C2", "Italian C2", "Spanish B1", "French A2"], ""),
         ],
         "reach": ("Email", "Based in", "Leipzig"),
+        "ask": "Questions about performance, pipelines, pixels or people:",
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
         "imprint": "Legal notice", "privacy": "Privacy", "legal_desc": "%s for peterstieg.com",
         "lost": ("Page", "not found.", "Diese Seite gibt es nicht.", "start page"),
@@ -321,6 +330,11 @@ CONTENT = {
   - `"with"` – the partner, written after the link and outside it: "Liora ↗ · Université Paris 1 Panthéon-Sorbonne". The ↗ promises Liora's page; inside the link the Sorbonne would seem to be the target too.
   - "(formerly DataScientest)" stands in Education, not here: there it also explains why the verification links in Sources lead to datascientest.com.
 - Company names carry no legal form – "Posterlounge", not "Posterlounge GmbH"; "SBS systems for business solutions", not "… Srl": the names people know, the ones references and LinkedIn use. The ↗ already leads to the website, so no domain stands in as a label either. "Brandible by KSi International" keeps its "by": the commercial register still lists KSI International GmbH, so "formerly" would claim a rename.
+- The timeline as of 17.11.2026 – eleven entries, three of them new:
+  - Immobiliare.it, 05/2017 – 06/2017, Online Marketing Manager in Rome: an employment, so an entry of its own, between Posterlounge and YOUniversal Media. Each language links its own page of the portal – `immobiliare.it/en/` in English, `immobiliare.it/` in German –, so each dict carries its own `url`.
+  - The freelance block, "2013 – 2020", "Alongside employment": websites, design and translations next to the jobs of those years, placed by its start between YOUniversal Media and the early group. Years only, no `place`, no `url`: the client sites are offline. TextMaster stands in its Scope without a link – it now belongs to Acolad.
+  - 3D2B, 09/2014, as the first row of the early group, not as an entry: one month in Rome, right after SBS – an entry of its own would weigh like a role of several years. The group now runs to 09/2014, reads "Six companies" and "Six positions", and its Scope names lead generation.
+- Posterlounge's `path` ends with `("07/2017", "SEO, freelance")`: freelance SEO before the contract, shown as "07/2017 – 09/2017 · 3 months" (section 24). The label stays "Three promotions" – being hired is not a promotion.
 
 ### Every key and what it feeds
 
@@ -370,11 +384,12 @@ Copy:
 | `profile` | str | the profile paragraph |
 | `ledger_label`, `ledger` | str, list of (figure, context, company key) | the results list in the profile; the key looks up the name in `COMPANIES` and links to the role with that `id` |
 | `fields` | list of 4 str | the P⁴ section, paired with `P4` |
-| `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`, or `"since MM/YYYY"` for the role that is still running – `months()` reads the dates), `title`, `org` (the name without legal form), `url` (optional: the company's website – for the two trainings the course page –, behind the name, in a new tab), `with` (optional: a partner named after the link, outside it – the Sorbonne for the two trainings), `place` (may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (start `"MM/YYYY"`, title)), newest first – the promotions within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts), `positions` (optional: (label, list of (range `"MM/YYYY – MM/YYYY"`, title, company, url – `""` without one)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates) |
+| `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`; `"since MM/YYYY"` for the role that is still running; `"YYYY – YYYY"` with years only – `months()` reads the dates), `title`, `org` (the name without legal form), `url` (optional: the company's website – for the two trainings the course page –, behind the name, in a new tab), `with` (optional: a partner named after the link, outside it – the Sorbonne for the two trainings), `place` (optional, may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (start `"MM/YYYY"`, title)), newest first – the steps within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts), `positions` (optional: (label, list of (dates, title, company, url – `""` without one)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates: a range `"MM/YYYY – MM/YYYY"` or a single month `"MM/YYYY"`) |
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link; each link opens in a new tab |
 | `approach` | list of 3 str | Approach, one list item per sentence |
 | `facts` | list of (label, value, sub-line or `""`) | Education; the value is a string, or a list of strings shown one per line (the languages) |
 | `reach` | 3-tuple | Contact: the label for the mail row, the label for the place row, the place – in German "E-Mail", "Wohnort" |
+| `ask` | str | Contact: the line before the rows – what to write about (section 25) |
 
 ### How EN and DE mirror each other
 
@@ -382,7 +397,8 @@ Copy:
 - Localized, not translated: German uses KUR, English RoAS (rule 2), job titles follow German usage ("Leiter Marketing"), number formats follow each language ("6.000 → 240.000 €" vs "€6k → €240k"), and trade terms follow each language's habit – "marketing automation" (Brandible, Rapidobject) is "Marketing Automation" in German, the English term German marketing uses, capitalized as a German noun. The two trainings follow each language's word order: "MLOps Engineer training (full-time)", "Weiterbildung MLOps Engineer (Vollzeit)".
 - English inside German: the tree labels `"Team"`, `"Scope"` and `"Result"` stay English in the DE dict (rule 5). Every role uses the same three, in that order, wherever there is something to say – a role without a team simply has no `"Team"` row.
 - Not localized at all: the company keys at the end of each `ledger` entry and the role `id`s they point to. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates.
-- Nested lists mirror too: the four titles under `"path"` and the five positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Three promotions", "Drei Beförderungen"; "Five positions", "Fünf Stationen") and follow one pattern, number and noun. The promotions keep their titles in both, because they are the titles that were held – only the market in the oldest one is localized: "SEO Manager Italy", "SEO Manager Italien". The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical.
+- Nested lists mirror too: the five rows under `"path"` and the six positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Three promotions", "Drei Beförderungen"; "Six positions", "Sechs Stationen") and follow one pattern, number and noun. The promotions keep their titles in both, because they are the titles that were held – only the market in "SEO Manager Italy", "SEO Manager Italien", and the freelance row, "SEO, freelance", "SEO, freiberuflich", are localized. The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical.
+- One value differs on purpose: Immobiliare.it's `url`, the portal's English page on the English page, its Italian home page on the German one.
 - Nothing checks parity. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A missing list item – a role or project only added in EN – is silent: the German page simply shows one entry fewer. Edit both languages in the same sitting.
 - Quick parity check from the repository root (importing does not build anything, see section 30):
 
@@ -430,34 +446,71 @@ SOURCE_NOTE = f"""<!--
 
 ---
 
-## 10 · THEME_BOOT and VERSION
+## 10 · THEME_BOOT, SPECULATION, csp_hash and VERSION
 
 ```python
 # Runs before the stylesheet: marks JS as available and applies a stored theme without a flash.
-THEME_BOOT = ("<script>(function(){document.documentElement.classList.add('js');"
+THEME_BOOT = ("<script>(function(){var r=document.documentElement;r.classList.add('js');"
               "try{var t=localStorage.getItem('theme');"
-              "if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>")
+              "if(t==='light'||t==='dark'){r.setAttribute('data-theme',t);"
+              "document.querySelector('meta[name=color-scheme]').content=t}}catch(e){}})()</script>")
 ```
 
 The Python side:
 
-- Three string literals side by side inside parentheses. Python joins adjacent literals into one string at compile time – a way to wrap a long one-liner without `+` and without adding line breaks to the output. The same trick builds the SVG constants and the return value of `theme_switch()`.
-- The JavaScript uses single quotes, the Python literals double quotes, so neither needs escaping. If you add JavaScript containing double quotes, escape them (`\"`) or switch the Python delimiters.
+- Four string literals side by side inside parentheses. Python joins adjacent literals into one string at compile time – a way to wrap a long one-liner without `+` and without adding line breaks to the output. The same trick builds the SVG constants and the return value of `theme_switch()`.
+- The JavaScript uses single quotes, the Python literals double quotes, so neither needs escaping. If you add JavaScript containing double quotes, escape them (`\"`) or switch the Python delimiters. That is also why the selector reads `meta[name=color-scheme]` without quotes around the value: `color-scheme` is a valid CSS identifier, so it needs none.
 
 The JavaScript, statement by statement:
 
-- `(function(){ … })()` – an IIFE ("immediately invoked function expression"): the code is wrapped in an anonymous function that is called right away. The point is scope. A `var` at the top level of a script becomes a global (`window.t`) that any other script on the page could read or overwrite; inside the function, `t` is local and disappears when the function returns. The outer parentheses make the parser read `function(){…}` as an expression, so the trailing `()` can call it.
-- `document.documentElement.classList.add('js')` – adds the class `js` to `<html>`. The CSS uses it to show JavaScript-only controls only when JavaScript actually runs: `html:not(.js) .themes { display: none; }` hides the theme buttons otherwise.
+- `(function(){ … })()` – an IIFE ("immediately invoked function expression"): the code is wrapped in an anonymous function that is called right away. The point is scope. A `var` at the top level of a script becomes a global (`window.t`) that any other script on the page could read or overwrite; inside the function, `r` and `t` are local and disappear when the function returns. The outer parentheses make the parser read `function(){…}` as an expression, so the trailing `()` can call it.
+- `var r=document.documentElement` – `<html>`, used twice below; the short name keeps the one-liner short.
+- `r.classList.add('js')` – adds the class `js` to `<html>`. The CSS uses it to show JavaScript-only controls only when JavaScript actually runs: `html:not(.js) .themes { display: none; }` hides the theme buttons otherwise.
 - `try{ … }catch(e){}` – reading `localStorage` throws in some privacy modes or when site data is blocked. The empty `catch` makes the page fall back to the system theme instead of stopping the script. (This `e` is JavaScript and has nothing to do with Python's `e`.)
 - `var t=localStorage.getItem('theme')` – the visitor's earlier choice, saved by `site.js` when a theme button is clicked. Local to the IIFE.
-- `if(t==='light'||t==='dark')…setAttribute('data-theme',t)` – a whitelist: only the two known values reach the attribute. The CSS switches its color variables on `:root[data-theme="dark"]` and `:root:not([data-theme="light"])`.
+- `if(t==='light'||t==='dark'){…}` – a whitelist: only the two known values get through. Two statements in braces:
+  - `r.setAttribute('data-theme',t)` – the CSS switches its color variables on `:root[data-theme="dark"]` and `:root:not([data-theme="light"])`.
+  - `document.querySelector('meta[name=color-scheme]').content=t` – the `<meta name="color-scheme">` that `head()` writes just above this script (section 14) says `light dark`: the browser draws its own parts – scrollbars, the canvas behind the page, form controls – in the system's scheme. A pick narrows it to the picked one before the first paint, so a dark page on a light system does not get light scrollbars. The parser has already created the meta element when the script runs, because it comes first in the source.
 
 Why it must run inline, in the head, before the stylesheet:
 
 - Inline: no extra file to download; it runs the moment the parser reaches it.
 - In the head: the attribute is set before anything is painted. If this logic lived only in `site.js` – loaded with `defer`, so it runs after the whole document is parsed – the page would first render in the system theme and then switch: a visible flash.
 - Before the `<link rel="stylesheet">`: a regular script that comes after a stylesheet still downloading has to wait until that stylesheet has loaded, because the script might read computed styles. Placed first, it runs immediately and does not wait for the CSS.
-- `site.js` repeats both steps (adds `js`, applies a stored theme if none is set yet). Redundant but harmless – a safety net.
+- `site.js` repeats the steps (adds `js`, applies a stored theme if none is set yet, sets the meta tag in `paintTheme()`). Redundant but harmless – a safety net.
+
+Next, a second inline script, for speed:
+
+```python
+# Chrome and Edge fetch a page of this site while the pointer rests on a link to it (prefetch, not prerender:
+# the start page's typing and docking should run in view). Other browsers ignore the script.
+SPECULATION = ('<script type="speculationrules">'
+               '{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script>')
+```
+
+- Speculation rules: a `<script type="speculationrules">` holds JSON, not a program. It tells the browser which pages it may load before the visitor clicks. `head()` writes it on every page, right after `THEME_BOOT` (section 14).
+- `"prefetch"` – fetch the HTML of the next page and keep it ready; the click then shows it without waiting for the network. Not `"prerender"`, which would also run the page in a hidden tab: the start page's typing and docking would play out where nobody sees them.
+- `"where":{"href_matches":"/*"}` – which links: every path on this site. In practice the links between pages – language switch, legal pages, the menu on the legal pages and the 404s. Links to other sites do not match, anchors within the page lead to no other document.
+- `"eagerness":"moderate"` – when: once the pointer rests on a link for a moment (about 200 ms in Chrome) or presses it. `"eager"` would fetch every matching link at once, most of them for nothing.
+- Chrome and Edge support it; other browsers do not know the script type and skip the element, as they skip the JSON-LD block.
+- The JSON uses double quotes, so the Python literals use single quotes – the mirror image of `THEME_BOOT`.
+
+The content security policy (section 30) allows inline scripts only by their hash. `csp_hash()` computes it:
+
+```python
+def csp_hash(tag):
+    """'sha256-…' of an inline script's content – the content security policy allows exactly these two."""
+    body = re.search(r"<script[^>]*>(.*)</script>", tag, re.S)[1]
+    return f"'sha256-{base64.b64encode(hashlib.sha256(body.encode()).digest()).decode()}'"
+```
+
+- `re.search(r"<script[^>]*>(.*)</script>", tag, re.S)[1]` – the text between the opening and the closing tag: `[^>]*` skips the opening tag's attributes (`type="speculationrules"`), `(.*)` captures the rest up to `</script>`, `re.S` lets `.` cross line breaks. `[1]` – group 1, as with the match object in `role()` (section 24). A tag without `<script>` gives `None`, and `None[1]` raises `TypeError` – loud.
+- The hash covers exactly these characters, every space included. The browser hashes the script it received and compares; one changed character and the script counts as a violation.
+- `hashlib.sha256(body.encode()).digest()` – the 32 raw bytes of the hash (not `hexdigest()`, the 64 hex characters of `VERSION`). `body.encode()` – the text as UTF-8 bytes, the encoding of the page.
+- `base64.b64encode(…).decode()` – the bytes as 44 characters of Base64, the form the policy expects; `.decode()` turns the result from bytes back into a string.
+- `f"'sha256-…'"` – the single quotes belong to the value: in a policy, `'sha256-…'` is a source keyword, like `'self'`.
+- Computed from the constants `head()` writes, so the hashes follow every edit on the next build. Neither script contains ` · `, ` %` or ` €`, so `dots()` and `nbsp()` (section 29) leave them as they are.
+- The JSON-LD block needs no hash: a script of type `application/ld+json` never runs, and the policy governs only scripts that run.
 
 Right below it, the fingerprints of the two hand-written files:
 
@@ -511,7 +564,8 @@ MOON_SVG = ('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
 LOCKUP = re.sub(r"<svg ([^>]*)>(.*)</svg>",
                 r'<svg class="lockup" \1><g class="still">\2</g></svg>',
                 (Path(__file__).resolve().parent / "lockup" / "out" / "lockup.svg").read_text(encoding="utf-8").strip(),
-                flags=re.S)
+                flags=re.S).replace('style="fill:var(--accent,#7A1A2C)"', 'class="acc"').replace('style="fill:var(--ink,#1A1C1E)"', 'class="ink"')
+# (the inline fills become classes: site.css colours them, high-contrast mode can recolour them, no inline styles left)
 ```
 
 - Inline SVG as strings, pasted straight into the HTML: no image requests, and the icons can take the text color.
@@ -535,7 +589,12 @@ LOCKUP = re.sub(r"<svg ([^>]*)>(.*)</svg>",
   - The replacement puts `class="lockup"` in front of the attributes and wraps the paths in `<g class="still">`. `\1` and `\2` insert the groups. The `r` in front of the string makes it a raw string: Python leaves the backslashes alone, and `re.sub` reads `\1` as "group 1". Without the `r`, Python would turn `\1` into a control character before `re.sub` ever saw it.
   - `re.S` lets `.` match line breaks too, in case the file ever spans several lines.
 - Why the file stays untouched: it is the design's output. Regenerate it, rebuild, and the site has the new logo – no copying of path data.
-- The paths fill from `var(--accent)` and `var(--ink)` (inline `style` in the file), so the logo follows light and dark like the text. The `.still` group is what `site.js` hides while it draws the condensing wordmark in the same SVG.
+- `.replace('style="fill:var(--accent,#7A1A2C)"', 'class="acc"')` and the same for `--ink` – the file fills its two paths with inline `style` attributes; the two calls swap them for the classes `acc` and `ink`. `site.css` already colours `.lockup .acc` and `.lockup .ink` for the condensing wordmark, so the same two rules now colour the logo: it follows light and dark like the text. Three gains, as the comment says:
+  - one place for the colours, the stylesheet;
+  - Windows high-contrast mode can repaint the logo in a system colour (chapter 3, High contrast) – an inline style would have to be outdone with `!important`;
+  - no page carries an inline `style` attribute any more, so the content security policy can keep `style-src 'self'` without `'unsafe-inline'` (section 30).
+- Pitfall: `replace` matches the exact text. A regenerated `lockup.svg` with another fallback colour or other spacing in the `style` keeps its inline fills – no error, and the policy reports two violations per page.
+- The `.still` group is what `site.js` hides while it draws the condensing wordmark in the same SVG.
 
 ---
 
@@ -627,7 +686,9 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 {THEME_BOOT}
+{SPECULATION}
 <title>{e(title)}</title>
 <meta name="description" content="{e(desc)}">
 <meta name="author" content="{NAME}">
@@ -678,7 +739,9 @@ The returned document head, top to bottom:
 - `<html lang="{c['lang']}">` – the page language: screen-reader pronunciation, hyphenation, translation offers, spell-check. Single quotes inside a triple-double-quoted f-string – no conflict.
 - `<meta charset="utf-8">` – how to decode the bytes; must sit within the first 1024 bytes (section 9).
 - `viewport` – on phones, lay the page out at device width instead of a zoomed-out desktop width.
+- `color-scheme` with `light dark` – the page supports both schemes, so the browser draws its own parts (scrollbars, the canvas, form controls) in the system's scheme from the first byte on, before the stylesheet has arrived. It must come before `THEME_BOOT`, which narrows it to a stored pick (section 10); `site.js` keeps it in line afterwards.
 - `{THEME_BOOT}` – the theme script, before the stylesheet (section 10).
+- `{SPECULATION}` – the prefetch rules (section 10). Data, not a program: its place in the head costs nothing.
 - `<title>{e(title)}</title>` – tab title and search-result headline, escaped.
 - `description` – often shown as the snippet in search results. Escaped, because it sits inside an attribute.
 - `author` – the author's name.
@@ -909,7 +972,7 @@ def offsite(c, url, text, attrs="", mark=OUT_SVG, kind=""):
             f'<span class="sr-only"> ({said})</span></span></span></a>')
 ```
 
-- Every link that leaves the site goes through this function – 25 per page: twelve in Experience – six company websites and the two Liora course pages in the roles, four of the five early positions (section 24) –, GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
+- Every link that leaves the site goes through this function – 27 per page: fourteen in Experience – seven company websites and the two Liora course pages in the roles, five of the six early positions (section 24) –, GitHub and Demo for the two capstones in Projects, LinkedIn, GitHub and the map in Contact, "Verify credential" and "Course page" in Sources (section 25). Links within the site stay in the same tab: the menu, the language switch, the ledger's company names, the footnotes, the legal pages. So does the mail link, which opens a mail program, not a page.
 - Why a new tab: whoever checks a certificate or a company website keeps the page open behind it and returns to the same spot. The marker announces the new tab before the click, for the eye (↗) and for screen readers (the hidden words).
 - The parameters:
   - `url` – inserted as it is. Every URL is one of your own constants.
@@ -921,7 +984,7 @@ The `rel` attribute:
 
 - `rel = "" if "rel=" in attrs else ' rel="noopener"'` – the default, unless the caller brings its own. `in` on two strings is a substring test. An attribute may appear only once per tag – with two, the browser keeps the first and ignores the second – so a caller's `rel` replaces the default instead of joining it. That is why Contact passes `' rel="me noopener"'`: `rel` takes a list of words separated by spaces, so the one attribute keeps `me` (section 25) and names `noopener` itself.
 - `noopener` – `target="_blank"` opens the URL in a new tab. Without `noopener`, the new page used to get `window.opener`, a reference back to the tab that opened it, and could send that tab to another address – "reverse tabnabbing": the visitor returns to the old tab and finds a lookalike page in place of peterstieg.com. `noopener` cuts the reference: `window.opener` is `null`. Current browsers apply it to every `target="_blank"` by default; the attribute covers older ones and states the intent in the markup.
-  - Not `noreferrer`: the target site still learns where the visitor came from, as far as the browser's referrer policy allows.
+  - Not `noreferrer`: the target site still learns where the visitor came from, as far as the referrer policy allows – `.htaccess` sets `strict-origin-when-cross-origin`, so another site learns `https://peterstieg.com/`, not the page or the anchor (section 30).
 - Pitfall: a substring test is blunt. `' hreflang="en"'` passes safely ("ref" is not "rel"), but any attribute that contains `rel=` – `data-rel="…"`, a `title` that mentions it – drops the default without a word, and the link loses its `noopener`.
 
 The text and its marker:
@@ -929,7 +992,7 @@ The text and its marker:
 - `lead, space, last = text.rpartition(" ")` – `rpartition` is `partition` (section 29) from the right: it splits at the last space into before, the space itself, after. `"YOUniversal Media"` gives `("YOUniversal", " ", "Media")`. Without a space, the whole text lands in the last part: `"Posterlounge"` gives `("", "", "Posterlounge")` – the mirror image of `partition`, which puts it in the first. For a single word `{lead}{space}` is empty and the whole word goes into the span; no special case needed.
   - `lead`, not `head`: a local `head` would hide the function `head()` inside `offsite()` – the trap `dots()` avoids with `head_part` (section 29).
 - `<span class="nw">{last}…</span>` – the last word and the marker share one span, which the CSS sets to `white-space: nowrap` (chapter 3). The line may still break before the last word, never between it and the ↗. Without the span, the ↗ wrapped onto a line of its own at widths of 320 to 390 pixels: the marker is an inline-block, and an inline-block is a break opportunity on both sides. A word joiner (U+2060) between word and arrow did not stop the break in Chromium – measured.
-- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With twenty-four per page – the map's pin is the twenty-fifth mark –, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers and the ↓ – stay on the page; the muted ↗ leaves it.
+- `<span class="newtab{sym}">{mark}…</span>` – the ↗ (section 11), or the symbol passed in `mark`. The CSS keeps it deliberately quiet: smaller than the ledger's ↓ (0.55em against 0.6em), raised like it (`position: relative; top: -0.5em` – the box stays on the baseline, so the line height does not change) and muted, in the accent color only on hover and keyboard focus (chapter 3). With twenty-six per page – the map's pin is the twenty-seventh mark –, a louder marker would clutter the page. The vocabulary: accent superscripts – the footnote numbers and the ↓ – stay on the page; the muted ↗ leaves it.
 - `said` – what screen readers hear: `new_tab` alone, or `kind` in front of it – "Leipzig (map, opens in a new tab)". Both escaped, because both are copy.
 - `sym` – the class `sym` next to `newtab` when a symbol stands in for the ↗. The CSS draws a symbol larger, with a thinner line, so its detail stays legible at the size of a superscript and its strokes look as heavy as the arrow's (chapter 3). In `{mark}` the f-string inserts the SVG unescaped – it is markup, a constant.
 - `<span class="sr-only"> ({said})</span>` – the words from `new_tab` (section 8), visually hidden (section 13), so the link's name for screen readers becomes "Posterlounge (opens in a new tab)". The space at the start of the span keeps the name from running into the parenthesis. Text, not an `aria-label`, for the same reason as the arrow's word in `t()`; escaped, because it is copy.
@@ -1002,23 +1065,28 @@ def months(when):
     """Length of a role in months, counted like LinkedIn: first and last month included (10/2017 – 06/2023: 69).
     "since 11/2025" runs to the build date; site.js recounts it when the page loads."""
     dates = [(int(y), int(m)) for m, y in re.findall(r"(\d{2})/(\d{4})", when)]
-    (y1, m1), (y2, m2) = dates[0], dates[1] if len(dates) > 1 else (date.today().year, date.today().month)
+    if not dates:                                      # years only, "2013 – 2020": January to December
+        dates = [(int(y), m) for y, m in zip(re.findall(r"\d{4}", when), (1, 12))]
+    if len(dates) == 1:                                # "since 11/2025" runs to today; "09/2014" is one month
+        dates.append((date.today().year, date.today().month) if not when[:1].isdigit() else dates[0])
+    (y1, m1), (y2, m2) = dates
     return (y2 - y1) * 12 + m2 - m1 + 1
 ```
 
-- The length of a role in months, read from its `when` string. `role()` (section 24) prints it under the dates.
+- The length of a role in months, read from its `when` string. `role()` and `steps()` (section 24) print it under the dates.
 - Counted like LinkedIn: the first and the last month both count. 10/2017 – 06/2023 is (2023 − 2017) × 12 + 6 − 10 + 1 = 69 months. Without the `+ 1`, the result is the number of steps from one month to the other, 68 – and a role from 03/2025 to 03/2025 would last zero months.
 - `re.findall(r"(\d{2})/(\d{4})", when)` – every date in the string:
   - `\d` is one digit, `{2}` exactly two of them, `/` a literal slash, `\d{4}` four digits. The parentheses make month and year two groups.
   - With groups in the pattern, `findall` returns one tuple of the groups per match: `"10/2017 – 06/2023"` gives `[("10", "2017"), ("06", "2023")]`, `"since 11/2025"` gives `[("11", "2025")]`. The words around the dates do not matter.
 - `[(int(y), int(m)) for m, y in …]` – a list comprehension that unpacks each tuple into month and year, turns both into numbers and puts the year first: `[(2017, 10), (2023, 6)]`.
-- The second line unpacks start and end in one statement:
-  - The right side is a tuple of two items, separated by the comma: `dates[0]` and `dates[1] if len(dates) > 1 else (…)`. The conditional expression binds more tightly than the comma, so the `if … else` decides the second item only.
-  - Two dates: the end is `dates[1]`. One date, as for a role that is still running: the end is the year and month of today – the build date.
-  - The left side, `(y1, m1), (y2, m2)`, is nested unpacking: two pairs, each split into year and month.
+- Three forms, three branches:
+  - **Years only** – `if not dates:` the pattern found no month. `re.findall(r"\d{4}", when)` takes the years, `["2013", "2020"]`, and `zip(…, (1, 12))` pairs the first with January and the second with December: `[(2013, 1), (2020, 12)]`. Whole years, first and last included – "2013 – 2020" is 96 months, "8 years". `zip` stops at the shorter list, so a third year would be dropped.
+  - **One date** – `if len(dates) == 1:` the end is missing, and the first character of `when` decides which one it is. `when[:1]` – a slice, the first character or `""` for an empty string, where `when[0]` would raise `IndexError`. A word in front – "since 11/2025" – means still running: the end is the year and month of today, the build date. A digit in front – "09/2014", a position of one month – means the end is the start: `dates[0]` again, one month.
+  - **Two dates** – nothing to add.
+- `(y1, m1), (y2, m2) = dates` – nested unpacking: the list holds exactly two pairs, each split into year and month.
 - `(y2 - y1) * 12 + m2 - m1 + 1` – whole years in months, plus the difference of the months, plus one. The month difference may be negative (6 − 10 = −4); the year term makes up for it.
-- The running role: "since 11/2025" built in October 2026 counts 11/2025 – 10/2026, 12 months. That number is right on the day of the build and then ages until the next one. So `role()` hands the start to `site.js`, which counts again in the visitor's browser (chapter 4).
-- Pitfalls: a `when` without an `MM/YYYY` date finds nothing, and `dates[0]` raises `IndexError` – loud. That is why the entry for the years before 2014 carries exact months, "10/2010 – 08/2014": a duration needs months. Quieter: a one-digit month. `"03/2025 – 7/2025"` finds only the first date (`\d{2}` wants two digits), and the role counts as still running. Always write months with two digits.
+- The running role: "since 11/2025" built in November 2026 counts 11/2025 – 11/2026, 13 months. That number is right on the day of the build and then ages until the next one. So `role()` hands the start to `site.js`, which counts again in the visitor's browser (chapter 4).
+- Pitfalls: a `when` with neither a month nor a year leaves `dates` empty, and the unpacking raises `ValueError` – loud. A lone year, "2013", counts as January alone: one date with a digit in front, one month. Quieter: a one-digit month. `"03/2025 – 7/2025"` finds only the first date (`\d{2}` wants two digits): `months()` counts one month, and `role()` takes the entry for the running one (section 24). Always write months with two digits.
 
 ```python
 def duration(c, n):
@@ -1119,16 +1187,16 @@ def steps(c, label, rows):
     return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n</details>\n'
 ```
 
-- One disclosure: a summary line and, behind it, the steps inside one timeline entry. Two entries have one – Posterlounge's promotions and the five positions before 2014. Both come from this function, so they look and behave the same.
-- `label` – the summary text: "Three promotions", "Five positions" – number and noun, the same pattern for both (German "Drei Beförderungen", "Fünf Stationen").
+- One disclosure: a summary line and, behind it, the steps inside one timeline entry. Two entries have one – Posterlounge's promotions and the six positions up to 2014. Both come from this function, so they look and behave the same.
+- `label` – the summary text: "Three promotions", "Six positions" – number and noun, the same pattern for both (German "Drei Beförderungen", "Sechs Stationen").
 - `rows` – a list of (title, company, range, url) tuples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names. The url is `""` where there is none to link: the promotions, and the one early position whose company has no website that could be verified (Proactive Europe).
 - `lis` – one `<li>` per row, three f-strings joined with `+`:
   - `<li>{e(title)}` – the title, escaped.
   - `(… if org else "")` – the company, only where there is one. The parentheses are needed: `+` binds more tightly than a conditional expression, so without them the `if … else` would take the whole sum as its two branches – a row with a company would lose its dates, a row without one its title.
   - `{offsite(c, url, e(org)) if url else e(org)}` – the company as a link to its website, in a new tab with its ↗ (section 20), or as plain text where there is no url. A conditional expression inside the replacement field; it holds no quotes, so it can sit inside the single-quoted f-string.
   - `&nbsp;<span class="muted">· …</span>` – the company after a middle dot, set lighter by the class `muted` (chapter 3). The `&nbsp;` does what `dots()` cannot, as in the place line of `role()` below: a `<span>` tag sits between the space and the dot, so the plain sequence ` · ` never occurs, and the line brings its own non-breaking space.
-  - `<br><span class="at">{span} · {duration(c, months(span))}</span>` – a line break, then the range and its length: "04/2014 – 08/2014 · 5 months". `months()` counts the range, `duration()` puts the count into words (section 22) – the same two functions as for the role's own dates. This ` · ` is plain, so `dots()` glues it later.
-  - `span` is the one value inserted without `e()`: digits, slashes and an en dash, nothing HTML reads as markup. A range with `&` or `<` in it would need `e(span)`.
+  - `<br><span class="at">{span} · {duration(c, months(span))}</span>` – a line break, then the dates and their length: "04/2014 – 08/2014 · 5 months", or for a single month "09/2014 · 1 month". `months()` counts them, `duration()` puts the count into words (section 22) – the same two functions as for the role's own dates. This ` · ` is plain, so `dots()` glues it later.
+  - `span` is the one value inserted without `e()`: digits, slashes and an en dash, nothing HTML reads as markup. Dates with `&` or `<` in them would need `e(span)`.
   - `for title, org, span, url in rows` – unpacks each tuple. The generator spans two lines inside the parentheses of `join()`.
 - `<details class="more">` with `<summary>` – the native disclosure, as in the jump control (section 23): closed by default, opened by click or keyboard, announced as collapsed or expanded. `site.js` adds two things: it redraws the minimap when a disclosure opens, because the page just got longer, and it opens the disclosures for printing (chapter 4).
 - `<ol class="tree" reversed>` – an ordered list, because the steps have an order.
@@ -1168,10 +1236,10 @@ def role(c, ro):
 ```
 
 - One entry of the Experience timeline: dates with duration, title, company with place, context line, tree, disclosures – the inside of an `<li class="role">`. The `<li>` itself is written by the caller, because only `page()` gives a role its `id` (section 25).
-- `place` – optional field: `ro.get("place")` returns `None` when the key is missing and `""` when it is empty (Rapidobject). Both are falsy, so no place span appears.
+- `place` – optional field: `ro.get("place")` returns `None` when the key is missing (the freelance block) and `""` when it is empty (Rapidobject). Both are falsy, so no place span appears.
 - `&nbsp;` before the span – the same job as `dots()`: "· Laucha" must not start a new line. `dots()` cannot do it here, because it only matches the plain sequence ` · `, and here a `<span>` tag sits between the space and the dot. So the place line brings its own non-breaking space.
 - `ctx` – the optional context line, same pattern.
-- `org` – the company name, as a link when the role has a `url`: eight of the nine roles – six company websites from E+SERVICE+CHECK to YOUniversal Media, and for the two trainings Liora's course page. The link leaves the site, so `offsite()` writes it (section 20): new tab, `noopener`, the ↗ after the last word – "YOUniversal Media" keeps "Media" and the ↗ together. `offsite()` takes HTML, so the name is escaped before it goes in; the URL is one of your own constants and goes in as it is.
+- `org` – the company name, as a link when the role has a `url`: nine of the eleven roles – seven company websites from E+SERVICE+CHECK to YOUniversal Media, and for the two trainings Liora's course page. The freelance block and the early group have none; their `org` is plain text, "Alongside employment" and "Six companies". The link leaves the site, so `offsite()` writes it (section 20): new tab, `noopener`, the ↗ after the last word – "YOUniversal Media" keeps "Media" and the ↗ together. `offsite()` takes HTML, so the name is escaped before it goes in; the URL is one of your own constants and goes in as it is.
   - The Liora link reaches the same English course page as the footnote's "Course page" (section 25), but without its `hreflang="en"`: `role()` passes no `attrs`.
 - `if ro.get("with"): org += …` – the partner, appended after the finished link, so it stays outside it: `<a …>Liora…</a> · Université Paris 1 Panthéon-Sorbonne`. The ` · ` is plain, so `dots()` glues the dot to the ↗ before it (section 29). Only the two trainings have a `with`.
 
@@ -1179,7 +1247,8 @@ The dates and the duration:
 
 - `start = re.search(r"(\d{2})/(\d{4})", ro["when"])` – the first date in the string, the start. `re.search` stops at the first match and returns a match object. Indexing it is short for `.group()`: `start[1]` is group 1, the month (`"11"`), `start[2]` group 2, the year (`"2025"`).
 - `live` – two extra attributes for the role that is still running, an empty string for all others:
-  - `len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1` – exactly one date in `when` means "since …": the role has no end yet. This pattern has no groups, so `findall` returns the matched strings themselves; only their number counts here.
+  - `len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1` – exactly one date in `when` means "since …": the role has no end yet. This pattern has no groups, so `findall` returns the matched strings themselves; only their number counts here. Years only, "2013 – 2020", gives none: no attributes, and `start` is `None` but never read.
+  - Pitfall: the test counts dates and ignores the word. A role of a single month, `"09/2014"`, would be taken for a running one and recounted to today by `site.js`. Single months belong in `positions`, which `steps()` writes without these attributes – as 3D2B does.
   - `data-from="{start[2]}-{start[1]}"` – the start, year first: `"2025-11"`. `site.js` splits it at the hyphen.
   - `data-units="{",".join(c["dur"])}"` – the four words of `dur`, joined with commas: `"year,years,month,months"`, on the German page `"Jahr,Jahre,Monat,Monate"`. `site.js` splits them again, so the script contains no words in either language – the same idea as the jump control's `data-up` and `data-down` (section 23).
   - With both, `site.js` counts the running role again when the page loads, by the same rule as `months()` and in the same words as `duration()` (chapter 4). With JavaScript, the page never shows a stale duration, however long ago the last build was; without, it shows the count of the build day.
@@ -1191,22 +1260,23 @@ The dates and the duration:
 The disclosures:
 
 - `more` – up to two disclosures, collected into one string. It starts empty, and each `+=` appends one, in a fixed order: first `path`, then `positions`. Today each entry has at most one of them. Both branches only build the (title, company, range) rows; `steps()` writes the HTML.
-- `path` – used by Posterlounge: the four titles held within that one role, behind "Three promotions", each with its dates and its length. The titles are the words people search for; in the disclosure they are part of the page's text without lengthening the timeline. The context line, `ctx`, describes the company only.
-  - `label, path = ro["path"]` – the summary text and the list of (start, title) pairs, newest first. Only the starts are stored, as the contracts give them (section 8): 09/2021, 10/2020, 11/2018, 10/2017.
-  - `ends` – one end per step, in the same order as the steps. The newest step ends with the role: `re.findall(…)[-1]` is the last date of its `when`, 06/2023, in a list of its own. Every other step ends the month before the step above it in the list starts – the one that followed it in time: `before(start) for start, _ in path[:-1]` takes the starts of all steps but the oldest and steps each back by a month (section 22). `[:-1]` is a slice without the last item: the oldest start, 10/2017, is where the role begins, and no step ends before it. The underscore is the usual name for a value that is unpacked but not used, here the title. `+` joins the two lists: `["06/2023", "08/2021", "09/2020", "10/2018"]`.
-  - `zip(path, ends)` – pairs the n-th step with the n-th end. `(start, title), end` unpacks each pair: the step's tuple on the left, its end on the right. Head of Marketing gets 06/2023; Senior Marketing Manager gets 08/2021, the month before Head of Marketing began.
-  - `(title, "", f"{start} – {end}", "")` – one row for `steps()`: the title, no company, the range as text and no url, "10/2017 – 10/2018". `steps()` adds the length; the four lengths add up to the role's 69 months.
+- `path` – used by Posterlounge: the four titles held within that one role, behind "Three promotions", each with its dates and its length, and below them the freelance SEO work that came before the contract. The titles are the words people search for; in the disclosure they are part of the page's text without lengthening the timeline. The context line, `ctx`, describes the company only.
+  - `label, path = ro["path"]` – the summary text and the list of (start, title) pairs, newest first. Only the starts are stored, as the contracts give them (section 8): 09/2021, 10/2020, 11/2018, 10/2017 – and 07/2017 for "SEO, freelance".
+  - `ends` – one end per step, in the same order as the steps. The newest step ends with the role: `re.findall(…)[-1]` is the last date of its `when`, 06/2023, in a list of its own. Every other step ends the month before the step above it in the list starts – the one that followed it in time: `before(start) for start, _ in path[:-1]` takes the starts of all steps but the oldest and steps each back by a month (section 22). `[:-1]` is a slice without the last item: the oldest start, 07/2017, is where the path begins, and no step ends before it. The underscore is the usual name for a value that is unpacked but not used, here the title. `+` joins the two lists: `["06/2023", "08/2021", "09/2020", "10/2018", "09/2017"]`.
+  - `zip(path, ends)` – pairs the n-th step with the n-th end. `(start, title), end` unpacks each pair: the step's tuple on the left, its end on the right. Head of Marketing gets 06/2023; Senior Marketing Manager gets 08/2021, the month before Head of Marketing began; the freelance row gets 09/2017, the month before the contract.
+  - `(title, "", f"{start} – {end}", "")` – one row for `steps()`: the title, no company, the range as text and no url, "10/2017 – 10/2018". `steps()` adds the length. The four contract steps add up to the role's 69 months; the freelance row, "07/2017 – 09/2017 · 3 months", lies before the role's own dates, which count the employment.
   - Storing starts instead of ranges means one date per step, each written once: a corrected start moves the end of the step below it, the older one, as well.
   - The computation depends on the order. Stored oldest first, every step but the first would end before it starts – no error, only wrong ranges and lengths on the page.
   - The role itself must have ended: for a role still running, `[-1]` would be its start, and the newest step would end where the role begins.
-- `positions` – used by one entry: "10/2010 – 08/2014 · Five companies" keeps the timeline at one line for those years and holds the five single positions behind "Five positions".
-  - `label, positions = ro["positions"]` – the summary text and the list of (range, title, company, url) tuples, newest first. Here every position carries its full range: the positions overlap (06/2013 – 05/2014 and 06/2013 – 12/2013) and leave gaps, so no end follows from the next start.
-  - `[(title, org_, when_, url) for when_, title, org_, url in positions]` – a list comprehension that reorders each tuple from the stored order (range, title, company, url) into the order `steps()` takes (title, company, range, url).
+- `positions` – used by one entry: "10/2010 – 09/2014 · Six companies" keeps the timeline at one line for those years and holds the six single positions behind "Six positions".
+  - `label, positions = ro["positions"]` – the summary text and the list of (dates, title, company, url) tuples, newest first. Here every position carries its own dates: the positions overlap (06/2013 – 05/2014 and 06/2013 – 12/2013) and leave gaps, so no end follows from the next start. The newest, 3D2B, lasted one month and carries a single date, "09/2014"; `months()` counts it as one month (section 22).
+  - Why 3D2B is a row here and not an entry: one month in Rome, right after SBS. An entry of its own would stand in the timeline with the weight of a role of several years.
+  - `[(title, org_, when_, url) for when_, title, org_, url in positions]` – a list comprehension that reorders each tuple from the stored order (dates, title, company, url) into the order `steps()` takes (title, company, dates, url).
   - The trailing underscores: `org` and `when` are already local variables of `role()` – the company line and the dates line built above, both used again in the `return`. Python 3 gives a comprehension its own scope, so plain names would not overwrite them, but one function would then mean two things by each name, a few lines apart. The underscore is the usual way around a name that is taken, as with `months_` in `duration()` (section 22).
   - The `path` branch does reuse a name: in its comprehensions, `start` is a step's start, while the `start` above is the match object of the role's dates. The comprehension scope keeps the two apart, and the match is no longer needed by then.
-  - Each position: title, company, range and length – "Marketing Consultant · SBS systems for business solutions", "04/2014 – 08/2014 · 5 months". No place and no tree per position: the entry's own Scope line sums them up, and its company line says "Five companies · Rome".
+  - Each position: title, company, range and length – "Marketing Consultant · SBS systems for business solutions", "04/2014 – 08/2014 · 5 months". No place and no tree per position: the entry's own Scope line sums them up, and its company line says "Six companies · Rome".
 - `<h3>{e(ro['title'])}</h3>` – every role gets a heading of the same level under the `<h2>` of Experience. The steps behind a disclosure are list items, not headings, so the outline stays flat: Experience (h2) › each role (h3).
-- Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly. `tree` may be an empty list; `tree()` then returns `""`. `when` must hold at least one `MM/YYYY` date, for `months()` (section 22).
+- Required fields (`when`, `title`, `org`, `tree`) use `ro['…']`: a missing key raises `KeyError`. That is intended – a role without a title should fail loudly. `tree` may be an empty list; `tree()` then returns `""`. `when` must hold at least one `MM/YYYY` date or a year, for `months()` (section 22).
 - `{ctx}{tree(c, ro['tree'])}` – context line and tree directly after each other, then the disclosures, if there are any.
 
 ---
@@ -1335,7 +1405,7 @@ def page(c):
 
 - `role(c, ro)` renders the inside of each entry (section 24); the loop only adds the `<li>` around it.
 - `rid` – the anchor the ledger links to, for the three roles that carry an `id`. The leading space belongs to the attribute string, so a role without an id gets a clean `<li class="role">` – the same pattern as `en_attr`.
-- On phones, where the section heading sticks under the header, the CSS gives `.role` a `scroll-margin-top`: a role reached from the ledger stops below the stuck heading instead of under it (chapter 3).
+- On phones held upright, where the section heading sticks under the header, the CSS gives `.role` a `scroll-margin-top`: a role reached from the ledger stops below the stuck heading instead of under it (chapter 3).
 - `<ol class="roles" reversed>` – an ordered list, because sequence matters; `reversed` makes the numbering count down, so the newest role at the top carries the highest number. It is a boolean attribute: present means true. The step lists inside the entries count down the same way (`steps()`, section 24).
 
 ### Education – where the footnotes are created
@@ -1407,10 +1477,13 @@ def page(c):
         address = re.sub(r"^https://(www\.)?|/$", "", url)               # the address is the link text
         rows.append((name, offsite(c, url, address, ' rel="me noopener"')))  # both profiles are Pete's own
     rows.append((e(based), offsite(c, MAP, e(city), mark=PIN_SVG, kind=c["map"])))
-    contact = '<dl class="facts">\n' + "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>\n" for k, v in rows) + "</dl>\n"
+    contact = f'<p class="ask">{e(c["ask"])}</p>\n'                  # what to write about, leading into the rows
+    contact += '<dl class="facts">\n' + "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>\n" for k, v in rows) + "</dl>\n"
     out.append(section(c, "contact", e(s["contact"]), contact))
 ```
 
+- First a line of copy: `<p class="ask">` with `c["ask"]` (section 8) – "Questions about performance, pipelines, pixels or people:", German "Fragen zu Performance, Pipelines, Pixels oder People:" – what to write about, in the four words of P⁴. The colon leads into the rows. Escaped like all copy. The class names it for the torch (section 28); the CSS has no rule for it – a paragraph in `.body` gets its margin from `:where(.body) p` (chapter 3).
+- `contact +=` – the list appended to the line. Two statements instead of one long expression; each half reads on its own.
 - Four rows – Email, LinkedIn, GitHub, Based in – in the same `<dl class="facts">` as Education: label on the left, value on the right, a line between the rows. The CSS already exists, so Contact needs none of its own.
 - `mail, based, city = c["reach"]` – unpacks the 3-tuple: the two labels that change with the language, and the place.
 - `rows` – a list of (label, value) pairs, both already HTML. The loop at the end turns each pair into `<div><dt>…</dt><dd>…</dd></div>`.
@@ -1660,7 +1733,8 @@ TORCH = [
     (".role .ctx", 'ctx = f\'<p class="ctx">', 1),
     (".role .tree li", "items = \"\".join(f'<li><span class=\"k\"", 1),
     (".lines li", 'val = \'<ul class="lines">\'', 1),
-    (".facts:has(a[href^='mailto:']) dt, .facts:has(a[href^='mailto:']) dd", "contact = '<dl class=\"facts\">", 1),
+    (".ask", "contact = f'<p class=\"ask\">", 1),
+    (".facts:has(a[href^='mailto:']) dt, .facts:has(a[href^='mailto:']) dd", "contact += '<dl class=\"facts\">", 1),
     (".facts dt, .facts dd", 'fa.append(f"<div><dt>', 1),
     (".group > h3", "groups.append(f'<div class=\"group\"><h3>", 1),
     (".projects h4, .projects p", "lis.append(f'<li><h4>", 1),
@@ -1704,6 +1778,7 @@ The torch (chapter 4) has two levels. The first shows each block of text as HTML
   - The number says how many lines to show from there: 2 for the ledger, whose f-string spans two lines; 3 for the steps behind a disclosure and the footnotes.
   - Order matters, because `site.js` takes the first rule that matches: `.facts:has(a[href^='mailto:'])` – the list that holds the mail link, Contact – comes before `.facts`, which would also match Contact but means Education.
   - No ids in the selectors: the ids are localized (`#contact` is `#kontakt` in German, section 8), the classes are not. `:has()` picks the list by what it contains instead.
+  - Contact has two rules: `.ask` finds the line `contact = f'<p class="ask">…`, the list's rule the line after it. Its snippet begins `contact +=`, not `contact =` – `contact = '<dl class="facts">` occurs nowhere since the line was added, and a snippet that matches no line stops the build.
   - The four `.lost` rules are the 404 (section 27). Its claim and prompt need snippets of their own: `'<p class="claim" lang="{other[0]}">'` and the hero's `'<p class="claim" lang="en">'` each occur on one line only. The selectors keep them apart on the page – the hero's elements sit in `.hero`, the 404's in `.lost`.
 - Why a snippet and not a line number: line numbers move with every edit above them. A snippet stays with its line; `torch_map()` looks the number up on every build.
 
@@ -1782,6 +1857,18 @@ RewriteCond %{SERVER_PORT} !=443
 RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
 </IfModule>
 
+# security: HTTPS only for a year, no content sniffing, no framing, no camera, microphone or location; the referrer
+# leaves the site as the origin only. The content security policy allows this server and the two inline scripts
+# (by hash) – report-only for now: violations show in the browser console, nothing is blocked.
+<IfModule mod_headers.c>
+Header always set Strict-Transport-Security "max-age=31536000"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "DENY"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' __HASHES__; style-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+</IfModule>
+
 # stylesheet and script change their address with their content (?v=), fonts never change: kept for a year.
 # Pages and torch.json are asked for on every visit – unchanged, the answer is a short 304.
 <IfModule mod_headers.c>
@@ -1803,8 +1890,10 @@ AddOutputFilterByType DEFLATE text/html text/css text/javascript application/jav
 - The server configuration for Apache, as one string that `build()` writes to `site/.htaccess`. What each directive does is in chapter 2 (`.htaccess`); here only the Python.
 - `r"""…"""` – a raw string: backslashes stay as typed. `^www\.` and `"\.(css|js|woff2)$"` reach Apache with their `\.` – a literal dot in a regular expression. Without the `r`, Python would read `\.` as an unknown escape sequence: it keeps the backslash but warns (`SyntaxWarning` since Python 3.12).
 - Not an f-string: `%{HTTP_HOST}`, `%{SERVER_PORT}` and `%{REQUEST_URI}` are Apache's variables. In an f-string, their braces would be replacement fields.
-- Four blocks: the error pages and the manifest's type; one address (`mod_rewrite`); how long browsers keep what (`mod_headers`); compression (`mod_deflate`). Each `<IfModule>` block applies only where its module is loaded.
+- `__HASHES__` – a placeholder in the policy. The string cannot compute the two script hashes itself, since it is no f-string; `build()` puts them in with `replace` (below).
+- Five blocks: the error pages and the manifest's type; one address (`mod_rewrite`); security headers and caching (both `mod_headers`, one block each); compression (`mod_deflate`). Each `<IfModule>` block applies only where its module is loaded.
 - The caching block depends on `VERSION` (section 10): a year without asking again is safe only because the stylesheet and the script change their address when they change.
+- The policy depends on `csp_hash()` and on `LOCKUP` (sections 10 and 11): it allows exactly the two inline scripts and no inline style. Report-only until the live site shows no violations; then the header's name changes to `Content-Security-Policy`, and the policy blocks instead of reporting.
 
 ```python
 def build():
@@ -1817,7 +1906,8 @@ def build():
     for key, pages in LEGAL.items():
         for L, (path, _, _) in pages.items():
             (SITE / path).write_text(dots(legal(key, L)), encoding="utf-8")
-    (SITE / ".htaccess").write_text(HTACCESS, encoding="utf-8")
+    (SITE / ".htaccess").write_text(HTACCESS.replace("__HASHES__", f"{csp_hash(THEME_BOOT)} {csp_hash(SPECULATION)}"),
+                                    encoding="utf-8")
     (SITE / "de" / ".htaccess").write_text("# a missing address under /de/: the German 404\nErrorDocument 404 /de/404.html\n",
                                            encoding="utf-8")
     (SITE / "assets" / "torch.json").write_text(json.dumps(torch_map(), ensure_ascii=False), encoding="utf-8")
@@ -1846,7 +1936,7 @@ The start pages and the 404s:
 The other files:
 
 - The legal pages – two loops over `LEGAL` (section 26): every page, every language. `for L, (path, _, _) in pages.items()` unpacks a nested tuple in one step: the key into `L`, the (path, title, body) tuple into its parts. Then the same pattern as above: build the path with `/`, generate the HTML, pass it through `dots()`, write it. `(SITE / path)` needs the parentheses so `.write_text` applies to the joined path, not to the string.
-- `.htaccess` – `HTACCESS`, above. The leading dot hides the file by default in `ls` and in the macOS Finder.
+- `.htaccess` – `HTACCESS`, above, with `__HASHES__` replaced by the two hashes, separated by a space: `'sha256-…' 'sha256-…'`. The leading dot hides the file by default in `ls` and in the macOS Finder.
 - `de/.htaccess` – two lines, a comment and `ErrorDocument 404 /de/404.html`: Apache reads an `.htaccess` per folder, and this one overrides the root's 404 page for everything under `/de/`. It is written after the loop, which has created `site/de/` by then. The call no longer fits on one line, so it continues inside the parentheses of `write_text(…)`, aligned under the first argument.
 - `assets/torch.json` – the torch's second level (section 28): for every rule, its selector, its line number in this file and the lines. About 12 KB, fetched by `site.js` only when the torch is first switched on. `ensure_ascii=False` keeps the `·` in the code as it is instead of `\u00b7`.
 - `robots.txt` – `User-agent: *` addresses all crawlers, `Allow: /` permits everything, `Sitemap:` gives the absolute URL of the sitemap.
@@ -1898,7 +1988,7 @@ What it writes (and overwrites):
 | `site/de/404.html` | `not_found(CONTENT["de"])` → `dots()` |
 | `site/legal-notice.html` · `site/privacy.html` | `legal("imprint", "en")` · `legal("privacy", "en")` → `dots()` |
 | `site/impressum.html` · `site/datenschutz.html` | `legal("imprint", "de")` · `legal("privacy", "de")` → `dots()` |
-| `site/.htaccess` | `HTACCESS` |
+| `site/.htaccess` | `HTACCESS` with the hashes of `THEME_BOOT` and `SPECULATION` |
 | `site/de/.htaccess` | fixed string, two lines |
 | `site/assets/torch.json` | `torch_map()` |
 | `site/robots.txt` | f-string with `URL` |
@@ -1918,6 +2008,8 @@ Working rules:
 
 - Copy or markup change → edit `src/build.py` → run the build → check the result in `site/`.
 - `site.css` or `site.js` changed → run the build as well: every page carries their fingerprints, and without a new one, browsers keep the old file for up to a year.
+- `THEME_BOOT` or `SPECULATION` changed → upload `.htaccess` with the pages: it carries their hashes, and a page with a new script under an old policy reports a violation (once the policy enforces: a script that does not run).
+- Checks after a build: the Nu Html Checker (validator.w3.org/nu, version 26.9.30) finds no error in the HTML of the eight pages. Its CSS checker does not know `container` and `@container` yet and reports them as errors (chapter 3) – the browsers know them. The policy: on a local Apache, all eight pages, with torch, keys card, theme switch and minimap used – no violation in the console.
 - Never edit the generated HTML files in `site/`. The next build overwrites them without warning.
 - Forgetting to rebuild leaves `src/` and `site/` out of sync – the live site keeps the old state. Commit `src/build.py` and the regenerated files together.
 - A build on a new day changes `sitemap.xml` (and in January the footer year) even when the content did not change.
@@ -1953,10 +2045,12 @@ Make each change in `src/build.py`, run `python3 src/build.py`, look at the resu
 - **JSON-LD** – structured data in a `<script type="application/ld+json">` block, using the schema.org vocabulary.
 - **Web app manifest** – a JSON file linked with `<link rel="manifest">` that describes a site as an installable app: name, colors, icons, display mode. Here it supplies the home-screen icons.
 - **Popover** – an element with the `popover` attribute: hidden until a button with `popovertarget` or a script opens it, then drawn above the whole page, closed again by a click outside or Esc. Here: the torch's keys card (chapter 4).
-- **Disclosure** – a control that shows and hides a block of content. HTML has one built in: `<details>` with its `<summary>`, used for the Posterlounge promotions and the five early positions (both written by `steps()`) and for the jump control's list.
+- **Disclosure** – a control that shows and hides a block of content. HTML has one built in: `<details>` with its `<summary>`, used for the Posterlounge promotions and the six early positions (both written by `steps()`) and for the jump control's list.
 - **Generated content** – text that CSS inserts with `content` in `::before` or `::after`, such as the bold copy of each menu label that reserves its width (`content: attr(data-label)`). It is drawn, but it is not part of the page's text: copy and paste, search engines and parsers do not get it. Words and punctuation that carry meaning belong in the HTML.
 - **Visually hidden text** – text that is in the HTML but shrunk out of sight by CSS (here the class `sr-only`), so screen readers and anything that reads the text still get it: the word behind each drawn arrow, the full motto in the hero, the "(opens in a new tab)" after each link that leaves the site.
 - **`target="_blank"` and `noopener`** – `target="_blank"` opens a link in a new tab; `rel="noopener"` keeps the new page from reaching back to the one that opened it through `window.opener`. Here both come from `offsite()`, for every link that leaves the site.
+- **Content security policy** – an HTTP header that names where a page may load scripts, styles, images and other resources from; inline scripts it allows by the hash of their content. In report-only mode it reports violations in the console and blocks nothing.
+- **Speculation rules** – a `<script type="speculationrules">` with JSON that lets the browser prefetch or prerender pages before a click. Chrome and Edge read it; other browsers skip it.
 - **Fingerprint** – a short hash of a file's content in its URL (`site.css?v=5c417903`): a new version gets a new address, so browsers may keep each version as long as they like.
 - **Relative vs root-absolute path** – `assets/site.css` or `../assets/site.css` resolve from the current page's folder; `/assets/site.css` resolves from the domain root.
 - **Non-breaking space** – U+00A0 or `&nbsp;`: looks like a space, but a line never breaks there.
