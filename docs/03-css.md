@@ -262,7 +262,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 - `outline: 2px solid var(--accent);` – the focus ring. An outline is drawn outside the border and takes no space, so focusing never shifts the layout, which a border would. The accent reaches 9.7:1 and 6.0:1, far above the 3:1 needed for focus indicators.
 - `outline-offset: 3px;` – a gap between element and ring.
 - `border-radius: 2px;` – current browsers draw outlines along the border radius, so the ring gets soft corners. Side effect: it rounds the element itself too, and at (0,1,1) it beats any single-class rule. A round element therefore needs a rule of at least the same weight to stay round while focused. The jump control's ends have one: `.jump .up` and `.jump .down` weigh (0,2,0), beat (0,1,1), and keep their rounded ends under focus (see the jump control section). The theme buttons need nothing extra: `.themes button` is also (0,1,1), ties, and wins because it comes later.
-- `summary` – the clickable line of a `<details>` element, used three times on each start page (the jump control's number, "Three promotions" and "Six positions"). It is focusable like a button but is neither `a` nor `button`; without its own entry it would get the browser's default ring instead of the accent one.
+- `summary` – the clickable line of a `<details>` element, used three times on each start page (the jump control's number, "Five positions" and "Six positions"). It is focusable like a button but is neither `a` nor `button`; without its own entry it would get the browser's default ring instead of the accent one.
 
 ## Skip link and visually hidden text
 
@@ -723,7 +723,7 @@ On wide screens the heading column keeps the current heading in view. On phones 
 
 - `.sec > h2 .no` – the chapter number in front of the heading: accent colour, regular weight, so the title stays the strong part.
   - `font-variant-numeric: tabular-nums` – switches the font to its equal-width digits (the OpenType feature `tnum`). By default Atkinson Hyperlegible uses proportional digits: in the regular weight used here, a "1" is about 60 % as wide as a "0". With tabular digits every number from 01 to 04 has the same width, so all titles start on the same pixel (measured).
-- `.sec > h2 .ghost { visibility: hidden; }` – the sections inside a chapter (P⁴, Education, Approach, Sources) carry their chapter's number with this extra class. `visibility: hidden` hides it but keeps its box, so the title after it starts on the same pixel as the chapter's title (measured: all eight titles at the same x). The page reads like an outline.
+- `.sec > h2 .ghost { visibility: hidden; }` – the sections inside a chapter (P⁴, Education, Sources) carry their chapter's number with this extra class. `visibility: hidden` hides it but keeps its box, so the title after it starts on the same pixel as the chapter's title (measured: all seven titles at the same x). The page reads like an outline.
   - Why not `padding-left` instead: the padding would have to equal the width of "01" plus a space in this font at this size – a number to measure and to update with every font change. The invisible number is always exactly as wide as the visible one.
   - Hidden text is not selected when you copy the heading, and the minimap skips it (`site.js` filters `.ghost`).
 
@@ -911,7 +911,7 @@ Twenty-seven links lead off the site: twelve company websites and the two Liora 
   - On phones, `scroll-margin-top` lets the target land below the stuck section heading (see Sections).
 
 ```css
-/* behind a disclosure: the promotions within one role (Posterlounge), the positions one entry sums up (2010–2014) */
+/* behind a disclosure: the titles within one role (Posterlounge), the positions one entry sums up (2010–2014) */
 .more { margin-top: 0.75rem; }
 .more summary {
   display: inline-flex; align-items: center; gap: 0.5em;
@@ -928,7 +928,7 @@ Twenty-seven links lead off the site: twelve company websites and the two Liora 
 @media (prefers-reduced-motion: no-preference) { .more summary::before { transition: transform 0.2s, margin 0.2s; } }
 ```
 
-Two entries in the timeline hold more than their tree shows. Posterlounge is one role with four titles and the freelance work before them: below its tree, a `<details class="more">` whose `<summary>` reads "Three promotions" opens them. The years 2010–2014 appear as one entry, "Six companies · Rome"; its disclosure, "Six positions", opens the single positions. A click opens either; both hold the same kind of list (see the next block). `<details>` is the browser's built-in disclosure: it opens and closes without JavaScript, keyboard and screen readers included, and the browser sets the attribute `open` on the element while it is open. No rule shows or hides the content: a closed `<details>` renders only its `<summary>`.
+Two entries in the timeline hold more than their tree shows. Posterlounge is one role with four titles and the freelance work before them: below its tree, a `<details class="more">` whose `<summary>` reads "Five positions" opens them. The years 2010–2014 appear as one entry, "Six companies · Rome"; its disclosure, "Six positions", opens the single positions. A click opens either; both hold the same kind of list (see the next block). `<details>` is the browser's built-in disclosure: it opens and closes without JavaScript, keyboard and screen readers included, and the browser sets the attribute `open` on the element while it is open. No rule shows or hides the content: a closed `<details>` renders only its `<summary>`.
 
 - `.more { margin-top: 0.75rem; }` – space between the entry's tree and the disclosure.
 - `.more summary`:
@@ -978,17 +978,6 @@ Opening a disclosure makes the page taller, so `site.js` redraws the minimap on 
 - `.projects h4` – the project title.
 - `.projects p { margin: 0; }` – removes the paragraph default; (0,1,1) beats `:where(.body) p`.
 - `.projects .stack` – the technology line, muted and smaller. At (0,2,0) it beats `.projects p` (0,1,1), so its `margin-top: 0.2rem` applies.
-
-## Approach
-
-```css
-/* approach */
-.principles { margin: 0; padding: 0; list-style: none; display: grid; gap: 1.4rem; }
-.principles p { margin: 0; }
-```
-
-- `.principles` – the same list-as-grid pattern as `.projects`. Each item holds one `<p>` of plain text.
-- `.principles p { margin: 0; }` – removes the paragraph default, as in `.projects`.
 
 ## Education
 
