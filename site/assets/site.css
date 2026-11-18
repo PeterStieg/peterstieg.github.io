@@ -339,7 +339,7 @@ a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 /* reached from the ledger: dates and title in accent */
 .role:target > .when, .role:target > div > h3 { color: var(--accent); }
 
-/* behind a disclosure: the promotions within one role (Posterlounge), the positions one entry sums up (2010–2014) */
+/* behind a disclosure: the titles within one role (Posterlounge), the positions one entry sums up (2010–2014) */
 .more { margin-top: 0.75rem; }
 .more summary {
   display: inline-flex; align-items: center; gap: 0.5em;
@@ -365,10 +365,6 @@ a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 .projects h4 { margin: 0 0 0.15rem; font-size: 1.125rem; font-weight: 700; }
 .projects p { margin: 0; }
 .projects .stack { color: var(--muted); font-size: 0.95rem; margin-top: 0.2rem; }
-
-/* approach */
-.principles { margin: 0; padding: 0; list-style: none; display: grid; gap: 1.4rem; }
-.principles p { margin: 0; }
 
 /* education */
 .facts { margin: 0; }

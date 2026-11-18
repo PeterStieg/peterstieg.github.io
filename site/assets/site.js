@@ -473,11 +473,12 @@
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(layout);
   window.addEventListener("load", layout);
 
-  /* ---------- Torch: the page's code under a light that follows the pointer – desktop only.
+  /* ---------- Torch: the page's code under a light that follows the pointer – wherever there is a mouse or touchpad.
      Type sudo: the HTML of every block of text. Once more: the lines of build.py that wrote it (assets/torch.json,
      written by the build). A third time, or Esc: off. ? or F1 lists the keys. */
   const torchHost = document.querySelector("main[data-torch]");   // every page: start pages, legal pages, 404
-  const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+  // any mouse or touchpad, not just the main input: Chrome counts the touchscreen of a laptop as its main input
+  const fine = window.matchMedia("(any-hover: hover) and (any-pointer: fine)");
   if (torchHost && jsUrl) {
     const T = JSON.parse(torchHost.dataset.torch);   // the strings in the page's language
     const SEL = "h1, h2, h3, h4, p, li, dt, dd, summary, address";
@@ -574,7 +575,8 @@
         card.innerHTML = `<p class="head"><strong id="keys-title">${esc(T.keys)}</strong>` +
           `<button type="button" class="close" popovertarget="keys" popovertargetaction="hide" aria-label="${esc(T.close)}" autofocus>` +
           '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></p><dl>' +
-          T.rows.map(([k, v]) => `<div><dt>${esc(v)}</dt><dd>${[].concat(k).map((x) => `<kbd>${esc(x)}</kbd>`).join(" ")}</dd></div>`).join("") + "</dl>";
+          T.rows.filter(([k]) => fine.matches || k !== "sudo")    // no mouse or touchpad: no torch, no row for it
+          .map(([k, v]) => `<div><dt>${esc(v)}</dt><dd>${[].concat(k).map((x) => `<kbd>${esc(x)}</kbd>`).join(" ")}</dd></div>`).join("") + "</dl>";
         nav.appendChild(card);                        // in the header's nav: inside a landmark, like all content
       }
       if (!card.showPopover) return;                  // no popover API, no card
@@ -589,9 +591,10 @@
       if (ev.ctrlKey || ev.metaKey || ev.altKey || ev.isComposing) return;
       if (ev.target.closest && ev.target.closest("input, textarea, select, [contenteditable]")) return;
       if (ev.key === "Escape") { if (level) set(0); return; }
-      if (ev.key === "F1" && !ev.shiftKey && fine.matches) { ev.preventDefault(); keys(); return; }   // the help key, instead of the browser's help
-      if (!fine.matches || ev.key.length !== 1) return;
-      if (ev.key === "?") { keys(); return; }
+      if (ev.key === "F1" && !ev.shiftKey) { ev.preventDefault(); keys(); return; }   // the help key, instead of the browser's help
+      if (ev.key.length !== 1) return;
+      if (ev.key === "?") { keys(); return; }         // keys need a keyboard, not a mouse
+      if (!fine.matches) return;                      // the torch follows a pointer
       typed = (typed + ev.key.toLowerCase()).slice(-4);
       if (typed === "sudo") { typed = ""; next(); }
     });

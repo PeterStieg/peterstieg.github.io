@@ -31,7 +31,7 @@ Editorial rules this file follows:
     and the tree labels (as in #JobAlert: Scope, Team, Result).
     Everything else is localized, not translated.
  6. Google Cloud is a tool, Azure only the platform of single projects. AI is named once
-    as a principle (in Approach), never as a label on single projects.
+    as a tool in a project's stack (Claude API), never as a label on single projects.
  7. No wordplay that isn't Pete's own or doesn't follow his patterns.
  8. Four coined elements and no more: claim, motto, marketinkerer, P⁴.
 """
@@ -48,7 +48,7 @@ Editorial rules this file follows:
 | 3 · Telegram style | Copy only. |
 | 4 · En dash, middle dot | Written into the strings. `dots()` keeps a ` · ` from starting a line, `nbsp()` keeps German numbers and units together. |
 | 5 · Brand elements stay English | They live outside `CONTENT` (`TAGLINE`, `CLAIM`, `MOTTO`, `P4`) or appear unchanged in both dictionaries (tree labels such as `"Scope"`). On the German page the code marks them with `lang="en"`. |
-| 6 · Google Cloud, Azure, AI | Copy only: Google Cloud in `STACK_DS` and the Scope of the Data Scientist training, Azure only in project entries, AI only in the third approach sentence ("AI is part of the toolbox – … Nothing goes out unchecked."). |
+| 6 · Google Cloud, Azure, AI | Copy only: Google Cloud in `STACK_DS` and the Scope of the Data Scientist training, Azure only in project entries, AI only as a tool in a project's stack ("Python · Claude API" under Document extraction). The Approach section that once carried an AI principle was removed on 18.11.2026. |
 | 7 · No foreign wordplay | Copy only. |
 | 8 · Four coined elements | Claim, motto, *marketinkerer*, P⁴ – nothing else on the page is a slogan. Ten were too many; the rest were cut, among them the three Approach slogans and the footer line. Copy only: a new slogan would break the rule, not the build. |
 
@@ -156,15 +156,15 @@ A list of 5-tuples, one per language. The position of each value is its meaning:
 # P as in Peter – English in every language, like M³ and F³.
 P4 = ["Performance", "Pipelines", "Pixels", "People"]
 # four chapters, like the parts of a slide deck: the first section of each is numbered and linked in the menu,
-# the sections after it belong to it – P⁴ to Profile, Education to Experience, Approach to Projects, Sources to Contact
-CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": ["approach"], "contact": ["notes"]}
+# the sections after it belong to it – P⁴ to Profile, Education to Experience, Sources to Contact
+CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": [], "contact": ["notes"]}
 SECTIONS = [k for first, rest in CHAPTERS.items() for k in (first, *rest)]   # page order: profile, fields, experience …
 ```
 
 - `P4` – the four headings of the P⁴ section. `page()` pairs them by position with `CONTENT[lang]["fields"]`.
 - `CHAPTERS` – the page's four chapters, like the four parts of a slide deck. Each key opens a chapter and is linked in the menu; the list holds the sections that follow it and belong to it. The order of the keys is the order of the chapters, so `profile` is 01 and `contact` 04. The keys are the English ones, so both languages share the numbers.
 - The page order must match: every section in a list comes right after its chapter's first section. That is why Education stands behind Experience in `page()`, not at the end.
-- `SECTIONS` – all eight section keys in page order, derived from `CHAPTERS`: `["profile", "fields", "experience", "education", "projects", "approach", "contact", "notes"]`. The jump control lists the sections from it (section 23).
+- `SECTIONS` – all seven section keys in page order, derived from `CHAPTERS`: `["profile", "fields", "experience", "education", "projects", "contact", "notes"]`. Projects is a chapter of one section: its list is empty, and `(first, *rest)` then holds the opener alone. The jump control lists the sections from it (section 23).
   - A list comprehension with two `for` clauses reads like two nested loops, left to right: for each chapter (`first`, `rest`), for each `k` in that chapter.
   - `(first, *rest)` builds a tuple: the opener, then the items of `rest` unpacked into it. `("experience", *["education"])` is `("experience", "education")`.
   - Derived, not typed: add a section to `CHAPTERS` and it appears in the jump control's list with the right number. The order of the `out.append` calls in `page()` still has to follow by hand.
@@ -236,10 +236,10 @@ CONTENT = {
         "desc": "Marketinkerer from Leipzig: …",
         "skip": "Skip to content",
         "nav": [("profile", "Profile"), ("experience", "Experience"), ("projects", "Projects"), ("contact", "Contact")],
-        "sec": {"profile": "Profile", "experience": "Experience", "projects": "Projects", "approach": "Approach",
+        "sec": {"profile": "Profile", "experience": "Experience", "projects": "Projects",
                 "education": "Education", "contact": "Contact", "notes": "Sources"},
         "entry": {"hw": "mar·ke·tin·ker·er", "pos": "noun", "ety": "[*marketer* × *tinkerer*]",
-                  "def": "A marketing leader who builds the tools behind the campaigns."},
+                  "def": "A marketing leader who builds the tools behind the campaigns – and the teams that run them."},
         "profile": "Leadership roles at four companies, …",
         "ledger_label": "Selected results",
         "ledger": [
@@ -247,7 +247,7 @@ CONTENT = {
             …
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Meta, LinkedIn and marketplaces. …",
+            "Google Ads, Microsoft Advertising, Meta, LinkedIn; Amazon, Otto, Cdiscount. …",
             …
         ],
         "roles": [
@@ -266,14 +266,15 @@ CONTENT = {
              "tree": [("Team", "…"),
                       ("Scope", "…"),
                       ("Result", "…")],
-             "path": ("Three promotions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
+             "path": ("Five positions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                            ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy"),
                                            ("07/2017", "SEO, freelance")])},
             {"when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
              "tree": [("Scope", "…")]},
             …
             {"when": "2013 – 2020", "title": "Freelance: websites, design, translation", "org": "Alongside employment",
-             "tree": [("Scope", "…")]},
+             "tree": [("Scope", "…"),
+                      ("Result", "…")]},
             {"when": "10/2010 – 09/2014", "title": "Marketing, market research, export", "org": "Six companies", "place": "Rome",
              "tree": [("Scope", "…")],
              "positions": ("Six positions", [
@@ -285,17 +286,13 @@ CONTENT = {
         ],
         "groups": [
             ("At E+SERVICE+CHECK", [
-                ("Call and inquiry pipeline", "…", "Python · BigQuery · Data Studio", []),
+                ("Customer portal", "…", "Azure", []),
                 …
             ]),
             ("Certification capstones", [
                 ("Rakuten product classification", "…", STACK_DS, [("GitHub", REPO_DS), ("Demo", DEMO_DS)]),
                 …
             ]),
-        ],
-        "approach": [
-            "Every figure on this page is documented.",
-            …
         ],
         "facts": [
             ("2025", "Data Scientist[[ds]] · MLOps Engineer[[mlops]]", "Liora (formerly DataScientest) in partnership with Université Paris 1 Panthéon-Sorbonne"),
@@ -315,7 +312,7 @@ CONTENT = {
         "lang": "de", "path": "de/index.html", "root": "../", "locale": "de_DE",
         …
         "ids": {"profile": "profil", "fields": "p-wie-peter", "experience": "stationen", "projects": "projekte",
-                "approach": "arbeitsweise", "education": "ausbildung", "contact": "kontakt", "notes": "quellen"},
+                "education": "ausbildung", "contact": "kontakt", "notes": "quellen"},
         …
     },
 }
@@ -332,9 +329,9 @@ CONTENT = {
 - Company names carry no legal form – "Posterlounge", not "Posterlounge GmbH"; "SBS systems for business solutions", not "… Srl": the names people know, the ones references and LinkedIn use. The ↗ already leads to the website, so no domain stands in as a label either. "Brandible by KSi International" keeps its "by": the commercial register still lists KSI International GmbH, so "formerly" would claim a rename.
 - The timeline as of 17.11.2026 – eleven entries, three of them new:
   - Immobiliare.it, 05/2017 – 06/2017, Online Marketing Manager in Rome: an employment, so an entry of its own, between Posterlounge and YOUniversal Media. Each language links its own page of the portal – `immobiliare.it/en/` in English, `immobiliare.it/` in German –, so each dict carries its own `url`.
-  - The freelance block, "2013 – 2020", "Alongside employment": websites, design and translations next to the jobs of those years, placed by its start between YOUniversal Media and the early group. Years only, no `place`, no `url`: the client sites are offline. TextMaster stands in its Scope without a link – it now belongs to Acolad.
-  - 3D2B, 09/2014, as the first row of the early group, not as an entry: one month in Rome, right after SBS – an entry of its own would weigh like a role of several years. The group now runs to 09/2014, reads "Six companies" and "Six positions", and its Scope names lead generation.
-- Posterlounge's `path` ends with `("07/2017", "SEO, freelance")`: freelance SEO before the contract, shown as "07/2017 – 09/2017 · 3 months" (section 24). The label stays "Three promotions" – being hired is not a promotion.
+  - The freelance block, "2013 – 2020", "Alongside employment": websites, design and translations next to the jobs of those years, placed by its start between YOUniversal Media and the early group. Years only, no `place`, no `url`: the client sites are offline. Scope names the work (sites, design, translations; TextMaster without a link – it now belongs to Acolad), Result the two client sites in Rome.
+  - 3D2B, 09/2014, as the first row of the early group, not as an entry: one month in Rome, right after SBS – an entry of its own would weigh like a role of several years. The group now runs to 09/2014, reads "Six companies" and "Six positions", and its Scope names lead generation, OSINT and primary and secondary research.
+- Posterlounge's `path` ends with `("07/2017", "SEO, freelance")`: freelance SEO before the contract, shown as "07/2017 – 09/2017 · 3 months" (section 24). The label counts what the list holds, "Five positions" (German "Fünf Stationen"): the freelance row is a position too, but being hired is not a promotion, so "promotions" would have miscounted.
 
 ### Every key and what it feeds
 
@@ -386,7 +383,6 @@ Copy:
 | `fields` | list of 4 str | the P⁴ section, paired with `P4` |
 | `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`; `"since MM/YYYY"` for the role that is still running; `"YYYY – YYYY"` with years only – `months()` reads the dates), `title`, `org` (the name without legal form), `url` (optional: the company's website – for the two trainings the course page –, behind the name, in a new tab), `with` (optional: a partner named after the link, outside it – the Sorbonne for the two trainings), `place` (optional, may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (start `"MM/YYYY"`, title)), newest first – the steps within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts), `positions` (optional: (label, list of (dates, title, company, url – `""` without one)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates: a range `"MM/YYYY – MM/YYYY"` or a single month `"MM/YYYY"`) |
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link; each link opens in a new tab |
-| `approach` | list of 3 str | Approach, one list item per sentence |
 | `facts` | list of (label, value, sub-line or `""`) | Education; the value is a string, or a list of strings shown one per line (the languages) |
 | `reach` | 3-tuple | Contact: the label for the mail row, the label for the place row, the place – in German "E-Mail", "Wohnort" |
 | `ask` | str | Contact: the line before the rows – what to write about (section 25) |
@@ -397,7 +393,7 @@ Copy:
 - Localized, not translated: German uses KUR, English RoAS (rule 2), job titles follow German usage ("Leiter Marketing"), number formats follow each language ("6.000 → 240.000 €" vs "€6k → €240k"), and trade terms follow each language's habit – "marketing automation" (Brandible, Rapidobject) is "Marketing Automation" in German, the English term German marketing uses, capitalized as a German noun. The two trainings follow each language's word order: "MLOps Engineer training (full-time)", "Weiterbildung MLOps Engineer (Vollzeit)".
 - English inside German: the tree labels `"Team"`, `"Scope"` and `"Result"` stay English in the DE dict (rule 5). Every role uses the same three, in that order, wherever there is something to say – a role without a team simply has no `"Team"` row.
 - Not localized at all: the company keys at the end of each `ledger` entry and the role `id`s they point to. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates.
-- Nested lists mirror too: the five rows under `"path"` and the six positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Three promotions", "Drei Beförderungen"; "Six positions", "Sechs Stationen") and follow one pattern, number and noun. The promotions keep their titles in both, because they are the titles that were held – only the market in "SEO Manager Italy", "SEO Manager Italien", and the freelance row, "SEO, freelance", "SEO, freiberuflich", are localized. The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical.
+- Nested lists mirror too: the five rows under `"path"` and the six positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Five positions", "Fünf Stationen"; "Six positions", "Sechs Stationen") and follow one pattern, number and noun. The promotions keep their titles in both, because they are the titles that were held – only the market in "SEO Manager Italy", "SEO Manager Italien", and the freelance row, "SEO, freelance", "SEO, freiberuflich", are localized. The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical.
 - One value differs on purpose: Immobiliare.it's `url`, the portal's English page on the English page, its Italian home page on the German one.
 - Nothing checks parity. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A missing list item – a role or project only added in EN – is silent: the German page simply shows one entry fewer. Edit both languages in the same sitting.
 - Quick parity check from the repository root (importing does not build anything, see section 30):
@@ -1017,7 +1013,7 @@ def chapter_no(key):
 ```
 
 - The number before a section title, as a finished span. Two places show it: the section headings (`section()`, section 22) and the list in the jump control (section 23). Both call this one function, so the two can never disagree.
-- `ghost` – a second class for the sections that do not open a chapter (P⁴, Education, Approach, Sources). `key in CHAPTERS` checks the dict's keys only, so it is true just for the four chapter openers.
+- `ghost` – a second class for the sections that do not open a chapter (P⁴, Education, Sources). `key in CHAPTERS` checks the dict's keys only, so it is true just for the four chapter openers.
 - The span holds the number from `num(key)` (section 12). P⁴ gets `<span class="no ghost">01</span>`: the number of its chapter, which the CSS makes invisible. It still takes up its width, so "P⁴" starts exactly where "Profile" does – an outline, without any measuring. An empty string counts as false, so `if num(key)` is enough.
   - `aria-hidden="true"` – screen readers skip the number and announce "Profile", not "zero one Profile". The number is a visual signpost; the order of headings already carries the structure.
   - The space after `</span>` sits outside the span, so the plain text of the heading still reads "01 Profile" for search engines and copy-paste.
@@ -1187,8 +1183,8 @@ def steps(c, label, rows):
     return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n</details>\n'
 ```
 
-- One disclosure: a summary line and, behind it, the steps inside one timeline entry. Two entries have one – Posterlounge's promotions and the six positions up to 2014. Both come from this function, so they look and behave the same.
-- `label` – the summary text: "Three promotions", "Six positions" – number and noun, the same pattern for both (German "Drei Beförderungen", "Sechs Stationen").
+- One disclosure: a summary line and, behind it, the steps inside one timeline entry. Two entries have one – Posterlounge's five positions and the six positions up to 2014. Both come from this function, so they look and behave the same.
+- `label` – the summary text: "Five positions", "Six positions" – number and noun, the same pattern for both (German "Fünf Stationen", "Sechs Stationen").
 - `rows` – a list of (title, company, range, url) tuples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names. The url is `""` where there is none to link: the promotions, and the one early position whose company has no website that could be verified (Proactive Europe).
 - `lis` – one `<li>` per row, three f-strings joined with `+`:
   - `<li>{e(title)}` – the title, escaped.
@@ -1260,7 +1256,7 @@ The dates and the duration:
 The disclosures:
 
 - `more` – up to two disclosures, collected into one string. It starts empty, and each `+=` appends one, in a fixed order: first `path`, then `positions`. Today each entry has at most one of them. Both branches only build the (title, company, range) rows; `steps()` writes the HTML.
-- `path` – used by Posterlounge: the four titles held within that one role, behind "Three promotions", each with its dates and its length, and below them the freelance SEO work that came before the contract. The titles are the words people search for; in the disclosure they are part of the page's text without lengthening the timeline. The context line, `ctx`, describes the company only.
+- `path` – used by Posterlounge: the four titles held within that one role, behind "Five positions", each with its dates and its length, and below them the freelance SEO work that came before the contract. The titles are the words people search for; in the disclosure they are part of the page's text without lengthening the timeline. The context line, `ctx`, describes the company only.
   - `label, path = ro["path"]` – the summary text and the list of (start, title) pairs, newest first. Only the starts are stored, as the contracts give them (section 8): 09/2021, 10/2020, 11/2018, 10/2017 – and 07/2017 for "SEO, freelance".
   - `ends` – one end per step, in the same order as the steps. The newest step ends with the role: `re.findall(…)[-1]` is the last date of its `when`, 06/2023, in a list of its own. Every other step ends the month before the step above it in the list starts – the one that followed it in time: `before(start) for start, _ in path[:-1]` takes the starts of all steps but the oldest and steps each back by a month (section 22). `[:-1]` is a slice without the last item: the oldest start, 07/2017, is where the path begins, and no step ends before it. The underscore is the usual name for a value that is unpacked but not used, here the title. `+` joins the two lists: `["06/2023", "08/2021", "09/2020", "10/2018", "09/2017"]`.
   - `zip(path, ends)` – pairs the n-th step with the n-th end. `(start, title), end` unpacks each pair: the step's tuple on the left, its end on the right. Head of Marketing gets 06/2023; Senior Marketing Manager gets 08/2021, the month before Head of Marketing began; the freelance row gets 09/2017, the month before the contract.
@@ -1454,17 +1450,6 @@ def page(c):
 - `ln` – a ` · ` and a link per (label, URL) pair: "GitHub · Demo" for the capstones. Both lead off the site, to GitHub and Streamlit, so `offsite()` writes them (section 20), with the label escaped first. "GitHub" and "Demo" are single words: the whole label and its ↗ share the no-wrap span. For an empty list the generator yields nothing and `"".join` returns `""`, so projects without links need no special case. The ` · ` separators get glued by `dots()` later.
 - The section body is the joined groups alone, under a plain heading like every other section's.
 - `name` is a local variable here; it does not clash with the constant `NAME` (Python is case-sensitive).
-
-### Approach
-
-```python
-    # approach – how the work is done, in three sentences
-    pr = "".join(f'<li><p>{e(a)}</p></li>\n' for a in c["approach"])
-    out.append(section(c, "approach", e(s["approach"]), f'<ul class="principles">\n{pr}</ul>\n'))
-```
-
-- One `<li>` per sentence, escaped. The sentences are localized copy, so they need no `lang` attribute.
-- The sentences stand alone, without the slogans that once led them (rule 8). The third one carries the AI principle (rule 6).
 
 ### Contact
 
@@ -1738,7 +1723,6 @@ TORCH = [
     (".facts dt, .facts dd", 'fa.append(f"<div><dt>', 1),
     (".group > h3", "groups.append(f'<div class=\"group\"><h3>", 1),
     (".projects h4, .projects p", "lis.append(f'<li><h4>", 1),
-    (".principles p", "pr = \"\".join(f'<li><p>", 1),
     (".notes li", "notes.append(f'<li id=\"fn-{key}\">", 3),
     (".lost .code", '<p class="code">404</p>', 1),
     (".lost h1", '<h1><code class="dki">', 1),
