@@ -4,6 +4,11 @@
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const jsUrl = document.currentScript ? document.currentScript.src : "";   // where this file lives, for torch.json
   root.classList.add("js");
+  // a link with #block from elsewhere – the language switch, a shared link – lands at once, not after a long smooth scroll
+  if (location.hash) {
+    root.style.scrollBehavior = "auto";
+    window.addEventListener("load", () => setTimeout(() => root.style.removeProperty("scroll-behavior"), 100), { once: true });
+  }
 
   /* ---------- Theme: follows the system until the visitor picks one; the pick is remembered locally.
      A pressed button is a pick (and an entry in localStorage); pressed again, it lets go: the system decides again. */
@@ -42,7 +47,7 @@
   /* ---------- Prompt: types the motto once. Full text stays in the HTML for no-JS and screen readers. */
   const cmd = document.querySelector(".hero .prompt .cmd");
   if (cmd) {
-    const full = cmd.textContent;
+    const full = cmd.textContent, markup = cmd.innerHTML;   // the markup: "sudo" is a span the torch listens to
     if (reduce) {
       root.classList.add("typed");
     } else {
@@ -51,7 +56,7 @@
       const step = () => {
         cmd.textContent = full.slice(0, ++i);
         if (i < full.length) setTimeout(step, 45 + Math.random() * 70);
-        else { root.classList.add("typed"); layout(); }  // redraw the minimap with the full motto
+        else { cmd.innerHTML = markup; root.classList.add("typed"); layout(); }  // the span back; the minimap redrawn
       };
       setTimeout(step, 600);
     }
@@ -473,17 +478,33 @@
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(layout);
   window.addEventListener("load", layout);
 
-  /* ---------- Torch: the page's code under a light that follows the pointer – wherever there is a mouse or touchpad.
-     Type sudo: the HTML of every block of text. Once more: the lines of build.py that wrote it (assets/torch.json,
-     written by the build). A third time, or Esc: off. ? or F1 lists the keys. */
+  /* ---------- Language switch: the other page opens at the block being read – a section, a role, a project.
+     The link carries the ids that differ between the two pages (build.py, twins); the others are the same.
+     Set when the link is about to be used, so a middle click or "copy link" gets it too. Without JavaScript: the top. */
+  const other = document.querySelector(".langs a[data-twins]");
+  if (other) {
+    const ids = JSON.parse(other.dataset.twins);
+    const base = other.href;
+    const blocks = [...document.querySelectorAll("main :is(.sec, .role, .projects > li)[id]")];   // in page order
+    const aimLink = () => {
+      const line = top.getBoundingClientRect().bottom + 8;     // just under the header
+      let at = null;
+      for (const el of blocks) if (el.getBoundingClientRect().top <= line) at = el;   // the last block that has begun
+      other.href = at ? `${base}#${ids[at.id] || at.id}` : base;
+    };
+    ["pointerdown", "focus", "click"].forEach((type) => other.addEventListener(type, aimLink));
+  }
+
+  /* ---------- Torch: the page's code under a light – it follows the mouse, or stays where a finger tapped.
+     Type sudo, or tap it in the prompt: the HTML of every block of text. Once more: the lines of build.py that wrote
+     it (assets/torch.json, written by the build). A third time, or Esc: off. On a touchscreen the line under the light
+     takes the next tap. ? or F1 lists the keys. */
   const torchHost = document.querySelector("main[data-torch]");   // every page: start pages, legal pages, 404
-  // any mouse or touchpad, not just the main input: Chrome counts the touchscreen of a laptop as its main input
-  const fine = window.matchMedia("(any-hover: hover) and (any-pointer: fine)");
   if (torchHost && jsUrl) {
     const T = JSON.parse(torchHost.dataset.torch);   // the strings in the page's language
     const SEL = "h1, h2, h3, h4, p, li, dt, dd, summary, address";
-    const R = 160;                                    // the light's radius in px, as in the CSS
-    let level = 0, map = null, px = innerWidth / 2, py = innerHeight / 2, typed = "", tf = 0, card = null;
+    let R = 160;                                      // the light's radius in px: 160, less on a phone (size)
+    let level = 0, map = null, px = innerWidth / 2, py = innerHeight / 2, typed = "", tf = 0, card = null, touch = false;
 
     const lens = document.createElement("div");
     const sheet = document.createElement("div");
@@ -539,22 +560,28 @@
       sheet.replaceChildren(frag);
     };
 
+    const size = () => {                              // 320 px across, at most 60 % of a narrow screen's width
+      R = Math.min(160, Math.round(innerWidth * 0.3));
+      lens.style.width = lens.style.height = tag.style.width = `${2 * R}px`;
+    };
     const aim = () => {                               // the light moves with the pointer, the code stays with the page
       tf = 0;
-      lens.style.transform = `translate(${px - R}px, ${py - R}px)`;
-      sheet.style.transform = `translate(${R - px - scrollX}px, ${R - py - scrollY}px)`;
-      tag.style.transform = `translate(${px - R}px, ${py + R + 6}px)`;
+      // after a tap the light stays whole on the screen, its line too – a finger at the edge would cut it in half
+      const x = touch ? Math.min(Math.max(px, R), innerWidth - R) : px;
+      const y = touch ? Math.min(Math.max(py, R), innerHeight - R - 28) : py;
+      lens.style.transform = `translate(${x - R}px, ${y - R}px)`;
+      sheet.style.transform = `translate(${R - x - scrollX}px, ${R - y - scrollY}px)`;
+      tag.style.transform = `translate(${x - R}px, ${y + R + 6}px)`;
     };
     const track = () => { if (level && !tf) tf = requestAnimationFrame(aim); };
 
     const set = (n) => {
-      if (n && !fine.matches) return;
       if (n && !map) {
         map = [];                                     // fetched once; opened from disk, the second level stays empty
         fetch(new URL("torch.json", jsUrl)).then((r) => (r.ok ? r.json() : [])).then((m) => { map = m; if (level) build(); })
           .catch(() => {});
       }
-      if (n && !level) build();
+      if (n && !level) { size(); build(); }
       level = n;
       lens.classList.toggle("on", n > 0);
       lens.classList.toggle("deep", n === 2);
@@ -575,8 +602,7 @@
         card.innerHTML = `<p class="head"><strong id="keys-title">${esc(T.keys)}</strong>` +
           `<button type="button" class="close" popovertarget="keys" popovertargetaction="hide" aria-label="${esc(T.close)}" autofocus>` +
           '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></p><dl>' +
-          T.rows.filter(([k]) => fine.matches || k !== "sudo")    // no mouse or touchpad: no torch, no row for it
-          .map(([k, v]) => `<div><dt>${esc(v)}</dt><dd>${[].concat(k).map((x) => `<kbd>${esc(x)}</kbd>`).join(" ")}</dd></div>`).join("") + "</dl>";
+          T.rows.map(([k, v]) => `<div><dt>${esc(v)}</dt><dd>${[].concat(k).map((x) => `<kbd>${esc(x)}</kbd>`).join(" ")}</dd></div>`).join("") + "</dl>";
         nav.appendChild(card);                        // in the header's nav: inside a landmark, like all content
       }
       if (!card.showPopover) return;                  // no popover API, no card
@@ -593,22 +619,26 @@
       if (ev.key === "Escape") { if (level) set(0); return; }
       if (ev.key === "F1" && !ev.shiftKey) { ev.preventDefault(); keys(); return; }   // the help key, instead of the browser's help
       if (ev.key.length !== 1) return;
-      if (ev.key === "?") { keys(); return; }         // keys need a keyboard, not a mouse
-      if (!fine.matches) return;                      // the torch follows a pointer
+      if (ev.key === "?") { keys(); return; }
       typed = (typed + ev.key.toLowerCase()).slice(-4);
       if (typed === "sudo") { typed = ""; next(); }
     });
-    window.addEventListener("pointermove", (ev) => { px = ev.clientX; py = ev.clientY; track(); }, { passive: true });
-    window.addEventListener("pointerdown", (ev) => { px = ev.clientX; py = ev.clientY; track(); }, { passive: true });
+    window.addEventListener("pointermove", (ev) => { px = ev.clientX; py = ev.clientY; touch = ev.pointerType !== "mouse"; track(); }, { passive: true });
+    window.addEventListener("pointerdown", (ev) => {
+      if (ev.target.closest && ev.target.closest(".torch-tag")) return;   // a tap on the line under the light: it stays
+      px = ev.clientX; py = ev.clientY; touch = ev.pointerType !== "mouse"; track();
+    }, { passive: true });
+    if (cmd) cmd.addEventListener("click", (ev) => { if (ev.target.closest(".sudo")) next(); });   // tap or click sudo
+    tag.addEventListener("click", next);              // the line under the light names the next step – a tap takes it
     window.addEventListener("scroll", track, { passive: true });
     let bt = 0;
-    window.addEventListener("resize", () => { clearTimeout(bt); bt = setTimeout(() => { if (level) { build(); aim(); } }, 150); });
+    window.addEventListener("resize", () => { clearTimeout(bt); bt = setTimeout(() => { if (level) { size(); build(); aim(); } }, 150); });
     document.addEventListener("toggle", () => { if (level) build(); }, true);   // an opened disclosure moves the page
   }
 
   /* {KeyWord:Developer}: Google Ads Dynamic Keyword Insertion – the default shows when nothing better matches. */
   console.log("%c>_ sudo dream plan ship", "color:#7A1A2C;font-weight:700;font-size:14px",
     "\nHi {KeyWord:Developer} – view-source counts as root access, too." +
-    "\nOn the page: type sudo · ? or F1 lists the keys." +
+    "\nOn the page: type or tap sudo · ? or F1 lists the keys." +
     "\n\npeterstieg.com\n├── no tracking\n├── no cookies\n└── no framework");
 })();

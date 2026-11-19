@@ -688,7 +688,7 @@ Each content section is a `.sec`: heading left and body right on wide screens, s
   .sec > h2.stuck { border-bottom-color: var(--line); }
   .top.ext { border-bottom-color: transparent; }
   /* jump targets and focused links clear the stuck heading – Shift+Tab no longer hides a link behind it */
-  .role, .fnref a, .notes li, .sec .body :is(a[href], summary) { scroll-margin-top: 3.75rem; }
+  .role, .projects > li, .fnref a, .notes li, .sec .body :is(a[href], summary) { scroll-margin-top: 3.75rem; }
 }
 ```
 
@@ -710,7 +710,7 @@ On wide screens the heading column keeps the current heading in view. On phones 
   - `z-index: 3;` – sticky elements are positioned, so `z-index` applies. Positioned elements without a z-index are painted in document order, and the section body contains some: the tree items (`position: relative`, see the #JobAlert tree) come after the heading and would be painted over it as they scroll underneath. 3 keeps the bar above the content and below the header and the jump control (5).
 - `.sec > h2.stuck { border-bottom-color: var(--line); }` – `site.js` gives `.stuck` to the heading that currently sits at the header's lower edge (see [chapter 4](04-js.md)). Only that heading shows the hairline, at the bottom of the combined bar.
 - `.top.ext { border-bottom-color: transparent; }` – at the same time `site.js` gives the header `.ext`, and the header drops its own hairline: the bar has one line at its bottom instead of one in the middle. `.top.scrolled` sets the line with the same (0,2,0); this rule comes later in the file, so it wins while both classes are present.
-- `.role, .fnref a, .notes li, .sec .body :is(a[href], summary) { scroll-margin-top: 3.75rem; }` – targets *inside* a section: a role reached from the ledger, a footnote number reached from its back link `^`, a source reached from its footnote. Scroll padding alone would put them directly under the header – behind the stuck heading of their own section. `scroll-margin-top` is set on the target instead of the scroll container, and the browser adds the two: 3.5rem + 3.75rem = 7.25rem (116px). The bar ends at 108px (57 + 51), which leaves 8px of air (measured: `#posterlounge` lands at 116px, under the stuck "02 Experience"; checked again with the smaller phone paddings, 13.11.2026). The value grew with the heading: 3.25rem left the same 8px around the 20px heading.
+- `.role, .projects > li, .fnref a, .notes li, .sec .body :is(a[href], summary) { scroll-margin-top: 3.75rem; }` – targets *inside* a section: a role reached from the ledger or from the language switch, a project reached from the language switch (19.11.2026), a footnote number reached from its back link `^`, a source reached from its footnote. Scroll padding alone would put them directly under the header – behind the stuck heading of their own section. `scroll-margin-top` is set on the target instead of the scroll container, and the browser adds the two: 3.5rem + 3.75rem = 7.25rem (116px). The bar ends at 108px (57 + 51), which leaves 8px of air (measured: `#posterlounge` lands at 116px, under the stuck "02 Experience"; checked again with the smaller phone paddings, 13.11.2026). The value grew with the heading: 3.25rem left the same 8px around the 20px heading.
   - `.sec .body :is(a[href], summary)` – every link and every disclosure toggle in a section's content: the elements that take keyboard focus. When focus moves to an element outside the view, the browser scrolls it in, and it honours the same scroll margin. Without it, Shift+Tab upwards stopped on a link right under the header – behind the stuck bar: measured at 390 × 844, the Contact email link sat at y 75, the bar ends at 108 (WCAG 2.4.11, Focus Not Obscured). With it, the link lands at 121. `:is()` takes a list and matches any of it: `a[href]`, links with a target, and `summary`.
   - Sections themselves get no scroll margin: when a section has just been reached, its heading is still in the flow, not stuck.
 
@@ -1361,6 +1361,8 @@ On the four legal pages – `legal-notice.html`, `privacy.html`, `impressum.html
 }
 .torch-tag.on { opacity: 1; }
 .torch-tag span { padding: 0.2em 0.6em; border-radius: 999px; background: var(--lit); }   /* legible over the page's text */
+.torch-tag.on span { pointer-events: auto; cursor: pointer; }   /* a tap takes the step it names (site.js) */
+.prompt .sudo { cursor: pointer; -webkit-tap-highlight-color: transparent; }   /* tap or click: the torch (site.js) */
 @media (prefers-reduced-motion: reduce) { .torch, .torch.on { transition: none; } }
 
 /* ? – the shortcuts, in a card under the header's right end (site.js places it): what it does left, the key right */
@@ -1398,7 +1400,7 @@ The torch (chapter 4) lays a light over the page: a circle that follows the poin
 - `.torch` – the light:
   - `position: fixed;` – it moves with the pointer, not with the page. `site.js` places it with `transform: translate(…)`: a transform moves the drawing without a new layout, so following the pointer stays smooth.
   - `z-index: 4` – above the page, under the sticky header (5): the menu stays readable while the light passes it.
-  - `width: 320px; height: 320px; border-radius: 50%; overflow: hidden;` – a circle that clips what lies inside it. Pixels, not rem: the light's radius is a constant in `site.js` too (160).
+  - `width: 320px; height: 320px; border-radius: 50%; overflow: hidden;` – a circle that clips what lies inside it. Pixels, not rem: `site.js` computes with the radius in pixels. On a narrow screen it sets a smaller size inline – at most 60 % of the width, 234 px on a 390 px phone –, which overrides these values; 320 is the size until it does.
   - `background: var(--lit);` – the paper, lit (see the tokens).
   - `pointer-events: none;` – clicks pass through the light to the page underneath.
   - `opacity: 0; visibility: hidden;` with `transition: opacity 0.25s, visibility 0s 0.25s` – it fades out, and only then becomes `hidden`: the second transition waits 0.25 s (its delay) and takes 0 s. `.torch.on` sets `transition: opacity 0.25s` alone, so `visibility` switches to `visible` at once and the fade-in is seen.
@@ -1407,7 +1409,9 @@ The torch (chapter 4) lays a light over the page: a circle that follows the poin
 - `.torch-box` – one per block of text, at the block's position and size (`site.js` writes `left`, `top`, `width`, `height` and the font size, 60 % of the text's). In the monospace face, `white-space: pre-wrap` – line breaks in the code are kept, long lines still wrap –, `overflow-wrap: anywhere` – a long attribute may break anywhere, it would not fit otherwise.
 - `b`, `i`, `.ln` – the colours of the code: tag names and replacement fields `{…}` in the accent, attribute values and line numbers muted. `b` and `i` lose their bold and italic, they only carry the colour – short tags keep the generated markup small.
 - `.torch .g, .torch.deep .h { display: none; }` – each box holds both levels: `.h` the HTML, `.g` the lines of build.py. The class `deep` on the light decides which one shows. Switching levels changes one class; the boxes stay.
-- `.torch-tag` – the line under the light ("HTML · again: build.py"), small, in the accent. Its `span` sits on the lit paper, so it can be read over the page's text.
+- `.torch-tag` – the line under the light ("HTML · again: build.py"), small, in the accent. Its `span` sits on the lit paper, so it can be read over the page's text. The line is as wide as the light; `site.js` narrows both together.
+- `.torch-tag.on span { pointer-events: auto; cursor: pointer; }` – while the light is on, the words of the line take clicks and taps, though the line itself lets them through (`pointer-events: none` on `.torch-tag`). `pointer-events` is inherited, so the inner span can switch it back on. A tap takes the step the line names (since 19.11.2026): on a phone, the prompt with its `sudo` has long scrolled away. With a mouse the line runs ahead of the pointer and is never reached; the keyboard has `sudo` and Esc.
+- `.prompt .sudo` – the motto's first word in the hero takes a tap or click and switches the torch on (chapter 4). The pointer cursor is the only hint, and only for a mouse resting on the word. `-webkit-tap-highlight-color: transparent` – mobile Safari and Chrome flash a grey box over a tapped element; the light coming on is feedback enough.
 - Reduced motion: no fade.
 
 - `.keys` – the card that `?` or F1 opens, a `<dialog>` shown as a popover, laid out like the shortcut cards of Instagram or GitHub: a title with a close button, a line under it, then one row per shortcut – what it does on the left, the key on the right. `inset: auto; margin: 0;` undoes the browser's centring of popovers and dialogs; `site.js` places the card under the header's right end, below the theme switch, with `top` and `right`. `padding: 0` – the head and the list bring their own, so the line under the head runs from edge to edge. `border`, `background` and `color` replace the dialog defaults as well (a heavier frame, the system's canvas colours).

@@ -57,6 +57,7 @@ SECTIONS = [k for first, rest in CHAPTERS.items() for k in (first, *rest)]   # p
 # Footnotes: verification links (QR codes on the Liora diplomas, thekey.career, edX), plus course pages where they exist.
 # "title": one string, or one per language; "when": which date label (issued | completed), default issued;
 # "by": the organisation behind the credential, for the structured data (hasCredential → recognizedBy).
+# Videos carry "watch" instead of "verify": a German title, who published or aired it ("src"), when, where to watch ("on").
 NOTES = {
     "ds": {"title": "Data Scientist",
            "verify": "https://document-factory.datascientest.com/verify/3225d69a-a3b6-4bd2-bafe-df9381eff729",
@@ -72,6 +73,12 @@ NOTES = {
     "edx": {"title": "Introduction to Artificial Intelligence (Microsoft)",
             "verify": "https://courses.edx.org/certificates/e801d0f98e64454e8b81e052d1947108",
             "date": {"en": "12 June 2018", "de": "12. Juni 2018"}, "by": "Microsoft"},
+    "h42": {"title": "Hellinger 42 + Brandible: erfolgreiches Merchandise-Konzept", "src": "Brandible", "when": "published",
+            "date": {"en": "22 May 2024", "de": "22. Mai 2024"}, "on": "YouTube",
+            "watch": "https://www.youtube.com/watch?v=swBJnkVCTNM"},
+    "galileo": {"title": "Galileo X-Plorer: Inside EM – Die Sommermärchen-Macher", "src": "ProSieben", "when": "aired",
+                "date": {"en": "9 June 2024", "de": "9. Juni 2024"}, "on": "Joyn",
+                "watch": "https://www.joyn.de/play/serien/galileo-x-plorer/2024-15-inside-em-die-sommermaerchen-macher"},
 }
 
 # the ledger names a company, the name links to its role under Experience (role "id")
@@ -106,58 +113,62 @@ CONTENT = {
             ("Media budget €6k → €240k", "per month, at a RoAS of 4.0", "posterlounge"),
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Meta, LinkedIn; Amazon, Otto, Cdiscount. Optimized for RoAS, ACoS and cost per lead.",
-            "Tracking with Google Tag Manager, then Python, SQL, BigQuery and Data Studio. Internal web apps in Streamlit.",
-            "General: corporate identity from claim and logo to colours, type, signage, vehicle branding and workwear. "
-            "Online: websites, employer branding, mockups, vector graphics, videos. "
-            "Print: business cards, letterheads, employee ID cards, catalogues.",
-            "Teams of up to nine, from SEA to graphic design, including career changers from retail and fine arts.",
+            "Google Ads, Microsoft Advertising; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount. Optimized for RoAS, ACoS and CPL.",
+            "Google Tag Manager, then Python, SQL and BigQuery. Reports in Data Studio, Google Ads Scripts and Apps Script – "
+            "website performance, online marketing, telephony. Internal web apps in Streamlit.",
+            "Corporate identity from claim and logo to colours, type, signage, vehicle branding and workwear; "
+            "websites, employer branding, mockups, vector graphics, videos; business cards, letterheads, employee ID cards, catalogues.",
+            "International marketing teams of up to nine, from SEA, print and promotional products to graphic design, "
+            "including career changers from retail and fine arts.",
         ],
         "roles": [
             {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
              "tree": [("Team", "functional lead for content, marketing and project management"),
-                      ("Scope", "marketing, lead generation, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding"),
+                      ("Scope", "marketing, lead generation, design and automation, built from scratch – SEA, SEO, email marketing, events, employer branding"),
                       ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark")]},
-            {"when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
+            {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
              "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "containers, orchestration, tracking, APIs and monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "certified MLOps Engineer; capstone: the Rakuten text classifier as a production pipeline – training, tracking, serving, monitoring")]},
-            {"when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject", "url": "https://www.rapidobject.com/en/", "place": "",
+            {"id": "rapidobject", "when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject", "url": "https://www.rapidobject.com/en/", "place": "",
              "tree": [("Scope", "UI concepts, usability tests and pricing logic in Python; support for the marketing automation migration from "
                                 "ActiveCampaign to Salesforce; communication, mediation and translation between Rapidobject’s "
                                 "authorized signatories and its London partner AMFG"),
                       ("Result", "Salesforce dashboards, built into the sales process")]},
-            {"when": "02/2025 – 05/2025", "title": "Data Scientist training (full-time)",
+            {"id": "liora-ds", "when": "02/2025 – 05/2025", "title": "Data Scientist training (full-time)",
              "org": "Liora", "url": NOTES["ds"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "machine learning and deep learning with Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "certified Data Scientist; capstone: multimodal classification of e-commerce products with NLP and computer vision")]},
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B promotional products for Germany, Austria and Switzerland.",
              "tree": [("Team", "five – marketing, graphic design, project management"),
-                      ("Scope", "SEO, performance marketing and lead generation – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM, newsletters and marketing automation"),
+                      ("Scope", "SEO, performance marketing and lead generation – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM, newsletters and marketing automation; "
+                                "photo and video production – a customer testimonial with Hellinger 42[[h42]], a TV shoot for ProSieben’s Galileo[[galileo]]"),
                       ("Result", "RoAS 7.6 → 7.8 while spend grew; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
-            {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.com/", "place": "Leipzig",
+            {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.com/", "place": "Leipzig",
              "tree": [("Team", "nine – four in design, five in marketing"),
                       ("Scope", "e-commerce operations for discounted sporting goods in DE, COM, FR, IT, NL, ES and PL – email automation, Facebook, Instagram, WhatsApp, Telegram and affiliate marketing")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Art prints online in more than 15 European countries.",
              "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
-                      ("Scope", "SEA, SEO, marketplaces, social media, creator relations and print partnerships"),
+                      ("Scope", "SEA, SEO, marketplaces, social media, creator relations and print partnerships; "
+                                "cross-channel reporting with Google Ads Scripts and Apps Script"),
                       ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")],
              "path": ("Five positions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                            ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy"),
                                            ("07/2017", "SEO, freelance")])},
-            {"when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
+            {"id": "immobiliare", "when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
              "tree": [("Scope", "Google Ads and Microsoft Advertising; international marketing for portals such as LuxuryEstate")]},
-            {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rome",
+            {"id": "youniversal", "when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rome",
              "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social and native; lead generation, app install and retargeting campaigns")]},
-            {"when": "2013 – 2020", "title": "Freelance: websites, design, translation", "org": "Alongside employment",
+            {"id": "freelance", "when": "2013 – 2020", "title": "Freelance: websites, design, translation", "org": "Alongside employment",
              "tree": [("Scope", "WordPress websites incl. photography and copy in three languages; logos, catalogues and posters "
                                 "in Adobe Creative Cloud; translations via TextMaster"),
                       ("Result", "websites for a music school and a kiteboarding school in Rome")]},
-            {"when": "10/2010 – 09/2014", "title": "Marketing, market research, export", "org": "Six companies", "place": "Rome",
-             "tree": [("Scope", "export promotion and brand protection; competitive intelligence, OSINT, primary and secondary research; lead generation, web marketing")],
+            {"id": "rome-2010-2014", "when": "10/2010 – 09/2014", "title": "Marketing, market research, export", "org": "Six companies", "place": "Rome",
+             "tree": [("Scope", "web design, online marketing, lead generation; export promotion and brand protection; "
+                                "competitive intelligence, OSINT, primary and secondary research")],
              "positions": ("Six positions", [
                  ("09/2014", "Business Development Specialist", "3D2B", "http://www.3d2b.com/"),
                  ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
@@ -188,7 +199,8 @@ CONTENT = {
         ],
         "reach": ("Email", "Based in", "Leipzig"),
         "ask": "Questions about performance, pipelines, pixels or people:",
-        "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
+        "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text",
+                  "published": "published", "aired": "aired", "watch": "Watch on %s"},
         "imprint": "Legal notice", "privacy": "Privacy", "legal_desc": "%s for peterstieg.com",
         "lost": ("Page", "not found.", "Diese Seite gibt es nicht.", "start page"),
         "jobtitle": "Head of Marketing",
@@ -220,58 +232,62 @@ CONTENT = {
             ("Budget 6.000 → 240.000 €", "im Monat, bei einer KUR von 25 %", "posterlounge"),
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Meta, LinkedIn; Amazon, Otto, Cdiscount. Gesteuert über KUR, ACoS und Kosten je Lead.",
-            "Tracking mit Google Tag Manager, dann Python, SQL, BigQuery und Data Studio. Interne Web-Apps mit Streamlit.",
-            "Allgemein: Corporate Identity von Claim und Logo bis zu Farben, Schrift, Beschilderung, Fahrzeugbeschriftung und Arbeitskleidung. "
-            "Online: Websites, Employer Branding, Mockups, Vektorgrafiken, Videos. "
-            "Print: Visitenkarten, Briefvorlagen, Mitarbeiterausweise, Kataloge.",
-            "Teams mit bis zu neun Personen, von SEA bis Grafik, darunter Quereinsteiger aus Einzelhandel und bildender Kunst.",
+            "Google Ads, Microsoft Advertising; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount. Gesteuert über KUR, ACoS und CPL.",
+            "Google Tag Manager, dann Python, SQL und BigQuery. Reports mit Data Studio, Google Ads Scripts und Apps Script – "
+            "Website-Performance, Online-Marketing, Telefonie. Interne Web-Apps mit Streamlit.",
+            "Corporate Identity von Claim und Logo bis zu Farben, Schrift, Beschilderung, Fahrzeugbeschriftung und Arbeitskleidung; "
+            "Websites, Employer Branding, Mockups, Vektorgrafiken, Videos; Visitenkarten, Briefvorlagen, Mitarbeiterausweise, Kataloge.",
+            "Internationale Marketingteams mit bis zu neun Personen, von SEA über Print und Werbeartikel bis Grafik, "
+            "darunter Quereinsteiger aus Einzelhandel und bildender Kunst.",
         ],
         "roles": [
             {"id": "e-service-check", "when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-zertifizierte Prüfungen der elektrischen Sicherheit (DGUV V3/V4), bundesweit, 349 Mitarbeitende.",
              "tree": [("Team", "fachliche Führung in Content, Marketing und Projektmanagement"),
-                      ("Scope", "Marketing, Leadgenerierung, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, CRM, Events, Employer Branding"),
+                      ("Scope", "Marketing, Leadgenerierung, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, E-Mail-Marketing, Events, Employer Branding"),
                       ("Result", "Anfragen im Jahresvergleich mehr als verdoppelt; neue Corporate Identity samt Grundlage der EUIPO-Markenanmeldung")]},
-            {"when": "05/2025 – 07/2025", "title": "Weiterbildung MLOps Engineer (Vollzeit)",
+            {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "Weiterbildung MLOps Engineer (Vollzeit)",
              "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "zertifizierter MLOps Engineer; Abschlussprojekt: der Rakuten-Textklassifikator als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
-            {"when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject", "url": "https://www.rapidobject.com/", "place": "",
+            {"id": "rapidobject", "when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject", "url": "https://www.rapidobject.com/", "place": "",
              "tree": [("Scope", "UI-Konzeption, Usability-Tests und Preislogik in Python; Begleitung der Migration der Marketing Automation von "
                                 "ActiveCampaign zu Salesforce; Kommunikation, Vermittlung und Übersetzung zwischen den Prokuristen "
                                 "von Rapidobject und dem Londoner Partner AMFG"),
                       ("Result", "Salesforce-Dashboards, eingebunden in den Vertriebsprozess")]},
-            {"when": "02/2025 – 05/2025", "title": "Weiterbildung Data Scientist (Vollzeit)",
+            {"id": "liora-ds", "when": "02/2025 – 05/2025", "title": "Weiterbildung Data Scientist (Vollzeit)",
              "org": "Liora", "url": NOTES["ds"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Machine Learning und Deep Learning mit Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "zertifizierter Data Scientist; Abschlussprojekt: multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B-Werbeartikel für Deutschland, Österreich und die Schweiz.",
              "tree": [("Team", "fünf Personen – Marketing, Grafik, Projektmanagement"),
-                      ("Scope", "SEO, Performance Marketing und Leadgenerierung – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM, Newsletter und Marketing Automation"),
+                      ("Scope", "SEO, Performance Marketing und Leadgenerierung – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM, Newsletter und Marketing Automation; "
+                                "Foto- und Videoproduktion – ein Kundentestimonial mit Hellinger 42[[h42]], ein TV-Dreh für Galileo auf ProSieben[[galileo]]"),
                       ("Result", "KUR 13,2 → 12,8 % bei ausgebautem Budget; Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %")]},
-            {"when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.de/", "place": "Leipzig",
+            {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.de/", "place": "Leipzig",
              "tree": [("Team", "neun Personen – vier im Design, fünf im Marketing"),
                       ("Scope", "E-Commerce-Betrieb für Sportartikel im Rabattsegment in DE, COM, FR, IT, NL, ES und PL – E-Mail-Automatisierung, Facebook, Instagram, WhatsApp, Telegram und Affiliate Marketing")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Kunstdrucke online in über 15 europäischen Ländern.",
              "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
-                      ("Scope", "SEA, SEO, Marktplätze, Social Media, Creator Relations und Print-Kooperationen"),
+                      ("Scope", "SEA, SEO, Marktplätze, Social Media, Creator Relations und Print-Kooperationen; "
+                                "kanalübergreifendes Reporting mit Google Ads Scripts und Apps Script"),
                       ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")],
              "path": ("Fünf Stationen", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                              ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italien"),
                                              ("07/2017", "SEO, freiberuflich")])},
-            {"when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/", "place": "Rom",
+            {"id": "immobiliare", "when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/", "place": "Rom",
              "tree": [("Scope", "Google Ads und Microsoft Advertising; internationales Marketing für Portale wie LuxuryEstate")]},
-            {"when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rom",
+            {"id": "youniversal", "when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rom",
              "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social und Native; Leadgenerierung, App-Install- und Retargeting-Kampagnen")]},
-            {"when": "2013 – 2020", "title": "Freiberuflich: Websites, Design, Übersetzung", "org": "Neben der Anstellung",
+            {"id": "freiberuflich", "when": "2013 – 2020", "title": "Freiberuflich: Websites, Design, Übersetzung", "org": "Neben der Anstellung",
              "tree": [("Scope", "WordPress-Websites inkl. Fotografie und Texten in drei Sprachen; Logos, Kataloge und Plakate "
                                 "mit Adobe Creative Cloud; Übersetzungen über TextMaster"),
                       ("Result", "Websites für eine Musikschule und eine Kiteboarding-Schule in Rom")]},
-            {"when": "10/2010 – 09/2014", "title": "Marketing, Marktforschung, Export", "org": "Sechs Unternehmen", "place": "Rom",
-             "tree": [("Scope", "Exportförderung und Brand Protection; Competitive Intelligence, OSINT, Primär- und Sekundärforschung; Leadgenerierung, Web Marketing")],
+            {"id": "rom-2010-2014", "when": "10/2010 – 09/2014", "title": "Marketing, Marktforschung, Export", "org": "Sechs Unternehmen", "place": "Rom",
+             "tree": [("Scope", "Webdesign, Online-Marketing, Leadgenerierung; Exportförderung und Brand Protection; "
+                                "Competitive Intelligence, OSINT, Primär- und Sekundärforschung")],
              "positions": ("Sechs Stationen", [
                  ("09/2014", "Business Development Specialist", "3D2B", "http://www.3d2b.com/"),
                  ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
@@ -302,7 +318,8 @@ CONTENT = {
         ],
         "reach": ("E-Mail", "Wohnort", "Leipzig"),
         "ask": "Fragen zu Performance, Pipelines, Pixels oder People:",
-        "notes": {"issued": "ausgestellt am", "completed": "abgeschlossen am", "verify": "Nachweis prüfen", "course": "Kursseite", "back": "Zurück zum Text"},
+        "notes": {"issued": "ausgestellt am", "completed": "abgeschlossen am", "verify": "Nachweis prüfen", "course": "Kursseite", "back": "Zurück zum Text",
+                  "published": "veröffentlicht am", "aired": "ausgestrahlt am", "watch": "Bei %s ansehen"},
         "imprint": "Impressum", "privacy": "Datenschutz", "legal_desc": "%s von peterstieg.com",
         "lost": ("Seite", "nicht gefunden.", "This page does not exist.", "Startseite"),
         "jobtitle": "Leiter Marketing",
@@ -380,6 +397,23 @@ def sid(c, key):
     return c.get("ids", {}).get(key, key)
 
 
+def slugify(text):
+    """An id from a name: lower case, umlauts spelt out, everything else one hyphen ("PRUEF+CHECK" → "pruef-check")."""
+    text = text.lower().translate(str.maketrans({"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"}))
+    return re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+
+
+def twins(c, o):
+    """Block ids on start page c → the same block's id on start page o, where they differ: the sections, every role,
+    every project. The language switch carries the map; site.js opens the other page at the block being read."""
+    projects = lambda x: [slugify(name) for _, items in x["groups"] for name, *_ in items]
+    assert len(c["roles"]) == len(o["roles"]) and len(projects(c)) == len(projects(o)), "EN and DE must list the same blocks"
+    pairs = [(sid(c, k), sid(o, k)) for k in SECTIONS] + [(a["id"], b["id"]) for a, b in zip(c["roles"], o["roles"])]
+    pairs += list(zip(projects(c), projects(o)))
+    assert all(re.fullmatch(r"[a-z0-9-]+", x) for pair in pairs for x in pair)   # safe inside a quoted attribute as they are
+    return {a: b for a, b in pairs if a != b}
+
+
 def note_title(c, note):
     """A footnote's title in the page language – NOTES titles are a string or one per language."""
     return note["title"][c["lang"]] if isinstance(note["title"], dict) else note["title"]
@@ -451,9 +485,10 @@ def script(r):
     return f'<script src="{r}assets/site.js?v={VERSION["site.js"]}" defer></script>\n'
 
 
-def lang_switch(c, paths=None):
+def lang_switch(c, paths=None, start=False):
     """EN · DE – the current language is marked, the other links to the same page in that language.
-    paths: code → path from the site root; without it, the start pages."""
+    paths: code → path from the site root; without it, the start pages. start: on a start page the link carries the
+    map of block ids (twins), so site.js can open the other page where the reader is."""
     r = c["root"]
     paths = paths or {code: path for code, _, _, path, _ in LANGS}
     items = []
@@ -461,7 +496,8 @@ def lang_switch(c, paths=None):
         if code == c["lang"]:
             items.append(f'<span aria-current="page" title="{name}">{label}</span>')
         else:
-            items.append(f'<a href="{r}{paths[code]}" hreflang="{code}" lang="{code}" title="{name}">{label}</a>')
+            tw = f" data-twins='{json.dumps(twins(c, CONTENT[code]), separators=(',', ':'))}'" if start else ""
+            items.append(f'<a href="{r}{paths[code]}" hreflang="{code}" lang="{code}" title="{name}"{tw}>{label}</a>')
     return f'<span class="langs" role="group" aria-label="{e(c["aria_lang"])}">{" ".join(items)}</span>'
 
 
@@ -483,7 +519,7 @@ def topbar(c, start=True, langs=True):
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
     links = "\n".join(f'<a class="sect" href="{to}#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
                      f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"])
-    switch = lang_switch(c, langs if isinstance(langs, dict) else None) if langs else ""
+    switch = lang_switch(c, langs if isinstance(langs, dict) else None, start) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
     word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if start else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
@@ -530,7 +566,7 @@ def jsonld(c):
         "hasCredential": [
             {"@type": "EducationalOccupationalCredential", "name": note_title(c, n), "url": n["verify"],
              "recognizedBy": {"@type": "Organization", "name": n["by"]}}
-            for n in NOTES.values()
+            for n in NOTES.values() if n.get("verify")
         ],
     }
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>\n"
@@ -685,7 +721,7 @@ def page(c):
 <h1>{NAME}</h1>
 <p class="tagline" lang="en">{TAGLINE.replace("Performance Marketing", "Performance&nbsp;Marketing").replace("Data Science", "Data&nbsp;Science")}</p>
 <p class="claim" lang="en">{CLAIM}</p>
-<p class="prompt" lang="en"><span class="caret" aria-hidden="true">&gt;_</span><span class="cmd" aria-hidden="true">{MOTTO}</span><span class="sr-only">{MOTTO}</span><span class="cursor" aria-hidden="true"></span></p>
+<p class="prompt" lang="en"><span class="caret" aria-hidden="true">&gt;_</span><span class="cmd" aria-hidden="true">{MOTTO.replace("sudo", '<span class="sudo">sudo</span>', 1)}</span><span class="sr-only">{MOTTO}</span><span class="cursor" aria-hidden="true"></span></p>
 </section>
 """)
 
@@ -711,9 +747,9 @@ def page(c):
     # experience – each role as a #JobAlert-style tree
     roles = []
     for ro in c["roles"]:
-        rid = f' id="{ro["id"]}"' if ro.get("id") else ""     # the ledger links here
-        roles.append(f'<li class="role"{rid}>\n{role(c, ro)}</li>\n')
-    out.append(section(c, "experience", e(s["experience"]), f'<ol class="roles" reversed>\n{"".join(roles)}</ol>\n'))
+        roles.append(f'<li class="role" id="{ro["id"]}">\n{role(c, ro)}</li>\n')   # the ledger and the language switch land here
+    roles = re.sub(r"\[\[(\w+)\]\]", fn, "".join(roles))       # a role's tree may cite a source, as Education does
+    out.append(section(c, "experience", e(s["experience"]), f'<ol class="roles" reversed>\n{roles}</ol>\n'))
 
     # education – certificates carry footnotes
     fa = []
@@ -732,7 +768,7 @@ def page(c):
         lis = []
         for name, text, stack, links in items:
             ln = "".join(f' · {offsite(c, url, e(label))}' for label, url in links)
-            lis.append(f'<li><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
+            lis.append(f'<li id="{slugify(name)}"><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
         groups.append(f'<div class="group"><h3>{e(gt)}</h3>\n<ul class="projects">\n{"".join(lis)}</ul></div>\n')
     out.append(section(c, "projects", e(s["projects"]), "".join(groups)))
 
@@ -753,10 +789,15 @@ def page(c):
     notes = []
     for key in order:
         n = NOTES[key]
+        back = f'<li id="fn-{key}"><a class="back" href="#ref-{key}" aria-label="{e(nl["back"])}">^</a> '
+        if n.get("watch"):                             # a video: its German title, who and when, where to watch it
+            de, hl = (' lang="de"' if L != "de" else ""), ' hreflang="de"'
+            notes.append(f'{back}<cite{de}>{e(n["title"])}</cite> · {e(n["src"])} · {e(nl[n["when"]])} {e(n["date"][L])} · '
+                         f'{offsite(c, n["watch"], e(nl["watch"] % n["on"]), hl)}</li>\n')
+            continue
         en = ' hreflang="en"'                          # the course pages are English
         course = f' · {offsite(c, n["course"], e(nl["course"]), en)}' if n.get("course") else ""
-        notes.append(f'<li id="fn-{key}"><a class="back" href="#ref-{key}" aria-label="{e(nl["back"])}">^</a> '
-                     f'{e(note_title(c, n))} · {e(nl[n.get("when", "issued")])} {e(n["date"][L])} · '
+        notes.append(f'{back}{e(note_title(c, n))} · {e(nl[n.get("when", "issued")])} {e(n["date"][L])} · '
                      f'{offsite(c, n["verify"], e(nl["verify"]))}{course}</li>\n')
     out.append(section(c, "notes", e(s["notes"]), f'<ol class="notes">\n{"".join(notes)}</ol>\n'))
 
@@ -798,7 +839,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 <h2>Kontakt per E-Mail</h2>
 <p>Wenn Sie eine E-Mail schreiben, werden Ihre Angaben verarbeitet, um die Anfrage zu beantworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Die Daten werden gelöscht, sobald sie dafür nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
 <h2>Links zu anderen Plattformen</h2>
-<p>Die Seite verlinkt auf LinkedIn, GitHub, eine Karte bei OpenStreetMap, die Kursseiten von Liora, die Nachweisseiten von DataScientest, thekey.career und edX, die Demos der Abschlussprojekte bei Streamlit sowie die Websites früherer und heutiger Arbeitgeber. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
+<p>Die Seite verlinkt auf LinkedIn, GitHub, eine Karte bei OpenStreetMap, die Kursseiten von Liora, die Nachweisseiten von DataScientest, thekey.career und edX, die Demos der Abschlussprojekte bei Streamlit, ein Kundenvideo bei YouTube, eine TV-Folge bei Joyn sowie die Websites früherer und heutiger Arbeitgeber. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
 <h2>Ihre Rechte</h2>
 <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Einer Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO können Sie widersprechen (Art. 21). Außerdem können Sie sich bei einer Datenschutz-Aufsichtsbehörde beschweren, etwa bei der zuständigen Behörde Ihres Bundeslandes.</p>
 """
@@ -828,7 +869,7 @@ PRIVACY_EN = f"""<h1>Privacy policy</h1>
 <h2>Contact by email</h2>
 <p>If you write an email, the details you provide are processed to answer your inquiry (Art. 6(1)(b) or (f) GDPR). The data is deleted as soon as it is no longer needed for this purpose, unless statutory retention obligations apply.</p>
 <h2>Links to other platforms</h2>
-<p>The site links to LinkedIn, GitHub, a map on OpenStreetMap, the course pages of Liora, the verification pages of DataScientest, thekey.career and edX, the demos of the capstone projects on Streamlit, and the websites of former and current employers. Only when you follow one of these links do the respective providers process data, under their own privacy policies.</p>
+<p>The site links to LinkedIn, GitHub, a map on OpenStreetMap, the course pages of Liora, the verification pages of DataScientest, thekey.career and edX, the demos of the capstone projects on Streamlit, a customer video on YouTube, a TV episode on Joyn, and the websites of former and current employers. Only when you follow one of these links do the respective providers process data, under their own privacy policies.</p>
 <h2>Your rights</h2>
 <p>You have the right of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18) and data portability (Art. 20). You can object to processing based on Art. 6(1)(f) GDPR (Art. 21). You can also lodge a complaint with a data protection supervisory authority, for example the one responsible where you live.</p>
 """
@@ -908,8 +949,9 @@ TORCH = [
     (".facts:has(a[href^='mailto:']) dt, .facts:has(a[href^='mailto:']) dd", "contact += '<dl class=\"facts\">", 1),
     (".facts dt, .facts dd", 'fa.append(f"<div><dt>', 1),
     (".group > h3", "groups.append(f'<div class=\"group\"><h3>", 1),
-    (".projects h4, .projects p", "lis.append(f'<li><h4>", 1),
-    (".notes li", "notes.append(f'<li id=\"fn-{key}\">", 3),
+    (".projects h4, .projects p", "lis.append(f'<li id=", 1),
+    (".notes li:has(cite)", "if n.get(\"watch\"):", 5),
+    (".notes li", "back = f'<li id=\"fn-{key}\">", 1),
     (".lost .code", '<p class="code">404</p>', 1),
     (".lost h1", '<h1><code class="dki">', 1),
     (".lost .claim", '<p class="claim" lang="{other[0]}">', 1),
