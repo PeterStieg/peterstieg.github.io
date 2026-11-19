@@ -178,6 +178,7 @@ SECTIONS = [k for first, rest in CHAPTERS.items() for k in (first, *rest)]   # p
 # Footnotes: verification links (QR codes on the Liora diplomas, thekey.career, edX), plus course pages where they exist.
 # "title": one string, or one per language; "when": which date label (issued | completed), default issued;
 # "by": the organisation behind the credential, for the structured data (hasCredential → recognizedBy).
+# Videos carry "watch" instead of "verify": a German title, who published or aired it ("src"), when, where to watch ("on").
 NOTES = {
     "ds": {"title": "Data Scientist",
            "verify": "https://document-factory.datascientest.com/verify/3225d69a-a3b6-4bd2-bafe-df9381eff729",
@@ -193,6 +194,12 @@ NOTES = {
     "edx": {"title": "Introduction to Artificial Intelligence (Microsoft)",
             "verify": "https://courses.edx.org/certificates/e801d0f98e64454e8b81e052d1947108",
             "date": {"en": "12 June 2018", "de": "12. Juni 2018"}, "by": "Microsoft"},
+    "h42": {"title": "Hellinger 42 + Brandible: erfolgreiches Merchandise-Konzept", "src": "Brandible", "when": "published",
+            "date": {"en": "22 May 2024", "de": "22. Mai 2024"}, "on": "YouTube",
+            "watch": "https://www.youtube.com/watch?v=swBJnkVCTNM"},
+    "galileo": {"title": "Galileo X-Plorer: Inside EM – Die Sommermärchen-Macher", "src": "ProSieben", "when": "aired",
+                "date": {"en": "9 June 2024", "de": "9. Juni 2024"}, "on": "Joyn",
+                "watch": "https://www.joyn.de/play/serien/galileo-x-plorer/2024-15-inside-em-die-sommermaerchen-macher"},
 }
 
 # the ledger names a company, the name links to its role under Experience (role "id")
@@ -202,7 +209,8 @@ STACK_DS = "Python · Keras · PyTorch · Google Cloud"
 STACK_MLOPS = "Docker · Airflow · MLflow · FastAPI · Grafana"
 ```
 
-- `NOTES` – a dict of dicts. The outer key (`"ds"`, `"mlops"`, `"ihk"`, `"edx"`) is the footnote ID: it appears in the `[[ds]]` markers in the copy and in the HTML ids `fn-ds` and `ref-ds`.
+- `NOTES` – a dict of dicts. The outer key (`"ds"`, `"mlops"`, `"ihk"`, `"edx"`, `"h42"`, `"galileo"`) is the footnote ID: it appears in the `[[ds]]` markers in the copy and in the HTML ids `fn-ds` and `ref-ds`.
+- Two kinds of note. Four are credentials, with `verify`. Two are videos, with `watch`, cited from Brandible's Scope (since 19.11.2026): the customer testimonial with Hellinger 42 on Brandible's YouTube channel, and the Galileo episode on ProSieben, on demand at Joyn. The Sources loop in `page()` tells them apart by `watch` (section 25).
 - Inner keys:
   - `title` – the credential's name. One string when it is the same in both languages, a dict with one string per language when not (the IHK certificate). `note_title()` (section 12) picks the right one.
   - `verify` – the verification page: the URL behind the QR code on the Liora diplomas, the certificate pages on thekey.career and edX.
@@ -210,8 +218,9 @@ STACK_MLOPS = "Docker · Airflow · MLflow · FastAPI · Grafana"
   - `date` – one preformatted string per language.
   - `when` – which label goes before the date. Optional, default `"issued"`. The IHK page says the course was *completed* on that date, so its entry says `"completed"`; the label text itself lives in `CONTENT[lang]["notes"]`.
   - `by` – the organisation behind the credential, for the structured data (section 19).
+  - Video notes instead: `title` – the video's own title, German on both pages; `src` – who published or aired it; `when` – `"published"` or `"aired"`; `on` – the platform the link leads to; `watch` – the link.
 - Why preformatted dates instead of `date` objects: Python's month names (`%B` in `strftime`) follow the system locale, and switching to a German locale depends on what the machine has installed. Two literal strings avoid that entirely.
-- `NOTES` feeds both the visible footnotes in `page()` and the credentials in `jsonld()` – one source, two outputs.
+- `NOTES` feeds both the visible footnotes in `page()` and the credentials in `jsonld()` – one source, two outputs. The videos are no credentials: `jsonld()` takes only the notes with `verify`.
 - `COMPANIES` – the companies the results ledger names. Each key does two jobs: it looks up the display name, and it is the HTML id of that company's role under Experience (`#posterlounge`), so the name in the ledger becomes a link to the role. The names are the same in both languages, so they live outside `CONTENT`, and each is spelled once instead of once per ledger row.
 - `STACK_DS`, `STACK_MLOPS` – the tool lines of the two capstone projects. They are the same in both languages, so they are defined once and referenced from both dictionaries.
 
@@ -247,7 +256,7 @@ CONTENT = {
             …
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Meta, LinkedIn; Amazon, Otto, Cdiscount. …",
+            "Google Ads, Microsoft Advertising; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount. …",
             …
         ],
         "roles": [
@@ -256,7 +265,7 @@ CONTENT = {
              "tree": [("Team", "…"),
                       ("Scope", "…"),
                       ("Result", "…")]},
-            {"when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
+            {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
              "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "…"),
                       ("Result", "…")]},
@@ -269,13 +278,13 @@ CONTENT = {
              "path": ("Five positions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                            ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy"),
                                            ("07/2017", "SEO, freelance")])},
-            {"when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
+            {"id": "immobiliare", "when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
              "tree": [("Scope", "…")]},
             …
-            {"when": "2013 – 2020", "title": "Freelance: websites, design, translation", "org": "Alongside employment",
+            {"id": "freelance", "when": "2013 – 2020", "title": "Freelance: websites, design, translation", "org": "Alongside employment",
              "tree": [("Scope", "…"),
                       ("Result", "…")]},
-            {"when": "10/2010 – 09/2014", "title": "Marketing, market research, export", "org": "Six companies", "place": "Rome",
+            {"id": "rome-2010-2014", "when": "10/2010 – 09/2014", "title": "Marketing, market research, export", "org": "Six companies", "place": "Rome",
              "tree": [("Scope", "…")],
              "positions": ("Six positions", [
                  ("09/2014", "Business Development Specialist", "3D2B", "http://www.3d2b.com/"),
@@ -302,7 +311,8 @@ CONTENT = {
         ],
         "reach": ("Email", "Based in", "Leipzig"),
         "ask": "Questions about performance, pipelines, pixels or people:",
-        "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text"},
+        "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text",
+                  "published": "published", "aired": "aired", "watch": "Watch on %s"},
         "imprint": "Legal notice", "privacy": "Privacy", "legal_desc": "%s for peterstieg.com",
         "lost": ("Page", "not found.", "Diese Seite gibt es nicht.", "start page"),
         "jobtitle": "Head of Marketing",
@@ -361,7 +371,7 @@ Interface labels:
 | `skip` | str | text of the skip link |
 | `nav` | list of (id, label) | header links |
 | `sec` | dict | section headings, keyed by internal section name |
-| `notes` | dict | labels in the Sources list, incl. the two date labels `issued` and `completed` |
+| `notes` | dict | labels in the Sources list, incl. the date labels `issued`, `completed`, `published` and `aired`, and `watch` – the link text of a video note, `%s` the platform ("Watch on YouTube", "Bei Joyn ansehen") |
 | `imprint`, `privacy` | str | footer links |
 | `lost` | 4-tuple | the 404 page in this language: the word inside `{KeyWord:…}`, the rest of the heading, the line in the other language, the name of the start page that screen readers hear after `cd ~` (`not_found()`, section 27) |
 
@@ -381,7 +391,7 @@ Copy:
 | `profile` | str | the profile paragraph |
 | `ledger_label`, `ledger` | str, list of (figure, context, company key) | the results list in the profile; the key looks up the name in `COMPANIES` and links to the role with that `id` |
 | `fields` | list of 4 str | the P⁴ section, paired with `P4` |
-| `roles` | list of dicts | Experience: `id` (optional: the anchor the ledger links to), `when` (`"MM/YYYY – MM/YYYY"`; `"since MM/YYYY"` for the role that is still running; `"YYYY – YYYY"` with years only – `months()` reads the dates), `title`, `org` (the name without legal form), `url` (optional: the company's website – for the two trainings the course page –, behind the name, in a new tab), `with` (optional: a partner named after the link, outside it – the Sorbonne for the two trainings), `place` (optional, may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (start `"MM/YYYY"`, title)), newest first – the steps within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts), `positions` (optional: (label, list of (dates, title, company, url – `""` without one)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates: a range `"MM/YYYY – MM/YYYY"` or a single month `"MM/YYYY"`) |
+| `roles` | list of dicts | Experience: `id` (the anchor of the role: the ledger links to it, the language switch lands on it – every role has one since 19.11.2026), `when` (`"MM/YYYY – MM/YYYY"`; `"since MM/YYYY"` for the role that is still running; `"YYYY – YYYY"` with years only – `months()` reads the dates), `title`, `org` (the name without legal form), `url` (optional: the company's website – for the two trainings the course page –, behind the name, in a new tab), `with` (optional: a partner named after the link, outside it – the Sorbonne for the two trainings), `place` (optional, may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `path` (optional: (label, list of (start `"MM/YYYY"`, title)), newest first – the steps within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts), `positions` (optional: (label, list of (dates, title, company, url – `""` without one)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates: a range `"MM/YYYY – MM/YYYY"` or a single month `"MM/YYYY"`) |
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link; each link opens in a new tab |
 | `facts` | list of (label, value, sub-line or `""`) | Education; the value is a string, or a list of strings shown one per line (the languages) |
 | `reach` | 3-tuple | Contact: the label for the mail row, the label for the place row, the place – in German "E-Mail", "Wohnort" |
@@ -392,10 +402,10 @@ Copy:
 - Same keys, same shapes, same number and order of list items. The only key that exists in one language and not the other is `ids` – English uses the internal keys directly as anchors.
 - Localized, not translated: German uses KUR, English RoAS (rule 2), job titles follow German usage ("Leiter Marketing"), number formats follow each language ("6.000 → 240.000 €" vs "€6k → €240k"), and trade terms follow each language's habit – "marketing automation" (Brandible, Rapidobject) is "Marketing Automation" in German, the English term German marketing uses, capitalized as a German noun. The two trainings follow each language's word order: "MLOps Engineer training (full-time)", "Weiterbildung MLOps Engineer (Vollzeit)".
 - English inside German: the tree labels `"Team"`, `"Scope"` and `"Result"` stay English in the DE dict (rule 5). Every role uses the same three, in that order, wherever there is something to say – a role without a team simply has no `"Team"` row.
-- Not localized at all: the company keys at the end of each `ledger` entry and the role `id`s they point to. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates.
+- Not localized: the company keys at the end of each `ledger` entry and the role `id`s that name a company or a course. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates. The two roles named after what they were get a German id on the German page: `#freelance` / `#freiberuflich`, `#rome-2010-2014` / `#rom-2010-2014`. The project ids come from the project names (`slugify()`, section 12), so they follow the language: `#customer-portal` / `#kundenportal`.
 - Nested lists mirror too: the five rows under `"path"` and the six positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Five positions", "Fünf Stationen"; "Six positions", "Sechs Stationen") and follow one pattern, number and noun. The promotions keep their titles in both, because they are the titles that were held – only the market in "SEO Manager Italy", "SEO Manager Italien", and the freelance row, "SEO, freelance", "SEO, freiberuflich", are localized. The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical.
 - One value differs on purpose: Immobiliare.it's `url`, the portal's English page on the English page, its Italian home page on the German one.
-- Nothing checks parity. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A missing list item – a role or project only added in EN – is silent: the German page simply shows one entry fewer. Edit both languages in the same sitting.
+- Parity is checked in part. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A role or project only added in EN stops the build: `twins()` (section 12) pairs them by position and asserts that both pages list as many. Other lists – a fact, a P⁴ text – are not checked: the German page simply shows one entry fewer. Edit both languages in the same sitting.
 - Quick parity check from the repository root (importing does not build anything, see section 30):
 
   ```
@@ -410,10 +420,10 @@ Copy:
 |---|---|---|---|
 | `→` | `"€6k → €240k"` | a drawn SVG arrow, its word kept as visually hidden text | `t()` |
 | `*word*` | `"[*marketer* × *tinkerer*]"` | `<i>word</i>` – words cited as words, like in a dictionary | `t()` |
-| `[[key]]` | `"Data Scientist[[ds]]"` | a numbered footnote reference to `NOTES[key]` | regex in `page()`, education section |
+| `[[key]]` | `"Data Scientist[[ds]]"` | a numbered footnote reference to `NOTES[key]` | regex in `page()`, experience and education sections |
 | ` · ` | `"Python · BigQuery · Data Studio"` | a middle dot glued to the word before it | `dots()` |
 
-Pitfall: the markers only work where the code runs the text through the matching function. `t()` handles `entry["ety"]`, the first item of each `ledger` entry and the values in each role's `tree`. The `[[…]]` regex runs only on the middle value of each `facts` tuple, and only when that value is a string – the items of a list go through `e()` alone. Everywhere else – `profile`, `fields`, `people_note`, `ctx`, `path`, `positions`, `groups`, `approach` – the text only goes through `e()`: asterisks stay visible and `→` stays a plain character in a fallback font.
+Pitfall: the markers only work where the code runs the text through the matching function. `t()` handles `entry["ety"]`, the first item of each `ledger` entry and the values in each role's `tree`. The `[[…]]` regex runs on the finished roles – so on every role's `tree` text, where Brandible's Scope cites the two videos – and on the middle value of each `facts` tuple, when that value is a string; the items of a list go through `e()` alone. Everywhere else – `profile`, `fields`, `people_note`, `ctx`, `path`, `positions`, `groups`, `approach` – the text only goes through `e()`: asterisks stay visible and `→` stays a plain character in a fallback font.
 
 ---
 
@@ -594,7 +604,7 @@ LOCKUP = re.sub(r"<svg ([^>]*)>(.*)</svg>",
 
 ---
 
-## 12 · sid and num
+## 12 · sid, num, slugify and twins
 
 ```python
 def sid(c, key):
@@ -634,6 +644,39 @@ def note_title(c, note):
 - `if key == first or key in rest` – the section opens this chapter or belongs to it. `num("fields")` and `num("profile")` both return `"01"`.
 - `:02d` – a format spec: an integer (`d`), at least two digits wide, padded with zeros (`0`). 1 becomes `01`.
 - `return ""` – after the loop: a section in no chapter. None exists today; the empty string keeps `chapter_no()` (section 21) working if one is added.
+
+`slugify` and `twins` give the language switch something to land on (since 19.11.2026):
+
+```python
+def slugify(text):
+    """An id from a name: lower case, umlauts spelt out, everything else one hyphen ("PRUEF+CHECK" → "pruef-check")."""
+    text = text.lower().translate(str.maketrans({"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"}))
+    return re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+
+
+def twins(c, o):
+    """Block ids on start page c → the same block's id on start page o, where they differ: the sections, every role,
+    every project. The language switch carries the map; site.js opens the other page at the block being read."""
+    projects = lambda x: [slugify(name) for _, items in x["groups"] for name, *_ in items]
+    assert len(c["roles"]) == len(o["roles"]) and len(projects(c)) == len(projects(o)), "EN and DE must list the same blocks"
+    pairs = [(sid(c, k), sid(o, k)) for k in SECTIONS] + [(a["id"], b["id"]) for a, b in zip(c["roles"], o["roles"])]
+    pairs += list(zip(projects(c), projects(o)))
+    assert all(re.fullmatch(r"[a-z0-9-]+", x) for pair in pairs for x in pair)   # safe inside a quoted attribute as they are
+    return {a: b for a, b in pairs if a != b}
+```
+
+- `slugify(text)` – an id from a name, for the projects: "Customer portal" → `customer-portal`, "Kundenportal" → `kundenportal`, "PRUEF+CHECK" → `pruef-check`.
+  - `str.maketrans({…})` plus `translate()` – replaces single characters by strings in one pass: ä → ae, ö → oe, ü → ue, ß → ss, as German spells them without umlauts. Lower case first, so capital umlauts need no entries.
+  - `re.sub(r"[^a-z0-9]+", "-", text)` – every run of anything else – spaces, `+`, `·` – becomes one hyphen. `.strip("-")` drops hyphens at either end.
+  - Not called `slug`: `page()` already has a local variable of that name, the page's URL slug (section 25). Inside `page()` the local name would hide the function – `'str' object is not callable`.
+- `twins(c, o)` – which block on page `o` is the same as each block on page `c`. Three kinds of block:
+  - the sections: `sid()` gives each one's id in both languages – `experience` and `stationen`;
+  - the roles: paired by position, since both dicts list them in the same order (section 8);
+  - the projects: their names slugified, the list flattened across the groups and paired by position. `for name, *_ in items` – the name, and the rest of the tuple into `_`, a throwaway.
+- `projects = lambda x: …` – a function in one expression, named for the two calls on the next lines.
+- `assert` – both pages must list as many roles and as many projects, or the pairs would shift. A failed assert stops the build with the message.
+- The second `assert` – every id only lower-case letters, digits and hyphens: the map goes into a single-quoted HTML attribute without escaping (section 15), so nothing in it may end the attribute or start an entity. `re.fullmatch` – the whole string must match, not just a part of it.
+- `{a: b for a, b in pairs if a != b}` – a dict comprehension that keeps only the ids that differ. Most role ids are company names, the same on both pages; `site.js` falls back to the id itself when the map has no entry. The map stays short: 14 entries instead of 31.
 
 ---
 
@@ -770,9 +813,10 @@ def script(r):
 - `VERSION["site.js"]` – double quotes inside, because the f-string is delimited by single quotes (section 13).
 
 ```python
-def lang_switch(c, paths=None):
+def lang_switch(c, paths=None, start=False):
     """EN · DE – the current language is marked, the other links to the same page in that language.
-    paths: code → path from the site root; without it, the start pages."""
+    paths: code → path from the site root; without it, the start pages. start: on a start page the link carries the
+    map of block ids (twins), so site.js can open the other page where the reader is."""
     r = c["root"]
     paths = paths or {code: path for code, _, _, path, _ in LANGS}
     items = []
@@ -780,7 +824,8 @@ def lang_switch(c, paths=None):
         if code == c["lang"]:
             items.append(f'<span aria-current="page" title="{name}">{label}</span>')
         else:
-            items.append(f'<a href="{r}{paths[code]}" hreflang="{code}" lang="{code}" title="{name}">{label}</a>')
+            tw = f" data-twins='{json.dumps(twins(c, CONTENT[code]), separators=(',', ':'))}'" if start else ""
+            items.append(f'<a href="{r}{paths[code]}" hreflang="{code}" lang="{code}" title="{name}"{tw}>{label}</a>')
     return f'<span class="langs" role="group" aria-label="{e(c["aria_lang"])}">{" ".join(items)}</span>'
 ```
 
@@ -791,6 +836,10 @@ def lang_switch(c, paths=None):
 - `for code, label, name, _, _ in LANGS` – full unpacking; path and slug are not needed here – the path comes from `paths`.
 - Current language: a `<span>`, not a link – a link to the page you are on is noise. `aria-current="page"` tells screen readers "this is the current one"; the CSS rule `.langs [aria-current]` sets it in bold.
 - Other languages: `<a href="{r}{paths[code]}">` – from the English start page `de/index.html`, from the German one `../index.html`, from `legal-notice.html` `impressum.html`, from the English 404 `/de/index.html` (root `"/"`, section 27). `hreflang` states the language of the target page; `lang` the language of the link text itself; `title` shows the full name on hover.
+- `start` – on a start page the link carries `data-twins`: the map of block ids from this page to the other (`twins()`, section 12). `site.js` adds the id of the block being read to the link's address, so the other page opens there (chapter 4). The legal pages and the 404s pass no `start`: they have no blocks to keep.
+  - `json.dumps(…, separators=(',', ':'))` – compact JSON, without the spaces after `,` and `:`.
+  - Single quotes around the attribute value: the JSON is full of double quotes, which would otherwise need escaping as `&quot;` – three times longer. Safe, because `twins()` asserts that every id is lower-case letters, digits and hyphens: no `'`, no `&`, no `<`.
+  - Outside an f-string with single quotes the attribute would read more simply; here the f-string itself uses double quotes, so the `','` and `':'` inside are fine on every Python version.
 - The wrapper: `role="group"` with `aria-label` lets a screen reader announce "Language, group" before the links.
 - `{" ".join(items)}` – an expression inside the f-string. Double quotes inside, single quotes outside.
 - The space between the items is there for the text, not for the eye. Without it, copied or extracted text reads "ENDE"; with it, "EN DE". On screen it changes nothing: `.langs` is an inline flex container, and a flex container ignores text that is only whitespace. The visible spacing comes from CSS padding. No separator characters such as `|` – the CSS draws the pill around both.
@@ -831,7 +880,7 @@ def topbar(c, start=True, langs=True):
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
     links = "\n".join(f'<a class="sect" href="{to}#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
                      f'<span class="label" data-label="{e(t)}">{e(t)}</span></a>' for i, t in c["nav"])
-    switch = lang_switch(c, langs if isinstance(langs, dict) else None) if langs else ""
+    switch = lang_switch(c, langs if isinstance(langs, dict) else None, start) if langs else ""
     # the wordmark the hero name docks into – invisible, it only gives site.js the target to measure
     word = f'<span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">{NAME}</span></span>' if start else ""
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
@@ -917,7 +966,7 @@ def jsonld(c):
         "hasCredential": [
             {"@type": "EducationalOccupationalCredential", "name": note_title(c, n), "url": n["verify"],
              "recognizedBy": {"@type": "Organization", "name": n["by"]}}
-            for n in NOTES.values()
+            for n in NOTES.values() if n.get("verify")
         ],
     }
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>\n"
@@ -928,7 +977,7 @@ def jsonld(c):
 - `jobTitle` and `description` come from `c`, so each language version describes the person in its own language.
 - `"address"` – a nested object with its own `@type`. City and country only.
 - `"sameAs"` – other profiles of the same person; this ties the site to LinkedIn and GitHub.
-- `"hasCredential"` – a list comprehension: `[{…} for n in NOTES.values()]` builds one credential object per footnote. Dicts keep insertion order (guaranteed since Python 3.7), so the order is always that of `NOTES`: Data Scientist, MLOps Engineer, IHK, edX.
+- `"hasCredential"` – a list comprehension: `[{…} for n in NOTES.values() if n.get("verify")]` builds one credential object per footnote that has a verification page – the videos have none and are left out. Dicts keep insertion order (guaranteed since Python 3.7), so the order is always that of `NOTES`: Data Scientist, MLOps Engineer, IHK, edX.
   - `note_title(c, n)` – the credential's name in the page language.
   - `n["by"]` – who stands behind it: the Sorbonne for the Liora certificates, the IHK-Projektgesellschaft for the IHK course, Microsoft for the edX course.
 - `json.dumps(data, ensure_ascii=False)` turns the dict into JSON text. The default (`ensure_ascii=True`) would write `"Università"`; `False` keeps `"Università"`. Both are valid JSON; the second is shorter and readable, and safe because the file is written as UTF-8.
@@ -1329,7 +1378,7 @@ def page(c):
 <h1>{NAME}</h1>
 <p class="tagline" lang="en">{TAGLINE.replace("Performance Marketing", "Performance&nbsp;Marketing").replace("Data Science", "Data&nbsp;Science")}</p>
 <p class="claim" lang="en">{CLAIM}</p>
-<p class="prompt" lang="en"><span class="caret" aria-hidden="true">&gt;_</span><span class="cmd" aria-hidden="true">{MOTTO}</span><span class="sr-only">{MOTTO}</span><span class="cursor" aria-hidden="true"></span></p>
+<p class="prompt" lang="en"><span class="caret" aria-hidden="true">&gt;_</span><span class="cmd" aria-hidden="true">{MOTTO.replace("sudo", '<span class="sudo">sudo</span>', 1)}</span><span class="sr-only">{MOTTO}</span><span class="cursor" aria-hidden="true"></span></p>
 </section>
 """)
 ```
@@ -1341,6 +1390,7 @@ def page(c):
 - Double quotes inside a triple-double-quoted f-string are fine on older Pythons too: a single `"` does not end a `"""` string.
 - Tagline, claim and prompt are marked `lang="en"`, because they stay English on every page (rule 5).
 - The prompt has four parts: the caret (hidden from screen readers), `.cmd` (hidden from screen readers; `site.js` empties it and types the motto letter by letter, unless the visitor's system asks for reduced motion), `.sr-only` (a visually hidden copy that screen readers read in full, instead of a half-typed string), `.cursor` (blinks via CSS). Without JavaScript the full motto simply stays in `.cmd`.
+- `MOTTO.replace("sudo", '<span class="sudo">sudo</span>', 1)` – the motto's first word in a span of its own: a tap or a click on it switches on the torch (chapter 4). `1` – replace the first occurrence only. The `.sr-only` copy stays plain text: the span is for the pointer, and `.cmd` is hidden from screen readers anyway – keyboard users type `sudo`.
 
 ### Profile
 
@@ -1394,13 +1444,15 @@ def page(c):
     # experience – each role as a #JobAlert-style tree
     roles = []
     for ro in c["roles"]:
-        rid = f' id="{ro["id"]}"' if ro.get("id") else ""     # the ledger links here
-        roles.append(f'<li class="role"{rid}>\n{role(c, ro)}</li>\n')
-    out.append(section(c, "experience", e(s["experience"]), f'<ol class="roles" reversed>\n{"".join(roles)}</ol>\n'))
+        roles.append(f'<li class="role" id="{ro["id"]}">\n{role(c, ro)}</li>\n')   # the ledger and the language switch land here
+    roles = re.sub(r"\[\[(\w+)\]\]", fn, "".join(roles))       # a role's tree may cite a source, as Education does
+    out.append(section(c, "experience", e(s["experience"]), f'<ol class="roles" reversed>\n{roles}</ol>\n'))
 ```
 
 - `role(c, ro)` renders the inside of each entry (section 24); the loop only adds the `<li>` around it.
-- `rid` – the anchor the ledger links to, for the three roles that carry an `id`. The leading space belongs to the attribute string, so a role without an id gets a clean `<li class="role">` – the same pattern as `en_attr`.
+- `id` – every role has one: the ledger links to three of them, the language switch lands on all of them (`twins()`, section 12). Until 19.11.2026 only the three ledger roles had one, written through a conditional attribute string.
+- `re.sub(r"\[\[(\w+)\]\]", fn, …)` – the footnote markers inside the roles, the same regex as in Education below: Brandible's Scope cites two videos (`[[h42]]`, `[[galileo]]`). Run over the finished HTML of all roles at once – `role()` and `tree()` know nothing of `fn`, and `e()` has left the brackets as they were. Experience comes before Education, so the videos get the numbers 1 and 2 and the certificates follow.
+- `roles` is first the list, then the joined string – one name for the same content in two shapes, each used once.
 - On phones held upright, where the section heading sticks under the header, the CSS gives `.role` a `scroll-margin-top`: a role reached from the ledger stops below the stuck heading instead of under it (chapter 3).
 - `<ol class="roles" reversed>` – an ordered list, because sequence matters; `reversed` makes the numbering count down, so the newest role at the top carries the highest number. It is a boolean attribute: present means true. The step lists inside the entries count down the same way (`steps()`, section 24).
 
@@ -1440,7 +1492,7 @@ def page(c):
         lis = []
         for name, text, stack, links in items:
             ln = "".join(f' · {offsite(c, url, e(label))}' for label, url in links)
-            lis.append(f'<li><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
+            lis.append(f'<li id="{slugify(name)}"><h4>{e(name)}</h4><p>{e(text)}</p><p class="stack">{e(stack)}{ln}</p></li>\n')
         groups.append(f'<div class="group"><h3>{e(gt)}</h3>\n<ul class="projects">\n{"".join(lis)}</ul></div>\n')
     out.append(section(c, "projects", e(s["projects"]), "".join(groups)))
 ```
@@ -1450,6 +1502,7 @@ def page(c):
 - `ln` – a ` · ` and a link per (label, URL) pair: "GitHub · Demo" for the capstones. Both lead off the site, to GitHub and Streamlit, so `offsite()` writes them (section 20), with the label escaped first. "GitHub" and "Demo" are single words: the whole label and its ↗ share the no-wrap span. For an empty list the generator yields nothing and `"".join` returns `""`, so projects without links need no special case. The ` · ` separators get glued by `dots()` later.
 - The section body is the joined groups alone, under a plain heading like every other section's.
 - `name` is a local variable here; it does not clash with the constant `NAME` (Python is case-sensitive).
+- `id="{slugify(name)}"` – each project an anchor made from its name (section 12): `#customer-portal`, `#pruef-check`. The language switch lands on it.
 
 ### Contact
 
@@ -1488,18 +1541,28 @@ def page(c):
     notes = []
     for key in order:
         n = NOTES[key]
+        back = f'<li id="fn-{key}"><a class="back" href="#ref-{key}" aria-label="{e(nl["back"])}">^</a> '
+        if n.get("watch"):                             # a video: its German title, who and when, where to watch it
+            de, hl = (' lang="de"' if L != "de" else ""), ' hreflang="de"'
+            notes.append(f'{back}<cite{de}>{e(n["title"])}</cite> · {e(n["src"])} · {e(nl[n["when"]])} {e(n["date"][L])} · '
+                         f'{offsite(c, n["watch"], e(nl["watch"] % n["on"]), hl)}</li>\n')
+            continue
         en = ' hreflang="en"'                          # the course pages are English
         course = f' · {offsite(c, n["course"], e(nl["course"]), en)}' if n.get("course") else ""
-        notes.append(f'<li id="fn-{key}"><a class="back" href="#ref-{key}" aria-label="{e(nl["back"])}">^</a> '
-                     f'{e(note_title(c, n))} · {e(nl[n.get("when", "issued")])} {e(n["date"][L])} · '
+        notes.append(f'{back}{e(note_title(c, n))} · {e(nl[n.get("when", "issued")])} {e(n["date"][L])} · '
                      f'{offsite(c, n["verify"], e(nl["verify"]))}{course}</li>\n')
     out.append(section(c, "notes", e(s["notes"]), f'<ol class="notes">\n{"".join(notes)}</ol>\n'))
 ```
 
 - This loop runs after the education section, so `order` is already filled. The order of the `out.append` calls is load-bearing: build Sources before Education and the list comes out empty.
 - Only footnotes that were actually referenced appear, in the order they were referenced. `<ol>` numbers its items 1, 2, … automatically – matching the numbers `fn()` produced, because both follow `order`.
-- `id="fn-{key}"` – the target of the superscript link. `<a class="back" href="#ref-{key}">^</a>` – the way back, with a spoken label.
-- `n["date"][L]` – the date string for the current language.
+- `back` – the start every note shares: `id="fn-{key}"`, the target of the superscript link, and `<a class="back" href="#ref-{key}">^</a>`, the way back, with a spoken label.
+- `if n.get("watch")` – a video (section 7):
+  - `<cite>` – the element for the title of a work; browsers set it in italics. `lang="de"` on the English page: the titles are German, and a screen reader should read them as German. On the German page the attribute would only repeat the page's language.
+  - `nl[n["when"]]` – "published" or "aired", in the page language.
+  - The link: `nl["watch"] % n["on"]` – the `%` operator fills the `%s` in "Watch on %s" with the platform: "Watch on YouTube", "Bei Joyn ansehen". `hreflang="de"` – both videos are German. `de, hl = …` – two variables in one line, as a tuple; a variable for the attribute for the same reason as `en` below.
+  - `continue` – the rest of the loop is for credentials: on to the next note.
+- `n["date"][L]` – the date string for the current language, for both kinds.
 - `nl[n.get("when", "issued")]` – two lookups in one: first which label the note wants (`"issued"` unless it says otherwise), then that label in the page language: "issued", "completed", "ausgestellt am", "abgeschlossen am".
 - Both links of a note leave the site – the verification pages at DataScientest, thekey.career and edX, the course pages at Liora – so `offsite()` writes them (section 20). "Verify credential" splits at its last space: "credential" and the ↗ share the no-wrap span. The way back, `^`, stays on the page.
 - `course` – the course link, or nothing when the note has no course page.
@@ -1559,7 +1622,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 <h2>Kontakt per E-Mail</h2>
 <p>Wenn Sie eine E-Mail schreiben, werden Ihre Angaben verarbeitet, um die Anfrage zu beantworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Die Daten werden gelöscht, sobald sie dafür nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
 <h2>Links zu anderen Plattformen</h2>
-<p>Die Seite verlinkt auf LinkedIn, GitHub, eine Karte bei OpenStreetMap, die Kursseiten von Liora, die Nachweisseiten von DataScientest, thekey.career und edX, die Demos der Abschlussprojekte bei Streamlit sowie die Websites früherer und heutiger Arbeitgeber. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
+<p>Die Seite verlinkt auf LinkedIn, GitHub, eine Karte bei OpenStreetMap, die Kursseiten von Liora, die Nachweisseiten von DataScientest, thekey.career und edX, die Demos der Abschlussprojekte bei Streamlit, ein Kundenvideo bei YouTube, eine TV-Folge bei Joyn sowie die Websites früherer und heutiger Arbeitgeber. Erst wenn Sie einem dieser Links folgen, verarbeiten die jeweiligen Anbieter Daten nach ihren eigenen Datenschutzbestimmungen.</p>
 <h2>Ihre Rechte</h2>
 <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Einer Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO können Sie widersprechen (Art. 21). Außerdem können Sie sich bei einer Datenschutz-Aufsichtsbehörde beschweren, etwa bei der zuständigen Behörde Ihres Bundeslandes.</p>
 """
@@ -1722,8 +1785,9 @@ TORCH = [
     (".facts:has(a[href^='mailto:']) dt, .facts:has(a[href^='mailto:']) dd", "contact += '<dl class=\"facts\">", 1),
     (".facts dt, .facts dd", 'fa.append(f"<div><dt>', 1),
     (".group > h3", "groups.append(f'<div class=\"group\"><h3>", 1),
-    (".projects h4, .projects p", "lis.append(f'<li><h4>", 1),
-    (".notes li", "notes.append(f'<li id=\"fn-{key}\">", 3),
+    (".projects h4, .projects p", "lis.append(f'<li id=", 1),
+    (".notes li:has(cite)", "if n.get(\"watch\"):", 5),
+    (".notes li", "back = f'<li id=\"fn-{key}\">", 1),
     (".lost .code", '<p class="code">404</p>', 1),
     (".lost h1", '<h1><code class="dki">', 1),
     (".lost .claim", '<p class="claim" lang="{other[0]}">', 1),
@@ -1759,9 +1823,10 @@ The torch (chapter 4) has two levels. The first shows each block of text as HTML
 - `TORCH` – one rule per kind of element: a CSS selector, a snippet of this file, a number of lines.
   - The selector names the elements on the page, as `site.js` will test them with `el.matches()`. `".ledger dt, .ledger dd"` – a selector list, either one.
   - The snippet is a piece of the template line that writes those elements, long enough to occur on exactly one line: `'<p class="hw">'` finds the line in `page()` that writes the dictionary entry's headword.
-  - The number says how many lines to show from there: 2 for the ledger, whose f-string spans two lines; 3 for the steps behind a disclosure and the footnotes.
+  - The number says how many lines to show from there: 2 for the ledger, whose f-string spans two lines; 3 for the steps behind a disclosure; 5 for a video note, from the `if` to its `append`.
   - Order matters, because `site.js` takes the first rule that matches: `.facts:has(a[href^='mailto:'])` – the list that holds the mail link, Contact – comes before `.facts`, which would also match Contact but means Education.
   - No ids in the selectors: the ids are localized (`#contact` is `#kontakt` in German, section 8), the classes are not. `:has()` picks the list by what it contains instead.
+  - The Sources have two rules: `.notes li:has(cite)` – a video note, the only kind with a `<cite>` – before `.notes li`, which would match it too and means the credentials. Both point into the same loop; the credentials' rule shows the line both kinds start with, `back = …`.
   - Contact has two rules: `.ask` finds the line `contact = f'<p class="ask">…`, the list's rule the line after it. Its snippet begins `contact +=`, not `contact =` – `contact = '<dl class="facts">` occurs nowhere since the line was added, and a snippet that matches no line stops the build.
   - The four `.lost` rules are the 404 (section 27). Its claim and prompt need snippets of their own: `'<p class="claim" lang="{other[0]}">'` and the hero's `'<p class="claim" lang="en">'` each occur on one line only. The selectors keep them apart on the page – the hero's elements sit in `.hero`, the 404's in `.lost`.
 - Why a snippet and not a line number: line numbers move with every edit above them. A snippet stays with its line; `torch_map()` looks the number up on every build.

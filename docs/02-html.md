@@ -337,7 +337,7 @@ The content of the block, indented for reading (in the file it is one line):
 - The German page uses German ids (`#profil`, `#stationen`, `#projekte`, `#kontakt`), so shared links read naturally in each language. They come from the `ids` map in `build.py`.
 
 ```html
-<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="de/index.html" hreflang="de" lang="de" title="Deutsch">DE</a></span>
+<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="de/index.html" hreflang="de" lang="de" title="Deutsch" data-twins='{"profile":"profil","fields":"p-wie-peter","experience":"stationen","education":"ausbildung","projects":"projekte","contact":"kontakt","notes":"quellen","freelance":"freiberuflich","rome-2010-2014":"rom-2010-2014","customer-portal":"kundenportal","call-and-inquiry-pipeline":"anruf-und-anfragen-pipeline","document-extraction":"dokumentenextraktion","rakuten-product-classification":"rakuten-produktklassifikation","rakuten-classification-mlops":"rakuten-klassifikation-mlops"}'>DE</a></span>
 ```
 
 - `<span class="langs" role="group" aria-label="Language">` – a span carries no meaning; `role="group"` turns it into a named group, so a screen reader announces "Language, group" on entering. Visually it is the pill around EN and DE.
@@ -350,6 +350,7 @@ The content of the block, indented for reading (in the file it is one line):
   - `hreflang="de"` – "the target is in German". On an `<a>` this is only an advisory hint; search engines use `hreflang` from the `<link>` tags in the head, not from ordinary links.
   - `lang="de"` – the link text itself is German, so a screen reader pronounces it with German rules. The convention for language switches: each language is named in that language.
   - `title="Deutsch"` – tooltip, again in its own language.
+  - `data-twins='{…}'` – on the start pages only: which id each block has on the other page, where it differs – `"experience":"stationen"`, `"freelance":"freiberuflich"`, `"customer-portal":"kundenportal"`. Blocks are the sections, every role and every project; a role named after its company keeps its id (`#sportspar` on both pages) and is left out. When the link is about to be used, `site.js` appends the id of the block being read, so the other page opens there instead of at the top (04-js, Language switch). Single quotes around the value, because the JSON inside is full of double quotes. Without JavaScript the attribute does nothing and the link leads to the top, as before.
 - On the German page the roles swap: `EN` is the link (`../index.html`, `hreflang="en" lang="en"`), `DE` is the `aria-current` span.
 - On the legal pages the switch leads to the same page in the other language: from `legal-notice.html`, `DE` goes to `impressum.html`; from `datenschutz.html`, `EN` goes to `privacy.html`.
 
@@ -395,7 +396,7 @@ The content of the block, indented for reading (in the file it is one line):
 
 - `<main>` – the main landmark: the content that is unique to this page. One per page.
 - `id="main"` – the target of the skip link.
-- `data-torch` – the strings of the torch, in the page's language, as JSON. The torch is `site.js`'s view of the page's code (chapter 4): typing `sudo` anywhere on the page lays a light over it that follows the pointer and shows, where it falls, the HTML of every block of text; typed again, the lines of `build.py` that wrote it; a third time, off. Esc ends it, `?` or F1 opens a card with the keys. Only with a mouse or trackpad – a light that follows the pointer needs one.
+- `data-torch` – the strings of the torch, in the page's language, as JSON. The torch is `site.js`'s view of the page's code (chapter 4): typing `sudo` anywhere on the page lays a light over it that follows the pointer and shows, where it falls, the HTML of every block of text; typed again, the lines of `build.py` that wrote it; a third time, off. Esc ends it, `?` or F1 opens a card with the keys. On a phone, a tap on `sudo` in the prompt does what typing does; the light then stays where the finger tapped, and a tap on the line under it goes one level deeper.
   - Inside an attribute every `"` must be written `&quot;`; the browser decodes them, and `site.js` reads clean JSON from `dataset.torch`. The `&nbsp;` before each `·` comes from `dots()`, as everywhere in the body.
   - As an attribute the strings stay out of the page's text – nothing for search engines or parsers to read as content.
   - Every page carries it – the start pages, the four legal pages and the two 404s – so the torch works everywhere.
@@ -407,7 +408,7 @@ The content of the block, indented for reading (in the file it is one line):
 <h1>Peter Stieg</h1>
 <p class="tagline" lang="en">Performance&nbsp;Marketing&nbsp;· Data&nbsp;Science</p>
 <p class="claim" lang="en">Marketing leadership with root access</p>
-<p class="prompt" lang="en"><span class="caret" aria-hidden="true">&gt;_</span><span class="cmd" aria-hidden="true">sudo dream plan ship</span><span class="sr-only">sudo dream plan ship</span><span class="cursor" aria-hidden="true"></span></p>
+<p class="prompt" lang="en"><span class="caret" aria-hidden="true">&gt;_</span><span class="cmd" aria-hidden="true"><span class="sudo">sudo</span> dream plan ship</span><span class="sr-only">sudo dream plan ship</span><span class="cursor" aria-hidden="true"></span></p>
 </section>
 ```
 
@@ -511,9 +512,9 @@ The drawn arrow:
 <h2 id="h-fields"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
 <div class="fields">
-<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Meta, LinkedIn; Amazon, Otto, Cdiscount. Optimized for RoAS, ACoS and cost per lead.</p></div>
+<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount. Optimized for RoAS, ACoS and CPL.</p></div>
 …
-<div><h3>People</h3><p>Teams of up to nine, from SEA to graphic design, including career changers from retail and fine arts.</p></div>
+<div><h3>People</h3><p>International marketing teams of up to nine, from SEA, print and promotional products to graphic design, including career changers from retail and fine arts.</p></div>
 </div>
 </div>
 </section>
@@ -523,7 +524,7 @@ The drawn arrow:
 - `P<sup>4</sup>` – "P to the power of four" for the four Ps. `<sup>` is meant for typographic conventions that need superscript (exponents, footnote marks), so this is correct use. Screen readers usually ignore the superscript and say "P4"; that is also the section's name in the landmark list.
 - `<div class="fields">` – the section starts straight with its grid: 2 × 2 once the content column is wide enough (a container query, see 03-css). Four `<div>`s, each with an `<h3>` and a `<p>`. Not a list: each block stands on its own with a heading, and headings are more useful for navigation than list items.
 - On the German page the four `<h3>` carry `lang="en"`, because the four Ps stay English.
-- Each text runs to three lines, on a wide screen and on a phone alike (measured at 1440, 1024, 390 and 360 px). At 768 px the four fields stand in one column, 472 px wide: the section has split into heading and content there, and two field columns of 216 px each were too narrow (03-css, Fields of work).
+- Plain prose in all four, no labels inside: Performance groups its channels with semicolons – search; social; native; marketplaces –, Pixels its work the same way – corporate identity; online; print (19.11.2026). The texts no longer run to an even three lines: Performance, Pipelines and People four on a phone, Pixels six. At 768 px the four fields stand in one column, 472 px wide: the section has split into heading and content there, and two field columns of 216 px each were too narrow (03-css, Fields of work).
 
 
 ### Experience: a reversed timeline
@@ -535,7 +536,7 @@ The drawn arrow:
 <div>
 <h3>Head of Marketing</h3>
 <p class="org"><a href="https://www.e-service-check.de/" target="_blank" rel="noopener"><span class="nw">E+SERVICE+CHECK<span class="newtab">…</span></span></a>&nbsp;<span class="place">· Laucha</span></p>
-<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team:</span> functional lead for content, marketing and project management</li><li><span class="k">Scope:</span> marketing, lead generation, design and automation, built from scratch – SEA, SEO, CRM, events, employer branding</li><li><span class="k">Result:</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
+<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team:</span> functional lead for content, marketing and project management</li><li><span class="k">Scope:</span> marketing, lead generation, design and automation, built from scratch – SEA, SEO, email marketing, events, employer branding</li><li><span class="k">Result:</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
 </div>
 </li>
 …
@@ -547,7 +548,7 @@ Eleven entries; the first stands for all.
 - `<ol>` – an ordered list, because the order carries meaning: it is a timeline. A `<ul>` would say "these items could come in any order".
 - `reversed` – an attribute only `<ol>` has: the numbering counts down instead of up. Without it the first item is number 1; with it the first item gets the highest number, here 11, and the last number 1. The list runs newest first, so counting down makes the numbers chronological: the oldest entry is number 1, the newest number 11. The CSS hides the numbers (`list-style: none`), so nothing changes on screen; you see them only if the stylesheet fails to load. The attribute keeps the list's numbering in line with its order for everything that reads it – assistive technology, a browser without the stylesheet, a parser. The two lists behind the disclosures further down run newest first as well and carry it for the same reason.
 - A known quirk: Safari has, in many versions, stopped announcing lists as lists in VoiceOver once CSS sets `list-style: none`. The usual fix is `role="list"` on the list. It applies to all unstyled lists on this page.
-- `<li class="role" id="e-service-check">` – one position. The `id` makes it a link target: three roles carry one – E+SERVICE+CHECK, Brandible and Posterlounge, the three companies the ledger in the Profile links to. The value comes from the role's `id` field in `build.py`; the other roles have none.
+- `<li class="role" id="e-service-check">` – one position. The `id` makes it a link target: the ledger in the Profile links to three roles – E+SERVICE+CHECK, Brandible and Posterlounge –, the language switch lands on any of them. Every role has one, from its `id` field in `build.py`: the company's name (`#sportspar`), the course for the trainings (`#liora-ds`), a German one on the German page where the role is named after what it was (`#freelance`, `#freiberuflich`).
 - `<p class="when">` – the period, in the left column on wide screens, and under it the role's length.
 - `<br>` – puts the duration on a line of its own. It also keeps dates and duration apart in plain text: text extraction turns a `<br>` into a line break, so the two do not run together as "since 11/20251 year".
 - `<span class="dur">1 year</span>` – the duration in full words, "5 years 9 months" rather than abbreviations to decode; German "5 Jahre 9 Monate". It is counted like LinkedIn counts: first and last month included, so 10/2017 – 06/2023 makes 69 months, 5 years 9 months. `build.py` reads the dates from the period (`months()`) and writes the words (`duration()`, with the singular and plural from the key `dur` of each language). The CSS sets the line a little smaller.
@@ -570,7 +571,7 @@ Eleven entries; the first stands for all.
   - The link leads to the course page of that training – the same page as "Course page" in its footnote under Sources, but without `hreflang="en"` there.
   - "· Université Paris 1 Panthéon-Sorbonne" stands outside the link: the ↗ belongs to Liora's page, and the partner is not part of that target. `build.py` writes it from the role's key `with`; the `&nbsp;` comes from `dots()`.
   - "(formerly DataScientest)" stands in Education, not here (see "Education and footnote references").
-- Variants among the eleven entries: some have no `ctx`, two have no place (Rapidobject, the freelance entry), some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. Two entries hold more behind a disclosure: Posterlounge its five positions, the last entry six.
+- Variants among the eleven entries: some have no `ctx`, two have no place (Rapidobject, the freelance entry), some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. Brandible's Scope also carries two footnote references, to the customer video and the TV episode it names (see Sources). Two entries hold more behind a disclosure: Posterlounge its five positions, the last entry six.
 - The freelance entry is the one without months and without a link:
 
   ```html
@@ -590,7 +591,7 @@ Eleven entries; the first stands for all.
 <a href="https://www.e-service-check.de/" target="_blank" rel="noopener"><span class="nw">E+SERVICE+CHECK<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>
 ```
 
-The company name is the first of 27 links on each page that lead to another website: fourteen in Experience – seven company websites and the two Liora course pages in the roles, five of the six early positions –, GitHub and Demo under Projects, LinkedIn, GitHub and the map under Contact, "Verify credential" and "Course page" under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
+The company name is the first of 29 links on each page that lead to another website: fourteen in Experience – seven company websites and the two Liora course pages in the roles, five of the six early positions –, GitHub and Demo under Projects, LinkedIn, GitHub and the map under Contact, "Verify credential", "Course page" and the two videos under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
 
 - `target="_blank"` – opens the target in a new tab (some browser settings make it a new window). peterstieg.com stays open in the tab behind it, at the same scroll position: a visitor checks a company or a credential and comes back to the place they left. The price: the new tab has no history to go back to, and the link no longer leaves the choice of tab to the visitor. That is why it announces itself, to the eye and to the ear (the next points).
 - `rel="noopener"` – a page opened in a new tab normally receives a reference to the page that opened it, `window.opener`, and can use it to send that tab to another address – for example to a copy of a login page while the visitor reads the new tab, known as reverse tabnabbing. `noopener` withholds the reference. Current browsers already treat every `target="_blank"` link this way (Chrome since version 88, Firefox 79, Safari 12.1); the attribute states it explicitly and covers older browsers. `noreferrer` is not set, so the target still learns which site the visitor came from – the site, not the page: the referrer policy in `.htaccess` sends only the origin to other sites.
@@ -626,12 +627,12 @@ The heading of the role names the last title, Head of Marketing. The way there t
 ### Experience: six positions behind a disclosure
 
 ```html
-<li class="role">
+<li class="role" id="rome-2010-2014">
 <p class="when">10/2010 – 09/2014<br><span class="dur">4 years</span></p>
 <div>
 <h3>Marketing, market research, export</h3>
 <p class="org">Six companies&nbsp;<span class="place">· Rome</span></p>
-<ul class="tree"><li><span class="k">Scope:</span> export promotion and brand protection; competitive intelligence, OSINT, primary and secondary research; lead generation, web marketing</li></ul>
+<ul class="tree"><li><span class="k">Scope:</span> web design, online marketing, lead generation; export promotion and brand protection; competitive intelligence, OSINT, primary and secondary research</li></ul>
 <details class="more">
 <summary>Six positions</summary>
 <ol class="tree" reversed><li>Business Development Specialist&nbsp;<span class="muted">· <a href="http://www.3d2b.com/" target="_blank" rel="noopener"><span class="nw">3D2B<span class="newtab">…</span></span></a></span><br><span class="at">09/2014&nbsp;· 1 month</span></li><li>Marketing Consultant&nbsp;<span class="muted">· <a href="https://it.sbsbusiness.eu/" target="_blank" rel="noopener">SBS systems for business <span class="nw">solutions<span class="newtab">…</span></span></a></span><br><span class="at">04/2014 – 08/2014&nbsp;· 5 months</span></li>…</ol>
@@ -656,9 +657,9 @@ The years 2010 to 2014 stay one entry in the timeline: six positions in and arou
 
 ```html
 <dl class="facts">
-<div><dt>2025</dt><dd>Data Scientist<sup class="fnref"><a href="#fn-ds" id="ref-ds" aria-describedby="h-notes">1</a></sup>&nbsp;· MLOps Engineer<sup class="fnref"><a href="#fn-mlops" id="ref-mlops" aria-describedby="h-notes">2</a></sup><br><span class="muted">Liora (formerly DataScientest) in partnership with Université Paris 1 Panthéon-Sorbonne</span></dd></div>
-<div><dt>2023</dt><dd>Agile project management specialist<sup class="fnref"><a href="#fn-ihk" id="ref-ihk" aria-describedby="h-notes">3</a></sup><br><span class="muted">IHK</span></dd></div>
-<div><dt>2018</dt><dd>Introduction to Artificial Intelligence<sup class="fnref"><a href="#fn-edx" id="ref-edx" aria-describedby="h-notes">4</a></sup><br><span class="muted">Microsoft on edX</span></dd></div>
+<div><dt>2025</dt><dd>Data Scientist<sup class="fnref"><a href="#fn-ds" id="ref-ds" aria-describedby="h-notes">3</a></sup>&nbsp;· MLOps Engineer<sup class="fnref"><a href="#fn-mlops" id="ref-mlops" aria-describedby="h-notes">4</a></sup><br><span class="muted">Liora (formerly DataScientest) in partnership with Université Paris 1 Panthéon-Sorbonne</span></dd></div>
+<div><dt>2023</dt><dd>Agile project management specialist<sup class="fnref"><a href="#fn-ihk" id="ref-ihk" aria-describedby="h-notes">5</a></sup><br><span class="muted">IHK</span></dd></div>
+<div><dt>2018</dt><dd>Introduction to Artificial Intelligence<sup class="fnref"><a href="#fn-edx" id="ref-edx" aria-describedby="h-notes">6</a></sup><br><span class="muted">Microsoft on edX</span></dd></div>
 <div><dt>2010</dt><dd>Bachelor’s degree in economics<br><span class="muted">Università degli Studi di Trento</span></dd></div>
 <div><dt>Languages</dt><dd><ul class="lines"><li>German (native)</li><li>English C2</li><li>Italian C2</li><li>Spanish B1</li><li>French A2</li></ul></dd></div>
 </dl>
@@ -686,12 +687,12 @@ The footnote reference, piece by piece:
 <div class="body">
 <div class="group"><h3>At E+SERVICE+CHECK</h3>
 <ul class="projects">
-<li><h4>Customer portal</h4><p>Moved to a company-owned Azure tenant with separate production and staging. Running cloud costs: a fraction of before.</p><p class="stack">Azure</p></li>
+<li id="customer-portal"><h4>Customer portal</h4><p>Moved to a company-owned Azure tenant with separate production and staging. Running cloud costs: a fraction of before.</p><p class="stack">Azure</p></li>
 …
 </ul></div>
 <div class="group"><h3>Certification capstones</h3>
 <ul class="projects">
-<li><h4>Rakuten product classification</h4><p>Around 85,000 e-commerce products classified from text and images.</p><p class="stack">Python&nbsp;· Keras&nbsp;· PyTorch&nbsp;· Google Cloud&nbsp;· <a href="https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products" target="_blank" rel="noopener"><span class="nw">GitHub<span class="newtab">…</span></span></a>&nbsp;· <a href="https://feb25-bds-rakuten.streamlit.app/" target="_blank" rel="noopener"><span class="nw">Demo<span class="newtab">…</span></span></a></p></li>
+<li id="rakuten-product-classification"><h4>Rakuten product classification</h4><p>Around 85,000 e-commerce products classified from text and images.</p><p class="stack">Python&nbsp;· Keras&nbsp;· PyTorch&nbsp;· Google Cloud&nbsp;· <a href="https://github.com/PeterStieg/feb25_bds_classification-of-rakuten-e-commerce-products" target="_blank" rel="noopener"><span class="nw">GitHub<span class="newtab">…</span></span></a>&nbsp;· <a href="https://feb25-bds-rakuten.streamlit.app/" target="_blank" rel="noopener"><span class="nw">Demo<span class="newtab">…</span></span></a></p></li>
 …
 </ul></div>
 </div>
@@ -701,7 +702,7 @@ The footnote reference, piece by piece:
 - The section pattern without variation: `aria-labelledby="h-projects"` names the region after its heading, "Projects", and the body starts straight with its first group.
 - `<div class="group">` – two groups, each with an `<h3>` and a list. The outline reads: Projects (h2) → At E+SERVICE+CHECK (h3) → Customer portal (h4).
 - `<ul class="projects">` – unordered: the projects are not ranked.
-- `<li><h4>…</h4><p>…</p><p class="stack">…</p></li>` – name, description, tech stack. A list item may hold headings and paragraphs; it does not have to be a single line.
+- `<li id="customer-portal"><h4>…</h4><p>…</p><p class="stack">…</p></li>` – name, description, tech stack. A list item may hold headings and paragraphs; it does not have to be a single line. The `id` is the name in lower case with hyphens – German `#kundenportal` –, a target for the language switch and for a shared link.
 - `<a href="https://github.com/…" target="_blank" rel="noopener">` and the same for "Demo" – only the capstones link out: to their code and to the running app on Streamlit, in a new tab like every link that leaves the site (see "Links that leave the site"). Each text is one word, so all of it goes into the `nw` span. The link text "GitHub" appears three times on the page with three different targets (two repositories, one profile), "Demo" twice. A screen-reader user who lists all links out of context finds identical names, "GitHub (opens in a new tab)"; the surrounding list item supplies the context, which WCAG accepts.
 
 ### Contact
@@ -734,6 +735,8 @@ The footnote reference, piece by piece:
 <h2 id="h-notes"><span class="no ghost" aria-hidden="true">04</span> Sources</h2>
 <div class="body">
 <ol class="notes">
+<li id="fn-h42"><a class="back" href="#ref-h42" aria-label="Back to text">^</a> <cite lang="de">Hellinger 42 + Brandible: erfolgreiches Merchandise-Konzept</cite>&nbsp;· Brandible&nbsp;· published 22 May 2024&nbsp;· <a href="https://www.youtube.com/watch?v=swBJnkVCTNM" target="_blank" rel="noopener" hreflang="de">Watch on <span class="nw">YouTube<span class="newtab">…</span></span></a></li>
+<li id="fn-galileo">…</li>
 <li id="fn-ds"><a class="back" href="#ref-ds" aria-label="Back to text">^</a> Data Scientist&nbsp;· issued 10 June 2025&nbsp;· <a href="https://document-factory.datascientest.com/verify/3225d69a-a3b6-4bd2-bafe-df9381eff729" target="_blank" rel="noopener">Verify <span class="nw">credential<span class="newtab">…</span></span></a>&nbsp;· <a href="https://liora.io/en/courses/data-ai/data-scientist" target="_blank" rel="noopener" hreflang="en">Course <span class="nw">page<span class="newtab">…</span></span></a></li>
 <li id="fn-mlops">…</li>
 <li id="fn-ihk"><a class="back" href="#ref-ihk" aria-label="Back to text">^</a> Agile project management specialist (IHK)&nbsp;· completed 16 February 2023&nbsp;· <a href="https://www.thekey.career/zertifikat/ac-2023-bfbe9c/" target="_blank" rel="noopener">Verify <span class="nw">credential<span class="newtab">…</span></span></a></li>
@@ -744,7 +747,8 @@ The footnote reference, piece by piece:
 ```
 
 - `<h2 id="h-notes">` – the heading that the footnote references use as their description.
-- `<ol class="notes">` – ordered: note 1, note 2. Here the numbers are visible (CSS colors the `::marker`), and they match the superscripts because both come from the same list in `build.py`.
+- `<ol class="notes">` – ordered: note 1, note 2. Here the numbers are visible (CSS colors the `::marker`), and they match the superscripts because both come from the same list in `build.py`. The two videos cited in Brandible's Scope come first, because Experience comes before Education; the certificates follow as 3 to 6.
+- `<cite lang="de">` – a video note starts with the video's title: `<cite>` is the element for the title of a work, and browsers set it in italics. Both titles are German, so on the English page `lang="de"` tells a screen reader to switch voice. Then who published or aired it and when – "published 22 May 2024" on Brandible's YouTube channel, "aired 9 June 2024" on ProSieben – and the link, "Watch on YouTube", "Watch on Joyn", Joyn being ProSieben's streaming service. `hreflang="de"`, the videos being German.
 - `<li id="fn-ds">` – the jump target. CSS highlights the targeted note with the `:target` selector, so after the jump you see where you landed.
 - `<a class="back" href="#ref-ds" aria-label="Back to text">^</a>` – jumps back to the reference. The visible `^` says nothing when spoken, so `aria-label` replaces it: "Back to text, link".
 - `Verify credential` – the issuer's verification page, in a new tab; the same URL as in the JSON-LD `hasCredential`. Only "credential" shares the `nw` span with the ↗, so the line may still break after "Verify".

@@ -273,7 +273,7 @@ html:not(.js) .themes { display: none; }
   .sec > h2.stuck { border-bottom-color: var(--line); }
   .top.ext { border-bottom-color: transparent; }
   /* jump targets and focused links clear the stuck heading – Shift+Tab no longer hides a link behind it */
-  .role, .fnref a, .notes li, .sec .body :is(a[href], summary) { scroll-margin-top: 3.75rem; }
+  .role, .projects > li, .fnref a, .notes li, .sec .body :is(a[href], summary) { scroll-margin-top: 3.75rem; }
 }
 /* chapter number, like a slide deck's parts: "01 Profile" – equal-width digits keep the titles aligned.
    The other sections of a chapter carry the same number invisibly (.ghost), so their titles line up with it. */
@@ -522,6 +522,8 @@ html:not(.js) .jump .down { display: none; }       /* without JavaScript: up to 
 }
 .torch-tag.on { opacity: 1; }
 .torch-tag span { padding: 0.2em 0.6em; border-radius: 999px; background: var(--lit); }   /* legible over the page's text */
+.torch-tag.on span { pointer-events: auto; cursor: pointer; }   /* a tap takes the step it names (site.js) */
+.prompt .sudo { cursor: pointer; -webkit-tap-highlight-color: transparent; }   /* tap or click: the torch (site.js) */
 @media (prefers-reduced-motion: reduce) { .torch, .torch.on { transition: none; } }
 
 /* ? – the shortcuts, in a card under the header's right end (site.js places it): what it does left, the key right */
