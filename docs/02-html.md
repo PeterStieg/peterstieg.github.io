@@ -10,7 +10,7 @@ Every HTML page in `site/` is generated: `src/build.py` writes them, together wi
 <!doctype html>
 <!--
   Hallo · Hi · Ciao – view-source counts as root access, too.
-  On the page: type sudo · ? or F1 lists the keys.
+  On the page: type or tap sudo · ? or F1 lists the keys.
 
   peterstieg.com
   ├── no tracking
@@ -120,12 +120,12 @@ Why inline, and why exactly here:
 
 ```html
 <title>Peter Stieg – Performance Marketing · Data Science</title>
-<meta name="description" content="Marketinkerer from Leipzig: performance marketing and data science. Four leadership roles, up to €240k media budget a month, certified Data Scientist.">
+<meta name="description" content="Head of Marketing in Leipzig. Four leadership roles in e-commerce and B2B, teams of up to nine, up to €240k media budget a month.">
 <meta name="author" content="Peter Stieg">
 ```
 
 - `<title>` – the text in the browser tab, in bookmarks and history, and usually the headline of the search result (Google may rewrite it). Both languages use the same title, because the tagline is a brand element that stays English.
-- `<meta name="description">` – the snippet search engines may show under the headline. It is not a ranking factor; its job is to earn the click. At 150 characters (about 940 pixels in the 14-pixel Arial of a search result) it sits at the edge of the roughly 920 pixels Google shows on a desktop before cutting with "…". It opens with the coined word and the place, then the two fields of the title – no third, so snippet, title and banner say the same –, then three facts: leadership roles, budget, certificate. A figure rather than "proven track record": a claim every profile makes against a number the ledger backs up. "Up to": €240k was the peak month, not every month. The German page has its own text, "Vier Führungsrollen, bis 240.000 € Mediabudget im Monat, zertifizierter Data Scientist" – the same facts, 154 characters.
+- `<meta name="description">` – the snippet search engines may show under the headline. It is not a ranking factor; its job is to earn the click. At 150 characters (about 940 pixels in the 14-pixel Arial of a search result) it sits at the edge of the roughly 920 pixels Google shows on a desktop before cutting with "…". At 129 characters it fits a search result on a phone too, where Google cuts sooner than on a desktop. It adds to the title, never repeats it: the title already names the two fields, so the description starts with the role and the place, then three facts – leadership roles, team size, budget (20.11.2026). The coined word *marketinkerer* stays on the page, where its definition explains it; in a snippet it would be a riddle. The certificate stays in the profile. A figure rather than "proven track record": a claim every profile makes against a number the ledger backs up. "Up to": €240k was the peak month, not every month. The German page has its own text, "Marketingleiter in Leipzig. Vier Führungsrollen in E-Commerce und B2B, Teams bis neun Personen, bis 240.000 € Mediabudget im Monat." – 131 characters.
 - `<meta name="author">` – the author's name. Search engines do not use it for ranking; it is metadata for tools that look for an author.
 
 ### Canonical URL and language alternates
@@ -160,12 +160,12 @@ Why inline, and why exactly here:
 ```html
 <meta property="og:type" content="profile">
 <meta property="og:title" content="Peter Stieg – Performance Marketing · Data Science">
-<meta property="og:description" content="Marketinkerer from Leipzig: …">
+<meta property="og:description" content="Head of Marketing in Leipzig. …">
 <meta property="og:url" content="https://peterstieg.com/">
 <meta property="og:image" content="https://peterstieg.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Peter Stieg – Performance Marketing · Data Science – Marketing leadership with root access">
+<meta property="og:image:alt" content="Peter Stieg · Performance Marketing · Data Science · Marketing leadership with root access">
 <meta property="og:locale" content="en_GB">
 <meta property="profile:first_name" content="Peter">
 <meta property="profile:last_name" content="Stieg">
@@ -180,7 +180,7 @@ When someone pastes the URL into LinkedIn, Slack, WhatsApp or X, a crawler from 
 - `og:url` – the URL the card belongs to. Shares of `…/index.html` or `…/?utm_source=x` collapse into one card.
 - `og:image` – the card's picture. It must be an absolute URL: the crawler only sees this tag, and a relative path has nothing reliable to resolve against.
 - `og:image:width`, `og:image:height` – 1200 × 630 px, the 1.91 : 1 format that LinkedIn and Facebook show at full card width. Declaring the size lets a crawler lay out the card before it has downloaded the image, which helps on the very first share.
-- `og:image:alt` – a text description of the image, for screen-reader users on platforms that pass it on. Not all do.
+- `og:image:alt` – a text description of the image, for screen-reader users on platforms that pass it on. Not all do. It names what the image shows – name, tagline, claim –, joined by middle dots like the title (20.11.2026); two dashes in one line read like an aside inside an aside.
 - `og:locale` = `en_GB` – language and region of this page, written with an underscore (`de_DE` on the German page). A different notation from `lang` (`en`, `de`).
 - `profile:first_name`, `profile:last_name` – the two fields of the `profile` type. Few platforms show them; they make the page unambiguously one person's profile.
 - `twitter:card` = `summary_large_image` – X (Twitter) has its own tags but falls back to the `og:` equivalents for title, description and image. One tag is therefore enough: it asks for the large-image card instead of the small square thumbnail.
@@ -240,7 +240,7 @@ The content of the block, indented for reading (in the file it is one line):
   "url": "https://peterstieg.com/",
   "image": "https://peterstieg.com/og-image.png",
   "jobTitle": "Head of Marketing",
-  "description": "Marketinkerer from Leipzig: performance marketing and data science. Four leadership roles, up to €240k media budget a month, certified Data Scientist.",
+  "description": "Head of Marketing in Leipzig. Four leadership roles in e-commerce and B2B, teams of up to nine, up to €240k media budget a month.",
   "address": {"@type": "PostalAddress", "addressLocality": "Leipzig", "addressCountry": "DE"},
   "email": "mailto:info@peterstieg.com",
   "sameAs": ["https://www.linkedin.com/in/peterstieg/", "https://github.com/PeterStieg"],
@@ -471,7 +471,7 @@ The section opens with the word "marketinkerer", set like an entry in a dictiona
 <p>Leadership roles at four companies, with interdisciplinary marketing and design teams of up to nine people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer. Working languages: German, English, Italian.</p>
 <dl class="ledger" aria-label="Selected results">
 <div><dt>Leads &gt; 2×</dt><dd>inbound inquiries year over year<br><a href="#e-service-check">E+SERVICE+CHECK<span class="jmp"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg></span></a></dd></div>
-<div><dt>RoAS 7.6 <span class="arr"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg><span class="sr-only">to</span></span> 7.8</dt><dd>on a €1.7m budget, while spend grew<br><a href="#brandible">Brandible<span class="jmp">…</span></a></dd></div>
+<div><dt>RoAS 7.6 <span class="arr"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg><span class="sr-only">to</span></span> 7.8</dt><dd>on an expanded €1.7m budget<br><a href="#brandible">Brandible<span class="jmp">…</span></a></dd></div>
 <div><dt>Media budget €6k <span class="arr">…<span class="sr-only">to</span></span> €240k</dt><dd>per month, at a RoAS of 4.0<br><a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd></div>
 </dl>
 ```
@@ -512,9 +512,9 @@ The drawn arrow:
 <h2 id="h-fields"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
 <div class="fields">
-<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount. Optimized for RoAS, ACoS and CPL.</p></div>
+<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – product feeds in PHP and Python, budgets of up to €240k a month. Optimized for RoAS, ACoS and CPL.</p></div>
 …
-<div><h3>People</h3><p>International marketing teams of up to nine, from SEA, print and promotional products to graphic design, including career changers from retail and fine arts.</p></div>
+<div><h3>People</h3><p>International marketing teams of up to nine people, from SEA, print and promotional products to graphic design, including career changers from retail and fine arts. Recruiting and in-house training in SEA, social media and data analysis.</p></div>
 </div>
 </div>
 </section>
@@ -524,7 +524,7 @@ The drawn arrow:
 - `P<sup>4</sup>` – "P to the power of four" for the four Ps. `<sup>` is meant for typographic conventions that need superscript (exponents, footnote marks), so this is correct use. Screen readers usually ignore the superscript and say "P4"; that is also the section's name in the landmark list.
 - `<div class="fields">` – the section starts straight with its grid: 2 × 2 once the content column is wide enough (a container query, see 03-css). Four `<div>`s, each with an `<h3>` and a `<p>`. Not a list: each block stands on its own with a heading, and headings are more useful for navigation than list items.
 - On the German page the four `<h3>` carry `lang="en"`, because the four Ps stay English.
-- Plain prose in all four, no labels inside: Performance groups its channels with semicolons – search; social; native; marketplaces –, Pixels its work the same way – corporate identity; online; print (19.11.2026). The texts no longer run to an even three lines: Performance, Pipelines and People four on a phone, Pixels six. At 768 px the four fields stand in one column, 472 px wide: the section has split into heading and content there, and two field columns of 216 px each were too narrow (03-css, Fields of work).
+- Plain prose in all four, no labels inside: Performance groups its channels with semicolons – search; social; native; marketplaces –, Pixels its work the same way – corporate identity; online; print (19.11.2026). All four run to the same length (20.11.2026): six lines on a phone (390 and 412 px), seven in the two columns of a wide screen (1024 to 1440 px), in both languages – measured, as the line count depends on where the words break. The one exception: the English Pixels at 360 px, six lines instead of seven. A change to any of the texts needs measuring again. At 768 px the four fields stand in one column, 472 px wide: the section has split into heading and content there, and two field columns of 216 px each were too narrow (03-css, Fields of work).
 
 
 ### Experience: a reversed timeline
@@ -557,7 +557,7 @@ Eleven entries; the first stands for all.
 - `<h3>` – the job title. As a heading, every role is reachable through heading navigation.
 - `<a href="https://www.e-service-check.de/" target="_blank" rel="noopener">` – the company name links to its website, in a new tab; the next section takes the link apart. All seven roles at a company link it; the two Liora trainings link the course page of each (below), and the 2010–2014 entry links five of its six companies behind its disclosure. The freelance entry links nothing: the client sites are offline. The names carry no legal form – "E+SERVICE+CHECK", not "E+SERVICE+CHECK GmbH": the names people know, and the ↗ already leads to the website.
 - `<p class="org">` with `<span class="place">· Laucha</span>` – employer and location; the span mutes the location. The `&nbsp;` before the span glues the dot to the end of the link, the name with its ↗, so the location can wrap to the next line but the dot never starts it (see "Non-breaking spaces and middle dots").
-- `<p class="ctx">` – one line of company context. Optional: `build.py` emits it only for roles that have a `ctx`, and the `place` span only for roles that have a place (Rapidobject has none).
+- `<p class="ctx">` – one line of company context. Optional: `build.py` emits it only for roles that have a `ctx`, and the `place` span only for roles that have a place (the freelance entry has none).
 - `<ul class="tree">` – the details as an unordered list, styled like the output of the Unix `tree` command – the format of the #JobAlert posts. The branches `├──` and `└──` are not characters in the HTML but CSS borders on `::before` and `::after`. They align in any font, and screen readers do not read out box-drawing characters.
 - `<span class="k">Scope:</span>` – the key with its colon, set bold by the CSS. The colon is text in the HTML, not CSS-generated content (`::after`): generated content is not part of the document's text, so a text extraction would read "Scope marketing, design …" without it. With the colon in the HTML, screen readers, search engines and a copy and paste all get "Scope: marketing, design …". On the German page the keys carry `lang="en"` – Scope, Team, Result are brand vocabulary.
 - The same three keys, in the same order, wherever there are facts for them: Team (who), Scope (what), Result (what came of it). Someone comparing two roles finds the same kind of fact in the same place. Facts that fit none of the three go elsewhere: the company into the `ctx` line, the job titles at Posterlounge into a disclosure (see "Experience: five positions behind a disclosure"). For the two Liora trainings, Scope is the curriculum and Result the certificate with its capstone project.
@@ -571,7 +571,7 @@ Eleven entries; the first stands for all.
   - The link leads to the course page of that training – the same page as "Course page" in its footnote under Sources, but without `hreflang="en"` there.
   - "· Université Paris 1 Panthéon-Sorbonne" stands outside the link: the ↗ belongs to Liora's page, and the partner is not part of that target. `build.py` writes it from the role's key `with`; the `&nbsp;` comes from `dots()`.
   - "(formerly DataScientest)" stands in Education, not here (see "Education and footnote references").
-- Variants among the eleven entries: some have no `ctx`, two have no place (Rapidobject, the freelance entry), some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. Brandible's Scope also carries two footnote references, to the customer video and the TV episode it names (see Sources). Two entries hold more behind a disclosure: Posterlounge its five positions, the last entry six.
+- Variants among the eleven entries: some have no `ctx`, one has no place (the freelance entry), some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. Brandible's Scope also carries two footnote references, to the customer video and the TV episode it names (see Sources). Two entries hold more behind a disclosure: Posterlounge its five positions, the last entry six.
 - The freelance entry is the one without months and without a link:
 
   ```html
@@ -606,7 +606,7 @@ The company name is the first of 29 links on each page that lead to another webs
 <li class="role" id="posterlounge">
 <p class="when">10/2017 – 06/2023<br><span class="dur">5 years 9 months</span></p>
 …
-<p class="ctx">Art prints online in more than 15 European countries.</p><ul class="tree">…</ul>
+<p class="ctx">Online shops for wall art, art prints and frames in more than 15 European countries.</p><ul class="tree">…</ul>
 <details class="more">
 <summary>Five positions</summary>
 <ol class="tree" reversed><li>Head of Marketing<br><span class="at">09/2021 – 06/2023&nbsp;· 1 year 10 months</span></li><li>Senior Marketing Manager<br><span class="at">10/2020 – 08/2021&nbsp;· 11 months</span></li><li>Online Marketing Manager<br><span class="at">11/2018 – 09/2020&nbsp;· 1 year 11 months</span></li><li>SEO Manager Italy<br><span class="at">10/2017 – 10/2018&nbsp;· 1 year 1 month</span></li><li>SEO, freelance<br><span class="at">07/2017 – 09/2017&nbsp;· 3 months</span></li></ol>
