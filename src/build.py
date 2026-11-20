@@ -98,7 +98,7 @@ CONTENT = {
                   "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], [["?", "F1"], "Show this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
-        "desc": "Marketinkerer from Leipzig: performance marketing and data science. Four leadership roles, up to €240k media budget a month, certified Data Scientist.",
+        "desc": "Head of Marketing in Leipzig. Four leadership roles in e-commerce and B2B, teams of up to nine, up to €240k media budget a month.",
         "skip": "Skip to content",
         "nav": [("profile", "Profile"), ("experience", "Experience"), ("projects", "Projects"), ("contact", "Contact")],
         "sec": {"profile": "Profile", "experience": "Experience", "projects": "Projects",
@@ -109,17 +109,18 @@ CONTENT = {
         "ledger_label": "Selected results",
         "ledger": [
             ("Leads > 2×", "inbound inquiries year over year", "e-service-check"),
-            ("RoAS 7.6 → 7.8", "on a €1.7m budget, while spend grew", "brandible"),
+            ("RoAS 7.6 → 7.8", "on an expanded €1.7m budget", "brandible"),
             ("Media budget €6k → €240k", "per month, at a RoAS of 4.0", "posterlounge"),
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount. Optimized for RoAS, ACoS and CPL.",
-            "Google Tag Manager, then Python, SQL and BigQuery. Reports in Data Studio, Google Ads Scripts and Apps Script – "
-            "website performance, online marketing, telephony. Internal web apps in Streamlit.",
-            "Corporate identity from claim and logo to colours, type, signage, vehicle branding and workwear; "
-            "websites, employer branding, mockups, vector graphics, videos; business cards, letterheads, employee ID cards, catalogues.",
-            "International marketing teams of up to nine, from SEA, print and promotional products to graphic design, "
-            "including career changers from retail and fine arts.",
+            "Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – "
+            "product feeds in PHP and Python, budgets of up to €240k a month. Optimized for RoAS, ACoS and CPL.",
+            "Google Tag Manager and Consent Mode v2, then Python, SQL and BigQuery with Odoo master data. Reports in Data Studio, "
+            "Google Ads Scripts and Apps Script – website performance, online marketing, telephony. Web apps in Streamlit.",
+            "Corporate identity from claim and logo to colours and typefaces, workwear, signage and vehicle decals; websites, "
+            "employer branding, mockups, vector graphics and videos; business cards, letterheads, employee ID cards and catalogues.",
+            "International marketing teams of up to nine people, from SEA, print and promotional products to graphic design, "
+            "including career changers from retail and fine arts. Recruiting and in-house training in SEA, social media and data analysis.",
         ],
         "roles": [
             {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
@@ -131,7 +132,7 @@ CONTENT = {
              "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "containers, orchestration, tracking, APIs and monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "certified MLOps Engineer; capstone: the Rakuten text classifier as a production pipeline – training, tracking, serving, monitoring")]},
-            {"id": "rapidobject", "when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject", "url": "https://www.rapidobject.com/en/", "place": "",
+            {"id": "rapidobject", "when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject", "url": "https://www.rapidobject.com/en/", "place": "Leipzig",
              "tree": [("Scope", "UI concepts, usability tests and pricing logic in Python; support for the marketing automation migration from "
                                 "ActiveCampaign to Salesforce; communication, mediation and translation between Rapidobject’s "
                                 "authorized signatories and its London partner AMFG"),
@@ -141,16 +142,17 @@ CONTENT = {
              "tree": [("Scope", "machine learning and deep learning with Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "certified Data Scientist; capstone: multimodal classification of e-commerce products with NLP and computer vision")]},
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International", "url": "https://www.brandible.de/", "place": "Dresden",
-             "ctx": "B2B promotional products for Germany, Austria and Switzerland.",
-             "tree": [("Team", "five – marketing, graphic design, project management"),
+             "ctx": "B2B promotional products for Germany, Austria and Switzerland, plus an online shop for Dresden Christstollen.",
+             "tree": [("Team", "seven – three in marketing, four in graphic design"),
                       ("Scope", "SEO, performance marketing and lead generation – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM, newsletters and marketing automation; "
                                 "photo and video production – a customer testimonial with Hellinger 42[[h42]], a TV shoot for ProSieben’s Galileo[[galileo]]"),
-                      ("Result", "RoAS 7.6 → 7.8 while spend grew; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
-            {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.com/", "place": "Leipzig",
+                      ("Result", "RoAS 7.6 → 7.8 on an expanded budget; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
+            {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.com/", "place": "Eilenburg",
+             "ctx": "Off-price online outlet for branded sportswear from previous seasons.",
              "tree": [("Team", "nine – four in design, five in marketing"),
-                      ("Scope", "e-commerce operations for discounted sporting goods in DE, COM, FR, IT, NL, ES and PL – email automation, Facebook, Instagram, WhatsApp, Telegram and affiliate marketing")]},
+                      ("Scope", "e-commerce operations in DE, COM, FR, IT, NL, ES and PL – email automation, Facebook, Instagram, WhatsApp, Telegram and affiliate marketing")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
-             "ctx": "Art prints online in more than 15 European countries.",
+             "ctx": "Online shops for wall art, art prints and frames in more than 15 European countries.",
              "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
                       ("Scope", "SEA, SEO, marketplaces, social media, creator relations and print partnerships; "
                                 "cross-channel reporting with Google Ads Scripts and Apps Script"),
@@ -215,7 +217,7 @@ CONTENT = {
                   "rows": [["sudo", "Code-Ansicht: HTML · build.py · aus"], ["Esc", "Schließen"], [["?", "F1"], "Diese Liste zeigen"]]},
         "dur": ("Jahr", "Jahre", "Monat", "Monate"),
         "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
-        "desc": "Marketinkerer aus Leipzig: Performance Marketing und Data Science. Vier Führungsrollen, bis 240.000 € Mediabudget im Monat, zertifizierter Data Scientist.",
+        "desc": "Marketingleiter in Leipzig. Vier Führungsrollen in E-Commerce und B2B, Teams bis neun Personen, bis 240.000 € Mediabudget im Monat.",
         "skip": "Zum Inhalt springen",
         "nav": [("profil", "Profil"), ("stationen", "Stationen"), ("projekte", "Projekte"), ("kontakt", "Kontakt")],
         "sec": {"profile": "Profil", "experience": "Stationen", "projects": "Projekte",
@@ -232,13 +234,14 @@ CONTENT = {
             ("Budget 6.000 → 240.000 €", "im Monat, bei einer KUR von 25 %", "posterlounge"),
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount. Gesteuert über KUR, ACoS und CPL.",
-            "Google Tag Manager, dann Python, SQL und BigQuery. Reports mit Data Studio, Google Ads Scripts und Apps Script – "
-            "Website-Performance, Online-Marketing, Telefonie. Interne Web-Apps mit Streamlit.",
-            "Corporate Identity von Claim und Logo bis zu Farben, Schrift, Beschilderung, Fahrzeugbeschriftung und Arbeitskleidung; "
+            "Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – "
+            "Produktfeeds in PHP und Python, Budgets bis 240.000 € im Monat. Gesteuert über KUR, ACoS und CPL.",
+            "Google Tag Manager und Consent Mode v2, dann Python, SQL und BigQuery mit Odoo-Stammdaten. Reports mit Data Studio, "
+            "Google Ads Scripts und Apps Script – Website-Performance, Online-Marketing, Telefonie. Web-Apps mit Streamlit.",
+            "Corporate Identity von Claim und Logo bis zu Farben, Schrift, Arbeitskleidung, Beschilderung und Fahrzeugbeklebung; "
             "Websites, Employer Branding, Mockups, Vektorgrafiken, Videos; Visitenkarten, Briefvorlagen, Mitarbeiterausweise, Kataloge.",
             "Internationale Marketingteams mit bis zu neun Personen, von SEA über Print und Werbeartikel bis Grafik, "
-            "darunter Quereinsteiger aus Einzelhandel und bildender Kunst.",
+            "darunter Quereinsteiger aus Einzelhandel und bildender Kunst. Recruiting und Schulungen zu SEA, Social Media und Datenanalyse.",
         ],
         "roles": [
             {"id": "e-service-check", "when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
@@ -250,7 +253,7 @@ CONTENT = {
              "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "zertifizierter MLOps Engineer; Abschlussprojekt: der Rakuten-Textklassifikator als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
-            {"id": "rapidobject", "when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject", "url": "https://www.rapidobject.com/", "place": "",
+            {"id": "rapidobject", "when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject", "url": "https://www.rapidobject.com/", "place": "Leipzig",
              "tree": [("Scope", "UI-Konzeption, Usability-Tests und Preislogik in Python; Begleitung der Migration der Marketing Automation von "
                                 "ActiveCampaign zu Salesforce; Kommunikation, Vermittlung und Übersetzung zwischen den Prokuristen "
                                 "von Rapidobject und dem Londoner Partner AMFG"),
@@ -260,16 +263,17 @@ CONTENT = {
              "tree": [("Scope", "Machine Learning und Deep Learning mit Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "zertifizierter Data Scientist; Abschlussprojekt: multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International", "url": "https://www.brandible.de/", "place": "Dresden",
-             "ctx": "B2B-Werbeartikel für Deutschland, Österreich und die Schweiz.",
-             "tree": [("Team", "fünf Personen – Marketing, Grafik, Projektmanagement"),
+             "ctx": "B2B-Werbeartikel für Deutschland, Österreich und die Schweiz, dazu ein Online-Shop für Dresdner Christstollen.",
+             "tree": [("Team", "sieben Personen – drei im Marketing, vier in der Grafik"),
                       ("Scope", "SEO, Performance Marketing und Leadgenerierung – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM, Newsletter und Marketing Automation; "
                                 "Foto- und Videoproduktion – ein Kundentestimonial mit Hellinger 42[[h42]], ein TV-Dreh für Galileo auf ProSieben[[galileo]]"),
                       ("Result", "KUR 13,2 → 12,8 % bei ausgebautem Budget; Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %")]},
-            {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.de/", "place": "Leipzig",
+            {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.de/", "place": "Eilenburg",
+             "ctx": "Online-Outlet für Markensportartikel der Vorsaison.",
              "tree": [("Team", "neun Personen – vier im Design, fünf im Marketing"),
-                      ("Scope", "E-Commerce-Betrieb für Sportartikel im Rabattsegment in DE, COM, FR, IT, NL, ES und PL – E-Mail-Automatisierung, Facebook, Instagram, WhatsApp, Telegram und Affiliate Marketing")]},
+                      ("Scope", "E-Commerce-Betrieb in DE, COM, FR, IT, NL, ES und PL – E-Mail-Automatisierung, Facebook, Instagram, WhatsApp, Telegram und Affiliate Marketing")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
-             "ctx": "Kunstdrucke online in über 15 europäischen Ländern.",
+             "ctx": "Online-Shops für Wandbilder, Kunstdrucke und Rahmen in über 15 europäischen Ländern.",
              "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
                       ("Scope", "SEA, SEO, Marktplätze, Social Media, Creator Relations und Print-Kooperationen; "
                                 "kanalübergreifendes Reporting mit Google Ads Scripts und Apps Script"),
@@ -328,7 +332,7 @@ CONTENT = {
 
 SOURCE_NOTE = f"""<!--
   Hallo · Hi · Ciao – view-source counts as root access, too.
-  On the page: type sudo · ? or F1 lists the keys.
+  On the page: type or tap sudo · ? or F1 lists the keys.
 
   peterstieg.com
   ├── no tracking
@@ -467,7 +471,7 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 <meta property="og:image" content="{URL}og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="{NAME} – {TAGLINE} – {CLAIM}">
+<meta property="og:image:alt" content="{NAME} · {TAGLINE} · {CLAIM}">
 <meta property="og:locale" content="{c['locale']}">
 <meta property="profile:first_name" content="Peter">
 <meta property="profile:last_name" content="Stieg">

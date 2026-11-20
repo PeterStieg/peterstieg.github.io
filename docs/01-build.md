@@ -242,7 +242,7 @@ CONTENT = {
                   "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], [["?", "F1"], "Show this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
-        "desc": "Marketinkerer from Leipzig: …",
+        "desc": "Head of Marketing in Leipzig. …",
         "skip": "Skip to content",
         "nav": [("profile", "Profile"), ("experience", "Experience"), ("projects", "Projects"), ("contact", "Contact")],
         "sec": {"profile": "Profile", "experience": "Experience", "projects": "Projects",
@@ -256,7 +256,8 @@ CONTENT = {
             …
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount. …",
+            "Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – "
+            "…",
             …
         ],
         "roles": [
@@ -271,7 +272,7 @@ CONTENT = {
                       ("Result", "…")]},
             …
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
-             "ctx": "Art prints online in more than 15 European countries.",
+             "ctx": "Online shops for wall art, art prints and frames in more than 15 European countries.",
              "tree": [("Team", "…"),
                       ("Scope", "…"),
                       ("Result", "…")],
@@ -432,7 +433,7 @@ Pitfall: the markers only work where the code runs the text through the matching
 ```python
 SOURCE_NOTE = f"""<!--
   Hallo · Hi · Ciao – view-source counts as root access, too.
-  On the page: type sudo · ? or F1 lists the keys.
+  On the page: type or tap sudo · ? or F1 lists the keys.
 
   peterstieg.com
   ├── no tracking
@@ -445,7 +446,7 @@ SOURCE_NOTE = f"""<!--
 
 - A triple-quoted f-string: it may span lines, and `{MOTTO}` is the only replacement field.
 - The content is an HTML comment (`<!-- … -->`): invisible on the page, visible to anyone who opens the page source. `head()` places it between `<!doctype html>` and `<html>`.
-- The second line points developers to the torch (`site.js`): the same view of the source, on the page. `sudo` switches it on; `?` or F1 opens the card with the keys. The console greeting in `site.js` says the same words, so whoever finds one finds the other.
+- The second line points developers to the torch (`site.js`): the same view of the source, on the page. `sudo`, typed or tapped in the prompt, switches it on; `?` or F1 opens the card with the keys. The console greeting in `site.js` says the same words, so whoever finds one finds the other.
 - The comment text must never contain `-->` – that would end the comment early and print the rest on the page.
 - Pitfall: the comment comes before `<meta charset="utf-8">`. Browsers look for the charset declaration only in the first 1024 bytes of the file; it currently sits at byte 278. Let the comment grow by several hundred bytes and the browser may have to guess the encoding – umlauts and the tree characters break.
 - `dots()` deliberately leaves this comment alone (section 29).
@@ -741,7 +742,7 @@ def head(c, title, desc, canonical, alternates=True, root=None):
 <meta property="og:image" content="{URL}og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="{NAME} – {TAGLINE} – {CLAIM}">
+<meta property="og:image:alt" content="{NAME} · {TAGLINE} · {CLAIM}">
 <meta property="og:locale" content="{c['locale']}">
 <meta property="profile:first_name" content="Peter">
 <meta property="profile:last_name" content="Stieg">
