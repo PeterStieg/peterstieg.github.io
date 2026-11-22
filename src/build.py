@@ -25,6 +25,7 @@ from pathlib import Path
 import base64
 import hashlib
 import json
+import posixpath
 import re
 
 SITE = Path(__file__).resolve().parent.parent / "site"
@@ -44,15 +45,18 @@ CLAIM = "Marketing leadership with root access"
 MOTTO = "sudo dream plan ship"
 TITLE = f"{NAME} – {TAGLINE}"
 
-LANGS = [("en", "EN", "English", "index.html", ""),
-         ("de", "DE", "Deutsch", "de/index.html", "de/")]
+# code, label, name, the start page's address from the site root – its folder: the server answers with index.html
+LANGS = [("en", "EN", "English", ""),
+         ("de", "DE", "Deutsch", "de/")]
+HOME = {code: home for code, _, _, home in LANGS}
 
 # P as in Peter – English in every language, like M³ and F³.
 P4 = ["Performance", "Pipelines", "Pixels", "People"]
 # four chapters, like the parts of a slide deck: the first section of each is numbered and linked in the menu,
-# the sections after it belong to it – P⁴ to Profile, Education to Experience, Sources to Contact
-CHAPTERS = {"profile": ["fields"], "experience": ["education"], "projects": [], "contact": ["notes"]}
-SECTIONS = [k for first, rest in CHAPTERS.items() for k in (first, *rest)]   # page order: profile, fields, experience …
+# the sections after it belong to it – P⁴ and Languages to Profile, Education to Experience
+CHAPTERS = {"profile": ["skills", "languages"], "experience": ["education"], "projects": [], "contact": []}
+# page order: profile, skills, languages, experience … – Sources close the page in no chapter: footnotes from all four lead there
+SECTIONS = [k for first, rest in CHAPTERS.items() for k in (first, *rest)] + ["sources"]
 
 # Footnotes: verification links (QR codes on the Liora diplomas, thekey.career, edX), plus course pages where they exist.
 # "title": one string, or one per language; "when": which date label (issued | completed), default issued;
@@ -101,8 +105,8 @@ CONTENT = {
         "desc": "Head of Marketing in Leipzig. Four leadership roles in e-commerce and B2B, teams of up to nine, up to €240k media budget a month.",
         "skip": "Skip to content",
         "nav": [("profile", "Profile"), ("experience", "Experience"), ("projects", "Projects"), ("contact", "Contact")],
-        "sec": {"profile": "Profile", "experience": "Experience", "projects": "Projects",
-                "education": "Education", "contact": "Contact", "notes": "Sources"},
+        "sec": {"profile": "Profile", "languages": "Languages", "experience": "Experience", "projects": "Projects",
+                "education": "Education", "contact": "Contact", "sources": "Sources"},
         "entry": {"hw": "mar·ke·tin·ker·er", "pos": "noun", "ety": "[*marketer* × *tinkerer*]",
                   "def": "A marketing leader who builds the tools behind the campaigns – and the teams that run them."},
         "profile": "Leadership roles at four companies, with interdisciplinary marketing and design teams of up to nine people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer. Working languages: German, English, Italian.",
@@ -197,8 +201,8 @@ CONTENT = {
             ("2023", "Agile project management specialist[[ihk]]", "IHK"),
             ("2018", "Introduction to Artificial Intelligence[[edx]]", "Microsoft on edX"),
             ("2010", "Bachelor’s degree in economics", "Università degli Studi di Trento"),
-            ("Languages", ["German (native)", "English C2", "Italian C2", "Spanish B1", "French A2"], ""),
         ],
+        "languages": ["German (native)", "English C2", "Italian C2", "Spanish B1", "French A2"],
         "reach": ("Email", "Based in", "Leipzig"),
         "ask": "Questions about performance, pipelines, pixels or people:",
         "notes": {"issued": "issued", "completed": "completed", "verify": "Verify credential", "course": "Course page", "back": "Back to text",
@@ -219,11 +223,11 @@ CONTENT = {
         "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
         "desc": "Marketingleiter in Leipzig. Vier Führungsrollen in E-Commerce und B2B, Teams bis neun Personen, bis 240.000 € Mediabudget im Monat.",
         "skip": "Zum Inhalt springen",
-        "nav": [("profil", "Profil"), ("stationen", "Stationen"), ("projekte", "Projekte"), ("kontakt", "Kontakt")],
-        "sec": {"profile": "Profil", "experience": "Stationen", "projects": "Projekte",
-                "education": "Ausbildung", "contact": "Kontakt", "notes": "Quellen"},
-        "ids": {"profile": "profil", "fields": "p-wie-peter", "experience": "stationen", "projects": "projekte",
-                "education": "ausbildung", "contact": "kontakt", "notes": "quellen"},
+        "nav": [("profil", "Profil"), ("werdegang", "Werdegang"), ("projekte", "Projekte"), ("kontakt", "Kontakt")],
+        "sec": {"profile": "Profil", "languages": "Sprachen", "experience": "Werdegang", "projects": "Projekte",
+                "education": "Ausbildung", "contact": "Kontakt", "sources": "Quellen"},
+        "ids": {"profile": "profil", "skills": "kompetenzen", "languages": "sprachen", "experience": "werdegang",
+                "projects": "projekte", "education": "ausbildung", "contact": "kontakt", "sources": "quellen"},
         "entry": {"hw": "Mar|ke|tin|ke|rer", "pos": "der; -s, -", "ety": "[engl. *marketer* × *tinkerer* ‚Tüftler‘]",
                   "def": "Marketingleiter, der die Werkzeuge hinter seinen Kampagnen baut – und die Teams dahinter."},
         "profile": "Führungsverantwortung in vier mittelständischen Unternehmen, für interdisziplinäre Teams aus Marketing und Design mit bis zu neun Personen in E-Commerce und B2B. Zertifiziert als Data Scientist und MLOps Engineer. Arbeitssprachen: Deutsch, Englisch, Italienisch.",
@@ -318,8 +322,8 @@ CONTENT = {
             ("2023", "Fachkraft für agiles Projektmanagement[[ihk]]", "IHK"),
             ("2018", "Introduction to Artificial Intelligence[[edx]]", "Microsoft auf edX"),
             ("2010", "Bachelor in Wirtschaftswissenschaften", "Università degli Studi di Trento"),
-            ("Sprachen", ["Deutsch (Muttersprache)", "Englisch C2", "Italienisch C2", "Spanisch B1", "Französisch A2"], ""),
         ],
+        "languages": ["Deutsch (Muttersprache)", "Englisch C2", "Italienisch C2", "Spanisch B1", "Französisch A2"],
         "reach": ("E-Mail", "Wohnort", "Leipzig"),
         "ask": "Fragen zu Performance, Pipelines, Pixels oder People:",
         "notes": {"issued": "ausgestellt am", "completed": "abgeschlossen am", "verify": "Nachweis prüfen", "course": "Kursseite", "back": "Zurück zum Text",
@@ -335,9 +339,9 @@ SOURCE_NOTE = f"""<!--
   On the page: type or tap sudo · ? or F1 lists the keys.
 
   peterstieg.com
-  ├── no tracking
-  ├── no cookies
-  └── no framework
+  ├── analytics from the server logs – no cookies, no banner
+  ├── fonts, scripts, images from this server
+  └── no framework – build.py writes the HTML
 
   >_ {MOTTO}
 -->"""
@@ -407,6 +411,21 @@ def slugify(text):
     return re.sub(r"[^a-z0-9]+", "-", text).strip("-")
 
 
+def href(c, target):
+    """target – an address from the site root: "", "de/", "de/impressum.html" – as a link on page c (c["path"]: its file),
+    relative to the page's folder. A folder keeps its "/" ("./", "../", "de/"): the address the search engines know,
+    and one entry per page in the statistics. The 404 pages answer at any address, so theirs start at the root."""
+    if c["root"] == "/":
+        return "/" + target
+    rel = posixpath.relpath(target or ".", posixpath.dirname(c["path"]) or ".")
+    return rel + "/" if not target or target.endswith("/") else rel
+
+
+def page_id(path):
+    """A page's id, its file name without .html: "de/impressum.html" → "impressum" – on the legal pages, the body's id."""
+    return posixpath.basename(path)[:-5]
+
+
 def twins(c, o):
     """Block ids on start page c → the same block's id on start page o, where they differ: the sections, every role,
     every project. The language switch carries the map; site.js opens the other page at the block being read."""
@@ -444,7 +463,7 @@ def head(c, title, desc, canonical, alternates=True, root=None):
     r = c["root"] if root is None else root
     alt = ""
     if alternates:
-        paths = alternates if isinstance(alternates, dict) else {code: slug for code, _, _, _, slug in LANGS}
+        paths = alternates if isinstance(alternates, dict) else HOME
         alt = "".join(f'<link rel="alternate" hreflang="{code}" href="{URL}{paths[code]}">\n' for code, *_ in LANGS)
         alt += f'<link rel="alternate" hreflang="x-default" href="{URL}{paths["en"]}">\n'
         alt += "".join(f'<meta property="og:locale:alternate" content="{CONTENT[code]["locale"]}">\n'
@@ -491,17 +510,16 @@ def script(r):
 
 def lang_switch(c, paths=None, start=False):
     """EN · DE – the current language is marked, the other links to the same page in that language.
-    paths: code → path from the site root; without it, the start pages. start: on a start page the link carries the
+    paths: code → address from the site root; without it, the start pages. start: on a start page the link carries the
     map of block ids (twins), so site.js can open the other page where the reader is."""
-    r = c["root"]
-    paths = paths or {code: path for code, _, _, path, _ in LANGS}
+    paths = paths or HOME
     items = []
-    for code, label, name, _, _ in LANGS:
+    for code, label, name, _ in LANGS:
         if code == c["lang"]:
             items.append(f'<span aria-current="page" title="{name}">{label}</span>')
         else:
             tw = f" data-twins='{json.dumps(twins(c, CONTENT[code]), separators=(',', ':'))}'" if start else ""
-            items.append(f'<a href="{r}{paths[code]}" hreflang="{code}" lang="{code}" title="{name}"{tw}>{label}</a>')
+            items.append(f'<a href="{href(c, paths[code])}" hreflang="{code}" lang="{code}" title="{name}"{tw}>{label}</a>')
     return f'<span class="langs" role="group" aria-label="{e(c["aria_lang"])}">{" ".join(items)}</span>'
 
 
@@ -517,8 +535,7 @@ def topbar(c, start=True, langs=True):
     """The header, the same on every page. start: a start page – the menu jumps within it, the hero's name docks into
     the logo; on the other pages the menu leads to the start page's sections.
     langs: True – the switch to the other start page; a dict (code → path) – to that page; False – no switch."""
-    r = c["root"]
-    to = "" if start else r + c["path"]               # the start page the menu's sections are on
+    to = "" if start else href(c, HOME[c["lang"]])    # the start page the menu's sections are on
     keys = {sid(c, k): k for k in CHAPTERS}          # localized id → section key, for the number
     # number as on the heading; data-label: CSS reserves the bold width, so marking the current section does not shift the menu
     links = "\n".join(f'<a class="sect" href="{to}#{i}"><span class="no" aria-hidden="true">{num(keys[i])}</span> '
@@ -529,7 +546,7 @@ def topbar(c, start=True, langs=True):
     return f"""<a class="skip" href="#main">{e(c['skip'])}</a>
 <header class="top">
 <div class="wrap">
-<a class="home" href="{'#top' if start else r + c['path']}">{word}{LOCKUP}</a>
+<a class="home" href="{'#top' if start else to}">{word}{LOCKUP}</a>
 <nav class="nav" aria-label="{e(c['aria_main'])}">{links}
 {switch}
 {theme_switch(c)}</nav>
@@ -540,12 +557,12 @@ def topbar(c, start=True, langs=True):
 
 def footer(c):
     """The legal pages in the page's language."""
-    r, L = c["root"], c["lang"]
+    L = c["lang"]
     return f"""<footer class="foot">
 <div class="wrap">
 <nav aria-label="{e(c['aria_legal'])}">
-<a href="{r}{LEGAL['imprint'][L][0]}">{e(c['imprint'])}</a>
-<a href="{r}{LEGAL['privacy'][L][0]}">{e(c['privacy'])}</a>
+<a href="{href(c, LEGAL['imprint'][L][0])}">{e(c['imprint'])}</a>
+<a href="{href(c, LEGAL['privacy'][L][0])}">{e(c['privacy'])}</a>
 <span>© {date.today().year} {NAME}</span>
 </nav>
 </div>
@@ -596,9 +613,9 @@ def offsite(c, url, text, attrs="", mark=OUT_SVG, kind=""):
 
 def chapter_no(key):
     """The number before a section title: visible if the section opens a chapter, invisible (.ghost) for the rest,
-    so the titles line up."""
+    so the titles line up. Sources, in no chapter, hold the place with 00 – site.js marks no chapter there."""
     ghost = "" if key in CHAPTERS else " ghost"
-    return f'<span class="no{ghost}" aria-hidden="true">{num(key)}</span> ' if num(key) else ""
+    return f'<span class="no{ghost}" aria-hidden="true">{num(key) or "00"}</span> '
 
 
 def section(c, key, title_html, body, cls="body"):
@@ -643,7 +660,7 @@ def duration(c, n):
 
 
 def title_of(c, key):
-    return 'P<sup>4</sup>' if key == "fields" else e(c["sec"][key])
+    return 'P<sup>4</sup>' if key == "skills" else e(c["sec"][key])
 
 
 def jump(c):
@@ -651,7 +668,7 @@ def jump(c):
     site.js points up and down at the section above and below and shows the chapter number in the middle.
     Without JavaScript: up goes to the top, the menu works (details), down is hidden."""
     j = c["jump"]
-    items = "".join(f'<li><a href="#{sid(c, k)}" data-t="{"P⁴" if k == "fields" else e(c["sec"][k])}">'
+    items = "".join(f'<li><a href="#{sid(c, k)}" data-t="{"P⁴" if k == "skills" else e(c["sec"][k])}">'
                     f'{chapter_no(k)}{title_of(c, k)}</a></li>\n' for k in SECTIONS)
     return f"""<nav class="jump" aria-label="{e(j['label'])}" data-up="{e(j['up'])}" data-down="{e(j['down'])}" data-top="{e(c['to_top'])}">
 <a class="up" href="#top" aria-label="{e(c['to_top'])}" title="{e(c['to_top'])}">{UP_SVG}</a>
@@ -706,7 +723,6 @@ def role(c, ro):
 
 def page(c):
     s, L = c["sec"], c["lang"]
-    slug = next(sl for code, _, _, _, sl in LANGS if code == L)
     en_attr = ' lang="en"' if L != "en" else ""
     order = []  # footnotes, numbered in order of first appearance
 
@@ -715,9 +731,9 @@ def page(c):
         if key not in order:
             order.append(key)
         n = order.index(key) + 1
-        return f'<sup class="fnref"><a href="#fn-{key}" id="ref-{key}" aria-describedby="h-{sid(c, "notes")}">{n}</a></sup>'
+        return f'<sup class="fnref"><a href="#fn-{key}" id="ref-{key}" aria-describedby="h-{sid(c, "sources")}">{n}</a></sup>'
 
-    out = [head(c, TITLE, c["desc"], URL + slug), jsonld(c), "</head>\n<body>\n", topbar(c)]
+    out = [head(c, TITLE, c["desc"], URL + HOME[L]), jsonld(c), "</head>\n<body>\n", topbar(c)]
     out.append(f'<div class="minimap" aria-hidden="true"></div>\n<main id="main"{torch_data(c)}>\n<div class="wrap">\n')
 
     # hero – same order as the LinkedIn banner
@@ -746,7 +762,11 @@ def page(c):
 
     # P⁴ – four fields, each a P
     p4 = "".join(f'<div><h3{en_attr}>{e(p)}</h3><p>{e(txt)}</p></div>\n' for p, txt in zip(P4, c["fields"]))
-    out.append(section(c, "fields", title_of(c, "fields"), f'<div class="fields">\n{p4}</div>\n'))
+    out.append(section(c, "skills", title_of(c, "skills"), f'<div class="fields">\n{p4}</div>\n'))
+
+    # languages – one per line, the level after the name
+    langs = "".join(f"<li>{e(x)}</li>" for x in c["languages"])
+    out.append(section(c, "languages", e(s["languages"]), f'<ul class="lines">{langs}</ul>\n'))
 
     # experience – each role as a #JobAlert-style tree
     roles = []
@@ -759,10 +779,7 @@ def page(c):
     fa = []
     for k, v, sub in c["facts"]:
         subtxt = f'<br><span class="muted">{e(sub)}</span>' if sub else ""
-        if isinstance(v, list):                             # one per line: the languages
-            val = '<ul class="lines">' + "".join(f"<li>{e(x)}</li>" for x in v) + "</ul>"
-        else:
-            val = re.sub(r"\[\[(\w+)\]\]", fn, e(v))
+        val = re.sub(r"\[\[(\w+)\]\]", fn, e(v))
         fa.append(f"<div><dt>{e(k)}</dt><dd>{val}{subtxt}</dd></div>\n")
     out.append(section(c, "education", e(s["education"]), f'<dl class="facts">\n{"".join(fa)}</dl>\n'))
 
@@ -803,7 +820,7 @@ def page(c):
         course = f' · {offsite(c, n["course"], e(nl["course"]), en)}' if n.get("course") else ""
         notes.append(f'{back}{e(note_title(c, n))} · {e(nl[n.get("when", "issued")])} {e(n["date"][L])} · '
                      f'{offsite(c, n["verify"], e(nl["verify"]))}{course}</li>\n')
-    out.append(section(c, "notes", e(s["notes"]), f'<ol class="notes">\n{"".join(notes)}</ol>\n'))
+    out.append(section(c, "sources", e(s["sources"]), f'<ol class="notes">\n{"".join(notes)}</ol>\n'))
 
     out.append("</div>\n</main>\n")
     out.append(footer(c))
@@ -834,12 +851,16 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 <h2>Verantwortlicher</h2>
 <address>{ADDRESS}<br>E-Mail: <a href="mailto:{EMAIL}">{EMAIL}</a></address>
 <h2>Kurz gesagt</h2>
-<p>Diese Website setzt keine Cookies, nutzt keine Analyse- oder Tracking-Werkzeuge und lädt keine Inhalte von Drittanbietern. Schriften, Skripte und Grafiken liegen auf demselben Server wie die Seite selbst. Nur wenn Sie selbst zwischen hellem und dunklem Design wechseln, merkt sich Ihr Browser diese Auswahl (siehe unten).</p>
+<p>Diese Website setzt keine Cookies und lädt keine Inhalte von Drittanbietern: Schriften, Skripte und Grafiken liegen auf demselben Server wie die Seite selbst. Besuche werden statistisch ausgewertet – aus den Server-Logfiles, mit anonymisierter IP-Adresse. Ihr Browser speichert nur, was Sie selbst wählen: das helle oder dunkle Design und, im Haushaltsbuch, Sprache und Regeln (siehe unten).</p>
 <h2>Hosting und Server-Logfiles</h2>
 <p>Beim Aufruf der Website verarbeitet der Hosting-Anbieter automatisch Daten, die Ihr Browser übermittelt: IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Seite, Referrer-URL sowie Browser und Betriebssystem. Das ist technisch erforderlich, um die Seite auszuliefern und ihre Sicherheit zu gewährleisten. Rechtsgrundlage ist das berechtigte Interesse nach Art. 6 Abs. 1 lit. f DSGVO.</p>
 <p>Hosting-Anbieter: IONOS SE, Elgendorfer Str. 57, 56410 Montabaur. Mit ihm besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO. Die Speicherdauer der Logfiles richtet sich nach seinen Vorgaben.</p>
+<h2>Reichweitenmessung mit IONOS WebAnalytics</h2>
+<p>Um die Website statistisch auszuwerten und technisch zu verbessern, wertet IONOS WebAnalytics die Server-Logfiles aus: Referrer-URL, aufgerufene Seite oder Datei, Browser und Version, Betriebssystem, Gerätetyp und Zeitpunkt des Zugriffs. Die IP-Adresse wird direkt nach der Übermittlung anonymisiert und nur noch genutzt, um den Ort des Zugriffs zu bestimmen. Es werden keine Cookies gesetzt, keine Zählpixel oder zusätzlichen Skripte geladen und keine Daten an Dritte weitergegeben. Die Auswertung fällt unter den Vertrag zur Auftragsverarbeitung mit IONOS. Rechtsgrundlage ist das berechtigte Interesse nach Art. 6 Abs. 1 lit. f DSGVO; Sie können der Verarbeitung widersprechen (Art. 21 DSGVO).</p>
 <h2>Helles und dunkles Design</h2>
 <p>Ohne Ihr Zutun folgt die Website der Einstellung Ihres Geräts. Wählen Sie das Design über den Schalter oben selbst, speichert Ihr Browser diese Auswahl lokal (Local Storage), damit sie beim nächsten Besuch erhalten bleibt. Der Eintrag bleibt auf Ihrem Gerät und wird nicht an den Server übertragen. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Sie können den Eintrag jederzeit löschen: mit einem zweiten Klick auf das gewählte Design oder über die Einstellungen Ihres Browsers.</p>
+<h2>Haushaltsbuch</h2>
+<p>Das Haushaltsbuch unter peterstieg.com/haushaltsbuch/ liest die Kontoauszüge, die Sie auswählen, ausschließlich in Ihrem Browser: Die Dateien werden weder hochgeladen noch an Dritte übertragen. Lokal (Local Storage) speichert Ihr Browser die Sprache, wenn Sie sie wechseln, und Ihre Regeln und Namen, wenn Sie „In diesem Browser merken“ wählen – nie Umsätze. Die Einträge bleiben auf Ihrem Gerät. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Die Regeln löschen Sie, indem Sie „In diesem Browser merken“ wieder abwählen, alle Einträge über die Einstellungen Ihres Browsers.</p>
 <h2>Kontakt per E-Mail</h2>
 <p>Wenn Sie eine E-Mail schreiben, werden Ihre Angaben verarbeitet, um die Anfrage zu beantworten (Art. 6 Abs. 1 lit. b oder f DSGVO). Die Daten werden gelöscht, sobald sie dafür nicht mehr benötigt werden und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
 <h2>Links zu anderen Plattformen</h2>
@@ -850,7 +871,7 @@ DATENSCHUTZ = f"""<h1>Datenschutzerklärung</h1>
 
 
 IMPRINT_EN = f"""<h1>Legal notice</h1>
-<p class="muted">Translation – the German <a href="impressum.html" hreflang="de" lang="de">Impressum</a> is legally binding.</p>
+<p class="muted">Translation – the German <a href="de/impressum.html" hreflang="de" lang="de">Impressum</a> is legally binding.</p>
 <h2>Information pursuant to § 5 DDG</h2>
 <address>{ADDRESS.replace("Deutschland", "Germany")}</address>
 <h2>Contact</h2>
@@ -860,16 +881,20 @@ IMPRINT_EN = f"""<h1>Legal notice</h1>
 """
 
 PRIVACY_EN = f"""<h1>Privacy policy</h1>
-<p class="muted">As of November 2026 · Translation – the German <a href="datenschutz.html" hreflang="de" lang="de">Datenschutzerklärung</a> is legally binding.</p>
+<p class="muted">As of November 2026 · Translation – the German <a href="de/datenschutz.html" hreflang="de" lang="de">Datenschutzerklärung</a> is legally binding.</p>
 <h2>Controller</h2>
 <address>{ADDRESS.replace("Deutschland", "Germany")}<br>Email: <a href="mailto:{EMAIL}">{EMAIL}</a></address>
 <h2>In short</h2>
-<p>This website sets no cookies, uses no analytics or tracking tools and loads no content from third parties. Fonts, scripts and graphics are stored on the same server as the page itself. Only if you switch between the light and dark design yourself does your browser remember that choice (see below).</p>
+<p>This website sets no cookies and loads no content from third parties: fonts, scripts and graphics are stored on the same server as the page itself. Visits are evaluated statistically – from the server log files, with the IP address anonymised. Your browser stores only what you choose yourself: the light or dark design and, in the Haushaltsbuch, language and rules (see below).</p>
 <h2>Hosting and server log files</h2>
 <p>When you visit the website, the hosting provider automatically processes data your browser transmits: IP address, date and time of access, the page requested, referrer URL, browser and operating system. This is technically necessary to deliver the page and keep it secure. The legal basis is legitimate interest under Art. 6(1)(f) GDPR.</p>
 <p>Hosting provider: IONOS SE, Elgendorfer Str. 57, 56410 Montabaur, Germany. A data processing agreement under Art. 28 GDPR is in place with it. How long the log files are kept is set by the provider.</p>
+<h2>Audience measurement with IONOS WebAnalytics</h2>
+<p>To evaluate the website statistically and improve it technically, IONOS WebAnalytics analyses the server log files: referrer URL, the page or file requested, browser and version, operating system, device type and time of access. The IP address is anonymised directly after transmission and used only to determine where the access came from. No cookies are set, no tracking pixels or additional scripts are loaded, and no data is passed on to third parties. The analysis is covered by the data processing agreement with IONOS. The legal basis is legitimate interest under Art. 6(1)(f) GDPR; you can object to the processing (Art. 21 GDPR).</p>
 <h2>Light and dark design</h2>
 <p>Unless you choose otherwise, the website follows your device's setting. If you choose the design yourself with the switch at the top, your browser stores this choice locally (Local Storage) so it is kept for your next visit. The entry stays on your device and is not sent to the server. The legal basis is § 25(2) no. 2 TDDDG. You can delete the entry at any time: with a second click on the chosen design, or in your browser's settings.</p>
+<h2>Haushaltsbuch</h2>
+<p>The Haushaltsbuch, a household ledger at peterstieg.com/haushaltsbuch/, reads the bank statements you select in your browser only: the files are neither uploaded nor passed on to third parties. Your browser stores locally (Local Storage) the language, if you switch it, and your rules and names, if you choose “Remember in this browser” – never transactions. The entries stay on your device. The legal basis is § 25(2) no. 2 TDDDG. You delete the rules by unticking “Remember in this browser”, all entries in your browser's settings.</p>
 <h2>Contact by email</h2>
 <p>If you write an email, the details you provide are processed to answer your inquiry (Art. 6(1)(b) or (f) GDPR). The data is deleted as soon as it is no longer needed for this purpose, unless statutory retention obligations apply.</p>
 <h2>Links to other platforms</h2>
@@ -879,33 +904,34 @@ PRIVACY_EN = f"""<h1>Privacy policy</h1>
 """
 
 # German law asks for both pages; the German text is binding, the English one is a translation and says so.
-# Per page and language: path, title, body. The footer links the pair in the page's language.
+# Per page and language: path, title, body – English in the root, German in de/, like the start pages.
+# The footer links the pair in the page's language.
 LEGAL = {
-    "imprint": {"en": ("legal-notice.html", "Legal notice", IMPRINT_EN), "de": ("impressum.html", "Impressum", IMPRESSUM)},
-    "privacy": {"en": ("privacy.html", "Privacy policy", PRIVACY_EN), "de": ("datenschutz.html", "Datenschutzerklärung", DATENSCHUTZ)},
+    "imprint": {"en": ("legal-notice.html", "Legal notice", IMPRINT_EN), "de": ("de/impressum.html", "Impressum", IMPRESSUM)},
+    "privacy": {"en": ("privacy.html", "Privacy policy", PRIVACY_EN), "de": ("de/datenschutz.html", "Datenschutzerklärung", DATENSCHUTZ)},
 }
 
 
 def legal(key, L):
     """A legal page in one language. The language switch leads to the same page in the other language; the body's id
     (the file name) tells the torch which page it is on."""
-    c = dict(CONTENT[L], root="")
     path, title, body = LEGAL[key][L]
+    c = dict(CONTENT[L], path=path, root="../" * path.count("/"))   # the German pages sit in de/, like the German start page
     pair = {code: p[0] for code, p in LEGAL[key].items()}
     return "".join([
         head(c, f"{title} – {NAME}", c["legal_desc"] % title, URL + path, alternates=pair),
         '<meta name="robots" content="noindex, follow">\n</head>\n<body>\n',
         topbar(c, start=False, langs=pair),
-        f'<main id="main"{torch_data(c)}>\n<div class="wrap legal">\n<div class="body" id="{path[:-5]}">\n{body}</div>\n</div>\n</main>\n',
-        footer(c), script("") + "</body>\n</html>\n"])
+        f'<main id="main"{torch_data(c)}>\n<div class="wrap legal">\n<div class="body" id="{page_id(path)}">\n{body}</div>\n</div>\n</main>\n',
+        footer(c), script(c["root"]) + "</body>\n</html>\n"])
 
 
 def not_found(c):
     """404 with a Google Ads insider joke: Dynamic Keyword Insertion, {KeyWord:Default}. One per language – a missing
     address under /de/ gets the German one (de/.htaccess) – each with a line in the other language and its start page."""
     word, rest, line, home_name = c["lost"]
-    _, _, _, _, home = next(x for x in LANGS if x[0] == c["lang"])
-    other = next(x for x in LANGS if x[0] != c["lang"])           # code, label, name, path, slug
+    home = HOME[c["lang"]]
+    other = next(x for x in LANGS if x[0] != c["lang"])           # code, label, name, home
     c = dict(c, root="/")
     return "".join([
         head(c, f"404 – {NAME}", f"{word} {rest}", f"{URL}{home}404.html", alternates=False, root="/"),
@@ -948,7 +974,7 @@ TORCH = [
     (".role .org", '<p class="org">{org}{place}</p>', 1),
     (".role .ctx", 'ctx = f\'<p class="ctx">', 1),
     (".role .tree li", "items = \"\".join(f'<li><span class=\"k\"", 1),
-    (".lines li", 'val = \'<ul class="lines">\'', 1),
+    (".lines li", 'langs = "".join(f"<li>{e(x)}</li>"', 1),
     (".ask", "contact = f'<p class=\"ask\">", 1),
     (".facts:has(a[href^='mailto:']) dt, .facts:has(a[href^='mailto:']) dd", "contact += '<dl class=\"facts\">", 1),
     (".facts dt, .facts dd", 'fa.append(f"<div><dt>', 1),
@@ -981,7 +1007,7 @@ def torch_map():
     for pages in LEGAL.values():
         for path, _, body in pages.values():
             first = next(i for i, line in enumerate(src) if line.endswith('f"""' + body.split("\n")[0]))
-            rows += [[f"#{path[:-5]} > :nth-child({k + 1})", i + 1, src[i]]
+            rows += [[f"#{page_id(path)} > :nth-child({k + 1})", i + 1, src[i]]
                      for k, i in enumerate(range(first, src.index('"""', first)))]
     return rows
 
@@ -1009,6 +1035,12 @@ RewriteEngine On
 RewriteCond %{HTTP_HOST} ^www\. [NC,OR]
 RewriteCond %{SERVER_PORT} !=443
 RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
+# a start page has one address, its folder: /index.html → /, /de/index.html → /de/. THE_REQUEST is the line the
+# browser sent – the server's own step from / to index.html does not match it, so nothing loops.
+RewriteCond %{THE_REQUEST} \s/((de/)?)index\.html[?\s]
+RewriteRule ^ https://peterstieg.com/%1 [R=301,L]
+# the German legal pages moved to de/ (November 2026): old links and bookmarks follow
+RewriteRule ^(impressum|datenschutz)\.html$ https://peterstieg.com/de/$1.html [R=301,L]
 </IfModule>
 
 # security: HTTPS only for a year, no content sniffing, no framing, no camera, microphone or location; the referrer
@@ -1059,8 +1091,8 @@ def build():
     (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n", encoding="utf-8")
     # The sitemap lists pages, not content: it changes when pages are added or removed. lastmod = build date.
     today = date.today().isoformat()
-    alts = "".join(f'<xhtml:link rel="alternate" hreflang="{code}" href="{URL}{slug}"/>' for code, _, _, _, slug in LANGS)
-    urls = "".join(f"<url><loc>{URL}{slug}</loc><lastmod>{today}</lastmod>\n{alts}</url>\n" for *_, slug in LANGS)
+    alts = "".join(f'<xhtml:link rel="alternate" hreflang="{code}" href="{URL}{home}"/>' for code, home in HOME.items())
+    urls = "".join(f"<url><loc>{URL}{home}</loc><lastmod>{today}</lastmod>\n{alts}</url>\n" for home in HOME.values())
     (SITE / "sitemap.xml").write_text(f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 {urls}</urlset>

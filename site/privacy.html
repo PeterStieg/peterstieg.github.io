@@ -4,9 +4,9 @@
   On the page: type or tap sudo · ? or F1 lists the keys.
 
   peterstieg.com
-  ├── no tracking
-  ├── no cookies
-  └── no framework
+  ├── analytics from the server logs – no cookies, no banner
+  ├── fonts, scripts, images from this server
+  └── no framework – build.py writes the HTML
 
   >_ sudo dream plan ship
 -->
@@ -22,7 +22,7 @@
 <meta name="author" content="Peter Stieg">
 <link rel="canonical" href="https://peterstieg.com/privacy.html">
 <link rel="alternate" hreflang="en" href="https://peterstieg.com/privacy.html">
-<link rel="alternate" hreflang="de" href="https://peterstieg.com/datenschutz.html">
+<link rel="alternate" hreflang="de" href="https://peterstieg.com/de/datenschutz.html">
 <link rel="alternate" hreflang="x-default" href="https://peterstieg.com/privacy.html">
 <meta property="og:locale:alternate" content="de_DE">
 <meta name="theme-color" content="#F7F6F3" media="(prefers-color-scheme: light)">
@@ -51,12 +51,12 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
 <div class="wrap">
-<a class="home" href="index.html"><svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="40 -668 1971.03 813" role="img" aria-label="Peter Stieg"><g class="still"><path class="acc" d="M40 3.37 533 -208.63V-307.63L40 -518.63V-376.63L365 -258.63L40 -138.63ZM583 119.37H993V-8.63H583Z"/><path class="ink" d="M1043 119.37 1201 62.32V-232H1300Q1380.11 -232 1444.54 -247.26L1572.06 -573.65Q1568.04 -579.6 1563.5 -585Q1524 -632 1455.5 -650Q1387 -668 1300 -668H1043V119.37ZM1729.03 145Q1781.03 145 1831.03 130.5Q1881.03 116 1921.53 88Q1962.03 60 1986.53 18.5Q2011.03 -23 2011.03 -76Q2011.03 -128 1989.03 -162Q1967.03 -196 1931.53 -216.5Q1896.03 -237 1854.03 -249.5Q1812.03 -262 1771.03 -270L1681.03 -288Q1647.03 -295 1626.03 -313Q1605.03 -331 1605.03 -356Q1605.03 -387 1635.53 -403.5Q1666.03 -420 1712.03 -420Q1759.03 -420 1792.53 -402Q1826.03 -384 1839.03 -350L1982.03 -402Q1961.03 -454 1921.03 -485.5Q1881.03 -517 1830.53 -532Q1780.03 -547 1726.03 -547Q1676.03 -547 1626.03 -534.5Q1617.16 -532.28 1608.56 -529.67L1489.33 -224.52Q1512.87 -201.31 1545.53 -185.5Q1592.03 -163 1646.03 -152L1727.03 -136Q1781.03 -126 1815.03 -106.5Q1849.03 -87 1849.03 -52Q1849.03 -26 1831.03 -10.5Q1813.03 5 1786.03 11.5Q1759.03 18 1730.03 18Q1675.03 18 1636.53 -5Q1598.03 -28 1584.03 -76L1440.03 -24Q1471.03 56 1545.53 100.5Q1620.03 145 1729.03 145ZM1201 -363V-535H1305Q1342 -535 1371.5 -528.5Q1401 -522 1418.5 -503.5Q1436 -485 1436 -450Q1436 -415 1418.5 -396Q1401 -377 1371.5 -370Q1342 -363 1305 -363Z"/></g></svg></a>
-<nav class="nav" aria-label="Main"><a class="sect" href="index.html#profile"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profile">Profile</span></a>
-<a class="sect" href="index.html#experience"><span class="no" aria-hidden="true">02</span> <span class="label" data-label="Experience">Experience</span></a>
-<a class="sect" href="index.html#projects"><span class="no" aria-hidden="true">03</span> <span class="label" data-label="Projects">Projects</span></a>
-<a class="sect" href="index.html#contact"><span class="no" aria-hidden="true">04</span> <span class="label" data-label="Contact">Contact</span></a>
-<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="datenschutz.html" hreflang="de" lang="de" title="Deutsch">DE</a></span>
+<a class="home" href="./"><svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="40 -668 1971.03 813" role="img" aria-label="Peter Stieg"><g class="still"><path class="acc" d="M40 3.37 533 -208.63V-307.63L40 -518.63V-376.63L365 -258.63L40 -138.63ZM583 119.37H993V-8.63H583Z"/><path class="ink" d="M1043 119.37 1201 62.32V-232H1300Q1380.11 -232 1444.54 -247.26L1572.06 -573.65Q1568.04 -579.6 1563.5 -585Q1524 -632 1455.5 -650Q1387 -668 1300 -668H1043V119.37ZM1729.03 145Q1781.03 145 1831.03 130.5Q1881.03 116 1921.53 88Q1962.03 60 1986.53 18.5Q2011.03 -23 2011.03 -76Q2011.03 -128 1989.03 -162Q1967.03 -196 1931.53 -216.5Q1896.03 -237 1854.03 -249.5Q1812.03 -262 1771.03 -270L1681.03 -288Q1647.03 -295 1626.03 -313Q1605.03 -331 1605.03 -356Q1605.03 -387 1635.53 -403.5Q1666.03 -420 1712.03 -420Q1759.03 -420 1792.53 -402Q1826.03 -384 1839.03 -350L1982.03 -402Q1961.03 -454 1921.03 -485.5Q1881.03 -517 1830.53 -532Q1780.03 -547 1726.03 -547Q1676.03 -547 1626.03 -534.5Q1617.16 -532.28 1608.56 -529.67L1489.33 -224.52Q1512.87 -201.31 1545.53 -185.5Q1592.03 -163 1646.03 -152L1727.03 -136Q1781.03 -126 1815.03 -106.5Q1849.03 -87 1849.03 -52Q1849.03 -26 1831.03 -10.5Q1813.03 5 1786.03 11.5Q1759.03 18 1730.03 18Q1675.03 18 1636.53 -5Q1598.03 -28 1584.03 -76L1440.03 -24Q1471.03 56 1545.53 100.5Q1620.03 145 1729.03 145ZM1201 -363V-535H1305Q1342 -535 1371.5 -528.5Q1401 -522 1418.5 -503.5Q1436 -485 1436 -450Q1436 -415 1418.5 -396Q1401 -377 1371.5 -370Q1342 -363 1305 -363Z"/></g></svg></a>
+<nav class="nav" aria-label="Main"><a class="sect" href="./#profile"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profile">Profile</span></a>
+<a class="sect" href="./#experience"><span class="no" aria-hidden="true">02</span> <span class="label" data-label="Experience">Experience</span></a>
+<a class="sect" href="./#projects"><span class="no" aria-hidden="true">03</span> <span class="label" data-label="Projects">Projects</span></a>
+<a class="sect" href="./#contact"><span class="no" aria-hidden="true">04</span> <span class="label" data-label="Contact">Contact</span></a>
+<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="de/datenschutz.html" hreflang="de" lang="de" title="Deutsch">DE</a></span>
 <span class="themes" role="group" aria-label="Theme"><button type="button" data-theme-set="light" aria-pressed="false" aria-label="Light" title="Light"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3.05 3.05l1.13 1.13M11.82 11.82l1.13 1.13M3.05 12.95l1.13-1.13M11.82 4.18l1.13-1.13"/></svg></button><button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Dark" title="Dark"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg></button></span></nav>
 </div>
 </header>
@@ -64,19 +64,23 @@
 <div class="wrap legal">
 <div class="body" id="privacy">
 <h1>Privacy policy</h1>
-<p class="muted">As of November 2026&nbsp;· Translation – the German <a href="datenschutz.html" hreflang="de" lang="de">Datenschutzerklärung</a> is legally binding.</p>
+<p class="muted">As of November 2026&nbsp;· Translation – the German <a href="de/datenschutz.html" hreflang="de" lang="de">Datenschutzerklärung</a> is legally binding.</p>
 <h2>Controller</h2>
 <address>Peter Stieg<br>
 Heinrich-Budde-Str. 8<br>
 04157 Leipzig<br>
 Germany<br>Email: <a href="mailto:info@peterstieg.com">info@peterstieg.com</a></address>
 <h2>In short</h2>
-<p>This website sets no cookies, uses no analytics or tracking tools and loads no content from third parties. Fonts, scripts and graphics are stored on the same server as the page itself. Only if you switch between the light and dark design yourself does your browser remember that choice (see below).</p>
+<p>This website sets no cookies and loads no content from third parties: fonts, scripts and graphics are stored on the same server as the page itself. Visits are evaluated statistically – from the server log files, with the IP address anonymised. Your browser stores only what you choose yourself: the light or dark design and, in the Haushaltsbuch, language and rules (see below).</p>
 <h2>Hosting and server log files</h2>
 <p>When you visit the website, the hosting provider automatically processes data your browser transmits: IP address, date and time of access, the page requested, referrer URL, browser and operating system. This is technically necessary to deliver the page and keep it secure. The legal basis is legitimate interest under Art. 6(1)(f) GDPR.</p>
 <p>Hosting provider: IONOS SE, Elgendorfer Str. 57, 56410 Montabaur, Germany. A data processing agreement under Art. 28 GDPR is in place with it. How long the log files are kept is set by the provider.</p>
+<h2>Audience measurement with IONOS WebAnalytics</h2>
+<p>To evaluate the website statistically and improve it technically, IONOS WebAnalytics analyses the server log files: referrer URL, the page or file requested, browser and version, operating system, device type and time of access. The IP address is anonymised directly after transmission and used only to determine where the access came from. No cookies are set, no tracking pixels or additional scripts are loaded, and no data is passed on to third parties. The analysis is covered by the data processing agreement with IONOS. The legal basis is legitimate interest under Art. 6(1)(f) GDPR; you can object to the processing (Art. 21 GDPR).</p>
 <h2>Light and dark design</h2>
 <p>Unless you choose otherwise, the website follows your device's setting. If you choose the design yourself with the switch at the top, your browser stores this choice locally (Local Storage) so it is kept for your next visit. The entry stays on your device and is not sent to the server. The legal basis is § 25(2) no. 2 TDDDG. You can delete the entry at any time: with a second click on the chosen design, or in your browser's settings.</p>
+<h2>Haushaltsbuch</h2>
+<p>The Haushaltsbuch, a household ledger at peterstieg.com/haushaltsbuch/, reads the bank statements you select in your browser only: the files are neither uploaded nor passed on to third parties. Your browser stores locally (Local Storage) the language, if you switch it, and your rules and names, if you choose “Remember in this browser” – never transactions. The entries stay on your device. The legal basis is § 25(2) no. 2 TDDDG. You delete the rules by unticking “Remember in this browser”, all entries in your browser's settings.</p>
 <h2>Contact by email</h2>
 <p>If you write an email, the details you provide are processed to answer your inquiry (Art. 6(1)(b) or (f) GDPR). The data is deleted as soon as it is no longer needed for this purpose, unless statutory retention obligations apply.</p>
 <h2>Links to other platforms</h2>
@@ -95,6 +99,6 @@ Germany<br>Email: <a href="mailto:info@peterstieg.com">info@peterstieg.com</a></
 </nav>
 </div>
 </footer>
-<script src="assets/site.js?v=f1c82b12" defer></script>
+<script src="assets/site.js?v=4be54ed3" defer></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 Hallo · Hi · Ciao – this is the source of [peterstieg.com](https://peterstieg.com).
 
-One Python script turns the copy into static HTML. No framework, no tracking, no cookies.
+One Python script turns the copy into static HTML. No framework, no cookies – analytics from the server logs.
 
 ```
 peterstieg.github.io
@@ -11,9 +11,8 @@ peterstieg.github.io
 ├── src/monogram/         the PS monogram: generator, SVG files, the link preview's source
 ├── site/                 generated – exactly what goes on the server
 │   ├── index.html        English (default)
-│   ├── de/               German: index.html · 404.html · .htaccess
 │   ├── legal-notice.html · privacy.html      legal pages, English
-│   ├── impressum.html · datenschutz.html     legal pages, German (binding)
+│   ├── de/               German: index.html · impressum.html · datenschutz.html (binding) · 404.html · .htaccess
 │   ├── 404.html · .htaccess
 │   ├── assets/           site.css · site.js · torch.json · fonts/
 │   ├── favicon.ico · favicon.svg · apple-touch-icon.png · icon-192/512.png · site.webmanifest
@@ -33,7 +32,7 @@ Python 3, nothing to install. The script overwrites every HTML page in `site/` p
 
 ## Deploy
 
-Manual for now: upload the **contents** of `site/` to the web root at IONOS, keeping the folder structure – including the two hidden `.htaccess` files. Afterwards, refresh the link preview with LinkedIn's Post Inspector. The content security policy is report-only: while the browser console on the live site shows violations, it stays so; once it shows none, the header in `HTACCESS` (`src/build.py`) becomes `Content-Security-Policy` and the policy blocks.
+Manual for now: upload the **contents** of `site/` to the web root at IONOS, keeping the folder structure – including the two hidden `.htaccess` files. `/haushaltsbuch/` on the server is not built from this repo: replacing files leaves it in place. `/impressum.html` and `/datenschutz.html` in the web root are left over from before November 2026 – `.htaccess` forwards both addresses to `de/`, the files can go. Afterwards, refresh the link preview with LinkedIn's Post Inspector. The content security policy is report-only: while the browser console on the live site shows violations, it stays so; once it shows none, the header in `HTACCESS` (`src/build.py`) becomes `Content-Security-Policy` and the policy blocks.
 
 `peterstieg.github.io` is not a second copy: GitHub Pages serves only the forward page from the repo root – `index.html`, `404.html` and `forward/`. A two-second terminal scene (`mv -v peterstieg.github.io peterstieg.com`), then every path lands on peterstieg.com. `_config.yml` keeps `site/`, `src/` and `docs/` out of Pages. Changes go live on merge to `master`, no upload needed.
 

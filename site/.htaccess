@@ -8,6 +8,12 @@ RewriteEngine On
 RewriteCond %{HTTP_HOST} ^www\. [NC,OR]
 RewriteCond %{SERVER_PORT} !=443
 RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
+# a start page has one address, its folder: /index.html → /, /de/index.html → /de/. THE_REQUEST is the line the
+# browser sent – the server's own step from / to index.html does not match it, so nothing loops.
+RewriteCond %{THE_REQUEST} \s/((de/)?)index\.html[?\s]
+RewriteRule ^ https://peterstieg.com/%1 [R=301,L]
+# the German legal pages moved to de/ (November 2026): old links and bookmarks follow
+RewriteRule ^(impressum|datenschutz)\.html$ https://peterstieg.com/de/$1.html [R=301,L]
 </IfModule>
 
 # security: HTTPS only for a year, no content sniffing, no framing, no camera, microphone or location; the referrer

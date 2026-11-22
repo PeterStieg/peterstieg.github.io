@@ -4,9 +4,9 @@
   On the page: type or tap sudo · ? or F1 lists the keys.
 
   peterstieg.com
-  ├── no tracking
-  ├── no cookies
-  └── no framework
+  ├── analytics from the server logs – no cookies, no banner
+  ├── fonts, scripts, images from this server
+  └── no framework – build.py writes the HTML
 
   >_ sudo dream plan ship
 -->
@@ -53,10 +53,10 @@
 <div class="wrap">
 <a class="home" href="#top"><span class="word" aria-hidden="true"><span class="caret">&gt;_</span><span class="name">Peter Stieg</span></span><svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="40 -668 1971.03 813" role="img" aria-label="Peter Stieg"><g class="still"><path class="acc" d="M40 3.37 533 -208.63V-307.63L40 -518.63V-376.63L365 -258.63L40 -138.63ZM583 119.37H993V-8.63H583Z"/><path class="ink" d="M1043 119.37 1201 62.32V-232H1300Q1380.11 -232 1444.54 -247.26L1572.06 -573.65Q1568.04 -579.6 1563.5 -585Q1524 -632 1455.5 -650Q1387 -668 1300 -668H1043V119.37ZM1729.03 145Q1781.03 145 1831.03 130.5Q1881.03 116 1921.53 88Q1962.03 60 1986.53 18.5Q2011.03 -23 2011.03 -76Q2011.03 -128 1989.03 -162Q1967.03 -196 1931.53 -216.5Q1896.03 -237 1854.03 -249.5Q1812.03 -262 1771.03 -270L1681.03 -288Q1647.03 -295 1626.03 -313Q1605.03 -331 1605.03 -356Q1605.03 -387 1635.53 -403.5Q1666.03 -420 1712.03 -420Q1759.03 -420 1792.53 -402Q1826.03 -384 1839.03 -350L1982.03 -402Q1961.03 -454 1921.03 -485.5Q1881.03 -517 1830.53 -532Q1780.03 -547 1726.03 -547Q1676.03 -547 1626.03 -534.5Q1617.16 -532.28 1608.56 -529.67L1489.33 -224.52Q1512.87 -201.31 1545.53 -185.5Q1592.03 -163 1646.03 -152L1727.03 -136Q1781.03 -126 1815.03 -106.5Q1849.03 -87 1849.03 -52Q1849.03 -26 1831.03 -10.5Q1813.03 5 1786.03 11.5Q1759.03 18 1730.03 18Q1675.03 18 1636.53 -5Q1598.03 -28 1584.03 -76L1440.03 -24Q1471.03 56 1545.53 100.5Q1620.03 145 1729.03 145ZM1201 -363V-535H1305Q1342 -535 1371.5 -528.5Q1401 -522 1418.5 -503.5Q1436 -485 1436 -450Q1436 -415 1418.5 -396Q1401 -377 1371.5 -370Q1342 -363 1305 -363Z"/></g></svg></a>
 <nav class="nav" aria-label="Hauptnavigation"><a class="sect" href="#profil"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profil">Profil</span></a>
-<a class="sect" href="#stationen"><span class="no" aria-hidden="true">02</span> <span class="label" data-label="Stationen">Stationen</span></a>
+<a class="sect" href="#werdegang"><span class="no" aria-hidden="true">02</span> <span class="label" data-label="Werdegang">Werdegang</span></a>
 <a class="sect" href="#projekte"><span class="no" aria-hidden="true">03</span> <span class="label" data-label="Projekte">Projekte</span></a>
 <a class="sect" href="#kontakt"><span class="no" aria-hidden="true">04</span> <span class="label" data-label="Kontakt">Kontakt</span></a>
-<span class="langs" role="group" aria-label="Sprache"><a href="../index.html" hreflang="en" lang="en" title="English" data-twins='{"profil":"profile","p-wie-peter":"fields","stationen":"experience","ausbildung":"education","projekte":"projects","kontakt":"contact","quellen":"notes","freiberuflich":"freelance","rom-2010-2014":"rome-2010-2014","kundenportal":"customer-portal","anruf-und-anfragen-pipeline":"call-and-inquiry-pipeline","dokumentenextraktion":"document-extraction","rakuten-produktklassifikation":"rakuten-product-classification","rakuten-klassifikation-mlops":"rakuten-classification-mlops"}'>EN</a> <span aria-current="page" title="Deutsch">DE</span></span>
+<span class="langs" role="group" aria-label="Sprache"><a href="../" hreflang="en" lang="en" title="English" data-twins='{"profil":"profile","kompetenzen":"skills","sprachen":"languages","werdegang":"experience","ausbildung":"education","projekte":"projects","kontakt":"contact","quellen":"sources","freiberuflich":"freelance","rom-2010-2014":"rome-2010-2014","kundenportal":"customer-portal","anruf-und-anfragen-pipeline":"call-and-inquiry-pipeline","dokumentenextraktion":"document-extraction","rakuten-produktklassifikation":"rakuten-product-classification","rakuten-klassifikation-mlops":"rakuten-classification-mlops"}'>EN</a> <span aria-current="page" title="Deutsch">DE</span></span>
 <span class="themes" role="group" aria-label="Darstellung"><button type="button" data-theme-set="light" aria-pressed="false" aria-label="Hell" title="Hell"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3.05 3.05l1.13 1.13M11.82 11.82l1.13 1.13M3.05 12.95l1.13-1.13M11.82 4.18l1.13-1.13"/></svg></button><button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Dunkel" title="Dunkel"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg></button></span></nav>
 </div>
 </header>
@@ -84,8 +84,8 @@
 </dl>
 </div>
 </section>
-<section class="sec" id="p-wie-peter" aria-labelledby="h-p-wie-peter">
-<h2 id="h-p-wie-peter"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
+<section class="sec" id="kompetenzen" aria-labelledby="h-kompetenzen">
+<h2 id="h-kompetenzen"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
 <div class="fields">
 <div><h3 lang="en">Performance</h3><p>Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – Produktfeeds in PHP und Python, Budgets bis 240.000 € im Monat. Gesteuert über KUR, ACoS und CPL.</p></div>
@@ -95,8 +95,14 @@
 </div>
 </div>
 </section>
-<section class="sec" id="stationen" aria-labelledby="h-stationen">
-<h2 id="h-stationen"><span class="no" aria-hidden="true">02</span> Stationen</h2>
+<section class="sec" id="sprachen" aria-labelledby="h-sprachen">
+<h2 id="h-sprachen"><span class="no ghost" aria-hidden="true">01</span> Sprachen</h2>
+<div class="body">
+<ul class="lines"><li>Deutsch (Muttersprache)</li><li>Englisch C2</li><li>Italienisch C2</li><li>Spanisch B1</li><li>Französisch A2</li></ul>
+</div>
+</section>
+<section class="sec" id="werdegang" aria-labelledby="h-werdegang">
+<h2 id="h-werdegang"><span class="no" aria-hidden="true">02</span> Werdegang</h2>
 <div class="body">
 <ol class="roles" reversed>
 <li class="role" id="e-service-check">
@@ -206,7 +212,6 @@
 <div><dt>2023</dt><dd>Fachkraft für agiles Projektmanagement<sup class="fnref"><a href="#fn-ihk" id="ref-ihk" aria-describedby="h-quellen">5</a></sup><br><span class="muted">IHK</span></dd></div>
 <div><dt>2018</dt><dd>Introduction to Artificial Intelligence<sup class="fnref"><a href="#fn-edx" id="ref-edx" aria-describedby="h-quellen">6</a></sup><br><span class="muted">Microsoft auf edX</span></dd></div>
 <div><dt>2010</dt><dd>Bachelor in Wirtschaftswissenschaften<br><span class="muted">Università degli Studi di Trento</span></dd></div>
-<div><dt>Sprachen</dt><dd><ul class="lines"><li>Deutsch (Muttersprache)</li><li>Englisch C2</li><li>Italienisch C2</li><li>Spanisch B1</li><li>Französisch A2</li></ul></dd></div>
 </dl>
 </div>
 </section>
@@ -240,7 +245,7 @@
 </div>
 </section>
 <section class="sec" id="quellen" aria-labelledby="h-quellen">
-<h2 id="h-quellen"><span class="no ghost" aria-hidden="true">04</span> Quellen</h2>
+<h2 id="h-quellen"><span class="no ghost" aria-hidden="true">00</span> Quellen</h2>
 <div class="body">
 <ol class="notes">
 <li id="fn-h42"><a class="back" href="#ref-h42" aria-label="Zurück zum Text">^</a> <cite>Hellinger 42 + Brandible: erfolgreiches Merchandise-Konzept</cite>&nbsp;· Brandible&nbsp;· veröffentlicht am 22. Mai 2024&nbsp;· <a href="https://www.youtube.com/watch?v=swBJnkVCTNM" target="_blank" rel="noopener" hreflang="de">Bei YouTube <span class="nw">ansehen<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (öffnet in neuem Tab)</span></span></span></a></li>
@@ -257,8 +262,8 @@
 <footer class="foot">
 <div class="wrap">
 <nav aria-label="Rechtliches">
-<a href="../impressum.html">Impressum</a>
-<a href="../datenschutz.html">Datenschutz</a>
+<a href="impressum.html">Impressum</a>
+<a href="datenschutz.html">Datenschutz</a>
 <span>© 2026 Peter Stieg</span>
 </nav>
 </div>
@@ -269,16 +274,17 @@
 <summary aria-label="Alle Abschnitte" title="Alle Abschnitte"><span class="cur" aria-hidden="true"></span><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg></summary>
 <ol>
 <li><a href="#profil" data-t="Profil"><span class="no" aria-hidden="true">01</span> Profil</a></li>
-<li><a href="#p-wie-peter" data-t="P⁴"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></a></li>
-<li><a href="#stationen" data-t="Stationen"><span class="no" aria-hidden="true">02</span> Stationen</a></li>
+<li><a href="#kompetenzen" data-t="P⁴"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></a></li>
+<li><a href="#sprachen" data-t="Sprachen"><span class="no ghost" aria-hidden="true">01</span> Sprachen</a></li>
+<li><a href="#werdegang" data-t="Werdegang"><span class="no" aria-hidden="true">02</span> Werdegang</a></li>
 <li><a href="#ausbildung" data-t="Ausbildung"><span class="no ghost" aria-hidden="true">02</span> Ausbildung</a></li>
 <li><a href="#projekte" data-t="Projekte"><span class="no" aria-hidden="true">03</span> Projekte</a></li>
 <li><a href="#kontakt" data-t="Kontakt"><span class="no" aria-hidden="true">04</span> Kontakt</a></li>
-<li><a href="#quellen" data-t="Quellen"><span class="no ghost" aria-hidden="true">04</span> Quellen</a></li>
+<li><a href="#quellen" data-t="Quellen"><span class="no ghost" aria-hidden="true">00</span> Quellen</a></li>
 </ol>
 </details>
 <a class="down" href="#profil" aria-label="Nach unten: Profil" title="Nach unten: Profil"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg></a>
 </nav>
-<script src="../assets/site.js?v=f1c82b12" defer></script>
+<script src="../assets/site.js?v=4be54ed3" defer></script>
 </body>
 </html>
