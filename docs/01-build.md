@@ -442,8 +442,6 @@ SOURCE_NOTE = f"""<!--
   On the page: type or tap sudo · ? or F1 lists the keys.
 
   peterstieg.com
-  ├── analytics from the server logs – no cookies, no banner
-  ├── fonts, scripts, images from this server
   └── no framework – build.py writes the HTML
 
   >_ {MOTTO}
@@ -452,10 +450,10 @@ SOURCE_NOTE = f"""<!--
 
 - A triple-quoted f-string: it may span lines, and `{MOTTO}` is the only replacement field.
 - The content is an HTML comment (`<!-- … -->`): invisible on the page, visible to anyone who opens the page source. `head()` places it between `<!doctype html>` and `<html>`.
-- The tree says how the site is built, for the people who read sources: statistics from the server logs (IONOS WebAnalytics), so no cookie and no consent banner; everything from one server; static HTML from one script. It used to read "no tracking" – odd on the site of a performance marketer, and no longer true once the statistics were switched on (decisions, 22.11.2026).
+- The tree says how the site is built, for the people who read sources: static HTML from one script, no framework. It makes no claim about tracking or cookies: "no tracking" and "no cookies" stood here until 22.11.2026 – odd on the site of a performance marketer, untrue once IONOS WebAnalytics counted the visits, and soon outdated by the tags and the consent banner that are planned. What the site measures is the privacy statement's to say (decisions, 22.11.2026).
 - The second line points developers to the torch (`site.js`): the same view of the source, on the page. `sudo`, typed or tapped in the prompt, switches it on; `?` or F1 opens the card with the keys. The console greeting in `site.js` says the same words, so whoever finds one finds the other.
 - The comment text must never contain `-->` – that would end the comment early and print the rest on the page.
-- Pitfall: the comment comes before `<meta charset="utf-8">`. Browsers look for the charset declaration only in the first 1024 bytes of the file; it currently sits at byte 394. Let the comment grow by several hundred bytes and the browser may have to guess the encoding – umlauts and the tree characters break.
+- Pitfall: the comment comes before `<meta charset="utf-8">`. Browsers look for the charset declaration only in the first 1024 bytes of the file; it currently sits at byte 273. Let the comment grow by several hundred bytes and the browser may have to guess the encoding – umlauts and the tree characters break.
 - `dots()` deliberately leaves this comment alone (section 29).
 
 ---

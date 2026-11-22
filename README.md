@@ -2,7 +2,7 @@
 
 Hallo · Hi · Ciao – this is the source of [peterstieg.com](https://peterstieg.com).
 
-One Python script turns the copy into static HTML. No framework, no cookies – analytics from the server logs.
+One Python script turns the copy into static HTML. No framework.
 
 ```
 peterstieg.github.io

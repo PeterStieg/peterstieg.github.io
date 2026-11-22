@@ -13,8 +13,6 @@ Every HTML page in `site/` is generated: `src/build.py` writes them, together wi
   On the page: type or tap sudo · ? or F1 lists the keys.
 
   peterstieg.com
-  ├── analytics from the server logs – no cookies, no banner
-  ├── fonts, scripts, images from this server
   └── no framework – build.py writes the HTML
 
   >_ sudo dream plan ship
@@ -22,8 +20,8 @@ Every HTML page in `site/` is generated: `src/build.py` writes them, together wi
 ```
 
 - `<!doctype html>` – switches the browser to standards mode. Without it, browsers fall back to quirks mode, which imitates the rendering bugs of late-1990s browsers (for example in how heights and table cells are calculated). This short form is all HTML needs; upper or lower case does not matter.
-- `<!-- … -->` – a comment. The parser keeps it in the document (DevTools shows it above `<html>`), but nothing renders. It is an easter egg for anyone who opens view-source: the greeting is German, English and Italian, "root access" picks up the claim, the second line hands over to the torch – the same view of the source, on the page (see `<main>`) –, the tree imitates the Unix `tree` command – how the site is built: statistics from the server logs, so no cookie and no consent banner; every file from this server; HTML written by one script –, and the last line is the motto from the hero. `build.py` keeps the text in the constant `SOURCE_NOTE` and puts it on every page. `site.js` prints a similar message to the browser console, with the same line about `sudo`, `?` and F1.
-- The comment sits before `<meta charset>`. That is fine as long as it stays short: browsers look for the charset declaration within the first 1024 bytes of the file. Here the declaration starts at byte 394.
+- `<!-- … -->` – a comment. The parser keeps it in the document (DevTools shows it above `<html>`), but nothing renders. It is an easter egg for anyone who opens view-source: the greeting is German, English and Italian, "root access" picks up the claim, the second line hands over to the torch – the same view of the source, on the page (see `<main>`) –, the tree imitates the Unix `tree` command – how the site is built: no framework, the HTML written by one script –, and the last line is the motto from the hero. `build.py` keeps the text in the constant `SOURCE_NOTE` and puts it on every page. `site.js` prints a similar message to the browser console, with the same line about `sudo`, `?` and F1.
+- The comment sits before `<meta charset>`. That is fine as long as it stays short: browsers look for the charset declaration within the first 1024 bytes of the file. Here the declaration starts at byte 273.
 - The comment keeps ordinary spaces around its middle dot. The function `dots()` in `build.py`, which makes middle dots non-breaking, only touches what comes after `<body>` (see "Non-breaking spaces and middle dots").
 
 ## `<html lang>`

@@ -1,4 +1,4 @@
-/* peterstieg.com – analytics from the server logs, no cookies, no framework. */
+/* peterstieg.com – no framework: build.py writes the HTML, this file is plain JavaScript. */
 (() => {
   const root = document.documentElement;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -642,6 +642,5 @@
   console.log("%c>_ sudo dream plan ship", "color:#7A1A2C;font-weight:700;font-size:14px",
     "\nHi {KeyWord:Developer} – view-source counts as root access, too." +
     "\nOn the page: type or tap sudo · ? or F1 lists the keys." +
-    "\n\npeterstieg.com\n├── analytics from the server logs – no cookies, no banner" +
-    "\n├── fonts, scripts, images from this server\n└── no framework – build.py writes the HTML");
+    "\n\npeterstieg.com\n└── no framework – build.py writes the HTML");
 })();

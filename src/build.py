@@ -339,8 +339,6 @@ SOURCE_NOTE = f"""<!--
   On the page: type or tap sudo · ? or F1 lists the keys.
 
   peterstieg.com
-  ├── analytics from the server logs – no cookies, no banner
-  ├── fonts, scripts, images from this server
   └── no framework – build.py writes the HTML
 
   >_ {MOTTO}
