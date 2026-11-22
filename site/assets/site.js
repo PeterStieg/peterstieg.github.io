@@ -1,4 +1,4 @@
-/* peterstieg.com – no tracking, no cookies, no framework. */
+/* peterstieg.com – no framework: build.py writes the HTML, this file is plain JavaScript. */
 (() => {
   const root = document.documentElement;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -354,25 +354,27 @@
   const pad = document.querySelector(".jump");
   const cur = pad && pad.querySelector(".cur");
   const list = pad ? [...pad.querySelectorAll(".menu a")] : [];
-  let current;                                                      // the section being read in the last frame
+  let current, currentAt;                                           // the sections marked in the last frame
 
   const here = () => {
     if (!marks.length) return;
     const line = top.offsetHeight + window.innerHeight * 0.3;      // reading line: a third down the screen
     let sec = null;                                                 // the section: the last one above the line
     for (const x of secs) if (x.getBoundingClientRect().top <= line) sec = x;
-    if (window.scrollY + window.innerHeight >= root.scrollHeight - 2) {  // at the very bottom: the last one in view
-      sec = secs.filter((x) => x.getBoundingClientRect().top < window.innerHeight).pop() || sec;
+    const at = sec;                                                 // its chapter is the one marked
+    if (window.scrollY + window.innerHeight >= root.scrollHeight - 2) {  // at the very bottom: the last one in view –
+      sec = secs.filter((x) => x.getBoundingClientRect().top < window.innerHeight).pop() || sec;   // in the list
     }
-    if (sec === current) return;                                    // same section as in the last frame
-    current = sec;
-    const i = secs.indexOf(sec);                                    // the chapter: the last menu section up to it –
-    const mark = sec ? marks.filter((m) => secs.indexOf(m.sec) <= i).pop() : null;   // P⁴ counts as Profile, and so on
+    if (sec === current && at === currentAt) return;                // same sections as in the last frame
+    current = sec; currentAt = at;
+    const no = at ? at.querySelector("h2 .no").textContent : "";    // the chapter number; 00: Sources, in no chapter
+    const i = secs.indexOf(at);                                     // the chapter: the last menu section up to it –
+    const mark = no && no !== "00" ? marks.filter((m) => secs.indexOf(m.sec) <= i).pop() : null;   // P⁴ counts as Profile
     for (const m of marks) {
       if (m === mark) m.a.setAttribute("aria-current", "location");
       else m.a.removeAttribute("aria-current");
     }
-    if (cur) cur.textContent = sec ? sec.querySelector("h2 .no").textContent : "";
+    if (cur) cur.textContent = no === "00" ? "" : no;               // empty: the menu's lines instead of a number
     for (const a of list) {
       if (sec && a.hash === "#" + sec.id) a.setAttribute("aria-current", "location");
       else a.removeAttribute("aria-current");
@@ -640,5 +642,5 @@
   console.log("%c>_ sudo dream plan ship", "color:#7A1A2C;font-weight:700;font-size:14px",
     "\nHi {KeyWord:Developer} – view-source counts as root access, too." +
     "\nOn the page: type or tap sudo · ? or F1 lists the keys." +
-    "\n\npeterstieg.com\n├── no tracking\n├── no cookies\n└── no framework");
+    "\n\npeterstieg.com\n└── no framework – build.py writes the HTML");
 })();

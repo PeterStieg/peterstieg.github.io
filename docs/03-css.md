@@ -723,7 +723,7 @@ On wide screens the heading column keeps the current heading in view. On phones 
 
 - `.sec > h2 .no` – the chapter number in front of the heading: accent colour, regular weight, so the title stays the strong part.
   - `font-variant-numeric: tabular-nums` – switches the font to its equal-width digits (the OpenType feature `tnum`). By default Atkinson Hyperlegible uses proportional digits: in the regular weight used here, a "1" is about 60 % as wide as a "0". With tabular digits every number from 01 to 04 has the same width, so all titles start on the same pixel (measured).
-- `.sec > h2 .ghost { visibility: hidden; }` – the sections inside a chapter (P⁴, Education, Sources) carry their chapter's number with this extra class. `visibility: hidden` hides it but keeps its box, so the title after it starts on the same pixel as the chapter's title (measured: all seven titles at the same x). The page reads like an outline.
+- `.sec > h2 .ghost { visibility: hidden; }` – the sections inside a chapter (P⁴, Languages, Education) carry their chapter's number with this extra class; Sources, in no chapter, carry `00`. `visibility: hidden` hides it but keeps its box, so the title after it starts on the same pixel as the chapter's title (measured 22.11.2026: all eight titles at x 146 at 1280 px, in both languages). The page reads like an outline.
   - Why not `padding-left` instead: the padding would have to equal the width of "01" plus a space in this font at this size – a number to measure and to update with every font change. The invisible number is always exactly as wide as the visible one.
   - Hidden text is not selected when you copy the heading, and the minimap skips it (`site.js` filters `.ghost`).
 
@@ -998,7 +998,7 @@ Opening a disclosure makes the page taller, so `site.js` redraws the minimap on 
 - From a content column of 30rem, `9.5rem 1fr` – the same container query and the same column width as the experience dates, so the years in Education line up with the dates in Experience (until 17.11.2026 a media query, `min-width: 36rem`).
 - `.facts dt` – the year or label: muted, smaller, tabular digits, lowered 0.15rem like `.when`.
 - `.facts dd { margin: 0; }` – removes the default indent.
-- `.lines` – the languages, one per line: the value of that row is a `<ul class="lines">` inside the `<dd>`. A list rather than lines separated by `<br>`, because the five languages are a list: the markup says what they are, the CSS decides how they look. Bullets, margins and the 40px indent are removed, so the list looks like plain lines of text that start where the other values start.
+- `.lines` – the languages, one per line: the body of their own section since 22.11.2026, a `<ul class="lines">` (until then the value of the last row here, which is why the rule still stands in this block). A list rather than lines separated by `<br>`, because the five languages are a list: the markup says what they are, the CSS decides how they look. Bullets, margins and the 40px indent are removed, so the list looks like plain lines of text that start where every section's content starts.
 
 ## Dictionary entry
 

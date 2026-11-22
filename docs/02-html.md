@@ -13,17 +13,15 @@ Every HTML page in `site/` is generated: `src/build.py` writes them, together wi
   On the page: type or tap sudo · ? or F1 lists the keys.
 
   peterstieg.com
-  ├── no tracking
-  ├── no cookies
-  └── no framework
+  └── no framework – build.py writes the HTML
 
   >_ sudo dream plan ship
 -->
 ```
 
 - `<!doctype html>` – switches the browser to standards mode. Without it, browsers fall back to quirks mode, which imitates the rendering bugs of late-1990s browsers (for example in how heights and table cells are calculated). This short form is all HTML needs; upper or lower case does not matter.
-- `<!-- … -->` – a comment. The parser keeps it in the document (DevTools shows it above `<html>`), but nothing renders. It is an easter egg for anyone who opens view-source: the greeting is German, English and Italian, "root access" picks up the claim, the second line hands over to the torch – the same view of the source, on the page (see `<main>`) –, the tree imitates the Unix `tree` command, and the last line is the motto from the hero. `build.py` keeps the text in the constant `SOURCE_NOTE` and puts it on every page. `site.js` prints a similar message to the browser console, with the same line about `sudo`, `?` and F1.
-- The comment sits before `<meta charset>`. That is fine as long as it stays short: browsers look for the charset declaration within the first 1024 bytes of the file. Here the declaration starts at byte 278.
+- `<!-- … -->` – a comment. The parser keeps it in the document (DevTools shows it above `<html>`), but nothing renders. It is an easter egg for anyone who opens view-source: the greeting is German, English and Italian, "root access" picks up the claim, the second line hands over to the torch – the same view of the source, on the page (see `<main>`) –, the tree imitates the Unix `tree` command – how the site is built: no framework, the HTML written by one script –, and the last line is the motto from the hero. `build.py` keeps the text in the constant `SOURCE_NOTE` and puts it on every page. `site.js` prints a similar message to the browser console, with the same line about `sudo`, `?` and F1.
+- The comment sits before `<meta charset>`. That is fine as long as it stays short: browsers look for the charset declaration within the first 1024 bytes of the file. Here the declaration starts at byte 273.
 - The comment keeps ordinary spaces around its middle dot. The function `dots()` in `build.py`, which makes middle dots non-breaking, only touches what comes after `<body>` (see "Non-breaking spaces and middle dots").
 
 ## `<html lang>`
@@ -138,11 +136,11 @@ Why inline, and why exactly here:
 <meta property="og:locale:alternate" content="de_DE">
 ```
 
-- `rel="canonical"` – names the one official URL of this page. The same file is reachable as `https://peterstieg.com/`, `…/index.html`, `…/?utm_source=linkedin` and more; the canonical tells search engines to treat them as one page and to collect all signals on `https://peterstieg.com/`. The German page points to `https://peterstieg.com/de/`.
+- `rel="canonical"` – names the one official URL of this page. The same file is reachable as `https://peterstieg.com/`, `…/?utm_source=linkedin` and more (`…/index.html` forwards to `/`, see `.htaccess`); the canonical tells search engines to treat them as one page and to collect all signals on `https://peterstieg.com/`. The German page points to `https://peterstieg.com/de/`.
 - `rel="alternate" hreflang="en"` and `"de"` – "the same content exists in this language, at this URL". A German searcher then gets `/de/`, an English one `/`. The rules: absolute URLs, each page lists every version including itself, and the pairing must be confirmed from both sides – the German page carries the identical three lines. If page A names B as its alternate but B does not name A, Google ignores the pair.
 - `hreflang="x-default"` – the fallback for everyone else: a visitor searching in Italian or French gets the English page.
 - `og:locale:alternate` – the Open Graph counterpart for social networks: "this page also exists as `de_DE`". `build.py` emits one tag per other language, so the German page says `en_GB`. Facebook's crawler is the main reader of this tag.
-- The legal pages carry the same block for their pair – `legal-notice.html` and `impressum.html`, `privacy.html` and `datenschutz.html`, x-default the English one (see "The legal pages"). The 404s carry none.
+- The legal pages carry the same block for their pair – `legal-notice.html` and `de/impressum.html`, `privacy.html` and `de/datenschutz.html`, x-default the English one (see "The legal pages"). The 404s carry none.
 
 ### Theme color
 
@@ -177,7 +175,7 @@ When someone pastes the URL into LinkedIn, Slack, WhatsApp or X, a crawler from 
 - `property` vs `name` – Open Graph (a Facebook protocol, now read by almost every platform) is specified with the attribute `property`; ordinary HTML meta tags and the Twitter tags use `name`. Many crawlers accept either, but the specified form is the safe one.
 - `og:type` = `profile` – the page is about a person, not an article or a generic website. This type unlocks the `profile:` properties below.
 - `og:title`, `og:description` – headline and text of the card. Identical to `<title>` and the meta description, so the search result and the LinkedIn card say the same thing.
-- `og:url` – the URL the card belongs to. Shares of `…/index.html` or `…/?utm_source=x` collapse into one card.
+- `og:url` – the URL the card belongs to. Shares of `…/?utm_source=x` collapse into one card.
 - `og:image` – the card's picture. It must be an absolute URL: the crawler only sees this tag, and a relative path has nothing reliable to resolve against.
 - `og:image:width`, `og:image:height` – 1200 × 630 px, the 1.91 : 1 format that LinkedIn and Facebook show at full card width. Declaring the size lets a crawler lay out the card before it has downloaded the image, which helps on the very first share.
 - `og:image:alt` – a text description of the image, for screen-reader users on platforms that pass it on. Not all do. It names what the image shows – name, tagline, claim –, joined by middle dots like the title (20.11.2026); two dashes in one line read like an aside inside an aside.
@@ -306,7 +304,7 @@ The content of the block, indented for reading (in the file it is one line):
 - `<header>` – directly inside `<body>`, it becomes the page's banner landmark. Screen readers keep a list of landmarks (banner, navigation, main, regions, contentinfo) and let the user jump between them, the way a sighted reader scans a layout.
 - `class="top"` – the hook for CSS: sticky position, translucent background, a hairline that appears once the page scrolls.
 - `<div class="wrap">` – no meaning, only layout: maximum width and side padding. The same wrapper sits in `<main>` and `<footer>`, so all three align.
-- `<a class="home" href="#top">` – the logo links to the hero section (`id="top"`), not to `index.html`. On a one-page site, "home" means "back to the beginning" and needs no reload. A side note: `#top` would scroll to the top even without an element of that id, because the HTML specification treats the fragment `top` specially. Here the id exists, so the browser scrolls to the hero.
+- `<a class="home" href="#top">` – the logo links to the hero section (`id="top"`), not to the page's address. On a one-page site, "home" means "back to the beginning" and needs no reload. A side note: `#top` would scroll to the top even without an element of that id, because the HTML specification treats the fragment `top` specially. Here the id exists, so the browser scrolls to the hero.
 - **The logo** is the lockup `>_ P/S`, an inline `<svg>`: the prompt `>_` and the P/S monogram, built from the outlines of the site's own font (`src/lockup/`). Inline rather than an `<img>`, because only inline SVG can take its colours from the page's CSS: `class="acc"` and `class="ink"` on the two paths, and `site.css` fills them with `var(--accent)` – the prompt in Bordeaux – and `var(--ink)` – the letters. Both switch with the theme, and in Windows high-contrast mode both take the system's text colour (03-css, High contrast). The file in `src/lockup/` fills the paths with inline `style` attributes; `build.py` swaps them for the two classes, so no page carries an inline style (01-build, section 11).
 - `viewBox="40 -668 1971.03 813"` – the drawing in font units: it starts at x = 40 (where the `>` begins) and y = −668 (the top of the P, since SVG's y axis points down), 1971 wide and 813 tall. The CSS sets the height to 28 px; the width follows from the ratio, 2.42 : 1.
 - `role="img"` and `aria-label="Peter Stieg"` – to screen readers the drawing is one image with that name, and it gives the link its name: "Peter Stieg, link".
@@ -329,15 +327,15 @@ The content of the block, indented for reading (in the file it is one line):
 - `<nav>` – a navigation landmark.
 - `aria-label="Main"` – its name. Screen readers announce "Main navigation", which distinguishes it from the second `<nav>` in the footer. On the German page the label is "Hauptnavigation".
 - `<a class="sect" href="#profile">` – four links to section ids. The fragment `#profile` scrolls to the element with `id="profile"`; `scroll-padding-top` in the CSS stops the target from sliding under the sticky header. The four links are the four chapters; the other sections belong to one of them and are a scroll away.
-  - On the other pages the same menu leads to the start page's sections: `href="index.html#profile"` on the legal pages, `href="/index.html#profile"` on the 404 (German: `de/index.html#profil`, `/de/index.html#profil`). Every page has the same header, so the chapters are one click away from anywhere. `site.js` marks none of them there ("You are here", below): their sections are not on the page.
+  - On the other pages the same menu leads to the start page's sections: `href="./#profile"` on the legal pages – the English ones sit next to the English start page, the German ones in `de/` next to the German –, `href="/#profile"` on the 404 (German: `./#profil`, `/de/#profil`). Every link names the folder, not `index.html`: the address search engines know, and one line per page in the statistics. Every page has the same header, so the chapters are one click away from anywhere. `site.js` marks none of them there ("You are here", below): their sections are not on the page.
 - `<span class="no" aria-hidden="true">01</span>` – the chapter number, the same as on the heading: 01 Profile, 02 Experience, 03 Projects, 04 Contact. `aria-hidden` keeps the link's name "Profile" for screen readers. Below 56rem the CSS hides the numbers, so the header still fits.
 - `<span class="label" data-label="Profile">` – the label in its own span, plus a copy as a data attribute. HTML ignores `data-*` attributes; they exist for CSS and scripts. Here the CSS prints a hidden bold copy of the label to keep the link's width constant when it turns bold.
-- **You are here:** while scrolling, `site.js` gives the link of the chapter being read `aria-current="location"` – "the current location within this set of links". The CSS then styles the link like the heading it points to: number in the accent colour, label in ink and bold. In P⁴ the menu marks Profile, in Education Experience, and so on – like a slide deck whose header shows the current part on every slide.
+- **You are here:** while scrolling, `site.js` gives the link of the chapter being read `aria-current="location"` – "the current location within this set of links". The CSS then styles the link like the heading it points to: number in the accent colour, label in ink and bold. In P⁴ and Languages the menu marks Profile, in Education Experience, and so on – like a slide deck whose header shows the current part on every slide.
 - On narrow screens the CSS hides the `.sect` links with `display: none`, which hides them from screen readers as well.
-- The German page uses German ids (`#profil`, `#stationen`, `#projekte`, `#kontakt`), so shared links read naturally in each language. They come from the `ids` map in `build.py`.
+- The German page uses German ids (`#profil`, `#werdegang`, `#projekte`, `#kontakt`), so shared links read naturally in each language. They come from the `ids` map in `build.py`.
 
 ```html
-<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="de/index.html" hreflang="de" lang="de" title="Deutsch" data-twins='{"profile":"profil","fields":"p-wie-peter","experience":"stationen","education":"ausbildung","projects":"projekte","contact":"kontakt","notes":"quellen","freelance":"freiberuflich","rome-2010-2014":"rom-2010-2014","customer-portal":"kundenportal","call-and-inquiry-pipeline":"anruf-und-anfragen-pipeline","document-extraction":"dokumentenextraktion","rakuten-product-classification":"rakuten-produktklassifikation","rakuten-classification-mlops":"rakuten-klassifikation-mlops"}'>DE</a></span>
+<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="de/" hreflang="de" lang="de" title="Deutsch" data-twins='{"profile":"profil","skills":"kompetenzen","languages":"sprachen","experience":"werdegang","education":"ausbildung","projects":"projekte","contact":"kontakt","sources":"quellen","freelance":"freiberuflich","rome-2010-2014":"rom-2010-2014","customer-portal":"kundenportal","call-and-inquiry-pipeline":"anruf-und-anfragen-pipeline","document-extraction":"dokumentenextraktion","rakuten-product-classification":"rakuten-produktklassifikation","rakuten-classification-mlops":"rakuten-klassifikation-mlops"}'>DE</a></span>
 ```
 
 - `<span class="langs" role="group" aria-label="Language">` – a span carries no meaning; `role="group"` turns it into a named group, so a screen reader announces "Language, group" on entering. Visually it is the pill around EN and DE.
@@ -345,14 +343,14 @@ The content of the block, indented for reading (in the file it is one line):
 - `<span aria-current="page" title="English">EN</span>` – the current language is not a link; a link to the page you are on is a dead end.
   - `aria-current="page"` – screen readers that support it announce "current page". The CSS uses the same attribute (`.langs [aria-current]`) to set the label bold: one attribute drives both meaning and style.
   - `title="English"` – the tooltip on hover.
-- `<a href="de/index.html" hreflang="de" lang="de" title="Deutsch">DE</a>`:
-  - `href="de/index.html"` – relative, so it also works from disk. On the server, `/de/index.html` and `/de/` are the same file; the canonical tag of the German page settles which URL counts.
+- `<a href="de/" hreflang="de" lang="de" title="Deutsch">DE</a>`:
+  - `href="de/"` – relative, the folder: the server answers with its `index.html`. The address in the browser is then `/de/`, the same as the canonical tag and the sitemap name. (Opened straight from disk, a folder link shows a file list – serve `site/` locally instead, `python3 -m http.server -d site`.)
   - `hreflang="de"` – "the target is in German". On an `<a>` this is only an advisory hint; search engines use `hreflang` from the `<link>` tags in the head, not from ordinary links.
   - `lang="de"` – the link text itself is German, so a screen reader pronounces it with German rules. The convention for language switches: each language is named in that language.
   - `title="Deutsch"` – tooltip, again in its own language.
-  - `data-twins='{…}'` – on the start pages only: which id each block has on the other page, where it differs – `"experience":"stationen"`, `"freelance":"freiberuflich"`, `"customer-portal":"kundenportal"`. Blocks are the sections, every role and every project; a role named after its company keeps its id (`#sportspar` on both pages) and is left out. When the link is about to be used, `site.js` appends the id of the block being read, so the other page opens there instead of at the top (04-js, Language switch). Single quotes around the value, because the JSON inside is full of double quotes. Without JavaScript the attribute does nothing and the link leads to the top, as before.
-- On the German page the roles swap: `EN` is the link (`../index.html`, `hreflang="en" lang="en"`), `DE` is the `aria-current` span.
-- On the legal pages the switch leads to the same page in the other language: from `legal-notice.html`, `DE` goes to `impressum.html`; from `datenschutz.html`, `EN` goes to `privacy.html`.
+  - `data-twins='{…}'` – on the start pages only: which id each block has on the other page, where it differs – `"experience":"werdegang"`, `"freelance":"freiberuflich"`, `"customer-portal":"kundenportal"`. Blocks are the sections, every role and every project; a role named after its company keeps its id (`#sportspar` on both pages) and is left out. When the link is about to be used, `site.js` appends the id of the block being read, so the other page opens there instead of at the top (04-js, Language switch). Single quotes around the value, because the JSON inside is full of double quotes. Without JavaScript the attribute does nothing and the link leads to the top, as before.
+- On the German page the roles swap: `EN` is the link (`../`, `hreflang="en" lang="en"`), `DE` is the `aria-current` span.
+- On the legal pages the switch leads to the same page in the other language: from `legal-notice.html`, `DE` goes to `de/impressum.html`; from `de/datenschutz.html`, `EN` goes to `../privacy.html`.
 
 ```html
 <span class="themes" role="group" aria-label="Theme"><button type="button" data-theme-set="light" aria-pressed="false" aria-label="Light" title="Light"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15…"/></svg></button><button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Dark" title="Dark"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z"/></svg></button></span></nav>
@@ -441,10 +439,10 @@ Every content section comes from this template (function `section()` in `build.p
 - `id="profile"` – the target for `#profile` links.
 - `aria-labelledby="h-profile"` – names the region after its heading, so the screen reader's landmark list reads "Profile, Experience, Projects …". It points to the heading's id instead of repeating the text in `aria-label`: the name always matches the visible heading, and it is translated along with it (some browser translation tools leave `aria-label` untranslated).
 - `<span class="no" aria-hidden="true">01</span>` – the chapter number, like the parts of a slide deck. The page has four chapters: 01 Profile, 02 Experience, 03 Projects, 04 Contact. `aria-hidden` keeps the number out of what screen readers announce, so the region is still named "Profile", not "01 Profile".
-- The sections inside a chapter repeat its number with a second class, `<span class="no ghost" aria-hidden="true">01</span>` on P⁴. The CSS makes it invisible; it only keeps the space, so the title lines up with the chapter's title.
+- The sections inside a chapter repeat its number with a second class, `<span class="no ghost" aria-hidden="true">01</span>` on P⁴. The CSS makes it invisible; it only keeps the space, so the title lines up with the chapter's title. Sources, in no chapter, carry an invisible `00`.
 - `<h2 id="h-profile">` – the heading, with the id the section points to. Heading levels form an outline: `h1` (name) → `h2` (sections) → `h3` (roles, fields, project groups) → `h4` (single projects). Screen-reader users move through this outline the way sighted users skim bold text.
 - `<div class="body">` – the content column next to the sticky heading (CSS grid). No meaning.
-- The seven sections make seven region landmarks. That makes the landmark list longer; in exchange, every section is one keystroke away.
+- The eight sections make eight region landmarks. That makes the landmark list longer; in exchange, every section is one keystroke away.
 
 ### Profile: a dictionary entry
 
@@ -508,8 +506,8 @@ The drawn arrow:
 ### P⁴
 
 ```html
-<section class="sec" id="fields" aria-labelledby="h-fields">
-<h2 id="h-fields"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
+<section class="sec" id="skills" aria-labelledby="h-skills">
+<h2 id="h-skills"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
 <div class="fields">
 <div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – product feeds in PHP and Python, budgets of up to €240k a month. Optimized for RoAS, ACoS and CPL.</p></div>
@@ -520,11 +518,26 @@ The drawn arrow:
 </section>
 ```
 
-- `id="fields"` – not linked from the navigation, but addressable. German: `p-wie-peter`.
+- `id="skills"` – not linked from the navigation, but addressable: what the section holds, in a word a reader would type. German: `kompetenzen`. (Until 22.11.2026: `fields` and `p-wie-peter`.)
 - `P<sup>4</sup>` – "P to the power of four" for the four Ps. `<sup>` is meant for typographic conventions that need superscript (exponents, footnote marks), so this is correct use. Screen readers usually ignore the superscript and say "P4"; that is also the section's name in the landmark list.
 - `<div class="fields">` – the section starts straight with its grid: 2 × 2 once the content column is wide enough (a container query, see 03-css). Four `<div>`s, each with an `<h3>` and a `<p>`. Not a list: each block stands on its own with a heading, and headings are more useful for navigation than list items.
 - On the German page the four `<h3>` carry `lang="en"`, because the four Ps stay English.
 - Plain prose in all four, no labels inside: Performance groups its channels with semicolons – search; social; native; marketplaces –, Pixels its work the same way – corporate identity; online; print (19.11.2026). All four run to the same length (20.11.2026): six lines on a phone (390 and 412 px), seven in the two columns of a wide screen (1024 to 1440 px), in both languages – measured, as the line count depends on where the words break. The one exception: the English Pixels at 360 px, six lines instead of seven. A change to any of the texts needs measuring again. At 768 px the four fields stand in one column, 472 px wide: the section has split into heading and content there, and two field columns of 216 px each were too narrow (03-css, Fields of work).
+
+### Languages
+
+```html
+<section class="sec" id="languages" aria-labelledby="h-languages">
+<h2 id="h-languages"><span class="no ghost" aria-hidden="true">01</span> Languages</h2>
+<div class="body">
+<ul class="lines"><li>German (native)</li><li>English C2</li><li>Italian C2</li><li>Spanish B1</li><li>French A2</li></ul>
+</div>
+</section>
+```
+
+- A section of its own since 22.11.2026, the last of chapter 01: the ghost `01` lines its title up with Profile's, and the menu marks Profile while it is read. Before, the languages were the last row of Education, between the degrees.
+- `<ul class="lines">` – one language per line, the level after the name. Five languages are five items of the same kind, so they form a list: a screen reader announces "list, 5 items" and can step through them. The CSS removes the bullets and the indent (03-css).
+- German: `id="sprachen"`, "Deutsch (Muttersprache)" … "Französisch A2". The levels follow the Common European Framework of Reference (A1 to C2), the scale used across Europe.
 
 
 ### Experience: a reversed timeline
@@ -657,26 +670,25 @@ The years 2010 to 2014 stay one entry in the timeline: six positions in and arou
 
 ```html
 <dl class="facts">
-<div><dt>2025</dt><dd>Data Scientist<sup class="fnref"><a href="#fn-ds" id="ref-ds" aria-describedby="h-notes">3</a></sup>&nbsp;· MLOps Engineer<sup class="fnref"><a href="#fn-mlops" id="ref-mlops" aria-describedby="h-notes">4</a></sup><br><span class="muted">Liora (formerly DataScientest) in partnership with Université Paris 1 Panthéon-Sorbonne</span></dd></div>
-<div><dt>2023</dt><dd>Agile project management specialist<sup class="fnref"><a href="#fn-ihk" id="ref-ihk" aria-describedby="h-notes">5</a></sup><br><span class="muted">IHK</span></dd></div>
-<div><dt>2018</dt><dd>Introduction to Artificial Intelligence<sup class="fnref"><a href="#fn-edx" id="ref-edx" aria-describedby="h-notes">6</a></sup><br><span class="muted">Microsoft on edX</span></dd></div>
+<div><dt>2025</dt><dd>Data Scientist<sup class="fnref"><a href="#fn-ds" id="ref-ds" aria-describedby="h-sources">3</a></sup>&nbsp;· MLOps Engineer<sup class="fnref"><a href="#fn-mlops" id="ref-mlops" aria-describedby="h-sources">4</a></sup><br><span class="muted">Liora (formerly DataScientest) in partnership with Université Paris 1 Panthéon-Sorbonne</span></dd></div>
+<div><dt>2023</dt><dd>Agile project management specialist<sup class="fnref"><a href="#fn-ihk" id="ref-ihk" aria-describedby="h-sources">5</a></sup><br><span class="muted">IHK</span></dd></div>
+<div><dt>2018</dt><dd>Introduction to Artificial Intelligence<sup class="fnref"><a href="#fn-edx" id="ref-edx" aria-describedby="h-sources">6</a></sup><br><span class="muted">Microsoft on edX</span></dd></div>
 <div><dt>2010</dt><dd>Bachelor’s degree in economics<br><span class="muted">Università degli Studi di Trento</span></dd></div>
-<div><dt>Languages</dt><dd><ul class="lines"><li>German (native)</li><li>English C2</li><li>Italian C2</li><li>Spanish B1</li><li>French A2</li></ul></dd></div>
 </dl>
 ```
 
-- `<dl class="facts">` – the description-list pattern from the ledger: year (or "Languages") → what.
+- `<dl class="facts">` – the description-list pattern from the ledger: year → what.
 - `<br>` – a line break that belongs to the content: the institution goes on its own line.
 - `<span class="muted">` – grey text, no meaning. It holds the issuer under each title: Liora, IHK, Microsoft on edX, the university. "Liora (formerly DataScientest)" – the school's earlier name stands here, not in Experience: it also explains why the two verification links in Sources lead to datascientest.com. The 2023 certificate follows the same pattern, so "IHK" stands on the second line instead of in brackets after the title. The note under Sources and the JSON-LD keep the certificate's full name, "Agile project management specialist (IHK)".
 - `’` in "Bachelor’s" – a typographic apostrophe, not the straight `'`.
-- `<ul class="lines">` inside the `<dd>` – one language per line. A `<dd>` may contain any flow content, lists included. Five languages are five items of the same kind, so they form a list: a screen reader announces "list, 5 items" and can step through them. In `build.py` a facts value may be a list, which becomes this `<ul>`. The CSS removes bullets and indentation; the VoiceOver quirk mentioned under Experience applies here as well.
+- The languages, until 22.11.2026 the last row here, have a section of their own (see "Languages").
 
 The footnote reference, piece by piece:
 
 - `<sup class="fnref">` – superscript, the typographic convention for footnote marks.
 - `<a href="#fn-ds">` – jumps to the note with `id="fn-ds"` in the Sources section.
 - `id="ref-ds"` – the reference itself has an id, so the note can link back to exactly this spot.
-- `aria-describedby="h-notes"` – adds a description to the link: the text of the element with that id, the heading "Sources". A screen reader reads "1, link" and then, typically on focus, "Sources". Without it, a lone "1" would mean nothing.
+- `aria-describedby="h-sources"` – adds a description to the link: the text of the element with that id, the heading "Sources". A screen reader reads "1, link" and then, typically on focus, "Sources". Without it, a lone "1" would mean nothing.
 - `1`, `2` – `build.py` numbers the notes in order of first appearance (the inner function `fn()` collects the keys in a list). Reorder the text and the numbers and the list of notes follow.
 
 ### Projects
@@ -731,8 +743,8 @@ The footnote reference, piece by piece:
 ### Sources
 
 ```html
-<section class="sec" id="notes" aria-labelledby="h-notes">
-<h2 id="h-notes"><span class="no ghost" aria-hidden="true">04</span> Sources</h2>
+<section class="sec" id="sources" aria-labelledby="h-sources">
+<h2 id="h-sources"><span class="no ghost" aria-hidden="true">00</span> Sources</h2>
 <div class="body">
 <ol class="notes">
 <li id="fn-h42"><a class="back" href="#ref-h42" aria-label="Back to text">^</a> <cite lang="de">Hellinger 42 + Brandible: erfolgreiches Merchandise-Konzept</cite>&nbsp;· Brandible&nbsp;· published 22 May 2024&nbsp;· <a href="https://www.youtube.com/watch?v=swBJnkVCTNM" target="_blank" rel="noopener" hreflang="de">Watch on <span class="nw">YouTube<span class="newtab">…</span></span></a></li>
@@ -746,7 +758,8 @@ The footnote reference, piece by piece:
 </section>
 ```
 
-- `<h2 id="h-notes">` – the heading that the footnote references use as their description.
+- `<h2 id="h-sources">` – the heading that the footnote references use as their description. German: `h-quellen`.
+- `<span class="no ghost" aria-hidden="true">00</span>` – Sources belong to no chapter (since 22.11.2026; before, they were the second section of 04 Contact). The invisible `00` keeps the title in line with the others; `site.js` reads it as "no chapter" and marks none in the menu while the notes are read. The numbered references stay: each tells the reader which source backs which line, and `^` leads back to it.
 - `<ol class="notes">` – ordered: note 1, note 2. Here the numbers are visible (CSS colors the `::marker`), and they match the superscripts because both come from the same list in `build.py`. The two videos cited in Brandible's Scope come first, because Experience comes before Education; the certificates follow as 3 to 6.
 - `<cite lang="de">` – a video note starts with the video's title: `<cite>` is the element for the title of a work, and browsers set it in italics. Both titles are German, so on the English page `lang="de"` tells a screen reader to switch voice. Then who published or aired it and when – "published 22 May 2024" on Brandible's YouTube channel, "aired 9 June 2024" on ProSieben – and the link, "Watch on YouTube", "Watch on Joyn", Joyn being ProSieben's streaming service. `hreflang="de"`, the videos being German.
 - `<li id="fn-ds">` – the jump target. CSS highlights the targeted note with the `:target` selector, so after the jump you see where you landed.
@@ -774,7 +787,7 @@ The footnote reference, piece by piece:
 - `</div></main>` – end of the content.
 - `<footer>` – directly inside `<body>`, it becomes the contentinfo landmark: copyright and legal links.
 - `<nav aria-label="Legal">` – a second navigation landmark, named so screen readers can tell "Main" from "Legal". German: "Rechtliches".
-- The legal pages in the page's language: `legal-notice.html` and `privacy.html` from the English pages, `impressum.html` and `datenschutz.html` (`../impressum.html` from `/de/`) from the German ones. No `hreflang`: link and target share the page's language.
+- The legal pages in the page's language: `legal-notice.html` and `privacy.html` from the English pages, `impressum.html` and `datenschutz.html` from the German ones – all four German pages share the folder `de/`. No `hreflang`: link and target share the page's language.
 - Here the tags sit on separate lines. The nav is a flex container (CSS), so the line breaks do not create extra spaces.
 - `© 2026` – `build.py` inserts the current year at build time (`date.today().year`). The year changes with the next build, not on its own.
 
@@ -787,10 +800,11 @@ The footnote reference, piece by piece:
 <summary aria-label="All sections" title="All sections"><span class="cur" aria-hidden="true"></span><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 4.5h11M4.5 8h9M2.5 11.5h7"/></svg></summary>
 <ol>
 <li><a href="#profile" data-t="Profile"><span class="no" aria-hidden="true">01</span> Profile</a></li>
-<li><a href="#fields" data-t="P⁴"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></a></li>
+<li><a href="#skills" data-t="P⁴"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></a></li>
+<li><a href="#languages" data-t="Languages"><span class="no ghost" aria-hidden="true">01</span> Languages</a></li>
 <li><a href="#experience" data-t="Experience"><span class="no" aria-hidden="true">02</span> Experience</a></li>
 …
-<li><a href="#notes" data-t="Sources"><span class="no ghost" aria-hidden="true">04</span> Sources</a></li>
+<li><a href="#sources" data-t="Sources"><span class="no ghost" aria-hidden="true">00</span> Sources</a></li>
 </ol>
 </details>
 <a class="down" href="#profile" aria-label="Down: Profile" title="Down: Profile"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg></a>
@@ -809,8 +823,8 @@ A vertical pill in the bottom-right corner with three parts: up, the number of t
 - `href="#top"` and `href="#profile"` – the starting values from the build: at the top of the page, up leads to the top and down to the first section. Without JavaScript, up keeps leading to the top, which is always correct. Down would always lead to Profile, whatever the visitor is reading, so the CSS hides it.
 - `<details class="menu">` – the middle part does not go anywhere; it shows something. Showing and hiding a list under a visible control is what `<details>` and `<summary>` do on their own: open on a click, Enter or Space, announced as expanded or collapsed, no script needed. `site.js` adds three ways to close it: choosing a section, clicking elsewhere, and Esc, which also puts the focus back on the summary.
 - `<summary aria-label="All sections" title="All sections">` – its visible content is a number or an icon, so the label names it.
-- `<span class="cur" aria-hidden="true"></span>` – empty in the HTML. `site.js` writes the number of the chapter being read ("02"), taken from the heading of the current section. Until the first section is reached, and without JavaScript, the CSS shows the icon instead: three lines of different length and indent (`M2.5 4.5h11M4.5 8h9M2.5 11.5h7`), like lines of code in the minimap.
-- `<ol>` – the seven sections in page order; ordered, because the order is the page's. `build.py` builds the list from `SECTIONS`, the page order derived from `CHAPTERS`. Each entry repeats the heading pattern: the number visible for the four sections that open a chapter, `no ghost` for the others – invisible, but it keeps the titles aligned.
+- `<span class="cur" aria-hidden="true"></span>` – empty in the HTML. `site.js` writes the number of the chapter being read ("02"), taken from the heading of the section at the reading line. Until the first section is reached, in Sources (no chapter, `00`), and without JavaScript, the CSS shows the icon instead: three lines of different length and indent (`M2.5 4.5h11M4.5 8h9M2.5 11.5h7`), like lines of code in the minimap.
+- `<ol>` – the eight sections in page order; ordered, because the order is the page's. `build.py` builds the list from `SECTIONS`, the page order derived from `CHAPTERS` plus Sources at the end. Each entry repeats the heading pattern: the number visible for the four sections that open a chapter, `no ghost` for the others – invisible, but it keeps the titles aligned; Sources hold the place with `00`.
 - `data-t="Profile"` – the section's name as plain text, for the up and down labels. For P⁴ it is `P⁴` with the Unicode superscript four: an attribute holds text, not markup, so the `<sup>` of the heading cannot go there.
 - While scrolling, `site.js` marks the entry of the section being read with `aria-current="location"`, as it does for the chapter in the header menu.
 - Without JavaScript the control is visible from the start: up leads to the top, the list opens and every entry works, down is hidden.
@@ -912,10 +926,10 @@ One addition goes the other way. The notice behind each ↗ is real text, like t
 ```
 
 ```html
-<a class="home" href="/index.html"><svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="40 -668 1971.03 813" role="img" aria-label="Peter Stieg"><g class="still">…</g></svg></a>
-<nav class="nav" aria-label="Main"><a class="sect" href="/index.html#profile"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profile">Profile</span></a>
+<a class="home" href="/"><svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="40 -668 1971.03 813" role="img" aria-label="Peter Stieg"><g class="still">…</g></svg></a>
+<nav class="nav" aria-label="Main"><a class="sect" href="/#profile"><span class="no" aria-hidden="true">01</span> <span class="label" data-label="Profile">Profile</span></a>
 …
-<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="/de/index.html" hreflang="de" lang="de" title="Deutsch">DE</a></span>
+<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="/de/" hreflang="de" lang="de" title="Deutsch">DE</a></span>
 <span class="themes" role="group" aria-label="Theme">…</span></nav>
 …
 <main id="main" data-torch="…">
@@ -946,8 +960,8 @@ The German one, `de/404.html`, mirrors it:
 - `canonical` – the page's own address, `https://peterstieg.com/404.html` or `…/de/404.html`.
 - `<meta name="robots" content="noindex">` – error pages do not belong in search results.
 - No `hreflang` alternates (`alternates=False` in `build.py`): a missing page has no counterpart.
-- The header is the one of every page (`topbar(c, start=False)`): the menu leads to the start page's sections, `/index.html#profile` – absolute, like every path here –, and the language switch to the other start page, `/de/index.html`; on the German 404, `/de/index.html#profil` and `/index.html`. Until 13.11.2026 the 404s had neither, and the prompt line carried the link to the other start page.
-- The logo links to `/index.html` (German: `/de/index.html`), because there is no `#top` on this page.
+- The header is the one of every page (`topbar(c, start=False)`): the menu leads to the start page's sections, `/#profile` – absolute, like every path here –, and the language switch to the other start page, `/de/`; on the German 404, `/de/#profil` and `/`. Until 13.11.2026 the 404s had neither, and the prompt line carried the link to the other start page.
+- The logo links to `/` (German: `/de/`), because there is no `#top` on this page.
 - `{KeyWord:Page}` – Google Ads syntax for Dynamic Keyword Insertion: `{KeyWord:Default}` puts the searched keyword into an ad, or the default text when the keyword does not fit. The capitalization of `KeyWord` even controls the case of the inserted words. Here the "default" won – a joke for anyone who has run search campaigns; German: `{KeyWord:Seite}`. `<code>` marks it as code; the CSS keeps the regular font and sets it in the accent color.
 - `lang="de"` – the German line inside the English page; on the German page, `lang="en"` on the English one.
 - `cd ~` – the shell command "change to the home directory", linked to the start page of the page's language: `/` or `/de/`. `<span class="sr-only"> – start page</span>` inside the link – hidden on screen, read by screen readers: "cd ~ – start page" (German "Startseite") names where the link goes, which the command alone does not.
@@ -968,6 +982,12 @@ RewriteEngine On
 RewriteCond %{HTTP_HOST} ^www\. [NC,OR]
 RewriteCond %{SERVER_PORT} !=443
 RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]
+# a start page has one address, its folder: /index.html → /, /de/index.html → /de/. THE_REQUEST is the line the
+# browser sent – the server's own step from / to index.html does not match it, so nothing loops.
+RewriteCond %{THE_REQUEST} \s/((de/)?)index\.html[?\s]
+RewriteRule ^ https://peterstieg.com/%1 [R=301,L]
+# the German legal pages moved to de/ (November 2026): old links and bookmarks follow
+RewriteRule ^(impressum|datenschutz)\.html$ https://peterstieg.com/de/$1.html [R=301,L]
 </IfModule>
 
 # security: HTTPS only for a year, no content sniffing, no framing, no camera, microphone or location; the referrer
@@ -1010,7 +1030,7 @@ A configuration file for the Apache web server, read per directory on every requ
 
 - `AddType application/manifest+json .webmanifest` – about the `Content-Type` header. A web server sends every file with a media type that tells the browser what it is receiving, and Apache picks that type from a table of file extensions. `.webmanifest` is a young extension; a server whose table lacks it sends the manifest with a generic type, or with none. `application/manifest+json` is the type the Web App Manifest specification registers for these files. Browsers are forgiving and read a manifest under a generic type as well; the line makes the server state correctly what the file is.
 
-**One address.** The site answers under one address only: `https://peterstieg.com/`, the one every canonical tag names.
+**One address.** The site answers under one address only: `https://peterstieg.com/`, the one every canonical tag names – and each page under one path.
 
 - `<IfModule mod_rewrite.c>` – the lines inside apply only if Apache has loaded the module. Without the wrapper, a missing module would turn every request into a 500 error; with it, the block is skipped.
 - `RewriteEngine On` – switches rewriting on for this directory and below.
@@ -1018,6 +1038,10 @@ A configuration file for the Apache web server, read per directory on every requ
 - `RewriteCond %{SERVER_PORT} !=443` – the request did not arrive on port 443, the HTTPS port: it came over plain `http://`. The port is the check IONOS recommends for its hosting.
 - `RewriteRule ^ https://peterstieg.com%{REQUEST_URI} [R=301,L]` – `^` matches every path; the target is the one address with the requested path appended, and Apache carries the query string over. `R=301` – a permanent redirect: browsers and search engines may remember it and move links to the new address. `L` – last rule, stop here.
 - Result: `http://www.peterstieg.com/de/` reaches `https://peterstieg.com/de/` in one step, not via `https://www.…` first. Search engines see one host, and nothing is served over plain HTTP.
+- `RewriteCond %{THE_REQUEST} \s/((de/)?)index\.html[?\s]` – the start pages answer under their folder only. `THE_REQUEST` is the request line exactly as the browser sent it, `GET /de/index.html HTTP/2.0`; `\s/` the space and slash before the path, `((de/)?)` an optional `de/`, captured, `[?\s]` a query string or the space before the protocol right after `.html`. Why not test the path itself: when a visitor asks for `/`, Apache looks up `index.html` on its own (`DirectoryIndex`) and runs the rules again for that internal step – a rule on the path would send `/` to `/`, forever. The request line still says `/`, so it doesn't match.
+- `RewriteRule ^ https://peterstieg.com/%1 [R=301,L]` – `%1` is the first group of the last matching condition: `de/` or nothing. `/index.html` → `/`, `/de/index.html?utm_source=x` → `/de/?utm_source=x` – the query string comes along. One address per page means one line per page in the statistics and in search, and the links on the site name the folders anyway.
+- `RewriteRule ^(impressum|datenschutz)\.html$ https://peterstieg.com/de/$1.html [R=301,L]` – the German legal pages moved to `de/` on 22.11.2026, next to the German start page. In `.htaccess` the path is matched without its leading slash, so `^impressum\.html$` means `/impressum.html` exactly; `$1` is what the group caught. Every link, bookmark and search result to the old addresses lands on the new ones – the Haushaltsbuch, which links `../impressum.html` and `../datenschutz.html`, included. The old files may still lie on the server: the rule runs first, so they are never served.
+- Tested on a local Apache: `/index.html` and `/de/index.html` answer 301 to their folders, the old legal addresses 301 to `de/`, `/` and `/de/` 200 without a loop.
 
 **Security headers.** Rules for the browser, sent with every response. A static site has no login and no form, so the risks are small; the headers close what is left and cost nothing.
 
@@ -1054,7 +1078,7 @@ A configuration file for the Apache web server, read per directory on every requ
 ErrorDocument 404 /de/404.html
 ```
 
-- `site/de/.htaccess` – Apache reads the `.htaccess` files from the root down to the folder of the requested file, and a later one overrides an earlier one directive by directive. For every address under `/de/`, this line replaces the root's `ErrorDocument 404`; everything else comes from the root's file. A 403 under `/de/` still shows the English `/404.html`.
+- `site/de/.htaccess` – Apache reads the `.htaccess` files from the root down to the folder of the requested file, and a later one overrides an earlier one directive by directive. For every address under `/de/`, this line replaces the root's `ErrorDocument 404`; everything else comes from the root's file – the rewrite rules too, as long as this file starts no `RewriteEngine` of its own. A 403 under `/de/` still shows the English `/404.html`.
 - Only Apache and compatible servers read `.htaccess`, and only if the host allows overrides. GitHub Pages ignores it; it serves only the forward page from the repository root ([chapter 5](05-forward.md)).
 - The leading dot makes it a hidden file on Unix systems; some FTP clients and file managers do not show it. Since `site/` is uploaded by hand (see `decisions.md`), check that both arrived.
 
@@ -1104,7 +1128,7 @@ Sitemap: https://peterstieg.com/sitemap.xml
 …
 <link rel="canonical" href="https://peterstieg.com/legal-notice.html">
 <link rel="alternate" hreflang="en" href="https://peterstieg.com/legal-notice.html">
-<link rel="alternate" hreflang="de" href="https://peterstieg.com/impressum.html">
+<link rel="alternate" hreflang="de" href="https://peterstieg.com/de/impressum.html">
 <link rel="alternate" hreflang="x-default" href="https://peterstieg.com/legal-notice.html">
 …
 <meta name="robots" content="noindex, follow">
@@ -1112,15 +1136,15 @@ Sitemap: https://peterstieg.com/sitemap.xml
 <body>
 <a class="skip" href="#main">Skip to content</a>
 …
-<a class="home" href="index.html">…</a>
+<a class="home" href="./">…</a>
 …
-<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="impressum.html" hreflang="de" lang="de" title="Deutsch">DE</a></span>
+<span class="langs" role="group" aria-label="Language"><span aria-current="page" title="English">EN</span> <a href="de/impressum.html" hreflang="de" lang="de" title="Deutsch">DE</a></span>
 …
 <main id="main" data-torch="…">
 <div class="wrap legal">
 <div class="body" id="legal-notice">
 <h1>Legal notice</h1>
-<p class="muted">Translation – the German <a href="impressum.html" hreflang="de" lang="de">Impressum</a> is legally binding.</p>
+<p class="muted">Translation – the German <a href="de/impressum.html" hreflang="de" lang="de">Impressum</a> is legally binding.</p>
 <h2>Information pursuant to § 5 DDG</h2>
 <address>…</address>
 …
@@ -1129,16 +1153,17 @@ Sitemap: https://peterstieg.com/sitemap.xml
 </main>
 ```
 
-- Four pages, all in the site root: `impressum.html` and `datenschutz.html` in German, legally binding; `legal-notice.html` and `privacy.html` in English, translations. Each is built from its language's settings with `root=""`.
+- Four pages, each in its language's folder: `de/impressum.html` and `de/datenschutz.html` in German, legally binding, next to the German start page; `legal-notice.html` and `privacy.html` in English, translations, in the root. The same structure as the start pages and the 404s; the German pair sat in the root until 22.11.2026, and `.htaccess` forwards the old addresses. The German pages load stylesheet, script and icons with `../`, like `de/index.html`.
 - The head starts as on the start pages: colour scheme, boot script, speculation rules – `head()` writes all three for every page.
 - `<title>` and description name the page: "Legal notice – Peter Stieg", "Legal notice for peterstieg.com"; German "Impressum von peterstieg.com".
 - `canonical` – the page's own address. The `alternate` links pair it with its counterpart in the other language, by the same rules as the start pages: both pages of a pair list both, x-default is the English one.
 - `<meta name="robots" content="noindex, follow">` – "do not show this page in search results, but do follow its links". `follow` is the default; it is written out for clarity. Why `noindex`: legal pages answer no search query, and the legal notice carries a full postal address that should not turn up when someone searches the name.
-- The header: the logo, linking to the start page of the page's language (`index.html`, `de/index.html`); the four menu links, leading to the sections of that start page (`index.html#profile`, German `de/index.html#profil`); the language switch, leading to the same page in the other language – here `impressum.html`; the theme buttons.
+- The header: the logo, linking to the start page of the page's language – `./` in both languages, as each legal page shares its start page's folder; the four menu links, leading to the sections of that start page (`./#profile`, German `./#profil`); the language switch, leading to the same page in the other language – here `de/impressum.html`, and back `../legal-notice.html`; the theme buttons.
 - `data-torch` – the torch works here too. `<div class="body" id="legal-notice">` – the file name as id: the torch's second level finds the line of `build.py` that wrote each element by its place in the body – `#legal-notice > :nth-child(4)` is the `<address>` (chapter 1, `torch_map()`).
 - `<p class="muted">Translation – …</p>` – the English pages say what they are and link the German original. On that link, `hreflang="de"` says the target is German, `lang="de"` that the link text is a German word.
 - `<address>` – contact information for the owner of the page: the right element for a legal notice. Its lines – name, street, postcode and city, country – are separated by `<br>`, the textbook case for that element; on the English pages the country reads "Germany". Browsers set `<address>` in italics by default; the CSS resets that.
 - The privacy pages have the same structure with more `<h2>` sections and a dated line – `<p class="muted">Stand: November 2026</p>`, in English "As of November 2026 · Translation – …". The date is fixed text in `build.py` and needs a manual update in both languages when the policy changes.
+- Two of those sections describe what no line of the pages does: "Reichweitenmessung mit IONOS WebAnalytics" – the statistics IONOS draws from the server logs, without cookies or script – and "Haushaltsbuch", the tool at `/haushaltsbuch/`, which reads bank statements in the browser and keeps language and rules in `localStorage` (chapter 1, legal pages).
 - The body ends with its last section. The logo and the language switch lead on.
 
 ### `site.webmanifest`
