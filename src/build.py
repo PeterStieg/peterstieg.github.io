@@ -43,7 +43,10 @@ NAME = "Peter Stieg"
 TAGLINE = "Performance Marketing · Data Science"
 CLAIM = "Marketing leadership with root access"
 MOTTO = "sudo dream plan ship"
-TITLE = f"{NAME} – {TAGLINE}"
+# separators, one meaning each: · lists equals, – pauses a sentence, // joins a name to what it stands for (as on
+# LinkedIn), › walks a path through the site. No |: it breaks the reading flow and looks like l and I in many fonts.
+TITLE = f"{NAME} // {TAGLINE}"
+SUBPAGE = f"{NAME} › %s"                                # the title of every other page: the path to it
 
 # code, label, name, the start page's address from the site root – its folder: the server answers with index.html
 LANGS = [("en", "EN", "English", ""),
@@ -102,14 +105,14 @@ CONTENT = {
                   "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], [["?", "F1"], "Show this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
-        "desc": "Head of Marketing in Leipzig. Four leadership roles in e-commerce and B2B, teams of up to nine, up to €240k media budget a month.",
+        "desc": "Head of Marketing, based in Leipzig. Four leadership roles in e-commerce and B2B, teams of up to nine, up to €240k media budget a month.",
         "skip": "Skip to content",
         "nav": [("profile", "Profile"), ("experience", "Experience"), ("projects", "Projects"), ("contact", "Contact")],
         "sec": {"profile": "Profile", "languages": "Languages", "experience": "Experience", "projects": "Projects",
                 "education": "Education", "contact": "Contact", "sources": "Sources"},
         "entry": {"hw": "mar·ke·tin·ker·er", "pos": "noun", "ety": "[*marketer* × *tinkerer*]",
                   "def": "A marketing leader who builds the tools behind the campaigns – and the teams that run them."},
-        "profile": "Leadership roles at four companies, with interdisciplinary marketing and design teams of up to nine people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer. Working languages: German, English, Italian.",
+        "profile": "Online marketing since 2010 – leadership roles at four companies, with marketing and design teams of up to nine people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer.",
         "ledger_label": "Selected results",
         "ledger": [
             ("Leads > 2×", "inbound inquiries year over year", "e-service-check"),
@@ -118,8 +121,8 @@ CONTENT = {
         ],
         "fields": [
             "Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – "
-            "product feeds in PHP and Python, budgets of up to €240k a month. Optimized for RoAS, ACoS and CPL.",
-            "Google Tag Manager and Consent Mode v2, then Python, SQL and BigQuery with Odoo master data. Reports in Data Studio, "
+            "product feeds in PHP and Python, budgets of up to €240k a month. Optimised for RoAS, ACoS and CPL.",
+            "CSV exports from two phone systems and 15 web forms into BigQuery, with Python, SQL and Odoo master data. Reports in Data Studio, "
             "Google Ads Scripts and Apps Script – website performance, online marketing, telephony. Web apps in Streamlit.",
             "Corporate identity from claim and logo to colours and typefaces, workwear, signage and vehicle decals; websites, "
             "employer branding, mockups, vector graphics and videos; business cards, letterheads, employee ID cards and catalogues.",
@@ -129,10 +132,10 @@ CONTENT = {
         "roles": [
             {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
-             "tree": [("Team", "functional lead for content, marketing and project management"),
+             "tree": [("Team", "two – marketing and support tasks"),
                       ("Scope", "marketing, lead generation, design and automation, built from scratch – SEA, SEO, email marketing, events, employer branding"),
                       ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark")]},
-            {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
+            {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "MLOps Engineer training",
              "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "containers, orchestration, tracking, APIs and monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "certified MLOps Engineer; capstone: the Rakuten text classifier as a production pipeline – training, tracking, serving, monitoring")]},
@@ -141,7 +144,7 @@ CONTENT = {
                                 "ActiveCampaign to Salesforce; communication, mediation and translation between Rapidobject’s "
                                 "authorized signatories and its London partner AMFG"),
                       ("Result", "Salesforce dashboards, built into the sales process")]},
-            {"id": "liora-ds", "when": "02/2025 – 05/2025", "title": "Data Scientist training (full-time)",
+            {"id": "liora-ds", "when": "02/2025 – 05/2025", "title": "Data Scientist training",
              "org": "Liora", "url": NOTES["ds"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "machine learning and deep learning with Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "certified Data Scientist; capstone: multimodal classification of e-commerce products with NLP and computer vision")]},
@@ -153,7 +156,7 @@ CONTENT = {
                       ("Result", "RoAS 7.6 → 7.8 on an expanded budget; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
             {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.com/", "place": "Eilenburg",
              "ctx": "Off-price online outlet for branded sportswear from previous seasons.",
-             "tree": [("Team", "nine – four in design, five in marketing"),
+             "tree": [("Team", "nine – five in marketing, four in design"),
                       ("Scope", "e-commerce operations in DE, COM, FR, IT, NL, ES and PL – email automation, Facebook, Instagram, WhatsApp, Telegram and affiliate marketing")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Online shops for wall art, art prints and frames in more than 15 European countries.",
@@ -180,14 +183,14 @@ CONTENT = {
                  ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
                  ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor", "https://innervalor.com/"),
                  ("06/2013 – 12/2013", "Marketing & export DACH", "Fontebona", "http://www.fontebona.com/"),
-                 ("04/2012 – 05/2013", "Market research", "Proactive Europe", ""),
+                 ("04/2012 – 05/2013", "Market research", "Proactive Worldwide, European subsidiary", "https://www.proactiveworldwide.com/"),
                  ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine", "https://www.paesionline.it/"),
              ])},
         ],
         "groups": [
             ("At E+SERVICE+CHECK", [
                 ("Customer portal", "Moved to a company-owned Azure tenant with separate production and staging. Running cloud costs: a fraction of before.", "Azure", []),
-                ("Call and inquiry pipeline", "More than half a million calls, two phone systems, five web forms – joined with Odoo master data.", "Python · BigQuery · Data Studio", []),
+                ("Call and inquiry pipeline", "More than half a million calls, two phone systems, 15 web forms on 13 websites – joined with Odoo master data.", "Python · BigQuery · Data Studio", []),
                 ("PRUEF+CHECK", "Rule-based validation of inspection checklists instead of manual Excel checks. From requirement to go-live: five days.", "Streamlit · Azure", []),
                 ("Document extraction", "Around 14,000 unstructured supplier documents turned into structured records for ERP import.", "Python · Claude API", []),
             ]),
@@ -221,7 +224,7 @@ CONTENT = {
                   "rows": [["sudo", "Code-Ansicht: HTML · build.py · aus"], ["Esc", "Schließen"], [["?", "F1"], "Diese Liste zeigen"]]},
         "dur": ("Jahr", "Jahre", "Monat", "Monate"),
         "jump": {"label": "Abschnitte", "menu": "Alle Abschnitte", "up": "Nach oben: %s", "down": "Nach unten: %s"},
-        "desc": "Marketingleiter in Leipzig. Vier Führungsrollen in E-Commerce und B2B, Teams bis neun Personen, bis 240.000 € Mediabudget im Monat.",
+        "desc": "Marketingleiter aus Leipzig. Vier Führungsrollen in E-Commerce und B2B, Teams bis neun Personen, bis 240.000 € Mediabudget im Monat.",
         "skip": "Zum Inhalt springen",
         "nav": [("profil", "Profil"), ("werdegang", "Werdegang"), ("projekte", "Projekte"), ("kontakt", "Kontakt")],
         "sec": {"profile": "Profil", "languages": "Sprachen", "experience": "Werdegang", "projects": "Projekte",
@@ -230,7 +233,7 @@ CONTENT = {
                 "projects": "projekte", "education": "ausbildung", "contact": "kontakt", "sources": "quellen"},
         "entry": {"hw": "Mar|ke|tin|ke|rer", "pos": "der; -s, -", "ety": "[engl. *marketer* × *tinkerer* ‚Tüftler‘]",
                   "def": "Marketingleiter, der die Werkzeuge hinter seinen Kampagnen baut – und die Teams dahinter."},
-        "profile": "Führungsverantwortung in vier mittelständischen Unternehmen, für interdisziplinäre Teams aus Marketing und Design mit bis zu neun Personen in E-Commerce und B2B. Zertifiziert als Data Scientist und MLOps Engineer. Arbeitssprachen: Deutsch, Englisch, Italienisch.",
+        "profile": "Online-Marketing seit 2010 – Führungsverantwortung in vier mittelständischen Unternehmen, für Teams aus Marketing und Design mit bis zu neun Personen in E-Commerce und B2B. Zertifiziert als Data Scientist und MLOps Engineer.",
         "ledger_label": "Ausgewählte Ergebnisse",
         "ledger": [
             ("Leads > 2×", "Anfragen im Jahresvergleich", "e-service-check"),
@@ -240,7 +243,7 @@ CONTENT = {
         "fields": [
             "Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – "
             "Produktfeeds in PHP und Python, Budgets bis 240.000 € im Monat. Gesteuert über KUR, ACoS und CPL.",
-            "Google Tag Manager und Consent Mode v2, dann Python, SQL und BigQuery mit Odoo-Stammdaten. Reports mit Data Studio, "
+            "CSV-Exporte aus zwei Telefonanlagen und 15 Webformularen in BigQuery, mit Python, SQL und Odoo-Stammdaten. Reports mit Data Studio, "
             "Google Ads Scripts und Apps Script – Website-Performance, Online-Marketing, Telefonie. Web-Apps mit Streamlit.",
             "Corporate Identity von Claim und Logo bis zu Farben, Schrift, Arbeitskleidung, Beschilderung und Fahrzeugbeklebung; "
             "Websites, Employer Branding, Mockups, Vektorgrafiken, Videos; Visitenkarten, Briefvorlagen, Mitarbeiterausweise, Kataloge.",
@@ -250,10 +253,10 @@ CONTENT = {
         "roles": [
             {"id": "e-service-check", "when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-zertifizierte Prüfungen der elektrischen Sicherheit (DGUV V3/V4), bundesweit, 349 Mitarbeitende.",
-             "tree": [("Team", "fachliche Führung in Content, Marketing und Projektmanagement"),
+             "tree": [("Team", "zwei Personen – Marketing und unterstützende Tätigkeiten"),
                       ("Scope", "Marketing, Leadgenerierung, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, E-Mail-Marketing, Events, Employer Branding"),
                       ("Result", "Anfragen im Jahresvergleich mehr als verdoppelt; neue Corporate Identity samt Grundlage der EUIPO-Markenanmeldung")]},
-            {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "Weiterbildung MLOps Engineer (Vollzeit)",
+            {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "Weiterbildung MLOps Engineer",
              "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "zertifizierter MLOps Engineer; Abschlussprojekt: der Rakuten-Textklassifikator als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
@@ -262,7 +265,7 @@ CONTENT = {
                                 "ActiveCampaign zu Salesforce; Kommunikation, Vermittlung und Übersetzung zwischen den Prokuristen "
                                 "von Rapidobject und dem Londoner Partner AMFG"),
                       ("Result", "Salesforce-Dashboards, eingebunden in den Vertriebsprozess")]},
-            {"id": "liora-ds", "when": "02/2025 – 05/2025", "title": "Weiterbildung Data Scientist (Vollzeit)",
+            {"id": "liora-ds", "when": "02/2025 – 05/2025", "title": "Weiterbildung Data Scientist",
              "org": "Liora", "url": NOTES["ds"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Machine Learning und Deep Learning mit Python – scikit-learn, Keras, PyTorch, Google Cloud"),
                       ("Result", "zertifizierter Data Scientist; Abschlussprojekt: multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
@@ -274,7 +277,7 @@ CONTENT = {
                       ("Result", "KUR 13,2 → 12,8 % bei ausgebautem Budget; Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %")]},
             {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.de/", "place": "Eilenburg",
              "ctx": "Online-Outlet für Markensportartikel der Vorsaison.",
-             "tree": [("Team", "neun Personen – vier im Design, fünf im Marketing"),
+             "tree": [("Team", "neun Personen – fünf im Marketing, vier im Design"),
                       ("Scope", "E-Commerce-Betrieb in DE, COM, FR, IT, NL, ES und PL – E-Mail-Automatisierung, Facebook, Instagram, WhatsApp, Telegram und Affiliate Marketing")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Online-Shops für Wandbilder, Kunstdrucke und Rahmen in über 15 europäischen Ländern.",
@@ -301,14 +304,14 @@ CONTENT = {
                  ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
                  ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor", "https://innervalor.com/"),
                  ("06/2013 – 12/2013", "Marketing & Export DACH", "Fontebona", "http://www.fontebona.com/"),
-                 ("04/2012 – 05/2013", "Marktforschung", "Proactive Europe", ""),
+                 ("04/2012 – 05/2013", "Marktforschung", "Proactive Worldwide, europäische Tochtergesellschaft", "https://www.proactiveworldwide.com/"),
                  ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine", "https://www.paesionline.it/"),
              ])},
         ],
         "groups": [
             ("Bei E+SERVICE+CHECK", [
                 ("Kundenportal", "Umzug in einen eigenen Azure-Tenant mit getrennter Produktion und Staging. Laufende Cloud-Kosten: ein Bruchteil von vorher.", "Azure", []),
-                ("Anruf- und Anfragen-Pipeline", "Über eine halbe Million Anrufe, zwei Telefonanlagen, fünf Webformulare – verknüpft mit Odoo-Stammdaten.", "Python · BigQuery · Data Studio", []),
+                ("Anruf- und Anfragen-Pipeline", "Über eine halbe Million Anrufe, zwei Telefonanlagen, 15 Webformulare auf 13 Websites – verknüpft mit Odoo-Stammdaten.", "Python · BigQuery · Data Studio", []),
                 ("PRUEF+CHECK", "Regelbasierte Validierung von Prüflisten statt manueller Excel-Kontrolle. Von der Anforderung bis zum Go-live: fünf Tage.", "Streamlit · Azure", []),
                 ("Dokumentenextraktion", "Rund 14.000 unstrukturierte Lieferantendokumente als strukturierte Datensätze für den ERP-Import.", "Python · Claude API", []),
             ]),
@@ -576,6 +579,7 @@ def jsonld(c):
         "url": URL,
         "image": URL + "og-image.png",
         "jobTitle": c["jobtitle"],
+        "worksFor": {"@type": "Organization", "name": c["roles"][0]["org"], "url": c["roles"][0]["url"]},   # the newest role
         "description": c["desc"],
         "address": {"@type": "PostalAddress", "addressLocality": "Leipzig", "addressCountry": "DE"},
         "email": "mailto:" + EMAIL,
@@ -917,7 +921,7 @@ def legal(key, L):
     c = dict(CONTENT[L], path=path, root="../" * path.count("/"))   # the German pages sit in de/, like the German start page
     pair = {code: p[0] for code, p in LEGAL[key].items()}
     return "".join([
-        head(c, f"{title} – {NAME}", c["legal_desc"] % title, URL + path, alternates=pair),
+        head(c, SUBPAGE % title, c["legal_desc"] % title, URL + path, alternates=pair),
         '<meta name="robots" content="noindex, follow">\n</head>\n<body>\n',
         topbar(c, start=False, langs=pair),
         f'<main id="main"{torch_data(c)}>\n<div class="wrap legal">\n<div class="body" id="{page_id(path)}">\n{body}</div>\n</div>\n</main>\n',
@@ -932,7 +936,7 @@ def not_found(c):
     other = next(x for x in LANGS if x[0] != c["lang"])           # code, label, name, home
     c = dict(c, root="/")
     return "".join([
-        head(c, f"404 – {NAME}", f"{word} {rest}", f"{URL}{home}404.html", alternates=False, root="/"),
+        head(c, SUBPAGE % "404", f"{word} {rest}", f"{URL}{home}404.html", alternates=False, root="/"),
         '<meta name="robots" content="noindex">\n</head>\n<body>\n',
         topbar(c, start=False),
         f"""<main id="main"{torch_data(c)}>

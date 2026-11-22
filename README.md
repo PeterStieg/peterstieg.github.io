@@ -1,6 +1,6 @@
 # peterstieg.com
 
-Hallo · Hi · Ciao – this is the source of [peterstieg.com](https://peterstieg.com).
+Hallo · Hi · Ciao – this is the source of [peterstieg.com](https://peterstieg.com), the website of Peter Stieg // Performance Marketing · Data Science.
 
 One Python script turns the copy into static HTML. No framework.
 
@@ -32,7 +32,7 @@ Python 3, nothing to install. The script overwrites every HTML page in `site/` p
 
 ## Deploy
 
-Manual for now: upload the **contents** of `site/` to the web root at IONOS, keeping the folder structure – including the two hidden `.htaccess` files. `/haushaltsbuch/` on the server is not built from this repo: replacing files leaves it in place. `/impressum.html` and `/datenschutz.html` in the web root are left over from before November 2026 – `.htaccess` forwards both addresses to `de/`, the files can go. Afterwards, refresh the link preview with LinkedIn's Post Inspector. The content security policy is report-only: while the browser console on the live site shows violations, it stays so; once it shows none, the header in `HTACCESS` (`src/build.py`) becomes `Content-Security-Policy` and the policy blocks.
+Manual for now: upload the **contents** of `site/` to the web root at IONOS, keeping the folder structure – the files in the root as well as the folders, including the two hidden `.htaccess` files. `/haushaltsbuch/` on the server is not built from this repo: replacing files leaves it in place. Afterwards, refresh the link preview with LinkedIn's Post Inspector. The content security policy is report-only: while the browser console on the live site shows violations, it stays so; once it shows none, the header in `HTACCESS` (`src/build.py`) becomes `Content-Security-Policy` and the policy blocks.
 
 `peterstieg.github.io` is not a second copy: GitHub Pages serves only the forward page from the repo root – `index.html`, `404.html` and `forward/`. A two-second terminal scene (`mv -v peterstieg.github.io peterstieg.com`), then every path lands on peterstieg.com. `_config.yml` keeps `site/`, `src/` and `docs/` out of Pages. Changes go live on merge to `master`, no upload needed.
 
