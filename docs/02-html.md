@@ -117,13 +117,13 @@ Why inline, and why exactly here:
 ### Title, description, author
 
 ```html
-<title>Peter Stieg – Performance Marketing · Data Science</title>
-<meta name="description" content="Head of Marketing in Leipzig. Four leadership roles in e-commerce and B2B, teams of up to nine, up to €240k media budget a month.">
+<title>Peter Stieg // Performance Marketing · Data Science</title>
+<meta name="description" content="Head of Marketing, based in Leipzig. Four leadership roles in e-commerce and B2B, teams of up to nine, up to €240k media budget a month.">
 <meta name="author" content="Peter Stieg">
 ```
 
-- `<title>` – the text in the browser tab, in bookmarks and history, and usually the headline of the search result (Google may rewrite it). Both languages use the same title, because the tagline is a brand element that stays English.
-- `<meta name="description">` – the snippet search engines may show under the headline. It is not a ranking factor; its job is to earn the click. At 150 characters (about 940 pixels in the 14-pixel Arial of a search result) it sits at the edge of the roughly 920 pixels Google shows on a desktop before cutting with "…". At 129 characters it fits a search result on a phone too, where Google cuts sooner than on a desktop. It adds to the title, never repeats it: the title already names the two fields, so the description starts with the role and the place, then three facts – leadership roles, team size, budget (20.11.2026). The coined word *marketinkerer* stays on the page, where its definition explains it; in a snippet it would be a riddle. The certificate stays in the profile. A figure rather than "proven track record": a claim every profile makes against a number the ledger backs up. "Up to": €240k was the peak month, not every month. The German page has its own text, "Marketingleiter in Leipzig. Vier Führungsrollen in E-Commerce und B2B, Teams bis neun Personen, bis 240.000 € Mediabudget im Monat." – 131 characters.
+- `<title>` – the text in the browser tab, in bookmarks and history, and usually the headline of the search result (Google may rewrite it). Both languages use the same title, because the tagline is a brand element that stays English. `//` joins the name to what it stands for, as in the LinkedIn headline; `·` separates the two fields inside the tagline. The other pages use `›`, the path from the name to the page: "Peter Stieg › Impressum" (decisions, 22.11.2026). Screen readers read `//` as "slash slash" – accepted for the same title on every channel.
+- `<meta name="description">` – the snippet search engines may show under the headline. It is not a ranking factor; its job is to earn the click. At 150 characters (about 940 pixels in the 14-pixel Arial of a search result) it sits at the edge of the roughly 920 pixels Google shows on a desktop before cutting with "…". At 136 characters it fits a search result on a phone too, where Google cuts sooner than on a desktop. It adds to the title, never repeats it: the title already names the two fields, so the description starts with the role and where Pete lives – "based in Leipzig", since the current job is in Laucha and "Head of Marketing in Leipzig" read like the workplace (22.11.2026) –, then three facts – leadership roles, team size, budget (20.11.2026). The coined word *marketinkerer* stays on the page, where its definition explains it; in a snippet it would be a riddle. The certificate stays in the profile. A figure rather than "proven track record": a claim every profile makes against a number the ledger backs up. "Up to": €240k was the peak month, not every month. The German page has its own text, "Marketingleiter aus Leipzig. Vier Führungsrollen in E-Commerce und B2B, Teams bis neun Personen, bis 240.000 € Mediabudget im Monat." – 132 characters.
 - `<meta name="author">` – the author's name. Search engines do not use it for ranking; it is metadata for tools that look for an author.
 
 ### Canonical URL and language alternates
@@ -157,8 +157,8 @@ Why inline, and why exactly here:
 
 ```html
 <meta property="og:type" content="profile">
-<meta property="og:title" content="Peter Stieg – Performance Marketing · Data Science">
-<meta property="og:description" content="Head of Marketing in Leipzig. …">
+<meta property="og:title" content="Peter Stieg // Performance Marketing · Data Science">
+<meta property="og:description" content="Head of Marketing, based in Leipzig. …">
 <meta property="og:url" content="https://peterstieg.com/">
 <meta property="og:image" content="https://peterstieg.com/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -238,7 +238,8 @@ The content of the block, indented for reading (in the file it is one line):
   "url": "https://peterstieg.com/",
   "image": "https://peterstieg.com/og-image.png",
   "jobTitle": "Head of Marketing",
-  "description": "Head of Marketing in Leipzig. Four leadership roles in e-commerce and B2B, teams of up to nine, up to €240k media budget a month.",
+  "worksFor": {"@type": "Organization", "name": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/"},
+  "description": "Head of Marketing, based in Leipzig. Four leadership roles in e-commerce and B2B, teams of up to nine, up to €240k media budget a month.",
   "address": {"@type": "PostalAddress", "addressLocality": "Leipzig", "addressCountry": "DE"},
   "email": "mailto:info@peterstieg.com",
   "sameAs": ["https://www.linkedin.com/in/peterstieg/", "https://github.com/PeterStieg"],
@@ -466,7 +467,7 @@ The section opens with the word "marketinkerer", set like an entry in a dictiona
 ### Profile: text and results ledger
 
 ```html
-<p>Leadership roles at four companies, with interdisciplinary marketing and design teams of up to nine people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer. Working languages: German, English, Italian.</p>
+<p>Online marketing since 2010 – leadership roles at four companies, with marketing and design teams of up to nine people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer.</p>
 <dl class="ledger" aria-label="Selected results">
 <div><dt>Leads &gt; 2×</dt><dd>inbound inquiries year over year<br><a href="#e-service-check">E+SERVICE+CHECK<span class="jmp"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg></span></a></dd></div>
 <div><dt>RoAS 7.6 <span class="arr"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg><span class="sr-only">to</span></span> 7.8</dt><dd>on an expanded €1.7m budget<br><a href="#brandible">Brandible<span class="jmp">…</span></a></dd></div>
@@ -510,7 +511,7 @@ The drawn arrow:
 <h2 id="h-skills"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
 <div class="fields">
-<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – product feeds in PHP and Python, budgets of up to €240k a month. Optimized for RoAS, ACoS and CPL.</p></div>
+<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – product feeds in PHP and Python, budgets of up to €240k a month. Optimised for RoAS, ACoS and CPL.</p></div>
 …
 <div><h3>People</h3><p>International marketing teams of up to nine people, from SEA, print and promotional products to graphic design, including career changers from retail and fine arts. Recruiting and in-house training in SEA, social media and data analysis.</p></div>
 </div>
@@ -549,7 +550,7 @@ The drawn arrow:
 <div>
 <h3>Head of Marketing</h3>
 <p class="org"><a href="https://www.e-service-check.de/" target="_blank" rel="noopener"><span class="nw">E+SERVICE+CHECK<span class="newtab">…</span></span></a>&nbsp;<span class="place">· Laucha</span></p>
-<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team:</span> functional lead for content, marketing and project management</li><li><span class="k">Scope:</span> marketing, lead generation, design and automation, built from scratch – SEA, SEO, email marketing, events, employer branding</li><li><span class="k">Result:</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
+<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team:</span> two – marketing and support tasks</li><li><span class="k">Scope:</span> marketing, lead generation, design and automation, built from scratch – SEA, SEO, email marketing, events, employer branding</li><li><span class="k">Result:</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
 </div>
 </li>
 …
@@ -574,7 +575,7 @@ Eleven entries; the first stands for all.
 - `<ul class="tree">` – the details as an unordered list, styled like the output of the Unix `tree` command – the format of the #JobAlert posts. The branches `├──` and `└──` are not characters in the HTML but CSS borders on `::before` and `::after`. They align in any font, and screen readers do not read out box-drawing characters.
 - `<span class="k">Scope:</span>` – the key with its colon, set bold by the CSS. The colon is text in the HTML, not CSS-generated content (`::after`): generated content is not part of the document's text, so a text extraction would read "Scope marketing, design …" without it. With the colon in the HTML, screen readers, search engines and a copy and paste all get "Scope: marketing, design …". On the German page the keys carry `lang="en"` – Scope, Team, Result are brand vocabulary.
 - The same three keys, in the same order, wherever there are facts for them: Team (who), Scope (what), Result (what came of it). Someone comparing two roles finds the same kind of fact in the same place. Facts that fit none of the three go elsewhere: the company into the `ctx` line, the job titles at Posterlounge into a disclosure (see "Experience: five positions behind a disclosure"). For the two Liora trainings, Scope is the curriculum and Result the certificate with its capstone project.
-- Two entries are trainings, not jobs, and their titles say so: `<h3>Data Scientist training (full-time)</h3>` and `<h3>MLOps Engineer training (full-time)</h3>`, German "Weiterbildung Data Scientist (Vollzeit)" and "Weiterbildung MLOps Engineer (Vollzeit)". They stay in the timeline: full-time from 02 to 07/2025, between Brandible (until 12/2024) and E+SERVICE+CHECK (from 11/2025), they show what that stretch was. The word in the title keeps them from reading as positions.
+- Two entries are trainings, not jobs, and their titles say so: `<h3>Data Scientist training</h3>` and `<h3>MLOps Engineer training</h3>`, German "Weiterbildung Data Scientist" and "Weiterbildung MLOps Engineer". Working hours appear only where they are the exception – "(part-time)" at Rapidobject, which overlapped both. The trainings stay in the timeline: full-time from 02 to 07/2025, between Brandible (until 12/2024) and E+SERVICE+CHECK (from 11/2025), they show what that stretch was. The word in the title keeps them from reading as positions.
 - Their company line links Liora and names the Sorbonne after the link:
 
   ```html
@@ -604,7 +605,7 @@ Eleven entries; the first stands for all.
 <a href="https://www.e-service-check.de/" target="_blank" rel="noopener"><span class="nw">E+SERVICE+CHECK<span class="newtab"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12.5 3.5M6 3.5h6.5V10"/></svg><span class="sr-only"> (opens in a new tab)</span></span></span></a>
 ```
 
-The company name is the first of 29 links on each page that lead to another website: fourteen in Experience – seven company websites and the two Liora course pages in the roles, five of the six early positions –, GitHub and Demo under Projects, LinkedIn, GitHub and the map under Contact, "Verify credential", "Course page" and the two videos under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
+The company name is the first of 30 links on each page that lead to another website: fifteen in Experience – seven company websites and the two Liora course pages in the roles, all six early positions –, GitHub and Demo under Projects, LinkedIn, GitHub and the map under Contact, "Verify credential", "Course page" and the two videos under Sources. All of them open in a new tab, and all come from one function in `build.py`, `offsite()`, so they carry the same markup. Links within the site keep the tab: the ledger and the footnotes, the menu, the language switch, the legal pages. So does the mail link, which hands the address to the mail program and opens no page.
 
 - `target="_blank"` – opens the target in a new tab (some browser settings make it a new window). peterstieg.com stays open in the tab behind it, at the same scroll position: a visitor checks a company or a credential and comes back to the place they left. The price: the new tab has no history to go back to, and the link no longer leaves the choice of tab to the visitor. That is why it announces itself, to the eye and to the ear (the next points).
 - `rel="noopener"` – a page opened in a new tab normally receives a reference to the page that opened it, `window.opener`, and can use it to send that tab to another address – for example to a copy of a login page while the visitor reads the new tab, known as reverse tabnabbing. `noopener` withholds the reference. Current browsers already treat every `target="_blank"` link this way (Chrome since version 88, Firefox 79, Safari 12.1); the attribute states it explicitly and covers older browsers. `noreferrer` is not set, so the target still learns which site the visitor came from – the site, not the page: the referrer policy in `.htaccess` sends only the origin to other sites.
@@ -660,7 +661,7 @@ The years 2010 to 2014 stay one entry in the timeline: six positions in and arou
 - `<summary>Six positions</summary>` – the label of the toggle, as visible text: number and noun, like "Five positions" under Posterlounge. Browsers draw a small triangle in front of it; the CSS replaces that with a chevron that turns down when the disclosure is open. German: "Sechs Stationen".
 - `<ol class="tree" reversed>` – the same list as under Posterlounge, written by the same function, `steps()`: one item per position, newest first, counted down like the timeline. Each item is the title, the company, a `<br>`, and in `<span class="at">` the dates and length.
 - The newest row, 3D2B, is one month in Rome, right after SBS: "09/2014 · 1 month", a single date. In the disclosure rather than as an entry of its own, which would weigh like a role of several years.
-- `&nbsp;<span class="muted">· …</span>` – the company, in grey like the issuers under Education. Where its website could be verified, the name is a link like every company's in Experience, with its ↗: 3D2B, SBS (its Italian site), Inner Valor, Fontebona and PaesiOnLine. Proactive Europe stays text. Posterlounge's rows have no such span: all five were at one company, named in the role's own line, and `steps()` writes the company only where a row has one. The `&nbsp;` before the span glues the dot to the title, as in the employer line, where a tag sits between space and dot too (see "Non-breaking spaces and middle dots").
+- `&nbsp;<span class="muted">· …</span>` – the company, in grey like the issuers under Education. Where its website could be verified, the name is a link like every company's in Experience, with its ↗: 3D2B, SBS (its Italian site), Inner Valor, Fontebona, Proactive Worldwide and PaesiOnLine. Proactive is named as the group people know, with a note for the contract: "Proactive Worldwide, European subsidiary" – the employer was Proactive Europe, which has no website of its own; until 22.11.2026 its name stood there as plain text. Posterlounge's rows have no such span: all five were at one company, named in the role's own line, and `steps()` writes the company only where a row has one. The `&nbsp;` before the span glues the dot to the title, as in the employer line, where a tag sits between space and dot too (see "Non-breaking spaces and middle dots").
 - No place and no Scope per position: the entry's own lines sum them up, "Six companies · Rome" and the Scope above the disclosure.
 - No heading per position: each title is a list item, not an `<h4>`. Under Experience the outline ends at the entries' `<h3>`.
 - In `build.py` the entry's key `positions` holds the label and one (dates, title, company, url) row per position, newest first. Unlike Posterlounge's rows, each row carries its own dates – a range, or the single month of 3D2B: the positions overlap and leave gaps, so no end can be derived from the next start.
@@ -910,7 +911,7 @@ One addition goes the other way. The notice behind each ↗ is real text, like t
 <meta name="color-scheme" content="light dark">
 <script>…</script>
 <script type="speculationrules">…</script>
-<title>404 – Peter Stieg</title>
+<title>Peter Stieg › 404</title>
 <meta name="description" content="Page not found.">
 <meta name="author" content="Peter Stieg">
 <link rel="canonical" href="https://peterstieg.com/404.html">
@@ -1123,7 +1124,7 @@ Sitemap: https://peterstieg.com/sitemap.xml
 <meta name="color-scheme" content="light dark">
 <script>…</script>
 <script type="speculationrules">…</script>
-<title>Legal notice – Peter Stieg</title>
+<title>Peter Stieg › Legal notice</title>
 <meta name="description" content="Legal notice for peterstieg.com">
 …
 <link rel="canonical" href="https://peterstieg.com/legal-notice.html">
@@ -1155,7 +1156,7 @@ Sitemap: https://peterstieg.com/sitemap.xml
 
 - Four pages, each in its language's folder: `de/impressum.html` and `de/datenschutz.html` in German, legally binding, next to the German start page; `legal-notice.html` and `privacy.html` in English, translations, in the root. The same structure as the start pages and the 404s; the German pair sat in the root until 22.11.2026, and `.htaccess` forwards the old addresses. The German pages load stylesheet, script and icons with `../`, like `de/index.html`.
 - The head starts as on the start pages: colour scheme, boot script, speculation rules – `head()` writes all three for every page.
-- `<title>` and description name the page: "Legal notice – Peter Stieg", "Legal notice for peterstieg.com"; German "Impressum von peterstieg.com".
+- `<title>` and description name the page: "Peter Stieg › Legal notice" – the path from the name to the page, the name first as on the start pages –, "Legal notice for peterstieg.com"; German "Peter Stieg › Impressum", "Impressum von peterstieg.com".
 - `canonical` – the page's own address. The `alternate` links pair it with its counterpart in the other language, by the same rules as the start pages: both pages of a pair list both, x-default is the English one.
 - `<meta name="robots" content="noindex, follow">` – "do not show this page in search results, but do follow its links". `follow` is the default; it is written out for clarity. Why `noindex`: legal pages answer no search query, and the legal notice carries a full postal address that should not turn up when someone searches the name.
 - The header: the logo, linking to the start page of the page's language – `./` in both languages, as each legal page shares its start page's folder; the four menu links, leading to the sections of that start page (`./#profile`, German `./#profil`); the language switch, leading to the same page in the other language – here `de/impressum.html`, and back `../legal-notice.html`; the theme buttons.

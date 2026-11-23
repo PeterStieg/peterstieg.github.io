@@ -117,12 +117,18 @@ NAME = "Peter Stieg"
 TAGLINE = "Performance Marketing · Data Science"
 CLAIM = "Marketing leadership with root access"
 MOTTO = "sudo dream plan ship"
-TITLE = f"{NAME} – {TAGLINE}"
+# separators, one meaning each: · lists equals, – pauses a sentence, // joins a name to what it stands for (as on
+# LinkedIn), › walks a path through the site. No |: it breaks the reading flow and looks like l and I in many fonts.
+TITLE = f"{NAME} // {TAGLINE}"
+SUBPAGE = f"{NAME} › %s"                                # the title of every other page: the path to it
 ```
 
 - These live outside `CONTENT` because they are identical in every language (rule 5).
 - `NAME` appears in the page title, the hero `<h1>`, the header logo, the footer, `meta author` and JSON-LD. `TAGLINE` and `CLAIM` appear in the hero and the social-preview image description. `MOTTO` appears in the source comment and the hero prompt.
 - `TITLE` is an f-string: `{NAME}` and `{TAGLINE}` are evaluated once, when the module loads. The result is a plain string; it does not "remember" where it came from.
+- The separators follow one rule across the site and Pete's other channels (decisions, 22.11.2026): `//` joins a name to what it stands for – the start pages' title, "Peter Stieg // Performance Marketing · Data Science", as in his LinkedIn headline and the names of his post formats; `·` separates equals inside it. `›` walks a path: every other page is titled from the name down to the page, the way a breadcrumb reads – "Peter Stieg › Impressum", "Peter Stieg › 404", later "Peter Stieg › Projekte › …". The name stands first everywhere, so the order never flips between page types. Trade-off: with many tabs open each starts with "Peter Stieg ›", and the specific part is the one cut off.
+- `SUBPAGE` – a format string with `%s` where the page's name goes: `SUBPAGE % "Impressum"` gives "Peter Stieg › Impressum". Built once from `NAME`, filled by `legal()` and `not_found()` (sections 26, 27).
+- Screen readers read the title first, `//` as "slash slash". Consistency across the channels outweighed that here – a decision, not an oversight.
 - Several places insert these constants without `e()` (`{NAME}`, `{CLAIM}`, `{MOTTO}`). That is safe only because they contain none of `& < > "`. If you ever add such a character, wrap the uses in `e()`.
 
 ---
@@ -247,14 +253,14 @@ CONTENT = {
                   "rows": [["sudo", "Code view: HTML · build.py · off"], ["Esc", "Close"], [["?", "F1"], "Show this list"]]},
         "dur": ("year", "years", "month", "months"),
         "jump": {"label": "Sections", "menu": "All sections", "up": "Up: %s", "down": "Down: %s"},
-        "desc": "Head of Marketing in Leipzig. …",
+        "desc": "Head of Marketing, based in Leipzig. …",
         "skip": "Skip to content",
         "nav": [("profile", "Profile"), ("experience", "Experience"), ("projects", "Projects"), ("contact", "Contact")],
         "sec": {"profile": "Profile", "languages": "Languages", "experience": "Experience", "projects": "Projects",
                 "education": "Education", "contact": "Contact", "sources": "Sources"},
         "entry": {"hw": "mar·ke·tin·ker·er", "pos": "noun", "ety": "[*marketer* × *tinkerer*]",
                   "def": "A marketing leader who builds the tools behind the campaigns – and the teams that run them."},
-        "profile": "Leadership roles at four companies, …",
+        "profile": "Online marketing since 2010 – leadership roles at four companies, …",
         "ledger_label": "Selected results",
         "ledger": [
             ("Leads > 2×", "inbound inquiries year over year", "e-service-check"),
@@ -271,7 +277,7 @@ CONTENT = {
              "tree": [("Team", "…"),
                       ("Scope", "…"),
                       ("Result", "…")]},
-            {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "MLOps Engineer training (full-time)",
+            {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "MLOps Engineer training",
              "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "…"),
                       ("Result", "…")]},
@@ -296,6 +302,8 @@ CONTENT = {
                  ("09/2014", "Business Development Specialist", "3D2B", "http://www.3d2b.com/"),
                  ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
                  ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor", "https://innervalor.com/"),
+                 …
+                 ("04/2012 – 05/2013", "Market research", "Proactive Worldwide, European subsidiary", "https://www.proactiveworldwide.com/"),
                  …
              ])},
         ],
@@ -338,7 +346,9 @@ CONTENT = {
 
 - Every list with a time order runs newest first: the ledger (E+SERVICE+CHECK, Brandible, Posterlounge), the roles, the steps inside a role (`path`, `positions`), the dated facts in Education and the project groups. One direction throughout, so nothing reads as reversed. The trade-off, accepted for that consistency: the largest figure, the media budget from €6k to €240k, stands last in the ledger.
 - No code sorts anything. The order in the dict is the order on the page, and `role()` even relies on it to compute the ends of the promotions (section 24). A new entry goes where it belongs in time.
-- The two Liora courses stand in `roles` as well: full-time from 02 to 07/2025, between Brandible (until 12/2024) and E+SERVICE+CHECK (from 11/2025), they show what that stretch was. Their titles say what they were, "MLOps Engineer training (full-time)" and "Data Scientist training (full-time)", so they do not read as jobs.
+- The two Liora courses stand in `roles` as well: full-time from 02 to 07/2025, between Brandible (until 12/2024) and E+SERVICE+CHECK (from 11/2025), they show what that stretch was. Their titles say what they were, "MLOps Engineer training" and "Data Scientist training", so they do not read as jobs.
+- Working hours are marked only where they differ from the rule: most roles were full-time, so only the exception carries a label – "Marketing & UX Design (part-time)" at Rapidobject, which overlapped both trainings. Until 22.11.2026 the trainings said "(full-time)" as well; one label reads faster than three (decisions).
+- Team lines lead with marketing: "nine – five in marketing, four in design" (SportSpar), "seven – three in marketing, four in graphic design" (Brandible), "two – marketing and support tasks" (E+SERVICE+CHECK).
   - `"org": "Liora", "url": NOTES["mlops"]["course"]` – the school links the course page of that training, the same URL as the footnote's "Course page" (section 7): defined once, in `NOTES`. `CONTENT` comes after `NOTES` in the file, so the name is already bound when the dict is built.
   - `"with"` – the partner, written after the link and outside it: "Liora ↗ · Université Paris 1 Panthéon-Sorbonne". The ↗ promises Liora's page; inside the link the Sorbonne would seem to be the target too.
   - "(formerly DataScientest)" stands in Education, not here: there it also explains why the verification links in Sources lead to datascientest.com.
@@ -407,10 +417,10 @@ Copy:
 ### How EN and DE mirror each other
 
 - Same keys, same shapes, same number and order of list items. The only key that exists in one language and not the other is `ids` – English uses the internal keys directly as anchors.
-- Localized, not translated: German uses KUR, English RoAS (rule 2), job titles follow German usage ("Leiter Marketing"), number formats follow each language ("6.000 → 240.000 €" vs "€6k → €240k"), and trade terms follow each language's habit – "marketing automation" (Brandible, Rapidobject) is "Marketing Automation" in German, the English term German marketing uses, capitalized as a German noun. The two trainings follow each language's word order: "MLOps Engineer training (full-time)", "Weiterbildung MLOps Engineer (Vollzeit)".
+- Localized, not translated: German uses KUR, English RoAS (rule 2), job titles follow German usage ("Leiter Marketing"), number formats follow each language ("6.000 → 240.000 €" vs "€6k → €240k"), and trade terms follow each language's habit – "marketing automation" (Brandible, Rapidobject) is "Marketing Automation" in German, the English term German marketing uses, capitalized as a German noun. The two trainings follow each language's word order: "MLOps Engineer training", "Weiterbildung MLOps Engineer".
 - English inside German: the tree labels `"Team"`, `"Scope"` and `"Result"` stay English in the DE dict (rule 5). Every role uses the same three, in that order, wherever there is something to say – a role without a team simply has no `"Team"` row.
 - Not localized: the company keys at the end of each `ledger` entry and the role `id`s that name a company or a course. `#posterlounge` is the anchor on both pages, unlike the section anchors, which `ids` translates. The two roles named after what they were get a German id on the German page: `#freelance` / `#freiberuflich`, `#rome-2010-2014` / `#rom-2010-2014`. The project ids come from the project names (`slugify()`, section 12), so they follow the language: `#customer-portal` / `#kundenportal`.
-- Nested lists mirror too: the five rows under `"path"` and the six positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Five positions", "Fünf Stationen"; "Six positions", "Sechs Stationen") and follow one pattern, number and noun. The promotions keep their titles in both, because they are the titles that were held – only the market in "SEO Manager Italy", "SEO Manager Italien", and the freelance row, "SEO, freelance", "SEO, freiberuflich", are localized. The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical.
+- Nested lists mirror too: the five rows under `"path"` and the six positions under `"positions"` exist in both dicts, in the same order, newest first. The labels differ ("Five positions", "Fünf Stationen"; "Six positions", "Sechs Stationen") and follow one pattern, number and noun. The promotions keep their titles in both, because they are the titles that were held – only the market in "SEO Manager Italy", "SEO Manager Italien", and the freelance row, "SEO, freelance", "SEO, freiberuflich", are localized. The positions localize the titles that describe work ("Market research", "Marktforschung") and keep the rest; dates and company names are identical. One company line carries a note: "Proactive Worldwide, European subsidiary" ("…, europäische Tochtergesellschaft") – the group is the name people know and the link that works, the contract was with its European subsidiary, Proactive Europe; the note keeps both true (decisions, 22.11.2026).
 - One value differs on purpose: Immobiliare.it's `url`, the portal's English page on the English page, its Italian home page on the German one.
 - Parity is checked in part. A key missing in DE raises `KeyError` as soon as `page()` asks for it – loud and easy to find. A role or project only added in EN stops the build: `twins()` (section 12) pairs them by position and asserts that both pages list as many. Other lists – a fact, a P⁴ text – are not checked: the German page simply shows one entry fewer. Edit both languages in the same sitting.
 - Quick parity check from the repository root (importing does not build anything, see section 30):
@@ -990,6 +1000,7 @@ def jsonld(c):
         "url": URL,
         "image": URL + "og-image.png",
         "jobTitle": c["jobtitle"],
+        "worksFor": {"@type": "Organization", "name": c["roles"][0]["org"], "url": c["roles"][0]["url"]},   # the newest role
         "description": c["desc"],
         "address": {"@type": "PostalAddress", "addressLocality": "Leipzig", "addressCountry": "DE"},
         "email": "mailto:" + EMAIL,
@@ -1008,6 +1019,7 @@ def jsonld(c):
 - JSON-LD ("JSON for Linked Data") – machine-readable facts about the page's subject, using the schema.org vocabulary. Search engines read it; visitors never see it.
 - The Python dict mirrors the JSON structure one to one. `"@context"` names the vocabulary, `"@type"` the kind of thing described – a `Person`.
 - `jobTitle` and `description` come from `c`, so each language version describes the person in its own language.
+- `"worksFor"` (since 22.11.2026) – the employer, an `Organization` with name and website, so search engines read the current position as a fact and not only from the text. `c["roles"][0]` – the first role in the timeline, which runs newest first (section 8): today E+SERVICE+CHECK. A new job at the top of `roles` updates it on its own.
 - `"address"` – a nested object with its own `@type`. City and country only.
 - `"sameAs"` – other profiles of the same person; this ties the site to LinkedIn and GitHub.
 - `"hasCredential"` – a list comprehension: `[{…} for n in NOTES.values() if n.get("verify")]` builds one credential object per footnote that has a verification page – the videos have none and are left out. Dicts keep insertion order (guaranteed since Python 3.7), so the order is always that of `NOTES`: Data Scientist, MLOps Engineer, IHK, edX.
@@ -1268,7 +1280,7 @@ def steps(c, label, rows):
 
 - One disclosure: a summary line and, behind it, the steps inside one timeline entry. Two entries have one – Posterlounge's five positions and the six positions up to 2014. Both come from this function, so they look and behave the same.
 - `label` – the summary text: "Five positions", "Six positions" – number and noun, the same pattern for both (German "Fünf Stationen", "Sechs Stationen").
-- `rows` – a list of (title, company, range, url) tuples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names. The url is `""` where there is none to link: the promotions, and the one early position whose company has no website that could be verified (Proactive Europe).
+- `rows` – a list of (title, company, range, url) tuples, already in page order, newest first. `steps()` writes them as it gets them. The company is `""` where there is none: the promotions all happened at the company the entry already names. The url is `""` where there is none to link: the promotions. Every early position links its company – Proactive since 22.11.2026, via the group's website.
 - `lis` – one `<li>` per row, three f-strings joined with `+`:
   - `<li>{e(title)}` – the title, escaped.
   - `(… if org else "")` – the company, only where there is one. The parentheses are needed: `+` binds more tightly than a conditional expression, so without them the `if … else` would take the whole sum as its two branches – a row with a company would lose its dates, a row without one its title.
@@ -1731,7 +1743,7 @@ def legal(key, L):
     c = dict(CONTENT[L], path=path, root="../" * path.count("/"))   # the German pages sit in de/, like the German start page
     pair = {code: p[0] for code, p in LEGAL[key].items()}
     return "".join([
-        head(c, f"{title} – {NAME}", c["legal_desc"] % title, URL + path, alternates=pair),
+        head(c, SUBPAGE % title, c["legal_desc"] % title, URL + path, alternates=pair),
         '<meta name="robots" content="noindex, follow">\n</head>\n<body>\n',
         topbar(c, start=False, langs=pair),
         f'<main id="main"{torch_data(c)}>\n<div class="wrap legal">\n<div class="body" id="{page_id(path)}">\n{body}</div>\n</div>\n</main>\n',
@@ -1746,7 +1758,7 @@ def legal(key, L):
   - It is a shallow copy: nested lists and dicts are shared with the original. `c["root"]` is safe to replace; `c["nav"].append(…)` would change `CONTENT` itself.
 - `pair = {…}` – a dict comprehension over both languages of this page: code → path, `{"en": "legal-notice.html", "de": "de/impressum.html"}`. `p[0]` is the path in each tuple. Both pages of a pair build the same dict, so each names the other.
 - The parts:
-  - `head(…)` – title "Legal notice – Peter Stieg"; description `c["legal_desc"] % title` – the `%` operator fills `%s`: "Legal notice for peterstieg.com", "Impressum von peterstieg.com"; canonical `URL + path`; `alternates=pair` – the hreflang links to both versions, x-default the English one (section 14).
+  - `head(…)` – title `SUBPAGE % title`, "Peter Stieg › Legal notice" (section 4); description `c["legal_desc"] % title` – the `%` operator fills `%s`: "Legal notice for peterstieg.com", "Impressum von peterstieg.com"; canonical `URL + path`; `alternates=pair` – the hreflang links to both versions, x-default the English one (section 14).
   - `robots` meta `noindex, follow` – keep the page out of search results, but follow its links. Then the head closes and the body opens.
   - `topbar(c, start=False, langs=pair)` – the menu leads to the sections of the start page in the page's language (`./#werdegang` from `de/impressum.html`), and so does the home link, without an anchor (`./`); the language switch leads to the same page in the other language (section 15). The theme switch stays.
   - `<main id="main"{torch_data(c)}>` – the torch works here too (section 19).
@@ -1767,7 +1779,7 @@ def not_found(c):
     other = next(x for x in LANGS if x[0] != c["lang"])           # code, label, name, home
     c = dict(c, root="/")
     return "".join([
-        head(c, f"404 – {NAME}", f"{word} {rest}", f"{URL}{home}404.html", alternates=False, root="/"),
+        head(c, SUBPAGE % "404", f"{word} {rest}", f"{URL}{home}404.html", alternates=False, root="/"),
         '<meta name="robots" content="noindex">\n</head>\n<body>\n',
         topbar(c, start=False),
         f"""<main id="main"{torch_data(c)}>
@@ -1791,7 +1803,7 @@ def not_found(c):
 - `c = dict(c, root="/")` – the parameter rebound to a copy with a root-absolute prefix. The caller's dict stays as it was.
 - Why `"/"`: the server delivers this page for every missing URL, at any depth – `/de/old/page` included. A relative `assets/site.css` would then resolve to `/de/old/assets/site.css` and fail. A leading slash always resolves from the domain root.
 - Trade-off: opened straight from disk (`file://`), `/` means the root of your file system, so the 404 pages look unstyled locally. That is expected.
-- `head(…)` – description `f"{word} {rest}"`: "Page not found.", "Seite nicht gefunden."; canonical `f"{URL}{home}404.html"`: the page's own address. `root="/"` is passed as well – redundant, since `c["root"]` is already `"/"`.
+- `head(…)` – title "Peter Stieg › 404" (`SUBPAGE`, section 4); description `f"{word} {rest}"`: "Page not found.", "Seite nicht gefunden."; canonical `f"{URL}{home}404.html"`: the page's own address. `root="/"` is passed as well – redundant, since `c["root"]` is already `"/"`.
 - `robots` `noindex` – error pages do not belong in search results.
 - `topbar(c, start=False)` – the header as on the legal pages: the menu leads to the start page's sections (`/#profile`), the logo to the start page. With the root `"/"`, `href()` writes every address from the root (section 12). `langs` keeps its default, `True`: the switch leads to the other start page – `/de/` from the English 404, `/` from the German one –, because a missing page has no counterpart in the other language.
 - `<main id="main"{torch_data(c)}>` – the torch here too; `TORCH` has four rules for the lines below (section 28).
