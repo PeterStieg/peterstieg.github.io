@@ -357,6 +357,8 @@ a:hover .newtab, a:focus-visible .newtab { color: var(--accent); }
 .more .tree { margin-top: 0.5rem; }              /* the steps inside one entry, newest first */
 .more .tree li { padding-bottom: 0.45rem; }
 .more .tree .at { color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; }   /* dates · duration */
+.more .note { margin: 0.1rem 0 0; padding-left: 1.7em; color: var(--muted); }   /* the indent of .tree li: in line with the step titles */
+.more .note span { font-size: 0.95rem; }
 
 /* projects */
 .group + .group { margin-top: 2.5rem; }

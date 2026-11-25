@@ -120,58 +120,57 @@ CONTENT = {
             ("Media budget €6k → €240k", "per month, at a RoAS of 4.0", "posterlounge"),
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – "
-            "product feeds in PHP and Python, budgets of up to €240k a month. Optimised for RoAS, ACoS and CPL.",
-            "CSV exports from two phone systems and 15 web forms into BigQuery, with Python, SQL and Odoo master data. Reports in Data Studio, "
-            "Google Ads Scripts and Apps Script – website performance, online marketing, telephony. Web apps in Streamlit.",
-            "Corporate identity from claim and logo to colours and typefaces, workwear, signage and vehicle decals; websites, "
-            "employer branding, mockups, vector graphics and videos; business cards, letterheads, employee ID cards and catalogues.",
-            "International marketing teams of up to nine people, from SEA, print and promotional products to graphic design, "
-            "including career changers from retail and fine arts. Recruiting and in-house training in SEA, social media and data analysis.",
+            "Google Ads, Microsoft Advertising, Meta, LinkedIn, Pinterest, Outbrain, Taboola; Amazon, Otto, Cdiscount – "
+            "product feeds in PHP and Python. Optimised for RoAS, ACoS and CPL.",
+            "Data from phone systems, web forms and Odoo into BigQuery with Python and SQL; reports in Data Studio, "
+            "Google Ads Scripts and Apps Script; internal web apps in Streamlit.",
+            "Corporate identity from claim and logo to signage, workwear and vehicle decals; websites, employer branding, "
+            "mockups and videos; print from business cards to catalogues.",
+            "International marketing and design teams of up to nine, including career changers from retail and fine arts. "
+            "Recruiting and in-house training in SEA, social media and data analysis.",
         ],
         "roles": [
             {"id": "e-service-check", "when": "since 11/2025", "title": "Head of Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.",
-             "tree": [("Team", "two – marketing and support tasks"),
+             "tree": [("Team", "two – marketing and marketing assistance"),
                       ("Scope", "marketing, lead generation, design and automation, built from scratch – SEA, SEO, email marketing, events, employer branding"),
-                      ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark")]},
+                      ("Result", "inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark application")]},
             {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "MLOps Engineer training",
              "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "containers, orchestration, tracking, APIs and monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
-                      ("Result", "certified MLOps Engineer; capstone: the Rakuten text classifier as a production pipeline – training, tracking, serving, monitoring")]},
+                      ("Result", "certified MLOps Engineer")]},
             {"id": "rapidobject", "when": "03/2025 – 07/2025", "title": "Marketing & UX Design (part-time)", "org": "Rapidobject", "url": "https://www.rapidobject.com/en/", "place": "Leipzig",
              "tree": [("Scope", "UI concepts, usability tests and pricing logic in Python; support for the marketing automation migration from "
-                                "ActiveCampaign to Salesforce; communication, mediation and translation between Rapidobject’s "
-                                "authorized signatories and its London partner AMFG"),
+                                "ActiveCampaign to Salesforce; liaison and translation between management and London partner AMFG"),
                       ("Result", "Salesforce dashboards, built into the sales process")]},
             {"id": "liora-ds", "when": "02/2025 – 05/2025", "title": "Data Scientist training",
              "org": "Liora", "url": NOTES["ds"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "machine learning and deep learning with Python – scikit-learn, Keras, PyTorch, Google Cloud"),
-                      ("Result", "certified Data Scientist; capstone: multimodal classification of e-commerce products with NLP and computer vision")]},
+                      ("Result", "certified Data Scientist")]},
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International", "url": "https://www.brandible.de/", "place": "Dresden",
-             "ctx": "B2B promotional products for Germany, Austria and Switzerland, plus an online shop for Dresden Christstollen.",
+             "ctx": "B2B promotional products for Germany, Austria and Switzerland.",
              "tree": [("Team", "seven – three in marketing, four in graphic design"),
-                      ("Scope", "SEO, performance marketing and lead generation – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM, newsletters and marketing automation; "
-                                "photo and video production – a customer testimonial with Hellinger 42[[h42]], a TV shoot for ProSieben’s Galileo[[galileo]]"),
+                      ("Scope", "SEO, performance marketing and lead generation for three online shops, one of them seasonal for Dresden Christstollen – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM, newsletters and marketing automation; "
+                                "photo and video production – a customer testimonial with Hellinger 42[[h42]] and the organisation of a TV shoot for ProSieben’s Galileo[[galileo]]"),
                       ("Result", "RoAS 7.6 → 7.8 on an expanded budget; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
             {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.com/", "place": "Eilenburg",
              "ctx": "Off-price online outlet for branded sportswear from previous seasons.",
              "tree": [("Team", "nine – five in marketing, four in design"),
-                      ("Scope", "e-commerce operations in DE, COM, FR, IT, NL, ES and PL – email automation, Facebook, Instagram, WhatsApp, Telegram and affiliate marketing")]},
+                      ("Scope", "e-commerce operations for seven shops (DE, FR, IT, NL, ES, PL and .com) – email automation, Facebook, Instagram, WhatsApp, Telegram and affiliate marketing")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Online shops for wall art, art prints and frames in more than 15 European countries.",
              "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
                       ("Scope", "SEA, SEO, marketplaces, social media, creator relations and print partnerships; "
                                 "cross-channel reporting with Google Ads Scripts and Apps Script"),
                       ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")],
-             "path": ("Five positions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
-                                           ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy"),
-                                           ("07/2017", "SEO, freelance")])},
+             "path": ("Three promotions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
+                                             ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy")],
+                      "Started early: freelance SEO until the move to Germany · 07/2017 – 09/2017")},
             {"id": "immobiliare", "when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
              "tree": [("Scope", "Google Ads and Microsoft Advertising; international marketing for portals such as LuxuryEstate")]},
             {"id": "youniversal", "when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rome",
              "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social and native; lead generation, app install and retargeting campaigns")]},
-            {"id": "freelance", "when": "2013 – 2020", "title": "Freelance: websites, design, translation", "org": "Alongside employment",
+            {"id": "freelance", "when": "2013 – 2020", "nodur": True, "title": "Freelance: websites, design, translation", "org": "Alongside employment",
              "tree": [("Scope", "WordPress websites incl. photography and copy in three languages; logos, catalogues and posters "
                                 "in Adobe Creative Cloud; translations via TextMaster"),
                       ("Result", "websites for a music school and a kiteboarding school in Rome")]},
@@ -181,7 +180,7 @@ CONTENT = {
              "positions": ("Six positions", [
                  ("09/2014", "Business Development Specialist", "3D2B", "http://www.3d2b.com/"),
                  ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
-                 ("06/2013 – 05/2014", "Corporate investigations", "Inner Valor", "https://innervalor.com/"),
+                 ("06/2013 – 05/2014", "Competitive intelligence", "Inner Valor", "https://innervalor.com/"),
                  ("06/2013 – 12/2013", "Marketing & export DACH", "Fontebona", "http://www.fontebona.com/"),
                  ("04/2012 – 05/2013", "Market research", "Proactive Worldwide, European subsidiary", "https://www.proactiveworldwide.com/"),
                  ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine", "https://www.paesionline.it/"),
@@ -241,58 +240,58 @@ CONTENT = {
             ("Budget 6.000 → 240.000 €", "im Monat, bei einer KUR von 25 %", "posterlounge"),
         ],
         "fields": [
-            "Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – "
-            "Produktfeeds in PHP und Python, Budgets bis 240.000 € im Monat. Gesteuert über KUR, ACoS und CPL.",
-            "CSV-Exporte aus zwei Telefonanlagen und 15 Webformularen in BigQuery, mit Python, SQL und Odoo-Stammdaten. Reports mit Data Studio, "
-            "Google Ads Scripts und Apps Script – Website-Performance, Online-Marketing, Telefonie. Web-Apps mit Streamlit.",
-            "Corporate Identity von Claim und Logo bis zu Farben, Schrift, Arbeitskleidung, Beschilderung und Fahrzeugbeklebung; "
-            "Websites, Employer Branding, Mockups, Vektorgrafiken, Videos; Visitenkarten, Briefvorlagen, Mitarbeiterausweise, Kataloge.",
-            "Internationale Marketingteams mit bis zu neun Personen, von SEA über Print und Werbeartikel bis Grafik, "
-            "darunter Quereinsteiger aus Einzelhandel und bildender Kunst. Recruiting und Schulungen zu SEA, Social Media und Datenanalyse.",
+            "Google Ads, Microsoft Advertising, Meta, LinkedIn, Pinterest, Outbrain, Taboola; Amazon, Otto, Cdiscount – "
+            "Produktfeeds in PHP und Python. Gesteuert über KUR, ACoS und CPL.",
+            "Daten aus Telefonanlagen, Webformularen und Odoo in BigQuery, mit Python und SQL; Reports mit Data Studio, "
+            "Google Ads Scripts und Apps Script; interne Web-Apps mit Streamlit.",
+            "Corporate Identity von Claim und Logo bis Beschilderung, Fahrzeugbeklebung und Arbeitskleidung; "
+            "Websites, Employer Branding und Videos; Print von Visitenkarte bis Katalog.",
+            "Internationale Marketing- und Designteams bis neun Personen, mit Quereinsteigern aus Einzelhandel und bildender Kunst; "
+            "Recruiting, Schulung in SEA, Social Media, Datenanalyse.",
         ],
         "roles": [
             {"id": "e-service-check", "when": "seit 11/2025", "title": "Leiter Marketing", "org": "E+SERVICE+CHECK", "url": "https://www.e-service-check.de/", "place": "Laucha",
              "ctx": "TÜV-zertifizierte Prüfungen der elektrischen Sicherheit (DGUV V3/V4), bundesweit, 349 Mitarbeitende.",
-             "tree": [("Team", "zwei Personen – Marketing und unterstützende Tätigkeiten"),
+             "tree": [("Team", "zwei Personen – Marketing und Marketingassistenz"),
                       ("Scope", "Marketing, Leadgenerierung, Design und Automatisierung von Grund auf aufgebaut – SEA, SEO, E-Mail-Marketing, Events, Employer Branding"),
                       ("Result", "Anfragen im Jahresvergleich mehr als verdoppelt; neue Corporate Identity samt Grundlage der EUIPO-Markenanmeldung")]},
             {"id": "liora-mlops", "when": "05/2025 – 07/2025", "title": "Weiterbildung MLOps Engineer",
              "org": "Liora", "url": NOTES["mlops"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
-                      ("Result", "zertifizierter MLOps Engineer; Abschlussprojekt: der Rakuten-Textklassifikator als produktive Pipeline – Training, Tracking, Bereitstellung, Monitoring")]},
+                      ("Result", "zertifizierter MLOps Engineer")]},
             {"id": "rapidobject", "when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject", "url": "https://www.rapidobject.com/", "place": "Leipzig",
              "tree": [("Scope", "UI-Konzeption, Usability-Tests und Preislogik in Python; Begleitung der Migration der Marketing Automation von "
-                                "ActiveCampaign zu Salesforce; Kommunikation, Vermittlung und Übersetzung zwischen den Prokuristen "
+                                "ActiveCampaign zu Salesforce; Kommunikation und Übersetzung zwischen der Führung "
                                 "von Rapidobject und dem Londoner Partner AMFG"),
                       ("Result", "Salesforce-Dashboards, eingebunden in den Vertriebsprozess")]},
             {"id": "liora-ds", "when": "02/2025 – 05/2025", "title": "Weiterbildung Data Scientist",
              "org": "Liora", "url": NOTES["ds"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
              "tree": [("Scope", "Machine Learning und Deep Learning mit Python – scikit-learn, Keras, PyTorch, Google Cloud"),
-                      ("Result", "zertifizierter Data Scientist; Abschlussprojekt: multimodale Klassifikation von E-Commerce-Produkten mit NLP und Computer Vision")]},
+                      ("Result", "zertifizierter Data Scientist")]},
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International", "url": "https://www.brandible.de/", "place": "Dresden",
-             "ctx": "B2B-Werbeartikel für Deutschland, Österreich und die Schweiz, dazu ein Online-Shop für Dresdner Christstollen.",
+             "ctx": "B2B-Werbeartikel für Deutschland, Österreich und die Schweiz.",
              "tree": [("Team", "sieben Personen – drei im Marketing, vier in der Grafik"),
-                      ("Scope", "SEO, Performance Marketing und Leadgenerierung – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM, Newsletter und Marketing Automation; "
-                                "Foto- und Videoproduktion – ein Kundentestimonial mit Hellinger 42[[h42]], ein TV-Dreh für Galileo auf ProSieben[[galileo]]"),
+                      ("Scope", "SEO, Performance Marketing und Leadgenerierung für drei Online-Shops, darunter ein saisonaler für Dresdner Christstollen – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM, Newsletter und Marketing Automation; "
+                                "Foto- und Videoproduktion – ein Kundentestimonial mit Hellinger 42[[h42]] und die Organisation eines TV-Drehs für Galileo auf ProSieben[[galileo]]"),
                       ("Result", "KUR 13,2 → 12,8 % bei ausgebautem Budget; Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %")]},
             {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.de/", "place": "Eilenburg",
              "ctx": "Online-Outlet für Markensportartikel der Vorsaison.",
              "tree": [("Team", "neun Personen – fünf im Marketing, vier im Design"),
-                      ("Scope", "E-Commerce-Betrieb in DE, COM, FR, IT, NL, ES und PL – E-Mail-Automatisierung, Facebook, Instagram, WhatsApp, Telegram und Affiliate Marketing")]},
+                      ("Scope", "E-Commerce-Betrieb für sieben Shops (DE, FR, IT, NL, ES, PL und .com) – E-Mail-Automatisierung, Facebook, Instagram, WhatsApp, Telegram und Affiliate Marketing")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Online-Shops für Wandbilder, Kunstdrucke und Rahmen in über 15 europäischen Ländern.",
              "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
                       ("Scope", "SEA, SEO, Marktplätze, Social Media, Creator Relations und Print-Kooperationen; "
                                 "kanalübergreifendes Reporting mit Google Ads Scripts und Apps Script"),
                       ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")],
-             "path": ("Fünf Stationen", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
-                                             ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italien"),
-                                             ("07/2017", "SEO, freiberuflich")])},
+             "path": ("Drei Beförderungen", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
+                                                 ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italien")],
+                      "Vorzeitig gestartet: SEO, freiberuflich bis zum Umzug nach Deutschland · 07/2017 – 09/2017")},
             {"id": "immobiliare", "when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/", "place": "Rom",
              "tree": [("Scope", "Google Ads und Microsoft Advertising; internationales Marketing für Portale wie LuxuryEstate")]},
             {"id": "youniversal", "when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rom",
              "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social und Native; Leadgenerierung, App-Install- und Retargeting-Kampagnen")]},
-            {"id": "freiberuflich", "when": "2013 – 2020", "title": "Freiberuflich: Websites, Design, Übersetzung", "org": "Neben der Anstellung",
+            {"id": "freiberuflich", "when": "2013 – 2020", "nodur": True, "title": "Freiberuflich: Websites, Design, Übersetzung", "org": "Neben der Anstellung",
              "tree": [("Scope", "WordPress-Websites inkl. Fotografie und Texten in drei Sprachen; Logos, Kataloge und Plakate "
                                 "mit Adobe Creative Cloud; Übersetzungen über TextMaster"),
                       ("Result", "Websites für eine Musikschule und eine Kiteboarding-Schule in Rom")]},
@@ -302,7 +301,7 @@ CONTENT = {
              "positions": ("Sechs Stationen", [
                  ("09/2014", "Business Development Specialist", "3D2B", "http://www.3d2b.com/"),
                  ("04/2014 – 08/2014", "Marketing Consultant", "SBS systems for business solutions", "https://it.sbsbusiness.eu/"),
-                 ("06/2013 – 05/2014", "Corporate Investigations", "Inner Valor", "https://innervalor.com/"),
+                 ("06/2013 – 05/2014", "Competitive Intelligence", "Inner Valor", "https://innervalor.com/"),
                  ("06/2013 – 12/2013", "Marketing & Export DACH", "Fontebona", "http://www.fontebona.com/"),
                  ("04/2012 – 05/2013", "Marktforschung", "Proactive Worldwide, europäische Tochtergesellschaft", "https://www.proactiveworldwide.com/"),
                  ("10/2010 – 09/2011", "Web Marketing Manager", "PaesiOnLine", "https://www.paesionline.it/"),
@@ -684,13 +683,15 @@ def jump(c):
 """
 
 
-def steps(c, label, rows):
+def steps(c, label, rows, note=""):
     """A disclosure with the steps inside one timeline entry, newest first like the timeline itself: title (and company,
     where it changes – linked to its website where there is one), then dates and length. reversed: the list counts down,
-    as the timeline does. rows: (title, company, dates, url) – company and url may be empty."""
+    as the timeline does. rows: (title, company, dates, url) – company and url may be empty. note: one muted line
+    under the list, for what happened before the first step without being one (Posterlounge: the freelance start)."""
     lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {offsite(c, url, e(org)) if url else e(org)}</span>' if org else "")
                   + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span, url in rows)
-    return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n</details>\n'
+    note = f'<p class="note"><span>{e(note)}</span></p>\n' if note else ""
+    return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n{note}</details>\n'
 
 
 def role(c, ro):
@@ -705,12 +706,14 @@ def role(c, ro):
     start = re.search(r"(\d{2})/(\d{4})", ro["when"])
     live = (f' data-from="{start[2]}-{start[1]}" data-units="{",".join(c["dur"])}"'
             if len(re.findall(r"\d{2}/\d{4}", ro["when"])) == 1 else "")
-    when = f'{e(ro["when"])}<br><span class="dur"{live}>{duration(c, months(ro["when"]))}</span>'
+    when = e(ro["when"])
+    if not ro.get("nodur"):                            # nodur: work alongside employment – a length would read as full-time years
+        when += f'<br><span class="dur"{live}>{duration(c, months(ro["when"]))}</span>'
     more = ""
     if ro.get("path"):                                 # promotions, one per contract: its start; it ends the month before the next
-        label, path = ro["path"]
+        label, path, *note = ro["path"]
         ends = [re.findall(r"\d{2}/\d{4}", ro["when"])[-1]] + [before(start) for start, _ in path[:-1]]
-        more += steps(c, label, [(title, "", f"{start} – {end}", "") for (start, title), end in zip(path, ends)])
+        more += steps(c, label, [(title, "", f"{start} – {end}", "") for (start, title), end in zip(path, ends)], *note)
     if ro.get("positions"):                            # the positions it sums up, each at its own company
         label, positions = ro["positions"]
         more += steps(c, label, [(title, org_, when_, url) for when_, title, org_, url in positions])
