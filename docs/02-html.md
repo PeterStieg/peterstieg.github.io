@@ -511,9 +511,9 @@ The drawn arrow:
 <h2 id="h-skills"><span class="no ghost" aria-hidden="true">01</span> P<sup>4</sup></h2>
 <div class="body">
 <div class="fields">
-<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Google Shopping; Meta, LinkedIn, Pinterest; Outbrain, Taboola; Amazon, Otto, Cdiscount – product feeds in PHP and Python, budgets of up to €240k a month. Optimised for RoAS, ACoS and CPL.</p></div>
+<div><h3>Performance</h3><p>Google Ads, Microsoft Advertising, Meta, LinkedIn, Pinterest, Outbrain, Taboola; Amazon, Otto, Cdiscount – product feeds in PHP and Python. Optimised for RoAS, ACoS and CPL.</p></div>
 …
-<div><h3>People</h3><p>International marketing teams of up to nine people, from SEA, print and promotional products to graphic design, including career changers from retail and fine arts. Recruiting and in-house training in SEA, social media and data analysis.</p></div>
+<div><h3>People</h3><p>International marketing and design teams of up to nine, including career changers from retail and fine arts. Recruiting and in-house training in SEA, social media and data analysis.</p></div>
 </div>
 </div>
 </section>
@@ -523,7 +523,7 @@ The drawn arrow:
 - `P<sup>4</sup>` – "P to the power of four" for the four Ps. `<sup>` is meant for typographic conventions that need superscript (exponents, footnote marks), so this is correct use. Screen readers usually ignore the superscript and say "P4"; that is also the section's name in the landmark list.
 - `<div class="fields">` – the section starts straight with its grid: 2 × 2 once the content column is wide enough (a container query, see 03-css). Four `<div>`s, each with an `<h3>` and a `<p>`. Not a list: each block stands on its own with a heading, and headings are more useful for navigation than list items.
 - On the German page the four `<h3>` carry `lang="en"`, because the four Ps stay English.
-- Plain prose in all four, no labels inside: Performance groups its channels with semicolons – search; social; native; marketplaces –, Pixels its work the same way – corporate identity; online; print (19.11.2026). All four run to the same length (20.11.2026): six lines on a phone (390 and 412 px), seven in the two columns of a wide screen (1024 to 1440 px), in both languages – measured, as the line count depends on where the words break. The one exception: the English Pixels at 360 px, six lines instead of seven. A change to any of the texts needs measuring again. At 768 px the four fields stand in one column, 472 px wide: the section has split into heading and content there, and two field columns of 216 px each were too narrow (03-css, Fields of work).
+- Plain prose in all four, no labels inside: Performance groups its channels with a semicolon – ad platforms; marketplaces (25.11.2026) –, Pixels its work the same way – corporate identity; online; print (19.11.2026). All four run to the same length, in both languages and without exception (25.11.2026): five lines on a phone at 360 and 390 px, four at 412, three at 820, five in the two columns of a wide screen (1024 to 1440 px) – measured, as the line count depends on where the words break. The German Pixels names its three products in the order that fits at 412 px, "Beschilderung, Fahrzeugbeklebung und Arbeitskleidung": in the English order, "Fahrzeugbeklebung" wrapped and took a fifth line. A change to any of the texts needs measuring again. At 768 px the four fields stand in one column, 472 px wide: the section has split into heading and content there, and two field columns of 216 px each were too narrow (03-css, Fields of work).
 
 ### Languages
 
@@ -550,7 +550,7 @@ The drawn arrow:
 <div>
 <h3>Head of Marketing</h3>
 <p class="org"><a href="https://www.e-service-check.de/" target="_blank" rel="noopener"><span class="nw">E+SERVICE+CHECK<span class="newtab">…</span></span></a>&nbsp;<span class="place">· Laucha</span></p>
-<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team:</span> two – marketing and support tasks</li><li><span class="k">Scope:</span> marketing, lead generation, design and automation, built from scratch – SEA, SEO, email marketing, events, employer branding</li><li><span class="k">Result:</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark</li></ul>
+<p class="ctx">TÜV-certified electrical safety inspections (DGUV V3/V4), nationwide, 349 employees.</p><ul class="tree"><li><span class="k">Team:</span> two – marketing and marketing assistance</li><li><span class="k">Scope:</span> marketing, lead generation, design and automation, built from scratch – SEA, SEO, email marketing, events, employer branding</li><li><span class="k">Result:</span> inbound inquiries more than doubled year over year; new corporate identity incl. groundwork for an EUIPO trademark application</li></ul>
 </div>
 </li>
 …
@@ -585,17 +585,17 @@ Eleven entries; the first stands for all.
   - The link leads to the course page of that training – the same page as "Course page" in its footnote under Sources, but without `hreflang="en"` there.
   - "· Université Paris 1 Panthéon-Sorbonne" stands outside the link: the ↗ belongs to Liora's page, and the partner is not part of that target. `build.py` writes it from the role's key `with`; the `&nbsp;` comes from `dots()`.
   - "(formerly DataScientest)" stands in Education, not here (see "Education and footnote references").
-- Variants among the eleven entries: some have no `ctx`, one has no place (the freelance entry), some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. Brandible's Scope also carries two footnote references, to the customer video and the TV episode it names (see Sources). Two entries hold more behind a disclosure: Posterlounge its five positions, the last entry six.
-- The freelance entry is the one without months and without a link:
+- Variants among the eleven entries: some have no `ctx`, one has no place (the freelance entry), some have only a Scope line, and the Brandible and Posterlounge entries contain the drawn arrow inside their tree items. Brandible's Scope also carries two footnote references, to the customer video and the TV episode it names (see Sources). Two entries hold more behind a disclosure: Posterlounge its four titles, the last entry its six positions.
+- The freelance entry is the one without months, without a length and without a link:
 
   ```html
-  <p class="when">2013 – 2020<br><span class="dur">8 years</span></p>
+  <p class="when">2013 – 2020</p>
   <div>
   <h3>Freelance: websites, design, translation</h3>
   <p class="org">Alongside employment</p>
   ```
 
-  - Years only, counted January to December: 2013 – 2020 is eight whole years.
+  - Years only, and no length under them (since 25.11.2026; "8 years" before): next to the full-time roles of those years, a length read as eight years of main work. The role key `nodur` in `build.py` leaves out the `<br>` and the `<span class="dur">`.
   - "Alongside employment" in the company line, where the other entries name an employer: the work ran next to the jobs of those years, so the entry overlaps them in the timeline.
   - Its Scope names the work and TextMaster, the platform the translations went through, without a link: TextMaster now belongs to Acolad. Its Result names the two client sites, a music school and a kiteboarding school in Rome – offline today, so no link either.
 
@@ -614,7 +614,7 @@ The company name is the first of 30 links on each page that lead to another webs
 - `<span class="nw">E+SERVICE+CHECK…</span>` – the last word of the link text and the ↗ share a span with `white-space: nowrap`. An `inline-block` is a break opportunity on both sides, so without the span the ↗ could wrap onto a line of its own – on phones 320 to 390 px wide it did. Inside the span, it moves to the next line together with the word. `offsite()` splits the text at its last space (`rpartition(" ")`): "YOUniversal Media" keeps "YOUniversal " outside the span, a one-word text such as "E+SERVICE+CHECK" or "LinkedIn" goes in whole. A word joiner (U+2060) between word and arrow, the usual way to forbid a break, did not stop it in Chromium.
 - `offsite(c, url, text, attrs="", mark=OUT_SVG, kind="")` – extra attributes come in `attrs` and are written as they are: `hreflang="en"` for the course pages, `rel="me noopener"` for the two profiles under Contact. If `attrs` contains a `rel`, the default `rel="noopener"` is left out, so the profile links keep their `me` (see "Contact").
 
-### Experience: five positions behind a disclosure
+### Experience: three promotions behind a disclosure
 
 ```html
 <li class="role" id="posterlounge">
@@ -622,20 +622,22 @@ The company name is the first of 30 links on each page that lead to another webs
 …
 <p class="ctx">Online shops for wall art, art prints and frames in more than 15 European countries.</p><ul class="tree">…</ul>
 <details class="more">
-<summary>Five positions</summary>
-<ol class="tree" reversed><li>Head of Marketing<br><span class="at">09/2021 – 06/2023&nbsp;· 1 year 10 months</span></li><li>Senior Marketing Manager<br><span class="at">10/2020 – 08/2021&nbsp;· 11 months</span></li><li>Online Marketing Manager<br><span class="at">11/2018 – 09/2020&nbsp;· 1 year 11 months</span></li><li>SEO Manager Italy<br><span class="at">10/2017 – 10/2018&nbsp;· 1 year 1 month</span></li><li>SEO, freelance<br><span class="at">07/2017 – 09/2017&nbsp;· 3 months</span></li></ol>
+<summary>Three promotions</summary>
+<ol class="tree" reversed><li>Head of Marketing<br><span class="at">09/2021 – 06/2023&nbsp;· 1 year 10 months</span></li><li>Senior Marketing Manager<br><span class="at">10/2020 – 08/2021&nbsp;· 11 months</span></li><li>Online Marketing Manager<br><span class="at">11/2018 – 09/2020&nbsp;· 1 year 11 months</span></li><li>SEO Manager Italy<br><span class="at">10/2017 – 10/2018&nbsp;· 1 year 1 month</span></li></ol>
+<p class="note"><span>Started early: freelance SEO until the move to Germany&nbsp;· 07/2017 – 09/2017</span></p>
 </details>
 </div>
 </li>
 ```
 
-The heading of the role names the last title, Head of Marketing. The way there took four titles, and each is a real job title that people search for by name. Before the first contract came three months of freelance SEO for the same company, the last row. In the HTML they are text that any search engine or parser finds; behind the disclosure they stay out of the way of a reader who skims the timeline.
+The heading of the role names the last title, Head of Marketing. The way there took four titles, and each is a real job title that people search for by name. The contract was signed first; three months of freelance SEO for the same company bridged the time until the move to Germany – a note under the list, not a row in it. In the HTML they are text that any search engine or parser finds; behind the disclosure they stay out of the way of a reader who skims the timeline.
 
 - `<details class="more">` – the same disclosure as under 2010–2014 (next section), with the same kind of list inside: one item per step.
-- `<summary>Five positions</summary>` – the count of the rows below: four titles under contract and the freelance work before them. "Three promotions" counted only the steps up between the four titles and left the freelance row out of the number. German: "Fünf Stationen", the same noun as for the six early positions.
-- `<ol class="tree" reversed>` – ordered, because the steps are a sequence. It runs newest first, like the timeline around it: Head of Marketing on top, the title the role's heading names, "SEO, freelance" at the bottom. `reversed` counts it down, as on the timeline (see "Experience: a reversed timeline"): Head of Marketing is number 5, "SEO, freelance" number 1. The class gives it the branches of the Team/Scope/Result list; it has no keys, each item is one step. The CSS adds a little space under the summary (`.more .tree`).
-- Each step: the title, a `<br>`, and in `<span class="at">` its dates and length – the same pattern as the role's own dates with their duration. The dates come from the contracts; the four contract steps add up to the role's 5 years 9 months. The freelance row, 07/2017 – 09/2017, lies before the role's own dates, which count the employment. German: "SEO Manager Italien", "SEO, freiberuflich", "1 Jahr 1 Monat".
-- In `build.py` this is the role key `path`: a label and a list of (start, title) pairs, newest first. `role()` computes the ends: the newest step ends with the role, every earlier one the month before the step above it starts – the freelance row 09/2017. It then hands the rows to the function `steps()`, which writes the disclosure; the six positions in the next section go through the same function.
+- `<summary>Three promotions</summary>` – four titles are three steps up, and that is the story the list tells. German: "Drei Beförderungen". From 18 to 25.11.2026 the label read "Five positions" ("Fünf Stationen"), counting the freelance work as a fifth row; but a freelance contract is no position at the company, and its dates lay outside the role's own.
+- `<ol class="tree" reversed>` – ordered, because the steps are a sequence. It runs newest first, like the timeline around it: Head of Marketing on top, the title the role's heading names, SEO Manager Italy at the bottom. `reversed` counts it down, as on the timeline (see "Experience: a reversed timeline"): Head of Marketing is number 4, SEO Manager Italy number 1. The class gives it the branches of the Team/Scope/Result list; it has no keys, each item is one step. The CSS adds a little space under the summary (`.more .tree`).
+- Each step: the title, a `<br>`, and in `<span class="at">` its dates and length – the same pattern as the role's own dates with their duration. The dates come from the contracts; the four steps add up to the role's 5 years 9 months. German: "SEO Manager Italien", "1 Jahr 1 Monat".
+- `<p class="note">` – one line after the list, inside the disclosure: "Started early: freelance SEO until the move to Germany · 07/2017 – 09/2017". "Started early" carries the point – the job was already his, and he began before relocating. Its dates lie before the role's own, which count the employment, so the line gives them without a length. A paragraph, not a list item: it is no step and stays out of the count. Muted and in line with the step titles; the `<span>` makes the text as small as the dates above it (03-css). German: "Vorzeitig gestartet: SEO, freiberuflich bis zum Umzug nach Deutschland · 07/2017 – 09/2017".
+- In `build.py` this is the role key `path`: a label and a list of (start, title) pairs, newest first. `role()` computes the ends: the newest step ends with the role, every earlier one the month before the step above it starts. An optional third item in the key holds the note. It then hands the rows to the function `steps()`, which writes the disclosure; the six positions in the next section go through the same function.
 - `site.js` treats it like every `details.more`: it redraws the minimap when the disclosure opens, and printing shows it open.
 
 ### Experience: six positions behind a disclosure
@@ -658,10 +660,10 @@ The heading of the role names the last title, Head of Marketing. The way there t
 The years 2010 to 2014 stay one entry in the timeline: six positions in and around Rome, summed up as "Six companies" with one Scope line. The single positions are there for anyone who wants them, without making the timeline longer for everyone else. The entry's period runs from the first month of the earliest position to the last month of the latest, 10/2010 – 09/2014, with months like every other employment.
 
 - `<details class="more">` – HTML's built-in disclosure widget. Closed, it shows only its `<summary>`; a click, Enter or Space opens it, and the browser announces the summary as a control that is collapsed or expanded. No JavaScript, no ARIA. The content of a closed `<details>` is not rendered, so screen readers skip it too until it is opened.
-- `<summary>Six positions</summary>` – the label of the toggle, as visible text: number and noun, like "Five positions" under Posterlounge. Browsers draw a small triangle in front of it; the CSS replaces that with a chevron that turns down when the disclosure is open. German: "Sechs Stationen".
+- `<summary>Six positions</summary>` – the label of the toggle, as visible text: number and noun, like "Three promotions" under Posterlounge. Browsers draw a small triangle in front of it; the CSS replaces that with a chevron that turns down when the disclosure is open. German: "Sechs Stationen".
 - `<ol class="tree" reversed>` – the same list as under Posterlounge, written by the same function, `steps()`: one item per position, newest first, counted down like the timeline. Each item is the title, the company, a `<br>`, and in `<span class="at">` the dates and length.
 - The newest row, 3D2B, is one month in Rome, right after SBS: "09/2014 · 1 month", a single date. In the disclosure rather than as an entry of its own, which would weigh like a role of several years.
-- `&nbsp;<span class="muted">· …</span>` – the company, in grey like the issuers under Education. Where its website could be verified, the name is a link like every company's in Experience, with its ↗: 3D2B, SBS (its Italian site), Inner Valor, Fontebona, Proactive Worldwide and PaesiOnLine. Proactive is named as the group people know, with a note for the contract: "Proactive Worldwide, European subsidiary" – the employer was Proactive Europe, which has no website of its own; until 22.11.2026 its name stood there as plain text. Posterlounge's rows have no such span: all five were at one company, named in the role's own line, and `steps()` writes the company only where a row has one. The `&nbsp;` before the span glues the dot to the title, as in the employer line, where a tag sits between space and dot too (see "Non-breaking spaces and middle dots").
+- `&nbsp;<span class="muted">· …</span>` – the company, in grey like the issuers under Education. Where its website could be verified, the name is a link like every company's in Experience, with its ↗: 3D2B, SBS (its Italian site), Inner Valor, Fontebona, Proactive Worldwide and PaesiOnLine. Proactive is named as the group people know, with a note for the contract: "Proactive Worldwide, European subsidiary" – the employer was Proactive Europe, which has no website of its own; until 22.11.2026 its name stood there as plain text. Posterlounge's rows have no such span: all four were at one company, named in the role's own line, and `steps()` writes the company only where a row has one. The `&nbsp;` before the span glues the dot to the title, as in the employer line, where a tag sits between space and dot too (see "Non-breaking spaces and middle dots").
 - No place and no Scope per position: the entry's own lines sum them up, "Six companies · Rome" and the Scope above the disclosure.
 - No heading per position: each title is a list item, not an `<h4>`. Under Experience the outline ends at the entries' `<h3>`.
 - In `build.py` the entry's key `positions` holds the label and one (dates, title, company, url) row per position, newest first. Unlike Posterlounge's rows, each row carries its own dates – a range, or the single month of 3D2B: the positions overlap and leave gaps, so no end can be derived from the next start.
