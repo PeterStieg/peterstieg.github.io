@@ -289,7 +289,7 @@ CONTENT = {
                       ("Result", "…")],
              "path": ("Three promotions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                              ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy")],
-                      "Started early: freelance SEO until the move to Germany · 07/2017 – 09/2017")},
+                      ("Started early: freelance SEO until the move to Germany", "07/2017 – 09/2017"))},
             {"id": "immobiliare", "when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
              "tree": [("Scope", "…")]},
             …
@@ -357,7 +357,7 @@ CONTENT = {
   - Immobiliare.it, 05/2017 – 06/2017, Online Marketing Manager in Rome: an employment, so an entry of its own, between Posterlounge and YOUniversal Media. Each language links its own page of the portal – `immobiliare.it/en/` in English, `immobiliare.it/` in German –, so each dict carries its own `url`.
   - The freelance block, "2013 – 2020", "Alongside employment": websites, design and translations next to the jobs of those years, placed by its start between YOUniversal Media and the early group. Years only, no `place`, no `url`: the client sites are offline. Scope names the work (sites, design, translations; TextMaster without a link – it now belongs to Acolad), Result the two client sites in Rome. No length under the dates (`"nodur": True`, section 24; since 25.11.2026): next to the jobs of those years, "8 years" read as eight years of full-time work.
   - 3D2B, 09/2014, as the first row of the early group, not as an entry: one month in Rome, right after SBS – an entry of its own would weigh like a role of several years. The group now runs to 09/2014, reads "Six companies" and "Six positions", and its Scope names lead generation, OSINT and primary and secondary research.
-- Posterlounge's `path` holds the four titles under contract, behind "Three promotions" (German "Drei Beförderungen"): four titles, three steps up. Its optional third item is a note under the list, "Started early: freelance SEO until the move to Germany · 07/2017 – 09/2017": the contract was signed first, the freelance work bridged the months until the move, so it is no position at Posterlounge and lies outside the role's dates (section 24). Until 25.11.2026 it was a fifth row, "SEO, freelance", under "Five positions" ("Fünf Stationen").
+- Posterlounge's `path` holds the four titles under contract, behind "Three promotions" (German "Drei Beförderungen"): four titles, three steps up. Its optional third item is a note under the list, a pair of text and dates – "Started early: freelance SEO until the move to Germany", "07/2017 – 09/2017" –, so that the dates can be kept on one line (since 26.11.2026): the contract was signed first, the freelance work bridged the months until the move, so it is no position at Posterlounge and lies outside the role's dates (section 24). Until 25.11.2026 it was a fifth row, "SEO, freelance", under "Five positions" ("Fünf Stationen").
 
 ### Every key and what it feeds
 
@@ -408,7 +408,7 @@ Copy:
 | `ledger_label`, `ledger` | str, list of (figure, context, company key) | the results list in the profile; the key looks up the name in `COMPANIES` and links to the role with that `id` |
 | `fields` | list of 4 str | the P⁴ section (key `skills`), paired with `P4` |
 | `languages` | list of str | Languages: one per line, the level after the name |
-| `roles` | list of dicts | Experience: `id` (the anchor of the role: the ledger links to it, the language switch lands on it – every role has one since 19.11.2026), `when` (`"MM/YYYY – MM/YYYY"`; `"since MM/YYYY"` for the role that is still running; `"YYYY – YYYY"` with years only – `months()` reads the dates), `title`, `org` (the name without legal form), `url` (optional: the company's website – for the two trainings the course page –, behind the name, in a new tab), `with` (optional: a partner named after the link, outside it – the Sorbonne for the two trainings), `place` (optional, may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `nodur` (optional: `True` leaves out the length under the dates – the freelance block), `path` (optional: (label, list of (start `"MM/YYYY"`, title), note), newest first – the steps within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts; the note, optional, is one line under the list), `positions` (optional: (label, list of (dates, title, company, url – `""` without one)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates: a range `"MM/YYYY – MM/YYYY"` or a single month `"MM/YYYY"`) |
+| `roles` | list of dicts | Experience: `id` (the anchor of the role: the ledger links to it, the language switch lands on it – every role has one since 19.11.2026), `when` (`"MM/YYYY – MM/YYYY"`; `"since MM/YYYY"` for the role that is still running; `"YYYY – YYYY"` with years only – `months()` reads the dates), `title`, `org` (the name without legal form), `url` (optional: the company's website – for the two trainings the course page –, behind the name, in a new tab), `with` (optional: a partner named after the link, outside it – the Sorbonne for the two trainings), `place` (optional, may be `""`), `ctx` (optional), `tree` (list of (label, text), may be empty), `nodur` (optional: `True` leaves out the length under the dates – the freelance block), `path` (optional: (label, list of (start `"MM/YYYY"`, title), note), newest first – the steps within one role, one per contract, behind a disclosure; the newest ends with the role, each other one the month before the one that followed it starts; the note, optional, is one line under the list: (text, dates)), `positions` (optional: (label, list of (dates, title, company, url – `""` without one)), newest first – the positions one entry sums up, behind a disclosure, each with its own dates: a range `"MM/YYYY – MM/YYYY"` or a single month `"MM/YYYY"`) |
 | `groups` | list of (title, items) | Projects; each item is (name, text, stack, links) – `links` a list of (label, URL) pairs, empty when there is nothing to link; each link opens in a new tab |
 | `facts` | list of (label, value, sub-line or `""`) | Education: year, certificate or degree, school |
 | `reach` | 3-tuple | Contact: the label for the mail row, the label for the place row, the place – in German "E-Mail", "Wohnort" |
@@ -1269,14 +1269,19 @@ The jump control: a narrow vertical pill in the bottom-right corner of the windo
 `steps()` writes the disclosures inside a timeline entry; `role()`, right below it in the file, writes the entry itself and calls `steps()` for them.
 
 ```python
-def steps(c, label, rows, note=""):
+def steps(c, label, rows, note=()):
     """A disclosure with the steps inside one timeline entry, newest first like the timeline itself: title (and company,
     where it changes – linked to its website where there is one), then dates and length. reversed: the list counts down,
-    as the timeline does. rows: (title, company, dates, url) – company and url may be empty. note: one muted line
-    under the list, for what happened before the first step without being one (Posterlounge: the freelance start)."""
+    as the timeline does. rows: (title, company, dates, url) – company and url may be empty. note: (text, dates), one
+    muted line under the list, for what happened before the first step without being one (Posterlounge: the freelance
+    start); its dates never break, like the dates of a role."""
     lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {offsite(c, url, e(org)) if url else e(org)}</span>' if org else "")
                   + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span, url in rows)
-    note = f'<p class="note"><span>{e(note)}</span></p>\n' if note else ""
+    if note:
+        text, dates = note
+        note = f'<p class="note"><span>{e(text)} · <span class="nw">{e(dates)}</span></span></p>\n'
+    else:
+        note = ""
     return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n{note}</details>\n'
 ```
 
@@ -1291,8 +1296,9 @@ def steps(c, label, rows, note=""):
   - `<br><span class="at">{span} · {duration(c, months(span))}</span>` – a line break, then the dates and their length: "04/2014 – 08/2014 · 5 months", or for a single month "09/2014 · 1 month". `months()` counts them, `duration()` puts the count into words (section 22) – the same two functions as for the role's own dates. This ` · ` is plain, so `dots()` glues it later.
   - `span` is the one value inserted without `e()`: digits, slashes and an en dash, nothing HTML reads as markup. Dates with `&` or `<` in them would need `e(span)`.
   - `for title, org, span, url in rows` – unpacks each tuple. The generator spans two lines inside the parentheses of `join()`.
-- `note` – an optional line under the list, `""` by default: what belongs to the entry without being one of its steps. Only Posterlounge passes one, the freelance SEO before the contract (section 8).
-  - `note = f'<p class="note"><span>…</span></p>\n' if note else ""` – the parameter is reused for its own HTML, like `ctx` in `role()` below; empty stays empty, so the six positions get no paragraph. The text is escaped like the titles. Its ` · ` is plain, so `dots()` glues it later.
+- `note` – an optional line under the list, the empty tuple `()` by default: what belongs to the entry without being one of its steps. Only Posterlounge passes one, the freelance SEO before the contract (section 8).
+  - `text, dates = note` – the note comes as a pair, text and date range, like the (start, title) pairs of the path: the code needs the dates on their own to keep them together. Until 26.11.2026 it was one string, and "07/2017 – 09/2017" broke at its spaces – on the English page from 1024 px, the German one at 360 px (measured).
+  - `f'<p class="note"><span>{e(text)} · <span class="nw">{e(dates)}</span></span></p>\n'` – the parameter is reused for its own HTML, like `ctx` in `role()` below; with no note it becomes `""`, so the six positions get no paragraph. Both parts are escaped like the titles. The ` · ` between them is plain, so `dots()` glues it to the text later; the dates sit in the `nw` span the off-site links use for their last word (section 20), `white-space: nowrap`: the line may break before the dates, never inside them.
   - The `<span>` carries the smaller size, the paragraph the indent – as in a step, where the `<li>` is indented and its `<span class="at">` is small. So the note lines up with the step titles and its lines sit as far apart as their dates (chapter 3).
   - A `<p>` after the list, not an `<li>` in it: the note is not a step, so it stays out of the list and out of its count. `.more .note` sets it muted, in line with the step titles (chapter 3).
 - `<details class="more">` with `<summary>` – the native disclosure, as in the jump control (section 23): closed by default, opened by click or keyboard, announced as collapsed or expanded. `site.js` adds two things: it redraws the minimap when a disclosure opens, because the page just got longer, and it opens the disclosures for printing (chapter 4).
@@ -1361,7 +1367,7 @@ The disclosures:
 
 - `more` – up to two disclosures, collected into one string. It starts empty, and each `+=` appends one, in a fixed order: first `path`, then `positions`. Today each entry has at most one of them. Both branches only build the (title, company, range) rows; `steps()` writes the HTML.
 - `path` – used by Posterlounge: the four titles held within that one role, behind "Three promotions", each with its dates and its length, and under them a note on the freelance SEO before the contract. The titles are the words people search for; in the disclosure they are part of the page's text without lengthening the timeline. The context line, `ctx`, describes the company only.
-  - `label, path, *note = ro["path"]` – the summary text, the list of (start, title) pairs, newest first, and the note. The star collects whatever follows the first two items into a list: `["Started early: …"]` for Posterlounge's three items, `[]` for a tuple of two. `steps(…, *note)` unpacks it again – one argument or none, and with none `steps()` falls back to its default `""`. Only the starts are stored, as the contracts give them (section 8): 09/2021, 10/2020, 11/2018, 10/2017.
+  - `label, path, *note = ro["path"]` – the summary text, the list of (start, title) pairs, newest first, and the note. The star collects whatever follows the first two items into a list: `[("Started early: …", "07/2017 – 09/2017")]` for Posterlounge's three items, `[]` for a tuple of two. `steps(…, *note)` unpacks it again – one argument or none, and with none `steps()` falls back to its default `()`. Only the starts are stored, as the contracts give them (section 8): 09/2021, 10/2020, 11/2018, 10/2017.
   - `ends` – one end per step, in the same order as the steps. The newest step ends with the role: `re.findall(…)[-1]` is the last date of its `when`, 06/2023, in a list of its own. Every other step ends the month before the step above it in the list starts – the one that followed it in time: `before(start) for start, _ in path[:-1]` takes the starts of all steps but the oldest and steps each back by a month (section 22). `[:-1]` is a slice without the last item: the oldest start, 10/2017, is where the path begins, and no step ends before it. The underscore is the usual name for a value that is unpacked but not used, here the title. `+` joins the two lists: `["06/2023", "08/2021", "09/2020", "10/2018"]`.
   - `zip(path, ends)` – pairs the n-th step with the n-th end. `(start, title), end` unpacks each pair: the step's tuple on the left, its end on the right. Head of Marketing gets 06/2023; Senior Marketing Manager gets 08/2021, the month before Head of Marketing began.
   - `(title, "", f"{start} – {end}", "")` – one row for `steps()`: the title, no company, the range as text and no url, "10/2017 – 10/2018". `steps()` adds the length. The four steps add up to the role's 69 months. The freelance months before the contract are no step: they lie outside the role's dates, which count the employment, so the note names them as text, with their dates and without a length.
@@ -1844,6 +1850,7 @@ TORCH = [
     (".fields h3, .fields p", "p4 = \"\".join(f'<div><h3", 1),
     (".more summary", '<details class="more">', 1),
     (".more .tree li", "lis = \"\".join(f'<li>{e(title)}'", 3),
+    (".more .note", "text, dates = note", 2),
     (".role .when", '<p class="when">{when}</p>', 1),
     (".role h3", "<h3>{e(ro['title'])}</h3>", 1),
     (".role .org", '<p class="org">{org}{place}</p>', 1),
@@ -1892,7 +1899,7 @@ The torch (chapter 4) has two levels. The first shows each block of text as HTML
 - `TORCH` – one rule per kind of element: a CSS selector, a snippet of this file, a number of lines.
   - The selector names the elements on the page, as `site.js` will test them with `el.matches()`. `".ledger dt, .ledger dd"` – a selector list, either one.
   - The snippet is a piece of the template line that writes those elements, long enough to occur on exactly one line: `'<p class="hw">'` finds the line in `page()` that writes the dictionary entry's headword.
-  - The number says how many lines to show from there: 2 for the ledger, whose f-string spans two lines; 3 for the steps behind a disclosure; 5 for a video note, from the `if` to its `append`.
+  - The number says how many lines to show from there: 2 for the ledger, whose f-string spans two lines; 3 for the steps behind a disclosure; 2 for the note under them, from the line that takes its pair apart (since 26.11.2026 – until then the note showed its HTML only); 5 for a video note, from the `if` to its `append`.
   - Order matters, because `site.js` takes the first rule that matches: `.facts:has(a[href^='mailto:'])` – the list that holds the mail link, Contact – comes before `.facts`, which would also match Contact but means Education.
   - No ids in the selectors: the ids are localized (`#contact` is `#kontakt` in German, section 8), the classes are not. `:has()` picks the list by what it contains instead.
   - The Sources have two rules: `.notes li:has(cite)` – a video note, the only kind with a `<cite>` – before `.notes li`, which would match it too and means the credentials. Both point into the same loop; the credentials' rule shows the line both kinds start with, `back = …`.

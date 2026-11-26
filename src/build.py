@@ -165,7 +165,7 @@ CONTENT = {
                       ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")],
              "path": ("Three promotions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                              ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy")],
-                      "Started early: freelance SEO until the move to Germany · 07/2017 – 09/2017")},
+                      ("Started early: freelance SEO until the move to Germany", "07/2017 – 09/2017"))},
             {"id": "immobiliare", "when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
              "tree": [("Scope", "Google Ads and Microsoft Advertising; international marketing for portals such as LuxuryEstate")]},
             {"id": "youniversal", "when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rome",
@@ -286,7 +286,7 @@ CONTENT = {
                       ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")],
              "path": ("Drei Beförderungen", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                                  ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italien")],
-                      "Vorzeitig gestartet: SEO, freiberuflich bis zum Umzug nach Deutschland · 07/2017 – 09/2017")},
+                      ("Vorzeitig gestartet: SEO, freiberuflich bis zum Umzug nach Deutschland", "07/2017 – 09/2017"))},
             {"id": "immobiliare", "when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/", "place": "Rom",
              "tree": [("Scope", "Google Ads und Microsoft Advertising; internationales Marketing für Portale wie LuxuryEstate")]},
             {"id": "youniversal", "when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rom",
@@ -683,14 +683,19 @@ def jump(c):
 """
 
 
-def steps(c, label, rows, note=""):
+def steps(c, label, rows, note=()):
     """A disclosure with the steps inside one timeline entry, newest first like the timeline itself: title (and company,
     where it changes – linked to its website where there is one), then dates and length. reversed: the list counts down,
-    as the timeline does. rows: (title, company, dates, url) – company and url may be empty. note: one muted line
-    under the list, for what happened before the first step without being one (Posterlounge: the freelance start)."""
+    as the timeline does. rows: (title, company, dates, url) – company and url may be empty. note: (text, dates), one
+    muted line under the list, for what happened before the first step without being one (Posterlounge: the freelance
+    start); its dates never break, like the dates of a role."""
     lis = "".join(f'<li>{e(title)}' + (f'&nbsp;<span class="muted">· {offsite(c, url, e(org)) if url else e(org)}</span>' if org else "")
                   + f'<br><span class="at">{span} · {duration(c, months(span))}</span></li>' for title, org, span, url in rows)
-    note = f'<p class="note"><span>{e(note)}</span></p>\n' if note else ""
+    if note:
+        text, dates = note
+        note = f'<p class="note"><span>{e(text)} · <span class="nw">{e(dates)}</span></span></p>\n'
+    else:
+        note = ""
     return f'<details class="more">\n<summary>{e(label)}</summary>\n<ol class="tree" reversed>{lis}</ol>\n{note}</details>\n'
 
 
@@ -974,6 +979,7 @@ TORCH = [
     (".fields h3, .fields p", "p4 = \"\".join(f'<div><h3", 1),
     (".more summary", '<details class="more">', 1),
     (".more .tree li", "lis = \"\".join(f'<li>{e(title)}'", 3),
+    (".more .note", "text, dates = note", 2),
     (".role .when", '<p class="when">{when}</p>', 1),
     (".role h3", "<h3>{e(ro['title'])}</h3>", 1),
     (".role .org", '<p class="org">{org}{place}</p>', 1),
