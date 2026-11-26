@@ -49,6 +49,9 @@ Why the site looks and reads the way it does. Newest first within each topic; ch
   - The two trainings: Results "certified MLOps Engineer" and "certified Data Scientist" (DE "zertifizierter …"). The capstones are told once, under Projects.
   - Freelance block: no length under "2013 – 2020". Next to the full-time roles of those years, "8 years" read as eight years of main work; "Alongside employment" says what it was.
   - Posterlounge: "Three promotions" (DE "Drei Beförderungen") for the four titles. The freelance SEO leaves the list for a note under it – "Started early: freelance SEO until the move to Germany · 07/2017 – 09/2017" (DE "Vorzeitig gestartet: SEO, freiberuflich bis zum Umzug nach Deutschland · …"): the contract came first, the freelance months bridged the time until the move, so they were no position at the company and lie outside the role's dates.
+- **Seventh pass** (26.11.2026), from a review of the ten roles:
+  - The note under Posterlounge's steps keeps its date range on one line. As one string, "07/2017 – 09/2017" broke at its spaces – in English from 1024 px, in German at 360 px. Text and dates are now a pair, and the dates sit in the `nw` span the off-site links already use.
+  - The note shows its code under the torch, like every other block; since 25.11.2026 it had shown its HTML only.
 - **Not on the site:** recommendations as quotes, photo (pending).
 
 ## Design
