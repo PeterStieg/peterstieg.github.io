@@ -221,7 +221,7 @@ STACK_MLOPS = "Docker · Airflow · MLflow · FastAPI · Grafana"
 ```
 
 - `NOTES` – a dict of dicts. The outer key (`"ds"`, `"mlops"`, `"ihk"`, `"edx"`, `"h42"`, `"galileo"`) is the footnote ID: it appears in the `[[ds]]` markers in the copy and in the HTML ids `fn-ds` and `ref-ds`.
-- Two kinds of note. Four are credentials, with `verify`. Two are videos, with `watch`, cited from Brandible's Scope (since 19.11.2026): the customer testimonial with Hellinger 42 on Brandible's YouTube channel, and the Galileo episode on ProSieben, on demand at Joyn. The Sources loop in `page()` tells them apart by `watch` (section 25).
+- Two kinds of note. Four are credentials, with `verify`. Two are videos, with `watch`, cited from Brandible's Result (since 27.11.2026; from 19.11.2026 its Scope): the customer testimonial with Hellinger 42 on Brandible's YouTube channel, and the Galileo episode on ProSieben, on demand at Joyn. The Sources loop in `page()` tells them apart by `watch` (section 25).
 - Inner keys:
   - `title` – the credential's name. One string when it is the same in both languages, a dict with one string per language when not (the IHK certificate). `note_title()` (section 12) picks the right one.
   - `verify` – the verification page: the URL behind the QR code on the Liora diplomas, the certificate pages on thekey.career and edX.

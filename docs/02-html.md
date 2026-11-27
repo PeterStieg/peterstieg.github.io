@@ -470,7 +470,7 @@ The section opens with the word "marketinkerer", set like an entry in a dictiona
 <p>Online marketing since 2010 – leadership roles at four companies, with marketing and design teams of up to nine people in e-commerce and B2B. Certified Data Scientist and MLOps Engineer.</p>
 <dl class="ledger" aria-label="Selected results">
 <div><dt>Leads &gt; 2×</dt><dd>inbound inquiries year over year<br><a href="#e-service-check">E+SERVICE+CHECK<span class="jmp"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.7M3.4 8.8 8 13.4l4.6-4.6"/></svg></span></a></dd></div>
-<div><dt>RoAS 7.6 <span class="arr"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg><span class="sr-only">to</span></span> 7.8</dt><dd>on an expanded €1.7m budget<br><a href="#brandible">Brandible<span class="jmp">…</span></a></dd></div>
+<div><dt>RoAS 7.6 <span class="arr"><svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M1 5h13.5M10 1.2 14 5l-4 3.8"/></svg><span class="sr-only">to</span></span> 7.8</dt><dd>with spend up 8.8% to €1.7m<br><a href="#brandible">Brandible<span class="jmp">…</span></a></dd></div>
 <div><dt>Media budget €6k <span class="arr">…<span class="sr-only">to</span></span> €240k</dt><dd>per month, at a RoAS of 4.0<br><a href="#posterlounge">Posterlounge<span class="jmp">…</span></a></dd></div>
 </dl>
 ```

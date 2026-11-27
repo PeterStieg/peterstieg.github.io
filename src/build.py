@@ -116,7 +116,7 @@ CONTENT = {
         "ledger_label": "Selected results",
         "ledger": [
             ("Leads > 2×", "inbound inquiries year over year", "e-service-check"),
-            ("RoAS 7.6 → 7.8", "on an expanded €1.7m budget", "brandible"),
+            ("RoAS 7.6 → 7.8", "with spend up 8.8% to €1.7m", "brandible"),
             ("Media budget €6k → €240k", "per month, at a RoAS of 4.0", "posterlounge"),
         ],
         "fields": [
@@ -150,26 +150,28 @@ CONTENT = {
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Head of Marketing", "org": "Brandible by KSi International", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B promotional products for Germany, Austria and Switzerland.",
              "tree": [("Team", "seven – three in marketing, four in graphic design"),
-                      ("Scope", "SEO, performance marketing and lead generation for three online shops, one of them seasonal for Dresden Christstollen – €1.7m across Google Ads, Microsoft Advertising, Meta and LinkedIn; CRM, newsletters and marketing automation; "
-                                "photo and video production – a customer testimonial with Hellinger 42[[h42]] and the organisation of a TV shoot for ProSieben’s Galileo[[galileo]]"),
-                      ("Result", "RoAS 7.6 → 7.8 on an expanded budget; Microsoft Advertising +45% revenue at a RoAS of 9.9")]},
+                      ("Scope", "SEO, performance marketing and lead generation for three online shops, one of them seasonal for Dresden Christstollen; "
+                                "CRM, marketing automation, photo and video production, incl. the organisation of a TV shoot"),
+                      ("Result", "RoAS 7.6 → 7.8 with spend up 8.8% to €1.7m; Microsoft Advertising +45% revenue at a RoAS of 9.9; "
+                                 "a customer testimonial with Hellinger 42[[h42]] and a TV feature on ProSieben’s Galileo[[galileo]]")]},
             {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.com/", "place": "Eilenburg",
              "ctx": "Off-price online outlet for branded sportswear from previous seasons.",
              "tree": [("Team", "nine – five in marketing, four in design"),
-                      ("Scope", "e-commerce operations for seven shops (DE, FR, IT, NL, ES, PL and .com) – email automation, Facebook, Instagram, WhatsApp, Telegram and affiliate marketing")]},
+                      ("Scope", "line management and e-commerce operations for seven shops (DE, FR, IT, NL, ES, PL and .com) – email automation, Facebook, Instagram, WhatsApp, Telegram and affiliate marketing")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Online shops for wall art, art prints and frames in more than 15 European countries.",
-             "tree": [("Team", "six – SEA, SEO, social, influencer, offline marketing, design"),
+             "tree": [("Team", "six – five in marketing, one in design"),
                       ("Scope", "SEA, SEO, marketplaces, social media, creator relations and print partnerships; "
                                 "cross-channel reporting with Google Ads Scripts and Apps Script"),
-                      ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0")],
+                      ("Result", "17 shops in 12 languages; media budget €6k → €240k a month at a RoAS of 4.0; Instagram followers 4.7k → 100k")],
              "path": ("Three promotions", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                              ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italy")],
                       ("Started early: freelance SEO until the move to Germany", "07/2017 – 09/2017"))},
             {"id": "immobiliare", "when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/en/", "place": "Rome",
              "tree": [("Scope", "Google Ads and Microsoft Advertising; international marketing for portals such as LuxuryEstate")]},
             {"id": "youniversal", "when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rome",
-             "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social and native; lead generation, app install and retargeting campaigns")]},
+             "tree": [("Scope", "client and in-house accounts for DE, FR, IT, SE, UK and US – search, social and native; lead generation, app install and retargeting campaigns"),
+                      ("Result", "€1.1m ad spend in twelve months; 6.6m clicks at an average CPC of €0.17")]},
             {"id": "freelance", "when": "2013 – 2020", "nodur": True, "title": "Freelance: websites, design, translation", "org": "Alongside employment",
              "tree": [("Scope", "WordPress websites incl. photography and copy in three languages; logos, catalogues and posters "
                                 "in Adobe Creative Cloud; translations via TextMaster"),
@@ -189,7 +191,7 @@ CONTENT = {
         "groups": [
             ("At E+SERVICE+CHECK", [
                 ("Customer portal", "Moved to a company-owned Azure tenant with separate production and staging. Running cloud costs: a fraction of before.", "Azure", []),
-                ("Call and inquiry pipeline", "More than half a million calls, two phone systems, 15 web forms on 13 websites – joined with Odoo master data.", "Python · BigQuery · Data Studio", []),
+                ("Call and inquiry pipeline", "More than half a million calls, two phone systems, 15 web forms on 13 websites – joined with Odoo master data. Shows when customers call, whether they get through, and which pages and paid clicks bring web inquiries.", "Python · BigQuery · Data Studio", []),
                 ("PRUEF+CHECK", "Rule-based validation of inspection checklists instead of manual Excel checks. From requirement to go-live: five days.", "Streamlit · Azure", []),
                 ("Document extraction", "Around 14,000 unstructured supplier documents turned into structured records for ERP import.", "Python · Claude API", []),
             ]),
@@ -236,7 +238,7 @@ CONTENT = {
         "ledger_label": "Ausgewählte Ergebnisse",
         "ledger": [
             ("Leads > 2×", "Anfragen im Jahresvergleich", "e-service-check"),
-            ("KUR 13,2 → 12,8 %", "bei ausgebautem Budget von 1,7 Mio. €", "brandible"),
+            ("KUR 13,2 → 12,8 %", "bei 8,8 % mehr Budget (1,7 Mio. €)", "brandible"),
             ("Budget 6.000 → 240.000 €", "im Monat, bei einer KUR von 25 %", "posterlounge"),
         ],
         "fields": [
@@ -260,9 +262,8 @@ CONTENT = {
              "tree": [("Scope", "Container, Orchestrierung, Tracking, APIs und Monitoring – Docker, Airflow, MLflow, FastAPI, Grafana"),
                       ("Result", "zertifizierter MLOps Engineer")]},
             {"id": "rapidobject", "when": "03/2025 – 07/2025", "title": "Marketing & UX-Design (Teilzeit)", "org": "Rapidobject", "url": "https://www.rapidobject.com/", "place": "Leipzig",
-             "tree": [("Scope", "UI-Konzeption, Usability-Tests und Preislogik in Python; Begleitung der Migration der Marketing Automation von "
-                                "ActiveCampaign zu Salesforce; Kommunikation und Übersetzung zwischen der Führung "
-                                "von Rapidobject und dem Londoner Partner AMFG"),
+             "tree": [("Scope", "UI-Konzeption, Usability-Tests und Preislogik in Python; Begleitung der Migration von ActiveCampaign zu Salesforce; "
+                                "Kommunikation und Übersetzung zwischen der Führung und dem Londoner Partner AMFG"),
                       ("Result", "Salesforce-Dashboards, eingebunden in den Vertriebsprozess")]},
             {"id": "liora-ds", "when": "02/2025 – 05/2025", "title": "Weiterbildung Data Scientist",
              "org": "Liora", "url": NOTES["ds"]["course"], "with": "Université Paris 1 Panthéon-Sorbonne", "place": "Remote",
@@ -271,26 +272,28 @@ CONTENT = {
             {"id": "brandible", "when": "11/2023 – 12/2024", "title": "Marketingleiter", "org": "Brandible by KSi International", "url": "https://www.brandible.de/", "place": "Dresden",
              "ctx": "B2B-Werbeartikel für Deutschland, Österreich und die Schweiz.",
              "tree": [("Team", "sieben Personen – drei im Marketing, vier in der Grafik"),
-                      ("Scope", "SEO, Performance Marketing und Leadgenerierung für drei Online-Shops, darunter ein saisonaler für Dresdner Christstollen – 1,7 Mio. € über Google Ads, Microsoft Advertising, Meta und LinkedIn; CRM, Newsletter und Marketing Automation; "
-                                "Foto- und Videoproduktion – ein Kundentestimonial mit Hellinger 42[[h42]] und die Organisation eines TV-Drehs für Galileo auf ProSieben[[galileo]]"),
-                      ("Result", "KUR 13,2 → 12,8 % bei ausgebautem Budget; Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %")]},
+                      ("Scope", "SEO, Performance Marketing und Leadgenerierung für drei Online-Shops, darunter ein saisonaler für Dresdner Christstollen; "
+                                "CRM, Marketing Automation, Foto- und Videoproduktion inkl. Organisation eines TV-Drehs"),
+                      ("Result", "KUR 13,2 → 12,8 % bei 8,8 % mehr Budget (1,7 Mio. €); Microsoft Advertising +45 % Umsatz bei einer KUR von 10,1 %; "
+                                 "ein Kundentestimonial mit Hellinger 42[[h42]] und ein TV-Beitrag in Galileo auf ProSieben[[galileo]]")]},
             {"id": "sportspar", "when": "07/2023 – 10/2023", "title": "Chief Operating Officer", "org": "SportSpar", "url": "https://www.sportspar.de/", "place": "Eilenburg",
              "ctx": "Online-Outlet für Markensportartikel der Vorsaison.",
              "tree": [("Team", "neun Personen – fünf im Marketing, vier im Design"),
-                      ("Scope", "E-Commerce-Betrieb für sieben Shops (DE, FR, IT, NL, ES, PL und .com) – E-Mail-Automatisierung, Facebook, Instagram, WhatsApp, Telegram und Affiliate Marketing")]},
+                      ("Scope", "Personalverantwortung und E-Commerce-Betrieb für sieben Shops (DE, FR, IT, NL, ES, PL und .com) – E-Mail-Automatisierung, Facebook, Instagram, WhatsApp, Telegram und Affiliate Marketing")]},
             {"id": "posterlounge", "when": "10/2017 – 06/2023", "title": "Head of Marketing", "org": "Posterlounge", "url": "https://posterlounge.com/shop", "place": "Leipzig",
              "ctx": "Online-Shops für Wandbilder, Kunstdrucke und Rahmen in über 15 europäischen Ländern.",
-             "tree": [("Team", "sechs Personen – SEA, SEO, Social Media, Influencer, klassisches Marketing, Grafik"),
+             "tree": [("Team", "sechs Personen – fünf im Marketing, eine in der Grafik"),
                       ("Scope", "SEA, SEO, Marktplätze, Social Media, Creator Relations und Print-Kooperationen; "
                                 "kanalübergreifendes Reporting mit Google Ads Scripts und Apps Script"),
-                      ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %")],
+                      ("Result", "17 Shops in 12 Sprachen; Mediabudget 6.000 → 240.000 € im Monat bei einer KUR von 25 %; Instagram-Follower 4.700 → 100.000")],
              "path": ("Drei Beförderungen", [("09/2021", "Head of Marketing"), ("10/2020", "Senior Marketing Manager"),
                                                  ("11/2018", "Online Marketing Manager"), ("10/2017", "SEO Manager Italien")],
                       ("Vorzeitig gestartet: SEO, freiberuflich bis zum Umzug nach Deutschland", "07/2017 – 09/2017"))},
             {"id": "immobiliare", "when": "05/2017 – 06/2017", "title": "Online Marketing Manager", "org": "Immobiliare.it", "url": "https://www.immobiliare.it/", "place": "Rom",
              "tree": [("Scope", "Google Ads und Microsoft Advertising; internationales Marketing für Portale wie LuxuryEstate")]},
             {"id": "youniversal", "when": "10/2014 – 04/2017", "title": "Online Marketing Manager", "org": "YOUniversal Media", "url": "https://www.youniversal.com/", "place": "Rom",
-             "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social und Native; Leadgenerierung, App-Install- und Retargeting-Kampagnen")]},
+             "tree": [("Scope", "Kunden- und In-House-Accounts für DE, FR, IT, SE, UK und US – Search, Social und Native; Leadgenerierung, App-Install- und Retargeting-Kampagnen"),
+                      ("Result", "1,1 Mio. € Werbeausgaben in zwölf Monaten; 6,6 Mio. Klicks bei durchschnittlich 0,17 € CPC")]},
             {"id": "freiberuflich", "when": "2013 – 2020", "nodur": True, "title": "Freiberuflich: Websites, Design, Übersetzung", "org": "Neben der Anstellung",
              "tree": [("Scope", "WordPress-Websites inkl. Fotografie und Texten in drei Sprachen; Logos, Kataloge und Plakate "
                                 "mit Adobe Creative Cloud; Übersetzungen über TextMaster"),
@@ -310,7 +313,7 @@ CONTENT = {
         "groups": [
             ("Bei E+SERVICE+CHECK", [
                 ("Kundenportal", "Umzug in einen eigenen Azure-Tenant mit getrennter Produktion und Staging. Laufende Cloud-Kosten: ein Bruchteil von vorher.", "Azure", []),
-                ("Anruf- und Anfragen-Pipeline", "Über eine halbe Million Anrufe, zwei Telefonanlagen, 15 Webformulare auf 13 Websites – verknüpft mit Odoo-Stammdaten.", "Python · BigQuery · Data Studio", []),
+                ("Anruf- und Anfragen-Pipeline", "Über eine halbe Million Anrufe, zwei Telefonanlagen, 15 Webformulare auf 13 Websites – verknüpft mit Odoo-Stammdaten. Zeigt, wann Kunden anrufen, ob sie durchkommen und welche Seiten und Anzeigenklicks Webanfragen bringen.", "Python · BigQuery · Data Studio", []),
                 ("PRUEF+CHECK", "Regelbasierte Validierung von Prüflisten statt manueller Excel-Kontrolle. Von der Anforderung bis zum Go-live: fünf Tage.", "Streamlit · Azure", []),
                 ("Dokumentenextraktion", "Rund 14.000 unstrukturierte Lieferantendokumente als strukturierte Datensätze für den ERP-Import.", "Python · Claude API", []),
             ]),
